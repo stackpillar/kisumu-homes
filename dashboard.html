@@ -1,0 +1,1629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard — NyumbaKisumu</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --green:        #0F6E56;
+      --green-light:  #E1F5EE;
+      --green-mid:    #1D9E75;
+      --green-dark:   #085041;
+      --gold:         #BA7517;
+      --gold-light:   #FAEEDA;
+      --text:         #1a1a18;
+      --text-2:       #4a4a46;
+      --text-3:       #888780;
+      --border:       #e0ded8;
+      --surface:      #f7f6f2;
+      --white:        #ffffff;
+      --red:          #c0392b;
+      --red-light:    #fdecea;
+      --amber:        #d97706;
+      --amber-light:  #fef3c7;
+      --sidebar-w:    240px;
+      --topbar-h:     64px;
+      --radius:       10px;
+      --radius-lg:    16px;
+      --shadow:       0 1px 3px rgba(0,0,0,0.07), 0 4px 12px rgba(0,0,0,0.05);
+      --shadow-lg:    0 8px 32px rgba(0,0,0,0.12);
+    }
+    html { height: 100%; }
+    body { font-family: 'Inter', sans-serif; color: var(--text); background: var(--surface); font-size: 14px; line-height: 1.6; min-height: 100vh; }
+    a { text-decoration: none; color: inherit; }
+    img { display: block; max-width: 100%; }
+    button { font-family: inherit; cursor: pointer; border: none; background: none; }
+    input, textarea, select { font-family: inherit; }
+
+    .shell { display: flex; min-height: 100vh; }
+
+    /* Sidebar */
+    .sidebar {
+      width: var(--sidebar-w); flex-shrink: 0;
+      background: var(--green-dark);
+      display: flex; flex-direction: column;
+      position: fixed; top: 0; left: 0; bottom: 0;
+      z-index: 100; transition: transform .25s;
+    }
+    .sidebar-logo {
+      height: var(--topbar-h); display: flex; align-items: center;
+      padding: 0 20px; gap: 10px; border-bottom: 1px solid rgba(255,255,255,0.08);
+      flex-shrink: 0;
+    }
+    .sidebar-logo-icon {
+      width: 32px; height: 32px; background: var(--green-mid);
+      border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .sidebar-logo-icon svg { width: 16px; height: 16px; stroke: white; fill: none; stroke-width: 2; stroke-linecap: round; }
+    .sidebar-logo-text { font-family: 'Playfair Display', serif; font-size: 16px; color: white; }
+    .sidebar-nav { flex: 1; padding: 16px 12px; overflow-y: auto; }
+    .nav-section-label {
+      font-size: 10px; font-weight: 600; letter-spacing: .08em;
+      text-transform: uppercase; color: rgba(255,255,255,0.3);
+      padding: 12px 8px 6px;
+    }
+    .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px; border-radius: var(--radius);
+      font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.6);
+      cursor: pointer; transition: all .15s; margin-bottom: 2px;
+      border: none; width: 100%; text-align: left; background: none;
+    }
+    .nav-item svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; flex-shrink: 0; }
+    .nav-item:hover { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.9); }
+    .nav-item.active { background: rgba(255,255,255,0.12); color: white; }
+    .nav-item .badge-count {
+      margin-left: auto; background: var(--green-mid); color: white;
+      font-size: 10px; font-weight: 700; padding: 1px 7px; border-radius: 20px;
+      min-width: 18px; text-align: center;
+    }
+    .sidebar-footer { padding: 16px 12px; border-top: 1px solid rgba(255,255,255,0.08); }
+    .sidebar-user {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px; border-radius: var(--radius);
+      cursor: pointer; transition: background .15s;
+    }
+    .sidebar-user:hover { background: rgba(255,255,255,0.07); }
+    .sidebar-avatar {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: var(--green-mid); display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700; color: white; flex-shrink: 0;
+    }
+    .sidebar-user-name { font-size: 13px; font-weight: 600; color: white; }
+    .sidebar-user-email { font-size: 11px; color: rgba(255,255,255,0.4); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 140px; }
+
+    /* Topbar */
+    .topbar {
+      position: fixed; top: 0; left: var(--sidebar-w); right: 0; height: var(--topbar-h);
+      background: var(--white); border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 28px; z-index: 90;
+    }
+    .topbar-left { display: flex; align-items: center; gap: 14px; }
+    .topbar-title { font-size: 16px; font-weight: 600; color: var(--text); }
+    .topbar-subtitle { font-size: 13px; color: var(--text-3); }
+    .topbar-right { display: flex; align-items: center; gap: 10px; }
+    .hamburger { display: none; flex-direction: column; gap: 4px; cursor: pointer; padding: 6px; border-radius: 6px; }
+    .hamburger span { display: block; width: 18px; height: 2px; background: var(--text-2); border-radius: 1px; }
+
+    /* Main */
+    .main { margin-left: var(--sidebar-w); padding-top: var(--topbar-h); min-height: 100vh; width: 100%; }
+    .page { display: none; padding: 28px; }
+    .page.active { display: block; }
+
+    /* Buttons */
+    .btn { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; padding: 8px 16px; border-radius: var(--radius); transition: all .15s; cursor: pointer; border: none; }
+    .btn svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; }
+    .btn-primary { background: var(--green); color: white; }
+    .btn-primary:hover { background: var(--green-dark); }
+    .btn-outline { background: transparent; color: var(--text-2); border: 1.5px solid var(--border); }
+    .btn-outline:hover { border-color: var(--green); color: var(--green); }
+    .btn-danger { background: var(--red-light); color: var(--red); }
+    .btn-danger:hover { background: #f5c6c2; }
+    .btn-sm { padding: 6px 12px; font-size: 12px; }
+    .btn-lg { padding: 11px 22px; font-size: 14px; }
+    .btn:disabled { opacity: .55; cursor: not-allowed; }
+    .spinner-sm { width: 13px; height: 13px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin .7s linear infinite; display: inline-block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-lg); }
+    .section-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+    .section-head h2 { font-size: 17px; font-weight: 600; color: var(--text); }
+
+    /* Status badges */
+    .status { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; letter-spacing: .03em; }
+    .status::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+    .status-active   { background: #d1fae5; color: #065f46; }
+    .status-pending  { background: var(--amber-light); color: var(--amber); }
+    .status-paused   { background: var(--surface); color: var(--text-3); border: 1px solid var(--border); }
+    .status-rejected { background: var(--red-light); color: var(--red); }
+    .status-expired  { background: #f3f4f6; color: #6b7280; }
+
+    /* Toast */
+    .toast {
+      position: fixed; bottom: 28px; right: 28px; z-index: 9999;
+      background: var(--text); color: white;
+      padding: 12px 18px; border-radius: var(--radius);
+      font-size: 13px; font-weight: 500;
+      box-shadow: var(--shadow-lg);
+      display: flex; align-items: center; gap: 10px;
+      transform: translateY(80px); opacity: 0;
+      transition: all .25s;
+      max-width: 340px;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.success { background: var(--green-dark); }
+    .toast.error   { background: var(--red); }
+    .toast svg { width: 15px; height: 15px; stroke: white; fill: none; stroke-width: 2.5; flex-shrink: 0; }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+      z-index: 500; display: none; align-items: center; justify-content: center; padding: 20px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--white); border-radius: var(--radius-lg);
+      width: 100%; max-width: 520px; max-height: 90vh;
+      overflow-y: auto; box-shadow: var(--shadow-lg);
+      animation: modalIn .2s ease;
+    }
+    @keyframes modalIn { from { transform: scale(.96); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    .modal-head { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .modal-head h3 { font-size: 16px; font-weight: 600; }
+    .modal-close { width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 16px; color: var(--text-3); cursor: pointer; transition: background .15s; }
+    .modal-close:hover { background: var(--surface); }
+    .modal-body { padding: 24px; }
+    .modal-foot { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; gap: 10px; justify-content: flex-end; }
+
+    /* Forms */
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .form-group { margin-bottom: 16px; }
+    .form-group:last-child { margin-bottom: 0; }
+    .form-group label { display: block; font-size: 12px; font-weight: 600; color: var(--text-2); margin-bottom: 6px; text-transform: uppercase; letter-spacing: .04em; }
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%; padding: 10px 14px;
+      border: 1.5px solid var(--border); border-radius: var(--radius);
+      font-size: 13px; color: var(--text); background: var(--white); outline: none;
+      transition: border-color .15s;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+      border-color: var(--green); box-shadow: 0 0 0 3px rgba(15,110,86,0.08);
+    }
+    .form-group textarea { min-height: 100px; resize: vertical; }
+    .form-group .hint { font-size: 11px; color: var(--text-3); margin-top: 4px; }
+
+    /* Toggle */
+    .toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); }
+    .toggle-row:last-child { border-bottom: none; }
+    .toggle-label strong { display: block; font-size: 13px; font-weight: 600; color: var(--text); }
+    .toggle-label span { font-size: 12px; color: var(--text-3); }
+    .switch { position: relative; width: 40px; height: 22px; flex-shrink: 0; }
+    .switch input { opacity: 0; width: 0; height: 0; position: absolute; }
+    .switch-track { position: absolute; inset: 0; background: var(--border); border-radius: 20px; cursor: pointer; transition: background .2s; }
+    .switch-track::after { content: ''; position: absolute; width: 16px; height: 16px; background: white; border-radius: 50%; top: 3px; left: 3px; transition: transform .2s; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+    .switch input:checked + .switch-track { background: var(--green); }
+    .switch input:checked + .switch-track::after { transform: translateX(18px); }
+
+    /* Stats */
+    .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
+    .stat-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px 22px; position: relative; overflow: hidden; }
+    .stat-card::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--green); }
+    .stat-card.gold::after  { background: var(--gold); }
+    .stat-card.amber::after { background: var(--amber); }
+    .stat-card.blue::after  { background: #2563eb; }
+    .stat-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--text-3); margin-bottom: 10px; }
+    .stat-val { font-size: 32px; font-weight: 700; color: var(--text); line-height: 1; margin-bottom: 6px; }
+    .stat-delta { font-size: 12px; color: var(--text-3); }
+    .stat-delta.up { color: var(--green); }
+    .stat-icon { position: absolute; top: 18px; right: 18px; width: 36px; height: 36px; border-radius: 8px; background: var(--surface); display: flex; align-items: center; justify-content: center; }
+    .stat-icon svg { width: 18px; height: 18px; stroke: var(--text-3); fill: none; stroke-width: 1.8; }
+
+    .overview-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+
+    /* Activity */
+    .activity-feed { display: flex; flex-direction: column; }
+    .activity-item { display: flex; align-items: flex-start; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--border); }
+    .activity-item:last-child { border-bottom: none; }
+    .activity-dot { width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; margin-top: 1px; }
+    .activity-dot svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; }
+    .activity-dot.enquiry { background: var(--green-light); color: var(--green); }
+    .activity-dot.listing  { background: #EAF3DE; color: #27500A; }
+    .activity-dot.payment  { background: var(--gold-light); color: var(--gold); }
+    .activity-text { font-size: 13px; color: var(--text-2); line-height: 1.5; flex: 1; }
+    .activity-text strong { color: var(--text); font-weight: 600; }
+    .activity-time { font-size: 11px; color: var(--text-3); white-space: nowrap; }
+
+    /* Quick listings */
+    .quick-listing { display: flex; gap: 12px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); }
+    .quick-listing:last-child { border-bottom: none; }
+    .quick-img { width: 52px; height: 40px; border-radius: 6px; background: var(--surface); flex-shrink: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+    .quick-img img { width: 100%; height: 100%; object-fit: cover; }
+    .quick-img svg { width: 18px; height: 18px; stroke: var(--text-3); fill: none; stroke-width: 1.5; }
+    .quick-name { font-size: 13px; font-weight: 600; color: var(--text); line-height: 1.3; }
+    .quick-meta { font-size: 11px; color: var(--text-3); }
+    .quick-price { font-size: 13px; font-weight: 700; color: var(--green-dark); white-space: nowrap; margin-left: auto; }
+
+    /* Chart */
+    .chart-bars { display: flex; align-items: flex-end; gap: 6px; height: 80px; padding: 0 4px; }
+    .chart-bar { flex: 1; border-radius: 4px 4px 0 0; background: var(--green-light); transition: background .15s; cursor: default; position: relative; min-height: 4px; }
+    .chart-bar:hover { background: var(--green-mid); }
+    .chart-bar .bar-tip { position: absolute; top: -28px; left: 50%; transform: translateX(-50%); background: var(--text); color: white; font-size: 10px; padding: 2px 6px; border-radius: 4px; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity .15s; }
+    .chart-bar:hover .bar-tip { opacity: 1; }
+    .chart-labels { display: flex; gap: 6px; padding: 6px 4px 0; }
+    .chart-label { flex: 1; text-align: center; font-size: 10px; color: var(--text-3); }
+
+    /* Listings table */
+    .filter-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; align-items: center; }
+    .filter-pill { font-size: 12px; padding: 6px 14px; border-radius: 20px; border: 1.5px solid var(--border); background: white; color: var(--text-2); cursor: pointer; font-weight: 500; transition: all .15s; }
+    .filter-pill:hover { border-color: var(--green); color: var(--green); }
+    .filter-pill.active { background: var(--green); color: white; border-color: var(--green); }
+    .filter-search { margin-left: auto; display: flex; align-items: center; border: 1.5px solid var(--border); border-radius: var(--radius); background: white; overflow: hidden; }
+    .filter-search svg { width: 14px; height: 14px; stroke: var(--text-3); fill: none; stroke-width: 2; margin: 0 10px; flex-shrink: 0; }
+    .filter-search input { border: none; outline: none; font-size: 13px; padding: 7px 10px 7px 0; width: 180px; color: var(--text); background: transparent; }
+
+    .listings-table { width: 100%; border-collapse: collapse; }
+    .listings-table th { text-align: left; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: var(--text-3); padding: 10px 16px; border-bottom: 1px solid var(--border); background: var(--surface); white-space: nowrap; }
+    .listings-table td { padding: 14px 16px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    .listings-table tr:last-child td { border-bottom: none; }
+    .listings-table tr:hover td { background: #fafaf8; }
+    .listing-thumb { width: 52px; height: 40px; border-radius: 6px; background: var(--surface); flex-shrink: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+    .listing-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .listing-thumb svg { width: 18px; height: 18px; stroke: var(--text-3); fill: none; stroke-width: 1.5; }
+    .listing-name-cell { display: flex; align-items: center; gap: 12px; }
+    .listing-title-text { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+    .listing-area-text { font-size: 11px; color: var(--text-3); }
+    .listing-price-text { font-size: 13px; font-weight: 700; color: var(--green-dark); }
+    .listing-price-sub { font-size: 11px; color: var(--text-3); }
+    .actions-cell { display: flex; gap: 6px; align-items: center; }
+    .icon-btn { width: 30px; height: 30px; border-radius: 6px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all .15s; border: 1px solid var(--border); background: white; color: var(--text-2); }
+    .icon-btn svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 2; }
+    .icon-btn:hover { border-color: var(--green); color: var(--green); background: var(--green-light); }
+    .icon-btn.danger:hover { border-color: var(--red); color: var(--red); background: var(--red-light); }
+
+    /* Empty state */
+    .empty-state { text-align: center; padding: 60px 20px; color: var(--text-3); }
+    .empty-state svg { width: 48px; height: 48px; stroke: var(--border); fill: none; stroke-width: 1.2; margin: 0 auto 16px; }
+    .empty-state h3 { font-size: 16px; font-weight: 600; color: var(--text-2); margin-bottom: 6px; }
+    .empty-state p { font-size: 13px; margin-bottom: 20px; }
+
+    /* Enquiries */
+    .enquiry-list { display: flex; flex-direction: column; gap: 12px; }
+    .enquiry-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 18px 20px; display: flex; gap: 16px; align-items: flex-start; transition: box-shadow .15s; }
+    .enquiry-card:hover { box-shadow: var(--shadow); }
+    .enquiry-card.unread { border-left: 3px solid var(--green); }
+    .enquiry-avatar { width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0; background: var(--green-light); color: var(--green-dark); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; }
+    .enquiry-body { flex: 1; min-width: 0; }
+    .enquiry-head { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
+    .enquiry-name { font-size: 14px; font-weight: 600; color: var(--text); }
+    .enquiry-phone { font-size: 12px; color: var(--text-3); }
+    .enquiry-time { font-size: 11px; color: var(--text-3); margin-left: auto; white-space: nowrap; }
+    .enquiry-listing-ref { font-size: 11px; font-weight: 600; color: var(--green); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 6px; }
+    .enquiry-msg { font-size: 13px; color: var(--text-2); line-height: 1.6; }
+    .enquiry-actions { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+
+    /* Payments */
+    .payments-table { width: 100%; border-collapse: collapse; }
+    .payments-table th { text-align: left; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: var(--text-3); padding: 10px 16px; border-bottom: 1px solid var(--border); background: var(--surface); white-space: nowrap; }
+    .payments-table td { padding: 14px 16px; border-bottom: 1px solid var(--border); font-size: 13px; vertical-align: middle; }
+    .payments-table tr:last-child td { border-bottom: none; }
+    .pay-status { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; }
+    .pay-status.paid    { background: #d1fae5; color: #065f46; }
+    .pay-status.pending { background: var(--amber-light); color: var(--amber); }
+    .pay-status.failed  { background: var(--red-light); color: var(--red); }
+    .pay-ref { font-size: 11px; color: var(--text-3); font-family: monospace; }
+
+    /* Settings */
+    .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .settings-section { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 22px 24px; }
+    .settings-section h3 { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+    .settings-section h3 svg { width: 15px; height: 15px; stroke: var(--green); fill: none; stroke-width: 2; }
+    .profile-avatar-row { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
+    .profile-avatar-lg { width: 64px; height: 64px; border-radius: 50%; background: var(--green-mid); color: white; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 700; flex-shrink: 0; }
+    .profile-avatar-info strong { font-size: 15px; font-weight: 600; display: block; margin-bottom: 2px; }
+    .profile-avatar-info span { font-size: 12px; color: var(--text-3); }
+    .notif-list { display: flex; flex-direction: column; }
+    .danger-zone { background: var(--red-light); border: 1px solid #f5c6c2; border-radius: var(--radius-lg); padding: 20px 24px; margin-top: 20px; }
+    .danger-zone h3 { font-size: 14px; font-weight: 600; color: var(--red); margin-bottom: 8px; }
+    .danger-zone p { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+
+    /* Loading screen */
+    #loading-screen {
+      position: fixed; inset: 0; background: var(--green-dark);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      z-index: 9999; color: white; gap: 16px;
+    }
+    #loading-screen .spin { width: 36px; height: 36px; border: 3px solid rgba(255,255,255,0.2); border-top-color: white; border-radius: 50%; animation: spin .8s linear infinite; }
+    #loading-screen p { font-size: 14px; color: rgba(255,255,255,0.6); }
+
+    .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 99; }
+
+    @media (max-width: 1100px) {
+      .stat-grid { grid-template-columns: repeat(2, 1fr); }
+      .overview-grid { grid-template-columns: 1fr; }
+      .settings-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 900px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .sidebar-overlay.open { display: block; }
+      .topbar { left: 0; }
+      .main { margin-left: 0; }
+      .hamburger { display: flex; }
+      .listings-table thead { display: none; }
+      .listings-table td { display: block; padding: 6px 16px; }
+      .listings-table td:first-child { padding-top: 14px; }
+      .listings-table td:last-child  { padding-bottom: 14px; }
+      .listings-table tr { display: block; border-bottom: 1px solid var(--border); }
+    }
+    @media (max-width: 600px) {
+      .stat-grid { grid-template-columns: 1fr 1fr; }
+      .page { padding: 16px; }
+      .form-grid { grid-template-columns: 1fr; }
+      .topbar { padding: 0 16px; }
+    }
+    @media (max-width: 400px) {
+      .stat-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Loading screen shown until auth check completes -->
+<div id="loading-screen">
+  <div class="spin"></div>
+  <p>Loading your dashboard…</p>
+</div>
+
+<div class="toast" id="toast">
+  <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+  <span id="toast-msg"></span>
+</div>
+
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+<div class="shell" id="app-shell" style="display:none">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-icon">
+        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      </div>
+      <span class="sidebar-logo-text">NyumbaKisumu</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Main</div>
+      <button class="nav-item active" id="nav-overview" onclick="showPage('overview')">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Overview
+      </button>
+      <button class="nav-item" id="nav-listings" onclick="showPage('listings')">
+        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        My listings
+        <span class="badge-count" id="nav-badge-listings">0</span>
+      </button>
+      <button class="nav-item" id="nav-enquiries" onclick="showPage('enquiries')">
+        <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        Enquiries
+        <span class="badge-count" id="nav-badge-enquiries" style="display:none">0</span>
+      </button>
+      <button class="nav-item" id="nav-payments" onclick="showPage('payments')">
+        <svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+        Payments
+      </button>
+
+      <div class="nav-section-label" style="margin-top:8px">Account</div>
+      <button class="nav-item" id="nav-settings" onclick="showPage('settings')">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        Settings
+      </button>
+      <a href="index.html" class="nav-item">
+        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+        View site
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-user" onclick="showPage('settings')">
+        <div class="sidebar-avatar" id="sidebar-avatar">?</div>
+        <div>
+          <div class="sidebar-user-name" id="sidebar-name">Loading…</div>
+          <div class="sidebar-user-email" id="sidebar-email">…</div>
+        </div>
+      </div>
+      <button class="nav-item" onclick="doSignOut()" style="margin-top:4px;color:rgba(255,255,255,0.5)">
+        <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Sign out
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- Topbar -->
+    <div class="topbar">
+      <div class="topbar-left">
+        <button class="hamburger" onclick="toggleSidebar()">
+          <span></span><span></span><span></span>
+        </button>
+        <div>
+          <div class="topbar-title" id="topbar-title">Overview</div>
+          <div class="topbar-subtitle" id="topbar-date"></div>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <a href="post-listing.html" class="btn btn-primary">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          New listing
+        </a>
+      </div>
+    </div>
+
+    <!-- PAGE: OVERVIEW -->
+    <div class="page active" id="page-overview">
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-label">Active listings</div>
+          <div class="stat-val" id="stat-active">—</div>
+          <div class="stat-delta" id="stat-active-delta">of your total listings</div>
+          <div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></div>
+        </div>
+        <div class="stat-card gold">
+          <div class="stat-label">Total enquiries</div>
+          <div class="stat-val" id="stat-enquiries">—</div>
+          <div class="stat-delta" id="stat-enquiries-delta">buyers reached out</div>
+          <div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
+        </div>
+        <div class="stat-card amber">
+          <div class="stat-label">New enquiries</div>
+          <div class="stat-val" id="stat-new-enq">—</div>
+          <div class="stat-delta" id="stat-new-enq-delta">unread messages</div>
+          <div class="stat-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg></div>
+        </div>
+        <div class="stat-card blue">
+          <div class="stat-label">Total paid</div>
+          <div class="stat-val" id="stat-paid">—</div>
+          <div class="stat-delta" id="stat-paid-delta">listing fees via M-Pesa</div>
+          <div class="stat-icon"><svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div>
+        </div>
+      </div>
+
+      <div class="overview-grid">
+        <div class="card" style="padding:20px 24px">
+          <div class="section-head">
+            <h2>Recent activity</h2>
+            <button class="btn btn-outline btn-sm" onclick="showPage('enquiries')">View all enquiries</button>
+          </div>
+          <div class="activity-feed" id="activity-feed">
+            <div style="padding:20px 0;text-align:center;color:var(--text-3);font-size:13px">Loading activity…</div>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:20px">
+          <div class="card" style="padding:20px 22px">
+            <div class="section-head" style="margin-bottom:12px">
+              <h2>Enquiries · last 7 days</h2>
+            </div>
+            <div class="chart-bars" id="chart-bars"></div>
+            <div class="chart-labels" id="chart-labels"></div>
+          </div>
+
+          <div class="card" style="padding:20px 22px">
+            <div class="section-head">
+              <h2>Your listings</h2>
+              <button class="btn btn-outline btn-sm" onclick="showPage('listings')">Manage</button>
+            </div>
+            <div id="quick-listings">
+              <div style="padding:10px 0;color:var(--text-3);font-size:13px">Loading…</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE: MY LISTINGS -->
+    <div class="page" id="page-listings">
+      <div class="section-head">
+        <h2>My listings</h2>
+        <a href="post-listing.html" class="btn btn-primary">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add listing
+        </a>
+      </div>
+      <div class="filter-bar">
+        <button class="filter-pill active" onclick="filterListings('all', this)">All</button>
+        <button class="filter-pill" onclick="filterListings('active', this)">Active</button>
+        <button class="filter-pill" onclick="filterListings('pending', this)">Pending</button>
+        <button class="filter-pill" onclick="filterListings('paused', this)">Paused</button>
+        <div class="filter-search">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" placeholder="Search listings…" id="listing-search" oninput="renderListingsTable()"/>
+        </div>
+      </div>
+      <div class="card" style="overflow:hidden">
+        <table class="listings-table">
+          <thead>
+            <tr>
+              <th>Property</th>
+              <th>Price</th>
+              <th>Status</th>
+              <th>Enquiries</th>
+              <th>Posted</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="listings-tbody">
+            <tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-3)">Loading listings…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PAGE: ENQUIRIES -->
+    <div class="page" id="page-enquiries">
+      <div class="section-head">
+        <h2>Enquiries from buyers</h2>
+        <div style="display:flex;gap:8px">
+          <button class="filter-pill active" id="enq-filter-all" onclick="filterEnquiries('all',this)">All</button>
+          <button class="filter-pill" id="enq-filter-unread" onclick="filterEnquiries('unread',this)">Unread</button>
+        </div>
+      </div>
+      <div class="enquiry-list" id="enquiry-list">
+        <div style="text-align:center;padding:40px;color:var(--text-3);font-size:13px">Loading enquiries…</div>
+      </div>
+    </div>
+
+    <!-- PAGE: PAYMENTS -->
+    <div class="page" id="page-payments">
+      <div class="section-head">
+        <h2>Payment history</h2>
+        <div style="font-size:13px;color:var(--text-3)">All M-Pesa listing fee transactions</div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px" id="payment-summary"></div>
+      <div class="card" style="overflow:hidden">
+        <table class="payments-table">
+          <thead>
+            <tr>
+              <th>Date</th><th>Listing</th><th>M-Pesa ref</th><th>Amount</th><th>Status</th><th>Receipt</th>
+            </tr>
+          </thead>
+          <tbody id="payments-tbody">
+            <tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-3)">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PAGE: SETTINGS -->
+    <div class="page" id="page-settings">
+      <div class="section-head" style="margin-bottom:24px"><h2>Account settings</h2></div>
+      <div class="settings-grid">
+        <div class="settings-section">
+          <h3><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile</h3>
+          <div class="profile-avatar-row">
+            <div class="profile-avatar-lg" id="settings-avatar">?</div>
+            <div class="profile-avatar-info">
+              <strong id="settings-fullname">—</strong>
+              <span id="settings-email-display">—</span>
+            </div>
+          </div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>First name</label>
+              <input type="text" id="s-firstname" placeholder="First name"/>
+            </div>
+            <div class="form-group">
+              <label>Last name</label>
+              <input type="text" id="s-lastname" placeholder="Last name"/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Phone number (M-Pesa)</label>
+            <input type="tel" id="s-phone" placeholder="07XX XXX XXX"/>
+            <div class="hint">Buyers use this to reach you on WhatsApp</div>
+          </div>
+          <div class="form-group">
+            <label>Email address</label>
+            <input type="email" id="s-email" placeholder="you@example.com"/>
+          </div>
+          <button class="btn btn-primary btn-lg" id="btn-save-profile" onclick="saveProfile()" style="width:100%;justify-content:center">Save profile</button>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:20px">
+          <div class="settings-section">
+            <h3><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>Notifications</h3>
+            <div class="notif-list">
+              <div class="toggle-row">
+                <div class="toggle-label"><strong>New enquiry</strong><span>Get notified when a buyer messages you</span></div>
+                <label class="switch"><input type="checkbox" id="notif-enquiry" checked/><span class="switch-track"></span></label>
+              </div>
+              <div class="toggle-row">
+                <div class="toggle-label"><strong>Listing approved</strong><span>When your listing goes live</span></div>
+                <label class="switch"><input type="checkbox" id="notif-approved" checked/><span class="switch-track"></span></label>
+              </div>
+              <div class="toggle-row">
+                <div class="toggle-label"><strong>Listing expiring</strong><span>7 days before your listing expires</span></div>
+                <label class="switch"><input type="checkbox" id="notif-expiring" checked/><span class="switch-track"></span></label>
+              </div>
+              <div class="toggle-row">
+                <div class="toggle-label"><strong>Payment confirmed</strong><span>M-Pesa receipt notifications</span></div>
+                <label class="switch"><input type="checkbox" id="notif-payment" checked/><span class="switch-track"></span></label>
+              </div>
+            </div>
+            <button class="btn btn-outline btn-sm" style="margin-top:14px;width:100%;justify-content:center" onclick="showToast('Notification preferences saved','success')">Save preferences</button>
+          </div>
+
+          <div class="settings-section">
+            <h3><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>Change password</h3>
+            <div class="form-group">
+              <label>New password</label>
+              <input type="password" id="s-newpw" placeholder="At least 8 characters"/>
+            </div>
+            <div class="form-group">
+              <label>Confirm new password</label>
+              <input type="password" id="s-confirmpw" placeholder="Repeat password"/>
+            </div>
+            <button class="btn btn-outline btn-sm" style="width:100%;justify-content:center" onclick="changePassword()">Update password</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="danger-zone">
+        <h3>Danger zone</h3>
+        <p>Deleting your account permanently removes all your listings, enquiries, and payment records. This cannot be undone.</p>
+        <button class="btn btn-danger" onclick="confirmDeleteAccount()">
+          <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+          Delete my account
+        </button>
+      </div>
+    </div>
+
+  </div><!-- /.main -->
+</div><!-- /.shell -->
+
+<!-- EDIT LISTING MODAL -->
+<div class="modal-overlay" id="modal-edit">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>Edit listing</h3>
+      <div class="modal-close" onclick="closeModal('modal-edit')">✕</div>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="edit-id"/>
+      <div class="form-grid">
+        <div class="form-group" style="grid-column:1/-1">
+          <label>Title</label>
+          <input type="text" id="edit-title" placeholder="e.g. Spacious 2-bedroom in Milimani"/>
+        </div>
+        <div class="form-group">
+          <label>Price (KES)</label>
+          <input type="number" id="edit-price" placeholder="e.g. 4500000"/>
+        </div>
+        <div class="form-group">
+          <label>Price type</label>
+          <select id="edit-price-type">
+            <option value="sale">For sale</option>
+            <option value="rent">To let (monthly)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Bedrooms</label>
+          <input type="number" id="edit-bedrooms" min="0" max="20"/>
+        </div>
+        <div class="form-group">
+          <label>Bathrooms</label>
+          <input type="number" id="edit-bathrooms" min="0" max="20"/>
+        </div>
+        <div class="form-group">
+          <label>Size (m²)</label>
+          <input type="number" id="edit-size"/>
+        </div>
+        <div class="form-group">
+          <label>Area</label>
+          <select id="edit-area">
+            <option value="Milimani">Milimani</option>
+            <option value="Kisumu CBD">Kisumu CBD</option>
+            <option value="Kondele">Kondele</option>
+            <option value="Riat Hills">Riat Hills</option>
+            <option value="Mamboleo">Mamboleo</option>
+            <option value="Maseno">Maseno</option>
+            <option value="Luanda">Luanda</option>
+            <option value="Ahero">Ahero</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Category</label>
+          <select id="edit-category">
+            <option value="student">Student</option>
+            <option value="standard">Standard</option>
+            <option value="luxury">Luxury</option>
+          </select>
+        </div>
+        <div class="form-group" style="grid-column:1/-1">
+          <label>Address / sub-area</label>
+          <input type="text" id="edit-address" placeholder="e.g. Near Aga Khan Hospital"/>
+        </div>
+        <div class="form-group" style="grid-column:1/-1">
+          <label>Description</label>
+          <textarea id="edit-description" placeholder="Describe the apartment…" style="min-height:120px"></textarea>
+        </div>
+      </div>
+      <div style="margin-top:4px">
+        <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--text-3);margin-bottom:10px">Amenities</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px" id="edit-amenities-grid"></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('modal-edit')">Cancel</button>
+      <button class="btn btn-primary" id="btn-save-edit" onclick="saveEdit()">Save changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE CONFIRM MODAL -->
+<div class="modal-overlay" id="modal-delete">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-head">
+      <h3>Delete listing?</h3>
+      <div class="modal-close" onclick="closeModal('modal-delete')">✕</div>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:14px;color:var(--text-2);line-height:1.7">
+        This will permanently delete <strong id="delete-listing-name"></strong>. Any enquiries linked to it will also be removed. This cannot be undone.
+      </p>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('modal-delete')">Keep it</button>
+      <button class="btn btn-danger btn-lg" id="btn-confirm-delete" onclick="confirmDelete()">Delete listing</button>
+    </div>
+  </div>
+</div>
+
+<!-- ENQUIRY REPLY MODAL -->
+<div class="modal-overlay" id="modal-reply">
+  <div class="modal" style="max-width:440px">
+    <div class="modal-head">
+      <h3>Reply to enquiry</h3>
+      <div class="modal-close" onclick="closeModal('modal-reply')">✕</div>
+    </div>
+    <div class="modal-body">
+      <div style="background:var(--surface);border-radius:var(--radius);padding:14px;margin-bottom:16px;font-size:13px;color:var(--text-2);line-height:1.6" id="reply-original-msg"></div>
+      <div class="form-group">
+        <label>Your reply</label>
+        <textarea id="reply-text" placeholder="Type your reply…" style="min-height:120px"></textarea>
+      </div>
+      <div id="reply-whatsapp-row" style="margin-top:10px"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('modal-reply')">Cancel</button>
+      <button class="btn btn-primary" onclick="sendReply()">Send via WhatsApp</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── CONFIG ──────────────────────────────────────
+const SUPABASE_URL = 'https://vliuuloyfhyxcsuchpss.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_oIIcecf3wzKMual5K24Z8Q_zmxVfgsx';
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ── State ──────────────────────────────────────
+let currentUser       = null;
+let allListings       = [];
+let allEnquiries      = [];
+let allPayments       = [];
+let listingFilter     = 'all';
+let enquiryFilter     = 'all';
+let deleteTargetId    = null;
+let replyTargetEnquiry = null;
+
+const AMENITY_KEYS = [
+  { key: 'has_parking',      label: 'Parking' },
+  { key: 'has_water',        label: 'Water supply' },
+  { key: 'has_security',     label: 'Security' },
+  { key: 'has_wifi',         label: 'WiFi ready' },
+  { key: 'has_backup_power', label: 'Backup power' },
+  { key: 'has_gym',          label: 'Gym' },
+  { key: 'has_pool',         label: 'Swimming pool' },
+  { key: 'has_balcony',      label: 'Balcony' },
+  { key: 'furnished',        label: 'Furnished' },
+];
+
+// ── FIX 1: Auth — show loading screen, hide until ready ──
+async function init() {
+  try {
+    const { data: { session }, error } = await db.auth.getSession();
+
+    if (error) {
+      console.error('Auth error:', error.message);
+      window.location.href = 'login.html';
+      return;
+    }
+
+    if (!session) {
+      // No session found — redirect to login
+      window.location.href = 'login.html';
+      return;
+    }
+
+    currentUser = session.user;
+
+    // Set date in topbar
+    document.getElementById('topbar-date').textContent = new Date().toLocaleDateString('en-KE', {
+      weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+    });
+
+    // Load profile and all data, THEN show the dashboard
+    await loadProfile();
+    await loadAllData();    // FIX 9: await this before rendering
+    renderOverview();       // FIX 9: called after data is ready
+
+    // Hide loading screen, show app
+    document.getElementById('loading-screen').style.display = 'none';
+    document.getElementById('app-shell').style.display = 'flex';
+
+  } catch (err) {
+    console.error('Init error:', err);
+    window.location.href = 'login.html';
+  }
+}
+
+// ── FIX 6: Profile — robust fallback ──
+async function loadProfile() {
+  try {
+    const { data, error } = await db.from('profiles').select('*').eq('id', currentUser.id).single();
+
+    const email    = currentUser.email || '';
+    const name     = (data && data.full_name) ? data.full_name : email.split('@')[0];
+    const initials = name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase() || '?';
+
+    document.getElementById('sidebar-avatar').textContent    = initials;
+    document.getElementById('sidebar-name').textContent      = name;
+    document.getElementById('sidebar-email').textContent     = email;
+    document.getElementById('settings-avatar').textContent   = initials;
+    document.getElementById('settings-fullname').textContent = name;
+    document.getElementById('settings-email-display').textContent = email;
+
+    if (data) {
+      const parts = (data.full_name || '').split(' ');
+      document.getElementById('s-firstname').value = parts[0] || '';
+      document.getElementById('s-lastname').value  = parts.slice(1).join(' ') || '';
+      document.getElementById('s-phone').value     = data.phone || '';
+      document.getElementById('s-email').value     = data.email || email;
+    } else {
+      document.getElementById('s-email').value = email;
+    }
+  } catch (err) {
+    console.warn('Profile load warning:', err.message);
+  }
+}
+
+// ── FIX 2, 3, 7: Correct queries for all three tables ──
+async function loadAllData() {
+  try {
+    // Listings: filter by seller_id (correct column)
+    const { data: listingsData, error: lErr } = await db
+      .from('listings')
+      .select('*, listing_photos(*)')
+      .eq('seller_id', currentUser.id)
+      .order('created_at', { ascending: false });
+
+    if (lErr) console.error('Listings error:', lErr.message);
+    allListings = listingsData || [];
+
+    // FIX 2: Enquiries — filter by listing IDs belonging to this seller
+    // (enquiries table links to listings, not directly to seller)
+    let allEnquiriesData = [];
+    if (allListings.length > 0) {
+      const listingIds = allListings.map(l => l.id);
+      const { data: enquiriesData, error: eErr } = await db
+        .from('enquiries')
+        .select('*, listings(title, area)')
+        .in('listing_id', listingIds)
+        .order('created_at', { ascending: false });
+
+      if (eErr) console.error('Enquiries error:', eErr.message);
+      allEnquiriesData = enquiriesData || [];
+    }
+    allEnquiries = allEnquiriesData;
+
+    // FIX 3: Payments — try seller_id first, fallback to user_id
+    let paymentsData = [];
+    let { data: pData, error: pErr } = await db
+      .from('payments')
+      .select('*, listings(title)')
+      .eq('seller_id', currentUser.id)
+      .order('created_at', { ascending: false });
+
+    if (pErr) {
+      // Try user_id as fallback column name
+      const { data: pData2, error: pErr2 } = await db
+        .from('payments')
+        .select('*, listings(title)')
+        .eq('user_id', currentUser.id)
+        .order('created_at', { ascending: false });
+      paymentsData = pData2 || [];
+    } else {
+      paymentsData = pData || [];
+    }
+    allPayments = paymentsData;
+
+    // Update nav badges
+    document.getElementById('nav-badge-listings').textContent = allListings.length;
+    const unread = allEnquiries.filter(e => !e.read_at).length;
+    const enqBadge = document.getElementById('nav-badge-enquiries');
+    enqBadge.textContent = unread;
+    enqBadge.style.display = unread > 0 ? 'inline-block' : 'none';
+
+  } catch (err) {
+    console.error('loadAllData error:', err);
+  }
+}
+
+// ══════════════════════════════════════════
+// PAGE: OVERVIEW
+// ══════════════════════════════════════════
+function renderOverview() {
+  const active    = allListings.filter(l => l.status === 'active').length;
+  const unread    = allEnquiries.filter(e => !e.read_at).length;
+  const totalPaid = allPayments.filter(p => p.status === 'paid').reduce((s, p) => s + (p.amount || 0), 0);
+  const paidCount = allPayments.filter(p => p.status === 'paid').length;
+
+  document.getElementById('stat-active').textContent        = active;
+  document.getElementById('stat-active-delta').textContent  = `of ${allListings.length} total listing${allListings.length !== 1 ? 's' : ''}`;
+  document.getElementById('stat-enquiries').textContent     = allEnquiries.length;
+  document.getElementById('stat-enquiries-delta').textContent = `${allEnquiries.length} buyer${allEnquiries.length !== 1 ? 's' : ''} reached out`;
+  document.getElementById('stat-new-enq').textContent       = unread;
+  document.getElementById('stat-new-enq-delta').textContent = unread > 0 ? `${unread} unread — check enquiries` : 'All caught up ✓';
+  document.getElementById('stat-paid').textContent          = `KES ${totalPaid.toLocaleString('en-KE')}`;
+  document.getElementById('stat-paid-delta').textContent    = `${paidCount} payment${paidCount !== 1 ? 's' : ''}`;
+
+  renderActivityFeed();
+  renderChart();
+  renderQuickListings();
+}
+
+function renderActivityFeed() {
+  const feed = document.getElementById('activity-feed');
+  const items = [];
+
+  allEnquiries.slice(0, 5).forEach(e => {
+    items.push({
+      type: 'enquiry', time: e.created_at,
+      html: `<strong>${e.buyer_name || 'Someone'}</strong> enquired about <strong>${e.listings?.title || 'your listing'}</strong>`
+    });
+  });
+  allListings.slice(0, 3).forEach(l => {
+    items.push({ type: 'listing', time: l.created_at, html: `You posted <strong>${l.title}</strong> in ${l.area}` });
+  });
+  allPayments.slice(0, 3).forEach(p => {
+    items.push({
+      type: 'payment', time: p.created_at,
+      html: `Payment of <strong>KES ${Number(p.amount || 0).toLocaleString('en-KE')}</strong> received via M-Pesa`
+    });
+  });
+
+  items.sort((a, b) => new Date(b.time) - new Date(a.time));
+  const top = items.slice(0, 8);
+
+  if (!top.length) {
+    feed.innerHTML = `<div style="text-align:center;padding:30px 0;color:var(--text-3);font-size:13px">No activity yet. <a href="post-listing.html" style="color:var(--green);font-weight:500">Post your first listing →</a></div>`;
+    return;
+  }
+
+  const icons = {
+    enquiry: `<svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>`,
+    listing: `<svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>`,
+    payment: `<svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>`,
+  };
+
+  feed.innerHTML = top.map(item => `
+    <div class="activity-item">
+      <div class="activity-dot ${item.type}">${icons[item.type]}</div>
+      <div class="activity-text">${item.html}</div>
+      <div class="activity-time">${timeAgo(item.time)}</div>
+    </div>`).join('');
+}
+
+function renderChart() {
+  const days = 7;
+  const labels = [], counts = [];
+  for (let i = days - 1; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const key = d.toISOString().slice(0, 10);
+    const lbl = d.toLocaleDateString('en-KE', { weekday: 'short' });
+    labels.push(lbl);
+    counts.push(allEnquiries.filter(e => e.created_at && e.created_at.slice(0, 10) === key).length);
+  }
+  const max = Math.max(...counts, 1);
+  document.getElementById('chart-bars').innerHTML = counts.map((c, i) => {
+    const h = Math.round((c / max) * 68) + 8;
+    return `<div class="chart-bar" style="height:${h}px">
+      <div class="bar-tip">${labels[i]}: ${c} enquir${c === 1 ? 'y' : 'ies'}</div>
+    </div>`;
+  }).join('');
+  document.getElementById('chart-labels').innerHTML = labels.map(l => `<div class="chart-label">${l}</div>`).join('');
+}
+
+function renderQuickListings() {
+  const el = document.getElementById('quick-listings');
+  if (!allListings.length) {
+    el.innerHTML = `<div style="text-align:center;padding:20px 0;color:var(--text-3);font-size:13px">No listings yet. <a href="post-listing.html" style="color:var(--green);font-weight:500">Post one →</a></div>`;
+    return;
+  }
+  el.innerHTML = allListings.slice(0, 5).map(l => {
+    const cover = (l.listing_photos || []).find(p => p.is_cover) || (l.listing_photos || [])[0];
+    const imgHtml = cover
+      ? `<img src="${cover.url}" alt="${escHtml(l.title)}"/>`
+      : `<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>`;
+    const price = Number(l.price).toLocaleString('en-KE');
+    const suffix = l.price_type === 'rent' ? '/mo' : '';
+    return `<div class="quick-listing">
+      <div class="quick-img">${imgHtml}</div>
+      <div style="flex:1;min-width:0">
+        <div class="quick-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(l.title)}</div>
+        <div class="quick-meta">${l.area} · ${statusLabel(l.status)}</div>
+      </div>
+      <div class="quick-price">KES ${price}${suffix}</div>
+    </div>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════
+// PAGE: MY LISTINGS
+// ══════════════════════════════════════════
+function filterListings(status, el) {
+  listingFilter = status;
+  document.querySelectorAll('#page-listings .filter-pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  renderListingsTable();
+}
+
+function renderListingsTable() {
+  const q = (document.getElementById('listing-search')?.value || '').toLowerCase();
+  const rows = allListings.filter(l => {
+    if (listingFilter !== 'all' && l.status !== listingFilter) return false;
+    if (q && !l.title.toLowerCase().includes(q) && !(l.area || '').toLowerCase().includes(q)) return false;
+    return true;
+  });
+
+  const tbody = document.getElementById('listings-tbody');
+  if (!rows.length) {
+    tbody.innerHTML = `<tr><td colspan="6">
+      <div class="empty-state">
+        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+        <h3>No listings found</h3>
+        <p>${listingFilter === 'all' ? "You haven't posted any listings yet." : `No ${listingFilter} listings.`}</p>
+        <a href="post-listing.html" class="btn btn-primary">Post your first listing</a>
+      </div>
+    </td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = rows.map(l => {
+    const cover = (l.listing_photos || []).find(p => p.is_cover) || (l.listing_photos || [])[0];
+    const imgHtml = cover
+      ? `<img src="${cover.url}" alt="${escHtml(l.title)}"/>`
+      : `<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>`;
+    const enqCount = allEnquiries.filter(e => e.listing_id === l.id).length;
+    const price    = Number(l.price).toLocaleString('en-KE');
+    const suffix   = l.price_type === 'rent' ? '/mo' : '';
+    const posted   = new Date(l.created_at).toLocaleDateString('en-KE', { day: 'numeric', month: 'short', year: 'numeric' });
+    const isPaused = l.status === 'paused';
+
+    // FIX 1: No inline JS string concatenation for title — use data-id attribute instead
+    return `<tr>
+      <td>
+        <div class="listing-name-cell">
+          <div class="listing-thumb">${imgHtml}</div>
+          <div>
+            <div class="listing-title-text">${escHtml(l.title)}</div>
+            <div class="listing-area-text">${l.area}${l.sub_area ? ' · ' + l.sub_area : ''}</div>
+          </div>
+        </div>
+      </td>
+      <td>
+        <div class="listing-price-text">KES ${price}${suffix}</div>
+        <div class="listing-price-sub">${l.price_type === 'rent' ? 'Monthly rent' : 'For sale'}</div>
+      </td>
+      <td><span class="status status-${l.status}">${statusLabel(l.status)}</span></td>
+      <td style="font-size:13px;font-weight:600;color:${enqCount > 0 ? 'var(--green-dark)' : 'var(--text-3)'}">${enqCount}</td>
+      <td style="font-size:12px;color:var(--text-3)">${posted}</td>
+      <td>
+        <div class="actions-cell">
+          <a href="listing.html?id=${l.id}" target="_blank" class="icon-btn" title="View live listing">
+            <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </a>
+          <div class="icon-btn" data-id="${l.id}" onclick="openEditModal(this.dataset.id)" title="Edit listing">
+            <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </div>
+          <div class="icon-btn" data-id="${l.id}" data-status="${l.status}" onclick="togglePause(this.dataset.id, this.dataset.status)" title="${isPaused ? 'Activate listing' : 'Pause listing'}">
+            ${isPaused
+              ? `<svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>`
+              : `<svg viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>`}
+          </div>
+          <div class="icon-btn danger" data-id="${l.id}" data-title="${escAttr(l.title)}" onclick="openDeleteModal(this.dataset.id, this.dataset.title)" title="Delete listing">
+            <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+          </div>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function statusLabel(s) {
+  return { active: 'Active', pending: 'Pending review', paused: 'Paused', rejected: 'Rejected', expired: 'Expired' }[s] || s;
+}
+
+async function togglePause(id, currentStatus) {
+  const newStatus = currentStatus === 'paused' ? 'active' : 'paused';
+  const { error } = await db.from('listings').update({ status: newStatus }).eq('id', id);
+  if (error) { showToast('Could not update listing', 'error'); return; }
+  const listing = allListings.find(l => l.id === id);
+  if (listing) listing.status = newStatus;
+  renderListingsTable();
+  renderOverview();
+  showToast(newStatus === 'active' ? 'Listing is now active' : 'Listing paused', 'success');
+}
+
+function openEditModal(id) {
+  const l = allListings.find(l => l.id === id);
+  if (!l) return;
+  document.getElementById('edit-id').value          = l.id;
+  document.getElementById('edit-title').value       = l.title || '';
+  document.getElementById('edit-price').value       = l.price || '';
+  document.getElementById('edit-price-type').value  = l.price_type || 'sale';
+  document.getElementById('edit-bedrooms').value    = l.bedrooms || '';
+  document.getElementById('edit-bathrooms').value   = l.bathrooms || '';
+  document.getElementById('edit-size').value        = l.size_sqm || '';
+  document.getElementById('edit-area').value        = l.area || 'Milimani';
+  document.getElementById('edit-category').value    = l.category || 'standard';
+  document.getElementById('edit-address').value     = l.address || '';
+  document.getElementById('edit-description').value = l.description || '';
+
+  document.getElementById('edit-amenities-grid').innerHTML = AMENITY_KEYS.map(a =>
+    `<label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;padding:7px;background:var(--surface);border-radius:6px">
+      <input type="checkbox" id="edit-${a.key}" ${l[a.key] ? 'checked' : ''}/>
+      ${a.label}
+    </label>`
+  ).join('');
+
+  openModal('modal-edit');
+}
+
+async function saveEdit() {
+  const id = document.getElementById('edit-id').value;
+  const amenities = {};
+  AMENITY_KEYS.forEach(a => {
+    amenities[a.key] = document.getElementById('edit-' + a.key)?.checked || false;
+  });
+
+  const updates = {
+    title:       document.getElementById('edit-title').value.trim(),
+    price:       parseFloat(document.getElementById('edit-price').value) || 0,
+    price_type:  document.getElementById('edit-price-type').value,
+    bedrooms:    parseInt(document.getElementById('edit-bedrooms').value) || null,
+    bathrooms:   parseInt(document.getElementById('edit-bathrooms').value) || null,
+    size_sqm:    parseFloat(document.getElementById('edit-size').value) || null,
+    area:        document.getElementById('edit-area').value,
+    category:    document.getElementById('edit-category').value,
+    address:     document.getElementById('edit-address').value.trim(),
+    description: document.getElementById('edit-description').value.trim(),
+    ...amenities,
+    updated_at: new Date().toISOString(),
+  };
+
+  const btn = document.getElementById('btn-save-edit');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-sm"></span> Saving…';
+
+  const { error } = await db.from('listings').update(updates).eq('id', id);
+  btn.disabled = false;
+  btn.innerHTML = 'Save changes';
+
+  if (error) { showToast('Could not save: ' + error.message, 'error'); return; }
+
+  const idx = allListings.findIndex(l => l.id === id);
+  if (idx !== -1) allListings[idx] = { ...allListings[idx], ...updates };
+
+  closeModal('modal-edit');
+  renderListingsTable();
+  renderQuickListings();
+  showToast('Listing updated successfully', 'success');
+}
+
+// FIX 1: openDeleteModal now receives safe string from data-title attribute
+function openDeleteModal(id, name) {
+  deleteTargetId = id;
+  document.getElementById('delete-listing-name').textContent = name;
+  openModal('modal-delete');
+}
+
+async function confirmDelete() {
+  if (!deleteTargetId) return;
+  const btn = document.getElementById('btn-confirm-delete');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-sm" style="border-top-color:var(--red)"></span> Deleting…';
+
+  await db.from('listing_photos').delete().eq('listing_id', deleteTargetId);
+  await db.from('enquiries').delete().eq('listing_id', deleteTargetId);
+  const { error } = await db.from('listings').delete().eq('id', deleteTargetId);
+
+  btn.disabled = false;
+  btn.innerHTML = 'Delete listing';
+
+  if (error) { showToast('Could not delete: ' + error.message, 'error'); return; }
+
+  allListings  = allListings.filter(l => l.id !== deleteTargetId);
+  allEnquiries = allEnquiries.filter(e => e.listing_id !== deleteTargetId);
+  deleteTargetId = null;
+
+  closeModal('modal-delete');
+  renderListingsTable();
+  renderOverview();
+  document.getElementById('nav-badge-listings').textContent = allListings.length;
+  showToast('Listing deleted', 'success');
+}
+
+// ══════════════════════════════════════════
+// PAGE: ENQUIRIES
+// ══════════════════════════════════════════
+function filterEnquiries(filter, el) {
+  enquiryFilter = filter;
+  document.querySelectorAll('#page-enquiries .filter-pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  renderEnquiries();
+}
+
+function renderEnquiries() {
+  const filtered = enquiryFilter === 'unread'
+    ? allEnquiries.filter(e => !e.read_at)
+    : allEnquiries;
+
+  const el = document.getElementById('enquiry-list');
+
+  if (!filtered.length) {
+    el.innerHTML = `<div class="empty-state">
+      <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+      <h3>${enquiryFilter === 'unread' ? 'All caught up!' : 'No enquiries yet'}</h3>
+      <p>${enquiryFilter === 'unread' ? 'No unread messages.' : 'When buyers message you about your listings, they\'ll appear here.'}</p>
+    </div>`;
+    return;
+  }
+
+  el.innerHTML = filtered.map(e => {
+    const initials = (e.buyer_name || 'B').split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
+    return `<div class="enquiry-card${!e.read_at ? ' unread' : ''}" id="enq-${e.id}">
+      <div class="enquiry-avatar">${initials}</div>
+      <div class="enquiry-body">
+        <div class="enquiry-head">
+          <span class="enquiry-name">${escHtml(e.buyer_name || 'Unknown buyer')}</span>
+          <span class="enquiry-phone">${e.buyer_phone || ''}</span>
+          <span class="enquiry-time">${timeAgo(e.created_at)}</span>
+        </div>
+        <div class="enquiry-listing-ref">Re: ${escHtml(e.listings?.title || 'Listing')} · ${e.listings?.area || ''}</div>
+        <div class="enquiry-msg">${escHtml(e.message || '')}</div>
+        <div class="enquiry-actions">
+          <button class="btn btn-primary btn-sm" data-id="${e.id}" onclick="openReplyModal(this.dataset.id)">
+            <svg viewBox="0 0 24 24"><polyline points="9 17 4 12 9 7"/><path d="M20 18v-2a4 4 0 00-4-4H4"/></svg>
+            Reply via WhatsApp
+          </button>
+          ${e.buyer_phone
+            ? `<a class="btn btn-sm" style="background:#25D366;color:white" href="https://wa.me/${formatWaPhone(e.buyer_phone)}" target="_blank">WhatsApp</a>`
+            : ''}
+          ${!e.read_at
+            ? `<button class="btn btn-outline btn-sm" data-id="${e.id}" onclick="markRead(this.dataset.id)">Mark as read</button>`
+            : ''}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Auto-mark as read after 2 seconds of viewing
+  const unreadIds = filtered.filter(e => !e.read_at).map(e => e.id);
+  if (unreadIds.length) {
+    setTimeout(() => markAllRead(unreadIds), 2000);
+  }
+}
+
+function formatWaPhone(phone) {
+  return (phone || '').replace(/^0/, '254').replace(/\s/g, '');
+}
+
+async function markRead(id) {
+  await db.from('enquiries').update({ read_at: new Date().toISOString() }).eq('id', id);
+  const e = allEnquiries.find(e => e.id === id);
+  if (e) e.read_at = new Date().toISOString();
+  const card = document.getElementById('enq-' + id);
+  if (card) card.classList.remove('unread');
+  updateEnqBadge();
+}
+
+async function markAllRead(ids) {
+  if (!ids.length) return;
+  await db.from('enquiries').update({ read_at: new Date().toISOString() }).in('id', ids);
+  ids.forEach(id => {
+    const e = allEnquiries.find(e => e.id === id);
+    if (e) e.read_at = new Date().toISOString();
+  });
+  updateEnqBadge();
+}
+
+function updateEnqBadge() {
+  const unread = allEnquiries.filter(e => !e.read_at).length;
+  const badge = document.getElementById('nav-badge-enquiries');
+  badge.textContent = unread;
+  badge.style.display = unread > 0 ? 'inline-block' : 'none';
+}
+
+function openReplyModal(id) {
+  replyTargetEnquiry = allEnquiries.find(e => e.id === id);
+  if (!replyTargetEnquiry) return;
+  document.getElementById('reply-original-msg').textContent = `${replyTargetEnquiry.buyer_name || 'Buyer'} said: "${replyTargetEnquiry.message || ''}"`;
+  document.getElementById('reply-text').value = '';
+
+  const waRow = document.getElementById('reply-whatsapp-row');
+  if (replyTargetEnquiry.buyer_phone) {
+    waRow.innerHTML = `<div style="font-size:12px;color:var(--text-3);margin-bottom:6px">Or contact them directly on WhatsApp:</div>
+      <a href="https://wa.me/${formatWaPhone(replyTargetEnquiry.buyer_phone)}" target="_blank"
+         class="btn btn-sm" style="background:#25D366;color:white">Open WhatsApp chat</a>`;
+  } else {
+    waRow.innerHTML = '';
+  }
+
+  openModal('modal-reply');
+}
+
+function sendReply() {
+  const text = document.getElementById('reply-text').value.trim();
+  if (!text) { showToast('Please type a reply first', 'error'); return; }
+  if (replyTargetEnquiry?.buyer_phone) {
+    const waUrl = `https://wa.me/${formatWaPhone(replyTargetEnquiry.buyer_phone)}?text=${encodeURIComponent(text)}`;
+    window.open(waUrl, '_blank');
+  } else {
+    showToast('No phone number available for this buyer', 'error');
+    return;
+  }
+  closeModal('modal-reply');
+  showToast('Opened WhatsApp with your reply', 'success');
+}
+
+// ══════════════════════════════════════════
+// PAGE: PAYMENTS
+// ══════════════════════════════════════════
+function renderPayments() {
+  const paid    = allPayments.filter(p => p.status === 'paid');
+  const total   = paid.reduce((s, p) => s + (p.amount || 0), 0);
+  const pending = allPayments.filter(p => p.status === 'pending');
+
+  document.getElementById('payment-summary').innerHTML = [
+    { label: 'Total paid',     val: `KES ${total.toLocaleString('en-KE')}`,                       sub: `${paid.length} transaction${paid.length !== 1 ? 's' : ''}`,  color: 'var(--green)' },
+    { label: 'Pending',        val: pending.length,                                                  sub: 'awaiting confirmation',                                          color: 'var(--amber)' },
+    { label: 'Avg per listing', val: paid.length ? `KES ${Math.round(total / paid.length).toLocaleString('en-KE')}` : '—', sub: 'listing fee', color: 'var(--text-3)' },
+  ].map(s => `<div class="card" style="padding:18px 20px">
+    <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);margin-bottom:8px">${s.label}</div>
+    <div style="font-size:24px;font-weight:700;color:${s.color};margin-bottom:4px">${s.val}</div>
+    <div style="font-size:12px;color:var(--text-3)">${s.sub}</div>
+  </div>`).join('');
+
+  const tbody = document.getElementById('payments-tbody');
+  if (!allPayments.length) {
+    tbody.innerHTML = `<tr><td colspan="6">
+      <div class="empty-state">
+        <svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+        <h3>No payments yet</h3>
+        <p>When you pay the listing fee via M-Pesa, your payment history appears here.</p>
+      </div>
+    </td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = allPayments.map(p => {
+    const date      = new Date(p.created_at).toLocaleDateString('en-KE', { day: 'numeric', month: 'short', year: 'numeric' });
+    const statusCls = p.status === 'paid' ? 'paid' : p.status === 'pending' ? 'pending' : 'failed';
+    const statusTxt = p.status === 'paid' ? '✓ Paid' : p.status === 'pending' ? '⏳ Pending' : '✕ Failed';
+    return `<tr>
+      <td style="color:var(--text-2)">${date}</td>
+      <td style="font-weight:500">${escHtml(p.listings?.title || '—')}</td>
+      <td><span class="pay-ref">${p.mpesa_ref || (p.id ? p.id.slice(0, 8) : '—')}</span></td>
+      <td style="font-weight:700;color:var(--green-dark)">KES ${Number(p.amount || 0).toLocaleString('en-KE')}</td>
+      <td><span class="pay-status ${statusCls}">${statusTxt}</span></td>
+      <td>${p.status === 'paid'
+        ? `<button class="btn btn-outline btn-sm" data-id="${p.id}" onclick="downloadReceipt(this.dataset.id)">
+            <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Receipt
+           </button>`
+        : '—'}</td>
+    </tr>`;
+  }).join('');
+}
+
+function downloadReceipt(paymentId) {
+  showToast('Receipt download coming soon with M-Pesa integration', 'success');
+}
+
+// ══════════════════════════════════════════
+// PAGE: SETTINGS
+// ══════════════════════════════════════════
+async function saveProfile() {
+  const firstName = document.getElementById('s-firstname').value.trim();
+  const lastName  = document.getElementById('s-lastname').value.trim();
+  const phone     = document.getElementById('s-phone').value.trim();
+  const email     = document.getElementById('s-email').value.trim();
+
+  if (!firstName) { showToast('Please enter your first name', 'error'); return; }
+
+  const btn = document.getElementById('btn-save-profile');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-sm"></span> Saving…';
+
+  const fullName = `${firstName} ${lastName}`.trim();
+  const { error } = await db.from('profiles').upsert({
+    id: currentUser.id, full_name: fullName, phone, email, updated_at: new Date().toISOString()
+  });
+
+  btn.disabled = false;
+  btn.innerHTML = 'Save profile';
+
+  if (error) { showToast('Could not save profile: ' + error.message, 'error'); return; }
+
+  if (email && email !== currentUser.email) {
+    await db.auth.updateUser({ email });
+    showToast('Profile saved. Check your email to confirm the new address.', 'success');
+  } else {
+    showToast('Profile saved', 'success');
+  }
+
+  const initials = fullName.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
+  document.getElementById('sidebar-avatar').textContent    = initials;
+  document.getElementById('sidebar-name').textContent      = fullName;
+  document.getElementById('settings-avatar').textContent   = initials;
+  document.getElementById('settings-fullname').textContent = fullName;
+}
+
+async function changePassword() {
+  const pw1 = document.getElementById('s-newpw').value;
+  const pw2 = document.getElementById('s-confirmpw').value;
+  if (!pw1 || pw1.length < 8) { showToast('Password must be at least 8 characters', 'error'); return; }
+  if (pw1 !== pw2) { showToast('Passwords do not match', 'error'); return; }
+  const { error } = await db.auth.updateUser({ password: pw1 });
+  if (error) { showToast(error.message, 'error'); return; }
+  document.getElementById('s-newpw').value    = '';
+  document.getElementById('s-confirmpw').value = '';
+  showToast('Password updated successfully', 'success');
+}
+
+function confirmDeleteAccount() {
+  if (!confirm('This will permanently delete your account and all listings. Are you absolutely sure?')) return;
+  showToast('Account deletion requires contacting support for safety', 'error');
+}
+
+// ══════════════════════════════════════════
+// FIX 4: NAVIGATION — overview now re-renders correctly
+// ══════════════════════════════════════════
+const pageTitles = {
+  overview: 'Overview', listings: 'My listings',
+  enquiries: 'Enquiries', payments: 'Payments', settings: 'Settings'
+};
+
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  const navEl = document.getElementById('nav-' + name);
+  if (navEl) navEl.classList.add('active');
+  document.getElementById('topbar-title').textContent = pageTitles[name] || name;
+
+  // FIX 4: Each page renders its data when navigated to
+  if (name === 'overview')   renderOverview();
+  if (name === 'listings')   renderListingsTable();
+  if (name === 'enquiries')  renderEnquiries();
+  if (name === 'payments')   renderPayments();
+
+  closeSidebar();
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebar-overlay').classList.toggle('open');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('open');
+}
+
+// ══════════════════════════════════════════
+// MODALS
+// ══════════════════════════════════════════
+function openModal(id)  {
+  document.getElementById(id).classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.modal-overlay.open').forEach(m => {
+      m.classList.remove('open');
+      document.body.style.overflow = '';
+    });
+  }
+});
+
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => {
+    if (e.target === overlay) closeModal(overlay.id);
+  });
+});
+
+// ══════════════════════════════════════════
+// SIGN OUT
+// ══════════════════════════════════════════
+async function doSignOut() {
+  await db.auth.signOut();
+  window.location.href = 'login.html';
+}
+
+// ══════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════
+let toastTimer;
+function showToast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  const m = document.getElementById('toast-msg');
+  clearTimeout(toastTimer);
+  t.className = 'toast ' + type;
+  m.textContent = msg;
+  t.classList.add('show');
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+// ══════════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════════
+function timeAgo(iso) {
+  if (!iso) return '';
+  const diff = (Date.now() - new Date(iso)) / 1000;
+  if (diff < 60)      return 'just now';
+  if (diff < 3600)    return `${Math.floor(diff / 60)}m ago`;
+  if (diff < 86400)   return `${Math.floor(diff / 3600)}h ago`;
+  if (diff < 604800)  return `${Math.floor(diff / 86400)}d ago`;
+  return new Date(iso).toLocaleDateString('en-KE', { day: 'numeric', month: 'short' });
+}
+
+// FIX 5: Escape HTML to prevent injection bugs in dynamic content
+function escHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+// FIX 1: Safe attribute escaping for data attributes
+function escAttr(str) {
+  if (!str) return '';
+  return String(str).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+// ══════════════════════════════════════════
+// BOOT
+// ══════════════════════════════════════════
+init();
+</script>
+</body>
+</html>

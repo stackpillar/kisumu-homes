@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Post a Listing — NyumbaKisumu</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --green:       #0F6E56;
+      --green-light: #E1F5EE;
+      --green-mid:   #1D9E75;
+      --green-dark:  #085041;
+      --gold:        #BA7517;
+      --gold-light:  #FAEEDA;
+      --red:         #C53030;
+      --red-light:   #FFF5F5;
+      --text:        #1a1a18;
+      --text-2:      #4a4a46;
+      --text-3:      #888780;
+      --border:      #e0ded8;
+      --surface:     #f7f6f2;
+      --white:       #ffffff;
+      --radius:      10px;
+      --radius-lg:   16px;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; color: var(--text); background: var(--surface); font-size: 15px; line-height: 1.6; }
+    a { text-decoration: none; color: inherit; }
+    button { font-family: inherit; cursor: pointer; border: none; }
+    input, select, textarea { font-family: inherit; }
+
+    /* ── Navbar ── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 32px; height: 64px;
+      background: var(--white); border-bottom: 1px solid var(--border);
+    }
+    .logo { display: flex; align-items: center; gap: 10px; font-family: 'Playfair Display', serif; font-size: 20px; color: var(--green-dark); }
+    .logo-icon { width: 34px; height: 34px; background: var(--green); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+    .logo-icon svg { width: 18px; height: 18px; fill: none; stroke: white; stroke-width: 2; stroke-linecap: round; }
+    .nav-right { display: flex; align-items: center; gap: 12px; }
+    .nav-link { font-size: 14px; color: var(--text-2); padding: 8px 14px; border-radius: var(--radius); transition: background .15s; }
+    .nav-link:hover { background: var(--surface); }
+
+    /* ── Page layout ── */
+    .page-wrap { max-width: 860px; margin: 0 auto; padding: 40px 24px 80px; }
+
+    /* ── Progress steps ── */
+    .steps-bar { display: flex; align-items: center; gap: 0; margin-bottom: 40px; }
+    .step-item { display: flex; align-items: center; gap: 10px; flex: 1; }
+    .step-item:last-child { flex: 0; }
+    .step-dot {
+      width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--border);
+      background: white; display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 600; color: var(--text-3); flex-shrink: 0; transition: all .3s;
+    }
+    .step-dot.active { border-color: var(--green); background: var(--green); color: white; }
+    .step-dot.done { border-color: var(--green); background: var(--green-light); color: var(--green); }
+    .step-dot.done::after { content: '✓'; }
+    .step-dot.done span { display: none; }
+    .step-label { font-size: 13px; color: var(--text-3); white-space: nowrap; }
+    .step-label.active { color: var(--green); font-weight: 600; }
+    .step-line { flex: 1; height: 1px; background: var(--border); margin: 0 12px; }
+    .step-line.done { background: var(--green); }
+
+    /* ── Section card ── */
+    .form-card {
+      background: white; border-radius: var(--radius-lg); border: 1px solid var(--border);
+      padding: 32px; margin-bottom: 20px;
+    }
+    .form-card h2 { font-size: 18px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+    .form-card p.hint { font-size: 13px; color: var(--text-3); margin-bottom: 24px; }
+    .divider { height: 1px; background: var(--border); margin: 24px 0; }
+
+    /* ── Form fields ── */
+    .field { margin-bottom: 20px; }
+    .field:last-child { margin-bottom: 0; }
+    .field label { display: block; font-size: 13px; font-weight: 600; color: var(--text-2); margin-bottom: 6px; }
+    .field label .req { color: var(--red); margin-left: 2px; }
+    .field label .opt { font-size: 11px; font-weight: 400; color: var(--text-3); margin-left: 4px; }
+    .field input, .field select, .field textarea {
+      width: 100%; padding: 10px 14px; border: 1.5px solid var(--border);
+      border-radius: var(--radius); font-size: 14px; color: var(--text);
+      background: var(--surface); outline: none; transition: border-color .15s, background .15s;
+    }
+    .field input:focus, .field select:focus, .field textarea:focus {
+      border-color: var(--green); background: white;
+    }
+    .field input.error, .field select.error, .field textarea.error {
+      border-color: var(--red); background: var(--red-light);
+    }
+    .field textarea { resize: vertical; min-height: 100px; line-height: 1.6; }
+    .field-hint { font-size: 12px; color: var(--text-3); margin-top: 5px; }
+    .field-error { font-size: 12px; color: var(--red); margin-top: 5px; display: none; }
+    .field-error.show { display: block; }
+
+    /* ── Grid rows ── */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+
+    /* ── Category selector ── */
+    .cat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .cat-option {
+      border: 2px solid var(--border); border-radius: var(--radius-lg); padding: 16px;
+      cursor: pointer; transition: all .2s; text-align: center; background: white;
+    }
+    .cat-option:hover { border-color: var(--green-mid); }
+    .cat-option.selected { border-color: var(--green); background: var(--green-light); }
+    .cat-option-icon { font-size: 28px; margin-bottom: 8px; }
+    .cat-option-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+    .cat-option-desc { font-size: 12px; color: var(--text-3); line-height: 1.4; }
+    .cat-option.selected .cat-option-title { color: var(--green-dark); }
+
+    /* ── Photo upload ── */
+    .photo-drop {
+      border: 2px dashed var(--border); border-radius: var(--radius-lg); padding: 36px 24px;
+      text-align: center; cursor: pointer; transition: all .2s; background: var(--surface);
+    }
+    .photo-drop:hover, .photo-drop.drag-over { border-color: var(--green); background: var(--green-light); }
+    .photo-drop svg { width: 40px; height: 40px; stroke: var(--text-3); fill: none; stroke-width: 1.5; margin: 0 auto 12px; }
+    .photo-drop p { font-size: 14px; color: var(--text-2); margin-bottom: 4px; }
+    .photo-drop span { font-size: 12px; color: var(--text-3); }
+    .photo-drop input[type="file"] { display: none; }
+
+    .photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; margin-top: 16px; }
+    .photo-thumb {
+      position: relative; aspect-ratio: 1; border-radius: 8px; overflow: hidden;
+      border: 1.5px solid var(--border);
+    }
+    .photo-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .photo-thumb .remove-btn {
+      position: absolute; top: 4px; right: 4px; width: 22px; height: 22px;
+      background: rgba(0,0,0,0.6); color: white; border-radius: 50%;
+      font-size: 14px; line-height: 1; display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: background .15s;
+    }
+    .photo-thumb .remove-btn:hover { background: var(--red); }
+    .photo-thumb .cover-badge {
+      position: absolute; bottom: 4px; left: 4px;
+      background: var(--green); color: white; font-size: 10px; font-weight: 600;
+      padding: 2px 6px; border-radius: 4px;
+    }
+    .photo-thumb .set-cover {
+      position: absolute; bottom: 4px; left: 4px;
+      background: rgba(0,0,0,0.5); color: white; font-size: 10px;
+      padding: 2px 6px; border-radius: 4px; cursor: pointer; display: none;
+    }
+    .photo-thumb:hover .set-cover { display: block; }
+    .upload-progress { margin-top: 8px; height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; display: none; }
+    .upload-progress-bar { height: 100%; background: var(--green); border-radius: 2px; transition: width .3s; width: 0%; }
+
+    /* ── Price type toggle ── */
+    .toggle-group { display: flex; border: 1.5px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+    .toggle-opt {
+      flex: 1; padding: 9px; text-align: center; font-size: 14px; font-weight: 500;
+      color: var(--text-3); cursor: pointer; transition: all .15s; background: white;
+    }
+    .toggle-opt.active { background: var(--green); color: white; }
+
+    /* ── Checkbox row ── */
+    .check-row { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+    .check-row input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--green); cursor: pointer; }
+    .check-row label { font-size: 14px; color: var(--text-2); cursor: pointer; }
+
+    /* ── Pricing card ── */
+    .pricing-options { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .pricing-option {
+      border: 2px solid var(--border); border-radius: var(--radius-lg); padding: 20px;
+      cursor: pointer; transition: all .2s; background: white; position: relative;
+    }
+    .pricing-option:hover { border-color: var(--green-mid); }
+    .pricing-option.selected { border-color: var(--green); }
+    .pricing-option .pop-badge {
+      position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
+      background: var(--gold); color: white; font-size: 11px; font-weight: 600;
+      padding: 2px 12px; border-radius: 20px; white-space: nowrap;
+    }
+    .pricing-option h3 { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+    .pricing-option .price-tag { font-size: 22px; font-weight: 700; color: var(--green-dark); margin-bottom: 10px; }
+    .pricing-option .price-tag span { font-size: 13px; font-weight: 400; color: var(--text-3); }
+    .pricing-option ul { list-style: none; padding: 0; }
+    .pricing-option ul li { font-size: 13px; color: var(--text-2); padding: 3px 0; display: flex; align-items: center; gap: 7px; }
+    .pricing-option ul li::before { content: '✓'; color: var(--green); font-weight: 700; font-size: 12px; }
+    .pricing-option.featured-opt { border-color: var(--gold); }
+    .pricing-option.featured-opt.selected { border-color: var(--gold); background: var(--gold-light); }
+
+    /* ── Summary card ── */
+    .summary-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
+    .summary-row:last-child { border-bottom: none; font-weight: 600; font-size: 15px; color: var(--green-dark); }
+    .summary-row span:first-child { color: var(--text-2); }
+
+    /* ── Action buttons ── */
+    .form-actions { display: flex; gap: 12px; justify-content: space-between; align-items: center; margin-top: 24px; }
+    .btn-back { padding: 11px 22px; border-radius: var(--radius); border: 1.5px solid var(--border); background: white; font-size: 14px; font-weight: 500; color: var(--text-2); transition: all .15s; }
+    .btn-back:hover { border-color: var(--text-2); color: var(--text); }
+    .btn-next { padding: 11px 28px; border-radius: var(--radius); background: var(--green); color: white; font-size: 14px; font-weight: 600; transition: background .15s; display: flex; align-items: center; gap: 8px; }
+    .btn-next:hover { background: var(--green-dark); }
+    .btn-next:disabled { opacity: .6; cursor: not-allowed; }
+    .btn-submit { padding: 13px 32px; border-radius: var(--radius); background: var(--green); color: white; font-size: 15px; font-weight: 600; transition: background .15s; display: flex; align-items: center; gap: 8px; }
+    .btn-submit:hover { background: var(--green-dark); }
+    .btn-submit:disabled { opacity: .6; cursor: not-allowed; }
+
+    /* ── Success screen ── */
+    .success-screen { text-align: center; padding: 60px 24px; display: none; }
+    .success-icon { width: 72px; height: 72px; background: var(--green-light); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; }
+    .success-icon svg { width: 36px; height: 36px; stroke: var(--green); fill: none; stroke-width: 2.5; }
+    .success-screen h2 { font-family: 'Playfair Display', serif; font-size: 28px; color: var(--text); margin-bottom: 10px; }
+    .success-screen p { font-size: 15px; color: var(--text-2); max-width: 400px; margin: 0 auto 28px; }
+    .success-actions { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed; bottom: 24px; right: 24px; z-index: 999;
+      background: var(--text); color: white; padding: 12px 20px; border-radius: var(--radius);
+      font-size: 14px; transform: translateY(80px); opacity: 0; transition: all .3s;
+      max-width: 320px;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.error { background: var(--red); }
+    .toast.success { background: var(--green-dark); }
+
+    /* ── Responsive ── */
+    @media (max-width: 640px) {
+      nav { padding: 0 16px; }
+      .page-wrap { padding: 24px 16px 60px; }
+      .form-card { padding: 20px 16px; }
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      .cat-grid { grid-template-columns: 1fr; }
+      .pricing-options { grid-template-columns: 1fr; }
+      .steps-bar .step-label { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── NAVBAR ── -->
+<nav>
+  <a href="index.html" class="logo">
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    </div>
+    NyumbaKisumu
+  </a>
+  <div class="nav-right">
+    <a href="listings.html" class="nav-link">Browse listings</a>
+  </div>
+</nav>
+
+<!-- ── TOAST ── -->
+<div class="toast" id="toast"></div>
+
+<!-- ── MAIN WRAPPER ── -->
+<div class="page-wrap">
+
+  <!-- Progress steps -->
+  <div class="steps-bar">
+    <div class="step-item">
+      <div class="step-dot active" id="dot-1"><span>1</span></div>
+      <div class="step-label active" id="lbl-1">Property details</div>
+    </div>
+    <div class="step-line" id="line-1"></div>
+    <div class="step-item">
+      <div class="step-dot" id="dot-2"><span>2</span></div>
+      <div class="step-label" id="lbl-2">Photos</div>
+    </div>
+    <div class="step-line" id="line-2"></div>
+    <div class="step-item">
+      <div class="step-dot" id="dot-3"><span>3</span></div>
+      <div class="step-label" id="lbl-3">Pricing plan</div>
+    </div>
+    <div class="step-line" id="line-3"></div>
+    <div class="step-item">
+      <div class="step-dot" id="dot-4"><span>4</span></div>
+      <div class="step-label" id="lbl-4">Review & submit</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════ -->
+  <!-- STEP 1 — Property details          -->
+  <!-- ══════════════════════════════════ -->
+  <div id="step-1">
+    <!-- Category -->
+    <div class="form-card">
+      <h2>What type of property are you listing?</h2>
+      <p class="hint">Choose the category that best describes your apartment</p>
+      <div class="cat-grid">
+        <div class="cat-option selected" data-cat="student" onclick="selectCat(this)">
+          <div class="cat-option-icon">🎓</div>
+          <div class="cat-option-title">Student housing</div>
+          <div class="cat-option-desc">Bedsitters, single rooms, shared flats near campuses</div>
+        </div>
+        <div class="cat-option" data-cat="standard" onclick="selectCat(this)">
+          <div class="cat-option-icon">🏠</div>
+          <div class="cat-option-title">Standard apartment</div>
+          <div class="cat-option-desc">1–3 bedroom apartments for families and professionals</div>
+        </div>
+        <div class="cat-option" data-cat="luxury" onclick="selectCat(this)">
+          <div class="cat-option-icon">✨</div>
+          <div class="cat-option-title">Luxury / premium</div>
+          <div class="cat-option-desc">High-end apartments in Milimani, Riat Hills and similar</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Basic info -->
+    <div class="form-card">
+      <h2>Basic information</h2>
+      <p class="hint">Give buyers a clear, accurate picture of your property</p>
+
+      <div class="field">
+        <label>Listing title <span class="req">*</span></label>
+        <input type="text" id="title" placeholder="e.g. Spacious 2-bedroom flat in Milimani with parking" maxlength="120"/>
+        <div class="field-hint">Be specific — good titles get more enquiries</div>
+        <div class="field-error" id="err-title">Please enter a title</div>
+      </div>
+
+      <div class="field">
+        <label>Description <span class="req">*</span></label>
+        <textarea id="description" placeholder="Describe the apartment — size, features, what's nearby, security, water supply, condition…" rows="5"></textarea>
+        <div class="field-error" id="err-desc">Please add a description</div>
+      </div>
+
+      <div class="grid-2">
+        <div class="field">
+          <label>Sale or rent <span class="req">*</span></label>
+          <div class="toggle-group">
+            <div class="toggle-opt active" id="type-sale" onclick="setType('sale')">For sale</div>
+            <div class="toggle-opt" id="type-rent" onclick="setType('rent')">To let / rent</div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Price (KES) <span class="req">*</span> <span class="opt" id="price-suffix">total</span></label>
+          <input type="number" id="price" placeholder="e.g. 4500000" min="0"/>
+          <div class="field-error" id="err-price">Please enter a price</div>
+        </div>
+      </div>
+
+      <div class="grid-3">
+        <div class="field">
+          <label>Bedrooms <span class="req">*</span></label>
+          <select id="bedrooms">
+            <option value="">Select</option>
+            <option value="0">Bedsitter / studio</option>
+            <option value="1">1 bedroom</option>
+            <option value="2">2 bedrooms</option>
+            <option value="3">3 bedrooms</option>
+            <option value="4">4 bedrooms</option>
+            <option value="5">5+ bedrooms</option>
+          </select>
+          <div class="field-error" id="err-bed">Select bedrooms</div>
+        </div>
+        <div class="field">
+          <label>Bathrooms <span class="opt">optional</span></label>
+          <select id="bathrooms">
+            <option value="">Select</option>
+            <option value="1">1 bathroom</option>
+            <option value="2">2 bathrooms</option>
+            <option value="3">3 bathrooms</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Size <span class="opt">optional</span></label>
+          <input type="number" id="size" placeholder="e.g. 85" min="0"/>
+          <div class="field-hint">Square metres (m²)</div>
+        </div>
+      </div>
+
+      <div class="check-row">
+        <input type="checkbox" id="furnished"/>
+        <label for="furnished">This apartment is furnished</label>
+      </div>
+    </div>
+
+    <!-- Location -->
+    <div class="form-card">
+      <h2>Location</h2>
+      <p class="hint">Accurate location details help buyers find your apartment faster</p>
+
+      <div class="grid-2">
+        <div class="field">
+          <label>Area <span class="req">*</span></label>
+          <select id="area">
+            <option value="">Select area</option>
+            <optgroup label="Kisumu">
+              <option value="Milimani">Milimani</option>
+              <option value="Kisumu CBD">Kisumu CBD</option>
+              <option value="Kondele">Kondele</option>
+              <option value="Riat Hills">Riat Hills</option>
+              <option value="Mamboleo">Mamboleo</option>
+              <option value="Nyalenda">Nyalenda</option>
+              <option value="Obunga">Obunga</option>
+              <option value="Manyatta">Manyatta</option>
+            </optgroup>
+            <optgroup label="Near Maseno University">
+              <option value="Maseno">Maseno</option>
+              <option value="Sega">Sega</option>
+              <option value="Kombewa">Kombewa</option>
+            </optgroup>
+            <optgroup label="Luanda & surroundings">
+              <option value="Luanda">Luanda Town</option>
+              <option value="Matibabu">Matibabu</option>
+              <option value="Ahero">Ahero</option>
+            </optgroup>
+          </select>
+          <div class="field-error" id="err-area">Please select an area</div>
+        </div>
+        <div class="field">
+          <label>Sub-area / estate <span class="opt">optional</span></label>
+          <input type="text" id="sub_area" placeholder="e.g. Near Maseno University Gate"/>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Street address or landmark <span class="opt">optional</span></label>
+        <input type="text" id="address" placeholder="e.g. Off Obote Road, near Mega City Mall"/>
+        <div class="field-hint">You can be approximate — exact address is shared only after enquiry</div>
+      </div>
+
+      <div class="field">
+        <label>Seller contact phone <span class="req">*</span></label>
+        <input type="tel" id="phone" placeholder="e.g. 0712 345 678"/>
+        <div class="field-hint">Buyers will call or WhatsApp this number</div>
+        <div class="field-error" id="err-phone">Please enter a phone number</div>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <span style="font-size:13px;color:var(--text-3)">Step 1 of 4</span>
+      <button class="btn-next" onclick="goStep(2)">Next: Add photos →</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════ -->
+  <!-- STEP 2 — Photos                   -->
+  <!-- ══════════════════════════════════ -->
+  <div id="step-2" style="display:none">
+    <div class="form-card">
+      <h2>Add photos</h2>
+      <p class="hint">Listings with photos get 5× more enquiries. Add up to 10 photos — the first one becomes the cover.</p>
+
+      <div class="photo-drop" id="photo-drop" onclick="document.getElementById('file-input').click()" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="dropFiles(event)">
+        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <p>Click to upload or drag photos here</p>
+        <span>JPG, PNG or WEBP — max 5MB each, up to 10 photos</span>
+        <input type="file" id="file-input" accept="image/*" multiple onchange="handleFiles(this.files)"/>
+      </div>
+
+      <div class="upload-progress" id="upload-progress">
+        <div class="upload-progress-bar" id="upload-bar"></div>
+      </div>
+
+      <div class="photo-grid" id="photo-grid"></div>
+
+      <p id="photo-count" style="font-size:13px;color:var(--text-3);margin-top:12px">No photos added yet</p>
+    </div>
+
+    <div class="form-actions">
+      <button class="btn-back" onclick="goStep(1)">← Back</button>
+      <div style="display:flex;align-items:center;gap:12px">
+        <span style="font-size:13px;color:var(--text-3)">Step 2 of 4</span>
+        <button class="btn-next" onclick="goStep(3)">Next: Choose plan →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════ -->
+  <!-- STEP 3 — Pricing plan             -->
+  <!-- ══════════════════════════════════ -->
+  <div id="step-3" style="display:none">
+    <div class="form-card">
+      <h2>Choose your listing plan</h2>
+      <p class="hint">Both plans give your listing full visibility on NyumbaKisumu</p>
+
+      <div class="pricing-options">
+        <div class="pricing-option selected" id="plan-basic" onclick="selectPlan('basic')">
+          <h3>Standard listing</h3>
+          <div class="price-tag">KES 800 <span>one-time</span></div>
+          <ul>
+            <li>Listed for 60 days</li>
+            <li>Up to 10 photos</li>
+            <li>Buyer enquiry form</li>
+            <li>Appears in search results</li>
+          </ul>
+        </div>
+        <div class="pricing-option featured-opt" id="plan-featured" onclick="selectPlan('featured')">
+          <div class="pop-badge">Most enquiries</div>
+          <h3>Featured listing</h3>
+          <div class="price-tag">KES 2,500 <span>one-time</span></div>
+          <ul>
+            <li>Listed for 90 days</li>
+            <li>Featured badge on your card</li>
+            <li>Top placement in search</li>
+            <li>Highlighted on homepage</li>
+            <li>Priority in area pages</li>
+          </ul>
+        </div>
+      </div>
+
+      <div style="background:var(--green-light);border-radius:var(--radius);padding:14px 16px;margin-top:20px;font-size:13px;color:var(--green-dark)">
+        <strong>Payment via M-Pesa:</strong> After submitting, you'll receive an M-Pesa STK Push to complete payment. Your listing goes live within minutes of payment confirmation.
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button class="btn-back" onclick="goStep(2)">← Back</button>
+      <div style="display:flex;align-items:center;gap:12px">
+        <span style="font-size:13px;color:var(--text-3)">Step 3 of 4</span>
+        <button class="btn-next" onclick="goStep(4)">Review listing →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════ -->
+  <!-- STEP 4 — Review & submit          -->
+  <!-- ══════════════════════════════════ -->
+  <div id="step-4" style="display:none">
+    <div class="form-card">
+      <h2>Review your listing</h2>
+      <p class="hint">Check everything before submitting — you can edit after posting too</p>
+
+      <div id="review-content"></div>
+    </div>
+
+    <div class="form-card">
+      <h2>Order summary</h2>
+      <div id="order-summary"></div>
+
+      <div style="margin-top:20px;padding:16px;background:var(--surface);border-radius:var(--radius);font-size:13px;color:var(--text-2)">
+        By submitting you agree that your listing information is accurate and you are authorised to list this property. Listings are reviewed within 2 hours.
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button class="btn-back" onclick="goStep(3)">← Back</button>
+      <button class="btn-submit" id="submit-btn" onclick="submitListing()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        Submit & pay via M-Pesa
+      </button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════ -->
+  <!-- SUCCESS SCREEN                    -->
+  <!-- ══════════════════════════════════ -->
+  <div class="success-screen" id="success-screen">
+    <div class="success-icon">
+      <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <h2>Listing submitted!</h2>
+    <p>Your apartment has been submitted. Complete the M-Pesa payment to go live — check your phone for the STK Push prompt.</p>
+    <div class="success-actions">
+      <a href="dashboard.html" style="padding:11px 22px;background:var(--green);color:white;border-radius:var(--radius);font-size:14px;font-weight:600">View my listings</a>
+      <a href="index.html" style="padding:11px 22px;border:1.5px solid var(--border);border-radius:var(--radius);font-size:14px;font-weight:500;color:var(--text-2)">Back to home</a>
+    </div>
+  </div>
+
+</div><!-- end page-wrap -->
+
+<script>
+  const SUPABASE_URL = 'https://vliuuloyfhyxcsuchpss.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_oIIcecf3wzKMual5K24Z8Q_zmxVfgsx';
+  const { createClient } = supabase;
+  const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  // ── State ──
+  let currentStep = 1;
+  let selectedCat = 'student';
+  let priceType = 'sale';
+  let selectedPlan = 'basic';
+  let photos = []; // { file, previewUrl, coverIndex }
+  let coverIndex = 0;
+
+  // ── Toast ──
+  function showToast(msg, type = '') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = `toast ${type} show`;
+    setTimeout(() => t.className = 'toast', 3500);
+  }
+
+  // ── Category ──
+  function selectCat(el) {
+    document.querySelectorAll('.cat-option').forEach(o => o.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedCat = el.dataset.cat;
+  }
+
+  // ── Sale / Rent toggle ──
+  function setType(type) {
+    priceType = type;
+    document.getElementById('type-sale').classList.toggle('active', type === 'sale');
+    document.getElementById('type-rent').classList.toggle('active', type === 'rent');
+    document.getElementById('price-suffix').textContent = type === 'rent' ? 'per month' : 'total';
+  }
+
+  // ── Plan selection ──
+  function selectPlan(plan) {
+    selectedPlan = plan;
+    document.getElementById('plan-basic').classList.toggle('selected', plan === 'basic');
+    document.getElementById('plan-featured').classList.toggle('selected', plan === 'featured');
+  }
+
+  // ── Photo handling ──
+  function dragOver(e) { e.preventDefault(); document.getElementById('photo-drop').classList.add('drag-over'); }
+  function dragLeave() { document.getElementById('photo-drop').classList.remove('drag-over'); }
+  function dropFiles(e) { e.preventDefault(); dragLeave(); handleFiles(e.dataTransfer.files); }
+
+  function handleFiles(files) {
+    const remaining = 10 - photos.length;
+    if (remaining <= 0) { showToast('Maximum 10 photos allowed', 'error'); return; }
+    const toAdd = Array.from(files).slice(0, remaining);
+    toAdd.forEach(file => {
+      if (file.size > 5 * 1024 * 1024) { showToast(`${file.name} is too large (max 5MB)`, 'error'); return; }
+      if (!file.type.startsWith('image/')) return;
+      const url = URL.createObjectURL(file);
+      photos.push({ file, previewUrl: url });
+    });
+    renderPhotoGrid();
+  }
+
+  function renderPhotoGrid() {
+    const grid = document.getElementById('photo-grid');
+    const count = document.getElementById('photo-count');
+    count.textContent = photos.length ? `${photos.length} photo${photos.length > 1 ? 's' : ''} added — click a photo to set it as cover` : 'No photos added yet';
+    grid.innerHTML = photos.map((p, i) => `
+      <div class="photo-thumb">
+        <img src="${p.previewUrl}" alt="Photo ${i+1}"/>
+        <button class="remove-btn" onclick="removePhoto(${i})">×</button>
+        ${i === coverIndex ? '<span class="cover-badge">Cover</span>' : `<span class="set-cover" onclick="setCover(${i})">Set cover</span>`}
+      </div>`).join('');
+  }
+
+  function removePhoto(i) {
+    URL.revokeObjectURL(photos[i].previewUrl);
+    photos.splice(i, 1);
+    if (coverIndex >= photos.length) coverIndex = 0;
+    renderPhotoGrid();
+  }
+
+  function setCover(i) { coverIndex = i; renderPhotoGrid(); }
+
+  // ── Step navigation ──
+  function goStep(n) {
+    if (n > currentStep && !validateStep(currentStep)) return;
+    document.getElementById(`step-${currentStep}`).style.display = 'none';
+    currentStep = n;
+    document.getElementById(`step-${n}`).style.display = 'block';
+    updateStepUI();
+    if (n === 4) renderReview();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function updateStepUI() {
+    for (let i = 1; i <= 4; i++) {
+      const dot = document.getElementById(`dot-${i}`);
+      const lbl = document.getElementById(`lbl-${i}`);
+      const line = document.getElementById(`line-${i}`);
+      dot.className = 'step-dot' + (i < currentStep ? ' done' : i === currentStep ? ' active' : '');
+      dot.innerHTML = i < currentStep ? '' : `<span>${i}</span>`;
+      lbl.className = 'step-label' + (i === currentStep ? ' active' : '');
+      if (line) line.className = 'step-line' + (i < currentStep ? ' done' : '');
+    }
+  }
+
+  // ── Validation ──
+  function validateStep(step) {
+    if (step === 1) {
+      let ok = true;
+      const checks = [
+        ['title', 'err-title', v => v.trim().length > 5],
+        ['description', 'err-desc', v => v.trim().length > 10],
+        ['price', 'err-price', v => v && parseFloat(v) > 0],
+        ['bedrooms', 'err-bed', v => v !== ''],
+        ['area', 'err-area', v => v !== ''],
+        ['phone', 'err-phone', v => v.trim().length >= 9],
+      ];
+      checks.forEach(([id, errId, test]) => {
+        const el = document.getElementById(id);
+        const err = document.getElementById(errId);
+        const valid = test(el.value);
+        el.classList.toggle('error', !valid);
+        err.classList.toggle('show', !valid);
+        if (!valid) ok = false;
+      });
+      if (!ok) showToast('Please fill in all required fields', 'error');
+      return ok;
+    }
+    return true;
+  }
+
+  // ── Upload photos to Supabase Storage ──
+  async function uploadPhotos(listingId) {
+    const uploaded = [];
+    const bar = document.getElementById('upload-bar');
+    const prog = document.getElementById('upload-progress');
+    if (!photos.length) return uploaded;
+    prog.style.display = 'block';
+    for (let i = 0; i < photos.length; i++) {
+      const { file } = photos[i];
+      const ext = file.name.split('.').pop();
+      const path = `${listingId}/${Date.now()}-${i}.${ext}`;
+      const { data, error } = await db.storage.from('listing-photos').upload(path, file, { cacheControl: '3600', upsert: false });
+      if (error) { console.error('Upload error:', error); continue; }
+      const { data: urlData } = db.storage.from('listing-photos').getPublicUrl(path);
+      uploaded.push({ url: urlData.publicUrl, is_cover: i === coverIndex, position: i });
+      bar.style.width = `${Math.round(((i + 1) / photos.length) * 100)}%`;
+    }
+    prog.style.display = 'none';
+    return uploaded;
+  }
+
+  // ── Review screen ──
+  function renderReview() {
+    const f = {
+      title: document.getElementById('title').value,
+      description: document.getElementById('description').value,
+      price: Number(document.getElementById('price').value),
+      bedrooms: document.getElementById('bedrooms').value,
+      bathrooms: document.getElementById('bathrooms').value,
+      size: document.getElementById('size').value,
+      area: document.getElementById('area').value,
+      sub_area: document.getElementById('sub_area').value,
+      address: document.getElementById('address').value,
+      phone: document.getElementById('phone').value,
+      furnished: document.getElementById('furnished').checked,
+    };
+
+    document.getElementById('review-content').innerHTML = `
+      <div class="summary-row"><span>Category</span><strong>${selectedCat.charAt(0).toUpperCase()+selectedCat.slice(1)}</strong></div>
+      <div class="summary-row"><span>Title</span><strong>${f.title}</strong></div>
+      <div class="summary-row"><span>Type</span><strong>${priceType === 'sale' ? 'For sale' : 'To let / rent'}</strong></div>
+      <div class="summary-row"><span>Price</span><strong>KES ${f.price.toLocaleString('en-KE')}${priceType === 'rent' ? '/mo' : ''}</strong></div>
+      <div class="summary-row"><span>Bedrooms</span><strong>${f.bedrooms === '0' ? 'Bedsitter/studio' : f.bedrooms + ' bedroom(s)'}</strong></div>
+      ${f.bathrooms ? `<div class="summary-row"><span>Bathrooms</span><strong>${f.bathrooms}</strong></div>` : ''}
+      ${f.size ? `<div class="summary-row"><span>Size</span><strong>${f.size} m²</strong></div>` : ''}
+      <div class="summary-row"><span>Furnished</span><strong>${f.furnished ? 'Yes' : 'No'}</strong></div>
+      <div class="summary-row"><span>Area</span><strong>${f.area}${f.sub_area ? ' — ' + f.sub_area : ''}</strong></div>
+      ${f.address ? `<div class="summary-row"><span>Address</span><strong>${f.address}</strong></div>` : ''}
+      <div class="summary-row"><span>Contact phone</span><strong>${f.phone}</strong></div>
+      <div class="summary-row"><span>Photos</span><strong>${photos.length} photo(s)</strong></div>`;
+
+    const planLabel = selectedPlan === 'featured' ? 'Featured listing (90 days)' : 'Standard listing (60 days)';
+    const planPrice = selectedPlan === 'featured' ? 2500 : 800;
+    document.getElementById('order-summary').innerHTML = `
+      <div class="summary-row"><span>${planLabel}</span><span>KES ${planPrice.toLocaleString()}</span></div>
+      <div class="summary-row"><span>Total due via M-Pesa</span><span>KES ${planPrice.toLocaleString()}</span></div>`;
+  }
+
+  // ── Submit listing ──
+  async function submitListing() {
+    const btn = document.getElementById('submit-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> Submitting…';
+
+    try {
+      // Check auth — if not logged in, save form data and redirect to login
+      const { data: { user } } = await db.auth.getUser();
+
+      const listingData = {
+        title: document.getElementById('title').value.trim(),
+        description: document.getElementById('description').value.trim(),
+        price: parseFloat(document.getElementById('price').value),
+        price_type: priceType,
+        bedrooms: parseInt(document.getElementById('bedrooms').value) || 0,
+        bathrooms: parseInt(document.getElementById('bathrooms').value) || null,
+        size_sqm: parseFloat(document.getElementById('size').value) || null,
+        furnished: document.getElementById('furnished').checked,
+        area: document.getElementById('area').value,
+        sub_area: document.getElementById('sub_area').value.trim() || null,
+        address: document.getElementById('address').value.trim() || null,
+        category: selectedCat,
+        is_featured: selectedPlan === 'featured',
+        status: 'pending',
+        payment_status: 'unpaid',
+        seller_id: user ? user.id : null,
+      };
+
+      const { data: listing, error } = await db.from('listings').insert(listingData).select().single();
+      if (error) throw error;
+
+      // Upload photos
+      if (photos.length) {
+        const uploaded = await uploadPhotos(listing.id);
+        if (uploaded.length) {
+          const { error: photoError } = await db.from('listing_photos').insert(
+            uploaded.map(u => ({ ...u, listing_id: listing.id }))
+          );
+          if (photoError) console.error('Photo save error:', photoError);
+        }
+      }
+
+      // Show success
+      document.getElementById('step-4').style.display = 'none';
+      document.querySelector('.steps-bar').style.display = 'none';
+      document.getElementById('success-screen').style.display = 'block';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    } catch (err) {
+      console.error(err);
+      showToast('Something went wrong. Please try again.', 'error');
+      btn.disabled = false;
+      btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Submit & pay via M-Pesa';
+    }
+  }
+
+  // ── Keyboard shortcut: Enter moves to next step ──
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA' && currentStep < 4) goStep(currentStep + 1);
+  });
+</script>
+</body>
+</html>

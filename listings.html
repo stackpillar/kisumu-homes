@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Browse Listings — NyumbaKisumu</title>
+  <meta name="description" content="Browse apartments for sale and rent in Kisumu, Maseno, and Luanda. Filter by area, price, bedrooms and more."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --green:       #0F6E56;
+      --green-light: #E1F5EE;
+      --green-mid:   #1D9E75;
+      --green-dark:  #085041;
+      --gold:        #BA7517;
+      --gold-light:  #FAEEDA;
+      --text:        #1a1a18;
+      --text-2:      #4a4a46;
+      --text-3:      #888780;
+      --border:      #e0ded8;
+      --surface:     #f7f6f2;
+      --white:       #ffffff;
+      --radius:      10px;
+      --radius-lg:   16px;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; color: var(--text); background: var(--surface); font-size: 15px; line-height: 1.6; }
+    a { text-decoration: none; color: inherit; }
+    button { font-family: inherit; cursor: pointer; border: none; }
+    input, select { font-family: inherit; }
+
+    /* ── Navbar ── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 32px; height: 64px;
+      background: var(--white); border-bottom: 1px solid var(--border);
+    }
+    .logo { display: flex; align-items: center; gap: 10px; font-family: 'Playfair Display', serif; font-size: 20px; color: var(--green-dark); }
+    .logo-icon { width: 34px; height: 34px; background: var(--green); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+    .logo-icon svg { width: 18px; height: 18px; fill: none; stroke: white; stroke-width: 2; stroke-linecap: round; }
+    .nav-links { display: flex; align-items: center; gap: 8px; }
+    .nav-link { font-size: 14px; color: var(--text-2); padding: 8px 14px; border-radius: var(--radius); transition: background .15s; }
+    .nav-link:hover { background: var(--surface); }
+    .btn-primary { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 500; padding: 9px 18px; border-radius: var(--radius); background: var(--green); color: white; transition: background .15s; }
+    .btn-primary:hover { background: var(--green-dark); }
+
+    /* ── Page header ── */
+    .page-header {
+      background: var(--white); border-bottom: 1px solid var(--border);
+      padding: 24px 32px 0;
+    }
+    .page-header h1 { font-family: 'Playfair Display', serif; font-size: 28px; color: var(--text); margin-bottom: 4px; }
+    .page-header p { font-size: 14px; color: var(--text-3); margin-bottom: 20px; }
+
+    /* Search bar in header */
+    .header-search { display: flex; gap: 8px; flex-wrap: wrap; padding-bottom: 20px; }
+    .header-search input {
+      flex: 1; min-width: 200px; padding: 9px 14px; border-radius: var(--radius);
+      border: 1.5px solid var(--border); font-size: 14px; color: var(--text); outline: none;
+      background: var(--surface); transition: border-color .15s;
+    }
+    .header-search input:focus { border-color: var(--green); background: white; }
+    .header-search button {
+      padding: 9px 20px; background: var(--green); color: white; border-radius: var(--radius);
+      font-size: 14px; font-weight: 500; transition: background .15s;
+    }
+    .header-search button:hover { background: var(--green-dark); }
+
+    /* ── Layout ── */
+    .layout { display: grid; grid-template-columns: 280px 1fr; gap: 0; min-height: calc(100vh - 200px); }
+
+    /* ── Sidebar filters ── */
+    .sidebar {
+      background: var(--white); border-right: 1px solid var(--border);
+      padding: 24px 20px; position: sticky; top: 64px;
+      height: calc(100vh - 64px); overflow-y: auto;
+    }
+    .sidebar::-webkit-scrollbar { width: 4px; }
+    .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    .filter-section { margin-bottom: 28px; }
+    .filter-label { font-size: 11px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 10px; display: block; }
+    .filter-reset { float: right; font-size: 11px; color: var(--green); cursor: pointer; text-transform: none; letter-spacing: 0; font-weight: 500; }
+    .filter-reset:hover { text-decoration: underline; }
+
+    /* Checkbox filters */
+    .check-list { display: flex; flex-direction: column; gap: 6px; }
+    .check-item { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+    .check-item input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--green); cursor: pointer; }
+    .check-item label { font-size: 13px; color: var(--text-2); cursor: pointer; flex: 1; }
+    .check-item .check-count { font-size: 12px; color: var(--text-3); }
+
+    /* Range inputs */
+    .range-row { display: flex; gap: 8px; align-items: center; }
+    .range-input {
+      flex: 1; padding: 8px 10px; border: 1.5px solid var(--border); border-radius: 8px;
+      font-size: 13px; color: var(--text); outline: none; background: var(--surface);
+      transition: border-color .15s;
+    }
+    .range-input:focus { border-color: var(--green); background: white; }
+    .range-sep { font-size: 12px; color: var(--text-3); }
+
+    /* Pill toggles */
+    .pill-group { display: flex; flex-wrap: wrap; gap: 6px; }
+    .filter-pill {
+      font-size: 12px; padding: 5px 12px; border-radius: 20px;
+      border: 1.5px solid var(--border); background: white; color: var(--text-2);
+      cursor: pointer; transition: all .15s; font-weight: 500;
+    }
+    .filter-pill:hover { border-color: var(--green); color: var(--green); }
+    .filter-pill.active { background: var(--green); color: white; border-color: var(--green); }
+
+    .apply-btn {
+      width: 100%; padding: 11px; background: var(--green); color: white;
+      border-radius: var(--radius); font-size: 14px; font-weight: 600;
+      transition: background .15s; margin-top: 8px;
+    }
+    .apply-btn:hover { background: var(--green-dark); }
+
+    /* ── Main content ── */
+    .main { padding: 24px; }
+
+    /* Toolbar */
+    .toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+    .result-count { font-size: 14px; color: var(--text-2); }
+    .result-count strong { color: var(--text); font-weight: 600; }
+    .sort-select {
+      padding: 8px 12px; border: 1.5px solid var(--border); border-radius: var(--radius);
+      font-size: 13px; color: var(--text); background: white; outline: none; cursor: pointer;
+    }
+    .sort-select:focus { border-color: var(--green); }
+
+    /* Active filter tags */
+    .active-filters { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+    .filter-tag {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: var(--green-light); color: var(--green-dark);
+      font-size: 12px; font-weight: 500; padding: 4px 10px; border-radius: 20px;
+      border: 1px solid #9FE1CB;
+    }
+    .filter-tag button { background: none; color: var(--green-dark); font-size: 14px; line-height: 1; padding: 0; margin-left: 2px; opacity: .7; }
+    .filter-tag button:hover { opacity: 1; }
+
+    /* Listings grid */
+    .listings-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+
+    /* Card */
+    .card {
+      background: white; border-radius: var(--radius-lg); border: 1px solid var(--border);
+      overflow: hidden; transition: transform .2s, box-shadow .2s; cursor: pointer;
+    }
+    .card:hover { transform: translateY(-2px); box-shadow: 0 4px 20px rgba(0,0,0,0.09); }
+    .card-img { height: 180px; background: var(--surface); position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+    .card-img img { width: 100%; height: 100%; object-fit: cover; }
+    .card-img-placeholder { display: flex; flex-direction: column; align-items: center; gap: 6px; color: var(--text-3); }
+    .card-img-placeholder svg { width: 32px; height: 32px; opacity: .3; stroke: currentColor; fill: none; stroke-width: 1.5; }
+    .badge-featured { position: absolute; top: 10px; left: 10px; background: var(--gold); color: white; font-size: 10px; font-weight: 600; padding: 3px 9px; border-radius: 20px; }
+    .badge-cat { position: absolute; top: 10px; right: 10px; font-size: 10px; font-weight: 600; padding: 3px 9px; border-radius: 20px; }
+    .badge-cat.student { background: var(--green); color: white; }
+    .badge-cat.luxury { background: var(--gold-light); color: var(--gold); border: 1px solid var(--gold); }
+    .card-body { padding: 14px 16px; }
+    .card-area { font-size: 11px; font-weight: 600; color: var(--green); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
+    .card-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 3px; line-height: 1.35; }
+    .card-sub { font-size: 12px; color: var(--text-3); margin-bottom: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .card-price { font-size: 17px; font-weight: 700; color: var(--green-dark); margin-bottom: 10px; }
+    .card-price span { font-size: 12px; font-weight: 400; color: var(--text-3); }
+    .card-meta { display: flex; gap: 12px; font-size: 12px; color: var(--text-2); padding-top: 10px; border-top: 1px solid var(--border); }
+    .card-meta-item { display: flex; align-items: center; gap: 4px; }
+    .card-meta-item svg { width: 13px; height: 13px; stroke: var(--text-3); fill: none; stroke-width: 2; }
+
+    /* ── Skeleton loading ── */
+    .skeleton { background: white; border-radius: var(--radius-lg); overflow: hidden; border: 1px solid var(--border); }
+    .skeleton-img { height: 180px; background: linear-gradient(90deg, #f0efe9 25%, #e8e7e1 50%, #f0efe9 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; }
+    .skeleton-body { padding: 14px 16px; }
+    .skeleton-line { height: 11px; background: linear-gradient(90deg, #f0efe9 25%, #e8e7e1 50%, #f0efe9 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; border-radius: 4px; margin-bottom: 9px; }
+    .skeleton-line.short { width: 55%; }
+    .skeleton-line.xshort { width: 35%; }
+    @keyframes shimmer { to { background-position: -200% 0; } }
+
+    /* ── Empty & error states ── */
+    .empty-state { text-align: center; padding: 80px 20px; color: var(--text-3); grid-column: 1/-1; }
+    .empty-state svg { width: 48px; height: 48px; margin: 0 auto 16px; stroke: var(--border); fill: none; stroke-width: 1.5; }
+    .empty-state h3 { font-size: 16px; font-weight: 600; color: var(--text-2); margin-bottom: 6px; }
+    .empty-state p { font-size: 14px; }
+    .empty-state a { color: var(--green); font-weight: 500; }
+
+    /* ── Pagination ── */
+    .pagination { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 32px; }
+    .page-btn {
+      width: 36px; height: 36px; border-radius: 8px; border: 1.5px solid var(--border);
+      background: white; color: var(--text-2); font-size: 13px; font-weight: 500;
+      cursor: pointer; transition: all .15s; display: flex; align-items: center; justify-content: center;
+    }
+    .page-btn:hover { border-color: var(--green); color: var(--green); }
+    .page-btn.active { background: var(--green); color: white; border-color: var(--green); }
+    .page-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+    /* ── Mobile sidebar toggle ── */
+    .filter-toggle {
+      display: none; align-items: center; gap: 6px;
+      padding: 8px 14px; border-radius: var(--radius); border: 1.5px solid var(--border);
+      background: white; font-size: 13px; font-weight: 500; color: var(--text);
+    }
+    .filter-toggle svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; }
+    .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 199; }
+    .sidebar-overlay.open { display: block; }
+
+    /* ── Responsive ── */
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+      .sidebar {
+        position: fixed; top: 0; left: -300px; width: 280px; height: 100vh;
+        z-index: 200; transition: left .25s; padding-top: 16px;
+      }
+      .sidebar.open { left: 0; }
+      .filter-toggle { display: flex; }
+      .page-header { padding: 20px 16px 0; }
+      .main { padding: 16px; }
+      nav { padding: 0 16px; }
+      .nav-links .nav-link { display: none; }
+    }
+    @media (max-width: 480px) {
+      .header-search { flex-direction: column; }
+      .header-search input, .header-search button { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── NAVBAR ── -->
+<nav>
+  <a href="index.html" class="logo">
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    </div>
+    NyumbaKisumu
+  </a>
+  <div class="nav-links">
+    <a href="index.html" class="nav-link">Home</a>
+    <a href="#" class="nav-link" style="color:var(--green);font-weight:500">Browse</a>
+    <a href="login.html" class="nav-link">Sign in</a>
+    <a href="post-listing.html" class="btn-primary">List your apartment</a>
+  </div>
+</nav>
+
+<!-- ── PAGE HEADER ── -->
+<div class="page-header">
+  <h1 id="page-title">Browse listings</h1>
+  <p id="page-desc">Apartments for sale and rent across Kisumu, Maseno, and Luanda</p>
+  <div class="header-search">
+    <input type="text" id="search-q" placeholder="Search by keyword, area, or street name…"/>
+    <button onclick="applyFilters()">Search</button>
+  </div>
+</div>
+
+<!-- ── MOBILE SIDEBAR OVERLAY ── -->
+<div class="sidebar-overlay" id="overlay" onclick="closeSidebar()"></div>
+
+<!-- ── LAYOUT ── -->
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+      <span style="font-size:15px;font-weight:600;color:var(--text)">Filters</span>
+      <button onclick="resetAllFilters()" style="font-size:12px;color:var(--green);background:none;font-weight:500">Reset all</button>
+    </div>
+
+    <!-- Listing type -->
+    <div class="filter-section">
+      <span class="filter-label">Listing type</span>
+      <div class="pill-group" id="type-pills">
+        <div class="filter-pill active" data-val="" onclick="setPill(this,'type-pills')">All</div>
+        <div class="filter-pill" data-val="sale" onclick="setPill(this,'type-pills')">For sale</div>
+        <div class="filter-pill" data-val="rent" onclick="setPill(this,'type-pills')">To let / rent</div>
+      </div>
+    </div>
+
+    <!-- Category -->
+    <div class="filter-section">
+      <span class="filter-label">Property category</span>
+      <div class="pill-group" id="cat-pills">
+        <div class="filter-pill active" data-val="" onclick="setPill(this,'cat-pills')">All</div>
+        <div class="filter-pill" data-val="student" onclick="setPill(this,'cat-pills')">Student</div>
+        <div class="filter-pill" data-val="standard" onclick="setPill(this,'cat-pills')">Standard</div>
+        <div class="filter-pill" data-val="luxury" onclick="setPill(this,'cat-pills')">Luxury</div>
+      </div>
+    </div>
+
+    <!-- Area -->
+    <div class="filter-section">
+      <span class="filter-label">Area</span>
+      <div class="check-list" id="area-checks">
+        <label class="check-item"><input type="checkbox" value="Milimani" onchange="applyFilters()"/><label>Milimani</label></label>
+        <label class="check-item"><input type="checkbox" value="Kisumu CBD" onchange="applyFilters()"/><label>Kisumu CBD</label></label>
+        <label class="check-item"><input type="checkbox" value="Kondele" onchange="applyFilters()"/><label>Kondele</label></label>
+        <label class="check-item"><input type="checkbox" value="Riat Hills" onchange="applyFilters()"/><label>Riat Hills</label></label>
+        <label class="check-item"><input type="checkbox" value="Mamboleo" onchange="applyFilters()"/><label>Mamboleo</label></label>
+        <label class="check-item"><input type="checkbox" value="Maseno" onchange="applyFilters()"/><label>Maseno</label></label>
+        <label class="check-item"><input type="checkbox" value="Luanda" onchange="applyFilters()"/><label>Luanda</label></label>
+        <label class="check-item"><input type="checkbox" value="Ahero" onchange="applyFilters()"/><label>Ahero</label></label>
+      </div>
+    </div>
+
+    <!-- Price range -->
+    <div class="filter-section">
+      <span class="filter-label">Price (KES)</span>
+      <div class="range-row">
+        <input type="number" class="range-input" id="price-min" placeholder="Min" oninput="debouncedApply()"/>
+        <span class="range-sep">–</span>
+        <input type="number" class="range-input" id="price-max" placeholder="Max" oninput="debouncedApply()"/>
+      </div>
+      <div class="pill-group" style="margin-top:8px" id="price-presets">
+        <div class="filter-pill" onclick="setPreset(0,2000000)">Under 2M</div>
+        <div class="filter-pill" onclick="setPreset(2000000,5000000)">2M–5M</div>
+        <div class="filter-pill" onclick="setPreset(5000000,10000000)">5M–10M</div>
+        <div class="filter-pill" onclick="setPreset(10000000,null)">10M+</div>
+      </div>
+    </div>
+
+    <!-- Bedrooms -->
+    <div class="filter-section">
+      <span class="filter-label">Bedrooms</span>
+      <div class="pill-group" id="bed-pills">
+        <div class="filter-pill active" data-val="" onclick="setPill(this,'bed-pills')">Any</div>
+        <div class="filter-pill" data-val="1" onclick="setPill(this,'bed-pills')">1</div>
+        <div class="filter-pill" data-val="2" onclick="setPill(this,'bed-pills')">2</div>
+        <div class="filter-pill" data-val="3" onclick="setPill(this,'bed-pills')">3</div>
+        <div class="filter-pill" data-val="4" onclick="setPill(this,'bed-pills')">4+</div>
+      </div>
+    </div>
+
+    <!-- Furnished -->
+    <div class="filter-section">
+      <span class="filter-label">Furnishing</span>
+      <div class="pill-group" id="furn-pills">
+        <div class="filter-pill active" data-val="" onclick="setPill(this,'furn-pills')">Any</div>
+        <div class="filter-pill" data-val="true" onclick="setPill(this,'furn-pills')">Furnished</div>
+        <div class="filter-pill" data-val="false" onclick="setPill(this,'furn-pills')">Unfurnished</div>
+      </div>
+    </div>
+
+    <button class="apply-btn" onclick="applyFilters(); closeSidebar()">Apply filters</button>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <button class="filter-toggle" onclick="openSidebar()">
+          <svg viewBox="0 0 24 24"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="20" y2="12"/><line x1="12" y1="18" x2="20" y2="18"/></svg>
+          Filters
+        </button>
+        <span class="result-count" id="result-count">Loading…</span>
+      </div>
+      <select class="sort-select" id="sort-select" onchange="applyFilters()">
+        <option value="created_at_desc">Newest first</option>
+        <option value="price_asc">Price: low to high</option>
+        <option value="price_desc">Price: high to low</option>
+        <option value="featured">Featured first</option>
+      </select>
+    </div>
+
+    <!-- Active filter tags -->
+    <div class="active-filters" id="active-filters"></div>
+
+    <!-- Results grid -->
+    <div id="results">
+      <div class="listings-grid" id="listings-grid">
+        <div class="skeleton"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line xshort"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div></div></div>
+        <div class="skeleton"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line xshort"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div></div></div>
+        <div class="skeleton"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line xshort"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div></div></div>
+        <div class="skeleton"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line xshort"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div></div></div>
+        <div class="skeleton"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line xshort"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div></div></div>
+        <div class="skeleton"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line xshort"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div></div></div>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination" id="pagination"></div>
+  </main>
+</div>
+
+<script>
+  const SUPABASE_URL = 'https://vliuuloyfhyxcsuchpss.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_oIIcecf3wzKMual5K24Z8Q_zmxVfgsx';
+  const { createClient } = supabase;
+  const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  const PAGE_SIZE = 12;
+  let currentPage = 1;
+  let totalCount = 0;
+  let debounceTimer = null;
+
+  // ── Read URL params on load ──
+  function readUrlParams() {
+    const p = new URLSearchParams(window.location.search);
+    if (p.get('q')) document.getElementById('search-q').value = p.get('q');
+    if (p.get('area')) {
+      document.querySelectorAll('#area-checks input').forEach(cb => {
+        if (cb.value === p.get('area')) cb.checked = true;
+      });
+    }
+    if (p.get('category')) {
+      document.querySelectorAll('#cat-pills .filter-pill').forEach(pill => {
+        pill.classList.toggle('active', pill.dataset.val === p.get('category'));
+      });
+    }
+    if (p.get('type')) {
+      document.querySelectorAll('#type-pills .filter-pill').forEach(pill => {
+        pill.classList.toggle('active', pill.dataset.val === p.get('type'));
+      });
+    }
+  }
+
+  // ── Pill selector helper ──
+  function setPill(el, groupId) {
+    document.querySelectorAll(`#${groupId} .filter-pill`).forEach(p => p.classList.remove('active'));
+    el.classList.add('active');
+    applyFilters();
+  }
+
+  // ── Price preset ──
+  function setPreset(min, max) {
+    document.getElementById('price-min').value = min || '';
+    document.getElementById('price-max').value = max || '';
+    applyFilters();
+  }
+
+  // ── Get active filter values ──
+  function getFilters() {
+    const type = document.querySelector('#type-pills .filter-pill.active')?.dataset.val || '';
+    const cat  = document.querySelector('#cat-pills .filter-pill.active')?.dataset.val || '';
+    const beds = document.querySelector('#bed-pills .filter-pill.active')?.dataset.val || '';
+    const furn = document.querySelector('#furn-pills .filter-pill.active')?.dataset.val || '';
+    const areas = [...document.querySelectorAll('#area-checks input:checked')].map(c => c.value);
+    const priceMin = document.getElementById('price-min').value;
+    const priceMax = document.getElementById('price-max').value;
+    const q = document.getElementById('search-q').value.trim();
+    const sort = document.getElementById('sort-select').value;
+    return { type, cat, beds, furn, areas, priceMin, priceMax, q, sort };
+  }
+
+  // ── Build active filter tags ──
+  function renderActiveTags(f) {
+    const tags = [];
+    if (f.type) tags.push({ label: f.type === 'sale' ? 'For sale' : 'To let', key: 'type' });
+    if (f.cat) tags.push({ label: f.cat.charAt(0).toUpperCase() + f.cat.slice(1), key: 'cat' });
+    if (f.beds) tags.push({ label: `${f.beds}+ beds`, key: 'beds' });
+    if (f.furn === 'true') tags.push({ label: 'Furnished', key: 'furn' });
+    if (f.furn === 'false') tags.push({ label: 'Unfurnished', key: 'furn' });
+    f.areas.forEach(a => tags.push({ label: a, key: 'area-' + a }));
+    if (f.priceMin || f.priceMax) {
+      const label = f.priceMin && f.priceMax
+        ? `KES ${Number(f.priceMin).toLocaleString()} – ${Number(f.priceMax).toLocaleString()}`
+        : f.priceMin ? `From KES ${Number(f.priceMin).toLocaleString()}` : `Up to KES ${Number(f.priceMax).toLocaleString()}`;
+      tags.push({ label, key: 'price' });
+    }
+    if (f.q) tags.push({ label: `"${f.q}"`, key: 'q' });
+
+    const el = document.getElementById('active-filters');
+    el.innerHTML = tags.map(t => `
+      <span class="filter-tag">${t.label}
+        <button onclick="removeTag('${t.key}')" title="Remove filter">×</button>
+      </span>`).join('');
+  }
+
+  // ── Remove a tag ──
+  function removeTag(key) {
+    if (key === 'type') setPill(document.querySelector('#type-pills .filter-pill[data-val=""]'), 'type-pills');
+    else if (key === 'cat') setPill(document.querySelector('#cat-pills .filter-pill[data-val=""]'), 'cat-pills');
+    else if (key === 'beds') setPill(document.querySelector('#bed-pills .filter-pill[data-val=""]'), 'bed-pills');
+    else if (key === 'furn') setPill(document.querySelector('#furn-pills .filter-pill[data-val=""]'), 'furn-pills');
+    else if (key.startsWith('area-')) {
+      const area = key.replace('area-', '');
+      const cb = document.querySelector(`#area-checks input[value="${area}"]`);
+      if (cb) { cb.checked = false; applyFilters(); }
+    } else if (key === 'price') {
+      document.getElementById('price-min').value = '';
+      document.getElementById('price-max').value = '';
+      applyFilters();
+    } else if (key === 'q') {
+      document.getElementById('search-q').value = '';
+      applyFilters();
+    }
+  }
+
+  // ── Reset all filters ──
+  function resetAllFilters() {
+    setPill(document.querySelector('#type-pills .filter-pill[data-val=""]'), 'type-pills');
+    setPill(document.querySelector('#cat-pills .filter-pill[data-val=""]'), 'cat-pills');
+    setPill(document.querySelector('#bed-pills .filter-pill[data-val=""]'), 'bed-pills');
+    setPill(document.querySelector('#furn-pills .filter-pill[data-val=""]'), 'furn-pills');
+    document.querySelectorAll('#area-checks input').forEach(cb => cb.checked = false);
+    document.getElementById('price-min').value = '';
+    document.getElementById('price-max').value = '';
+    document.getElementById('search-q').value = '';
+    applyFilters();
+  }
+
+  // ── Build and run Supabase query ──
+  async function applyFilters(page) {
+    if (page) currentPage = page;
+    const f = getFilters();
+    renderActiveTags(f);
+
+    const grid = document.getElementById('listings-grid');
+    grid.innerHTML = Array(6).fill(`<div class="skeleton"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line xshort"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div></div></div>`).join('');
+    document.getElementById('result-count').textContent = 'Loading…';
+
+    let query = db.from('listings').select('*, listing_photos(*)', { count: 'exact' }).eq('status', 'active');
+
+    if (f.type)     query = query.eq('price_type', f.type);
+    if (f.cat)      query = query.eq('category', f.cat);
+    if (f.beds)     query = f.beds === '4' ? query.gte('bedrooms', 4) : query.eq('bedrooms', parseInt(f.beds));
+    if (f.furn !== '') query = query.eq('furnished', f.furn === 'true');
+    if (f.areas.length) query = query.in('area', f.areas);
+    if (f.priceMin) query = query.gte('price', parseFloat(f.priceMin));
+    if (f.priceMax) query = query.lte('price', parseFloat(f.priceMax));
+    if (f.q)        query = query.or(`title.ilike.%${f.q}%,description.ilike.%${f.q}%,area.ilike.%${f.q}%,address.ilike.%${f.q}%`);
+
+    // Sort
+    if (f.sort === 'price_asc')   query = query.order('price', { ascending: true });
+    else if (f.sort === 'price_desc') query = query.order('price', { ascending: false });
+    else if (f.sort === 'featured')   query = query.order('is_featured', { ascending: false }).order('created_at', { ascending: false });
+    else query = query.order('created_at', { ascending: false });
+
+    // Pagination
+    const from = (currentPage - 1) * PAGE_SIZE;
+    query = query.range(from, from + PAGE_SIZE - 1);
+
+    const { data, count, error } = await query;
+    if (error) { console.error(error); return; }
+
+    totalCount = count || 0;
+    renderResults(data || [], totalCount);
+    renderPagination(totalCount);
+  }
+
+  // ── Render listing cards ──
+  function formatPrice(price, type) {
+    const p = Number(price).toLocaleString('en-KE');
+    return type === 'rent' ? `KES ${p}<span>/mo</span>` : `KES ${p}`;
+  }
+
+  function buildCard(l) {
+    const photos = l.listing_photos || [];
+    const cover = photos.find(p => p.is_cover) || photos[0];
+    const imgHtml = cover
+      ? `<img src="${cover.url}" alt="${l.title}" loading="lazy"/>`
+      : `<div class="card-img-placeholder"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg><span style="font-size:11px">No photo</span></div>`;
+    const catBadge = l.category !== 'standard'
+      ? `<span class="badge-cat ${l.category}">${l.category}</span>` : '';
+    return `
+      <div class="card" onclick="window.location='listing.html?id=${l.id}'">
+        <div class="card-img">
+          ${imgHtml}
+          ${l.is_featured ? '<span class="badge-featured">Featured</span>' : ''}
+          ${catBadge}
+        </div>
+        <div class="card-body">
+          <div class="card-area">${l.area}${l.sub_area ? ' · ' + l.sub_area : ''}</div>
+          <div class="card-title">${l.title}</div>
+          <div class="card-sub">${l.address || 'Kisumu, Kenya'}</div>
+          <div class="card-price">${formatPrice(l.price, l.price_type)}</div>
+          <div class="card-meta">
+            ${l.bedrooms ? `<div class="card-meta-item"><svg viewBox="0 0 24 24"><path d="M2 4v16M22 4v16M2 12h20M2 8h4a2 2 0 012 2v2H2V8zM16 8h4a2 2 0 012 2v2h-6V8z"/></svg>${l.bedrooms} bed</div>` : ''}
+            ${l.bathrooms ? `<div class="card-meta-item"><svg viewBox="0 0 24 24"><path d="M9 6l1-1a2 2 0 012.83 0l6.17 6.17a1 1 0 010 1.41L17 14M3 20h18M5 20v-4a3 3 0 013-3h1"/></svg>${l.bathrooms} bath</div>` : ''}
+            ${l.size_sqm ? `<div class="card-meta-item"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="1"/></svg>${l.size_sqm}m²</div>` : ''}
+            ${l.furnished ? `<div class="card-meta-item"><svg viewBox="0 0 24 24"><rect x="2" y="8" width="20" height="10" rx="2"/><path d="M6 8V6a2 2 0 012-2h8a2 2 0 012 2v2"/><line x1="6" y1="14" x2="6" y2="18"/><line x1="18" y1="14" x2="18" y2="18"/></svg>Furnished</div>` : ''}
+          </div>
+        </div>
+      </div>`;
+  }
+
+  function renderResults(listings, count) {
+    const grid = document.getElementById('listings-grid');
+    const rc = document.getElementById('result-count');
+    rc.innerHTML = `<strong>${count.toLocaleString()}</strong> listing${count !== 1 ? 's' : ''} found`;
+
+    if (!listings.length) {
+      grid.innerHTML = `<div class="empty-state">
+        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+        <h3>No listings match your filters</h3>
+        <p>Try adjusting your search or <a onclick="resetAllFilters()" style="cursor:pointer">reset all filters</a></p>
+      </div>`;
+      return;
+    }
+    grid.innerHTML = listings.map(buildCard).join('');
+  }
+
+  // ── Pagination ──
+  function renderPagination(count) {
+    const totalPages = Math.ceil(count / PAGE_SIZE);
+    const el = document.getElementById('pagination');
+    if (totalPages <= 1) { el.innerHTML = ''; return; }
+
+    let html = `<button class="page-btn" onclick="applyFilters(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>←</button>`;
+    for (let i = 1; i <= totalPages; i++) {
+      if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+        html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="applyFilters(${i})">${i}</button>`;
+      } else if (i === currentPage - 2 || i === currentPage + 2) {
+        html += `<span style="padding:0 4px;color:var(--text-3);font-size:13px">…</span>`;
+      }
+    }
+    html += `<button class="page-btn" onclick="applyFilters(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>→</button>`;
+    el.innerHTML = html;
+  }
+
+  // ── Debounce for text inputs ──
+  function debouncedApply() {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(applyFilters, 500);
+  }
+
+  // ── Mobile sidebar ──
+  function openSidebar() {
+    document.getElementById('sidebar').classList.add('open');
+    document.getElementById('overlay').classList.add('open');
+  }
+  function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('overlay').classList.remove('open');
+  }
+
+  // ── Init ──
+  readUrlParams();
+  applyFilters();
+</script>
+</body>
+</html>

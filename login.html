@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sign in — NyumbaKisumu</title>
+  <meta name="description" content="Sign in or create a seller account on NyumbaKisumu to list your apartment in Kisumu, Maseno, and Luanda."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --green:       #0F6E56;
+      --green-light: #E1F5EE;
+      --green-mid:   #1D9E75;
+      --green-dark:  #085041;
+      --gold:        #BA7517;
+      --gold-light:  #FAEEDA;
+      --text:        #1a1a18;
+      --text-2:      #4a4a46;
+      --text-3:      #888780;
+      --border:      #e0ded8;
+      --surface:     #f7f6f2;
+      --white:       #ffffff;
+      --red:         #c0392b;
+      --red-light:   #fdecea;
+      --radius:      10px;
+      --radius-lg:   16px;
+      --shadow:      0 1px 3px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.06);
+      --shadow-lg:   0 8px 32px rgba(0,0,0,0.12);
+    }
+    html { scroll-behavior: smooth; height: 100%; }
+    body {
+      font-family: 'Inter', sans-serif;
+      color: var(--text);
+      background: var(--surface);
+      font-size: 15px;
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    a { text-decoration: none; color: inherit; }
+    button { font-family: inherit; cursor: pointer; border: none; }
+
+    /* ── Navbar ── */
+    nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 32px; height: 64px;
+      background: var(--white); border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .logo {
+      display: flex; align-items: center; gap: 10px;
+      font-family: 'Playfair Display', serif; font-size: 20px; color: var(--green-dark);
+    }
+    .logo-icon {
+      width: 34px; height: 34px; background: var(--green); border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .logo-icon svg { width: 18px; height: 18px; fill: none; stroke: white; stroke-width: 2; stroke-linecap: round; }
+    .nav-right { font-size: 14px; color: var(--text-2); }
+    .nav-right a { color: var(--green); font-weight: 500; }
+    .nav-right a:hover { text-decoration: underline; }
+
+    /* ── Layout ── */
+    .page {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      min-height: calc(100vh - 64px);
+    }
+
+    /* ── Left panel ── */
+    .left-panel {
+      background: var(--green-dark);
+      padding: 64px 56px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .left-panel::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+    .left-eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(255,255,255,0.1); color: #9FE1CB;
+      font-size: 12px; font-weight: 500; letter-spacing: .06em; text-transform: uppercase;
+      padding: 5px 14px; border-radius: 20px; margin-bottom: 28px;
+      width: fit-content; position: relative;
+    }
+    .left-eyebrow::before {
+      content: ''; width: 6px; height: 6px;
+      background: #5DCAA5; border-radius: 50%;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: .5; transform: scale(.8); }
+    }
+    .left-panel h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(28px, 3vw, 40px);
+      color: white; line-height: 1.2;
+      margin-bottom: 20px;
+      position: relative;
+    }
+    .left-panel h2 span { color: #5DCAA5; }
+    .left-panel p {
+      font-size: 15px; color: rgba(255,255,255,0.6);
+      margin-bottom: 40px; max-width: 340px; position: relative;
+    }
+
+    /* Benefits list */
+    .benefits { display: flex; flex-direction: column; gap: 16px; position: relative; }
+    .benefit {
+      display: flex; align-items: flex-start; gap: 14px;
+    }
+    .benefit-icon {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: rgba(255,255,255,0.08);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; margin-top: 2px;
+    }
+    .benefit-icon svg { width: 18px; height: 18px; stroke: #5DCAA5; fill: none; stroke-width: 2; stroke-linecap: round; }
+    .benefit-text strong { display: block; font-size: 14px; font-weight: 600; color: white; margin-bottom: 2px; }
+    .benefit-text span { font-size: 13px; color: rgba(255,255,255,0.5); }
+
+    /* Stats row */
+    .left-stats {
+      display: flex; gap: 28px; margin-top: 48px;
+      padding-top: 32px; border-top: 1px solid rgba(255,255,255,0.1);
+      position: relative;
+    }
+    .left-stat-val { font-size: 20px; font-weight: 700; color: white; }
+    .left-stat-lbl { font-size: 12px; color: rgba(255,255,255,0.45); margin-top: 2px; }
+
+    /* ── Right panel — auth form ── */
+    .right-panel {
+      display: flex; align-items: center; justify-content: center;
+      padding: 48px 40px;
+      background: var(--white);
+    }
+    .auth-card {
+      width: 100%; max-width: 400px;
+    }
+
+    /* Tabs */
+    .auth-tabs {
+      display: flex; gap: 0;
+      background: var(--surface); border-radius: var(--radius);
+      padding: 4px; margin-bottom: 32px;
+    }
+    .auth-tab {
+      flex: 1; text-align: center; padding: 9px 16px;
+      font-size: 14px; font-weight: 500; color: var(--text-3);
+      border-radius: 7px; cursor: pointer; transition: all .15s;
+      background: transparent; border: none;
+    }
+    .auth-tab.active {
+      background: var(--white); color: var(--text);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    }
+
+    /* Form */
+    .auth-title { font-family: 'Playfair Display', serif; font-size: 24px; color: var(--text); margin-bottom: 6px; }
+    .auth-sub { font-size: 14px; color: var(--text-3); margin-bottom: 28px; }
+
+    .form-group { margin-bottom: 18px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    label {
+      display: block; font-size: 13px; font-weight: 500;
+      color: var(--text-2); margin-bottom: 6px;
+    }
+    .input-wrap { position: relative; }
+    .input-wrap svg {
+      position: absolute; left: 13px; top: 50%; transform: translateY(-50%);
+      width: 16px; height: 16px; stroke: var(--text-3); fill: none; stroke-width: 2;
+      pointer-events: none;
+    }
+    input[type="text"], input[type="email"], input[type="password"], input[type="tel"] {
+      width: 100%; padding: 11px 14px 11px 38px;
+      border: 1.5px solid var(--border); border-radius: var(--radius);
+      font-family: inherit; font-size: 14px; color: var(--text);
+      background: var(--white); outline: none;
+      transition: border-color .15s;
+    }
+    input[type="text"]:focus, input[type="email"]:focus,
+    input[type="password"]:focus, input[type="tel"]:focus {
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(15, 110, 86, 0.08);
+    }
+    input.error { border-color: var(--red); }
+    input.error:focus { box-shadow: 0 0 0 3px rgba(192, 57, 43, 0.08); }
+
+    /* Password toggle */
+    .pw-toggle {
+      position: absolute; right: 13px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; cursor: pointer; padding: 0; color: var(--text-3);
+    }
+    .pw-toggle svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; display: block; }
+
+    /* Forgot password */
+    .forgot { text-align: right; margin-top: -10px; margin-bottom: 18px; }
+    .forgot a { font-size: 13px; color: var(--green); font-weight: 500; }
+    .forgot a:hover { text-decoration: underline; }
+
+    /* Submit button */
+    .btn-submit {
+      width: 100%; padding: 13px;
+      background: var(--green); color: white;
+      font-size: 15px; font-weight: 600; border-radius: var(--radius);
+      transition: background .15s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .btn-submit:hover:not(:disabled) { background: var(--green-dark); }
+    .btn-submit:disabled { opacity: .65; cursor: not-allowed; }
+    .btn-submit .spinner {
+      width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: white; border-radius: 50%;
+      animation: spin .7s linear infinite;
+      display: none;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .btn-submit.loading .spinner { display: block; }
+    .btn-submit.loading .btn-text { display: none; }
+
+    /* Alert */
+    .alert {
+      padding: 12px 16px; border-radius: var(--radius);
+      font-size: 13px; margin-bottom: 18px; display: none;
+      align-items: flex-start; gap: 10px;
+    }
+    .alert.error { background: var(--red-light); color: var(--red); border: 1px solid #f5c6c2; display: flex; }
+    .alert.success { background: var(--green-light); color: var(--green-dark); border: 1px solid #9FE1CB; display: flex; }
+    .alert svg { width: 16px; height: 16px; flex-shrink: 0; margin-top: 1px; fill: none; stroke: currentColor; stroke-width: 2; }
+
+    /* Divider */
+    .divider {
+      display: flex; align-items: center; gap: 12px;
+      margin: 20px 0; color: var(--text-3); font-size: 13px;
+    }
+    .divider::before, .divider::after {
+      content: ''; flex: 1; height: 1px; background: var(--border);
+    }
+
+    /* Phone note for register */
+    .phone-note { font-size: 12px; color: var(--text-3); margin-top: 5px; }
+
+    /* Terms */
+    .terms { font-size: 12px; color: var(--text-3); text-align: center; margin-top: 16px; line-height: 1.6; }
+    .terms a { color: var(--green); }
+    .terms a:hover { text-decoration: underline; }
+
+    /* Password strength */
+    .pw-strength { margin-top: 6px; }
+    .pw-strength-bar {
+      height: 3px; border-radius: 2px; background: var(--border);
+      margin-bottom: 4px; overflow: hidden;
+    }
+    .pw-strength-fill {
+      height: 100%; border-radius: 2px;
+      transition: width .3s, background .3s;
+      width: 0%;
+    }
+    .pw-strength-label { font-size: 11px; color: var(--text-3); }
+
+    /* Panels */
+    #panel-login, #panel-register, #panel-reset { display: none; }
+    #panel-login.active, #panel-register.active, #panel-reset.active { display: block; }
+
+    /* Reset panel back link */
+    .back-link {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 13px; color: var(--green); font-weight: 500;
+      margin-bottom: 20px; cursor: pointer;
+    }
+    .back-link:hover { text-decoration: underline; }
+    .back-link svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2.5; }
+
+    /* Success screen */
+    .success-screen {
+      text-align: center; padding: 20px 0; display: none;
+    }
+    .success-icon {
+      width: 64px; height: 64px; background: var(--green-light);
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 20px;
+    }
+    .success-icon svg { width: 28px; height: 28px; stroke: var(--green); fill: none; stroke-width: 2.5; }
+    .success-screen h3 { font-family: 'Playfair Display', serif; font-size: 22px; margin-bottom: 8px; }
+    .success-screen p { font-size: 14px; color: var(--text-3); margin-bottom: 24px; }
+    .btn-to-dashboard {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--green); color: white;
+      padding: 12px 28px; border-radius: var(--radius);
+      font-size: 14px; font-weight: 600;
+      transition: background .15s;
+    }
+    .btn-to-dashboard:hover { background: var(--green-dark); }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .page { grid-template-columns: 1fr; }
+      .left-panel { display: none; }
+      .right-panel { padding: 40px 24px; }
+      nav { padding: 0 16px; }
+    }
+    @media (max-width: 480px) {
+      .form-row { grid-template-columns: 1fr; gap: 0; }
+      .right-panel { padding: 32px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── NAVBAR ── -->
+<nav>
+  <a href="index.html" class="logo">
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    </div>
+    NyumbaKisumu
+  </a>
+  <div class="nav-right">
+    Looking to buy or rent? <a href="listings.html">Browse listings →</a>
+  </div>
+</nav>
+
+<!-- ── MAIN ── -->
+<div class="page">
+
+  <!-- Left panel -->
+  <div class="left-panel">
+    <div class="left-eyebrow">Kisumu · Maseno · Luanda</div>
+    <h2>List your apartment,<br>reach <span>real buyers</span></h2>
+    <p>No agents. No commission. Just your listing in front of thousands of people searching for apartments across Western Kenya.</p>
+
+    <div class="benefits">
+      <div class="benefit">
+        <div class="benefit-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <div class="benefit-text">
+          <strong>Your listing, your control</strong>
+          <span>Edit, pause, or remove your listing anytime from your dashboard.</span>
+        </div>
+      </div>
+      <div class="benefit">
+        <div class="benefit-icon">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <div class="benefit-text">
+          <strong>Live in under 10 minutes</strong>
+          <span>Fill the form, upload photos, pay via M-Pesa — your listing goes live immediately.</span>
+        </div>
+      </div>
+      <div class="benefit">
+        <div class="benefit-icon">
+          <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+        </div>
+        <div class="benefit-text">
+          <strong>Buyers contact you directly</strong>
+          <span>Enquiries go straight to your phone — no middleman, no delays.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="left-stats">
+      <div>
+        <div class="left-stat-val" id="stat-total">—</div>
+        <div class="left-stat-lbl">Active listings</div>
+      </div>
+      <div>
+        <div class="left-stat-val">8</div>
+        <div class="left-stat-lbl">Areas covered</div>
+      </div>
+      <div>
+        <div class="left-stat-val">0%</div>
+        <div class="left-stat-lbl">Agent fee</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right panel -->
+  <div class="right-panel">
+    <div class="auth-card">
+
+      <!-- Tabs -->
+      <div class="auth-tabs">
+        <button class="auth-tab active" onclick="switchTab('login')" id="tab-login">Sign in</button>
+        <button class="auth-tab" onclick="switchTab('register')" id="tab-register">Create account</button>
+      </div>
+
+      <!-- ── LOGIN PANEL ── -->
+      <div id="panel-login" class="active">
+        <h1 class="auth-title">Welcome back</h1>
+        <p class="auth-sub">Sign in to manage your listings and enquiries.</p>
+
+        <div class="alert" id="login-alert">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <span id="login-alert-msg"></span>
+        </div>
+
+        <div class="form-group">
+          <label for="login-email">Email address</label>
+          <div class="input-wrap">
+            <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            <input type="email" id="login-email" placeholder="you@example.com" autocomplete="email"/>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="login-password">Password</label>
+          <div class="input-wrap">
+            <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+            <input type="password" id="login-password" placeholder="Enter your password" autocomplete="current-password"/>
+            <button class="pw-toggle" onclick="togglePw('login-password', this)" type="button" aria-label="Show password">
+              <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="forgot">
+          <a href="#" onclick="switchPanel('reset'); return false;">Forgot password?</a>
+        </div>
+
+        <button class="btn-submit" id="btn-login" onclick="doLogin()">
+          <div class="spinner"></div>
+          <span class="btn-text">Sign in</span>
+        </button>
+
+        <div class="divider">or</div>
+
+        <p class="terms">Don't have an account? <a href="#" onclick="switchTab('register'); return false;">Create one free →</a></p>
+      </div>
+
+      <!-- ── REGISTER PANEL ── -->
+      <div id="panel-register">
+        <h1 class="auth-title">Create your account</h1>
+        <p class="auth-sub">Free to join. Start listing in under 10 minutes.</p>
+
+        <div class="alert" id="register-alert">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <span id="register-alert-msg"></span>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="reg-firstname">First name</label>
+            <div class="input-wrap">
+              <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <input type="text" id="reg-firstname" placeholder="e.g. Amara" autocomplete="given-name"/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="reg-lastname">Last name</label>
+            <div class="input-wrap">
+              <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <input type="text" id="reg-lastname" placeholder="e.g. Odhiambo" autocomplete="family-name"/>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="reg-email">Email address</label>
+          <div class="input-wrap">
+            <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            <input type="email" id="reg-email" placeholder="you@example.com" autocomplete="email"/>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="reg-phone">M-Pesa phone number</label>
+          <div class="input-wrap">
+            <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.12 1.2 2 2 0 012.11 0h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 14.92z"/></svg>
+            <input type="tel" id="reg-phone" placeholder="07XX XXX XXX" autocomplete="tel"/>
+          </div>
+          <p class="phone-note">Used for M-Pesa listing payments. We'll never share it.</p>
+        </div>
+
+        <div class="form-group">
+          <label for="reg-password">Password</label>
+          <div class="input-wrap">
+            <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+            <input type="password" id="reg-password" placeholder="At least 8 characters" autocomplete="new-password" oninput="checkPwStrength(this.value)"/>
+            <button class="pw-toggle" onclick="togglePw('reg-password', this)" type="button" aria-label="Show password">
+              <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+          <div class="pw-strength">
+            <div class="pw-strength-bar"><div class="pw-strength-fill" id="pw-fill"></div></div>
+            <div class="pw-strength-label" id="pw-label"></div>
+          </div>
+        </div>
+
+        <button class="btn-submit" id="btn-register" onclick="doRegister()">
+          <div class="spinner"></div>
+          <span class="btn-text">Create account</span>
+        </button>
+
+        <p class="terms" style="margin-top: 14px;">
+          By creating an account you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
+        </p>
+      </div>
+
+      <!-- ── RESET PANEL ── -->
+      <div id="panel-reset">
+        <div class="back-link" onclick="switchPanel('login')">
+          <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+          Back to sign in
+        </div>
+        <h1 class="auth-title">Reset your password</h1>
+        <p class="auth-sub">Enter your email and we'll send you a reset link.</p>
+
+        <div class="alert" id="reset-alert">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <span id="reset-alert-msg"></span>
+        </div>
+
+        <!-- Success state -->
+        <div class="success-screen" id="reset-success">
+          <div class="success-icon">
+            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <h3>Check your email</h3>
+          <p>We've sent a password reset link to your email address. Check your inbox and follow the link.</p>
+          <a href="#" class="btn-to-dashboard" onclick="switchPanel('login'); return false;">Back to sign in</a>
+        </div>
+
+        <div id="reset-form">
+          <div class="form-group">
+            <label for="reset-email">Email address</label>
+            <div class="input-wrap">
+              <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              <input type="email" id="reset-email" placeholder="you@example.com" autocomplete="email"/>
+            </div>
+          </div>
+          <button class="btn-submit" id="btn-reset" onclick="doReset()">
+            <div class="spinner"></div>
+            <span class="btn-text">Send reset link</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ── SUCCESS SCREEN (after register) ── -->
+      <div class="success-screen" id="register-success">
+        <div class="success-icon">
+          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <h3>Account created!</h3>
+        <p>Check your email to verify your address, then come back to sign in and start listing.</p>
+        <a href="index.html" class="btn-to-dashboard">
+          Go to homepage
+          <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:white;fill:none;stroke-width:2"><polyline points="9 18 15 12 9 6"/></svg>
+        </a>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ── SUPABASE + JS ── -->
+<script>
+  const SUPABASE_URL = 'https://vliuuloyfhyxcsuchpss.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_oIIcecf3wzKMual5K24Z8Q_zmxVfgsx';
+  const { createClient } = supabase;
+  const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  // ── Tab / panel switching ──
+  function switchTab(tab) {
+    document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('tab-' + tab).classList.add('active');
+    switchPanel(tab);
+  }
+
+  function switchPanel(panel) {
+    ['login','register','reset'].forEach(p => {
+      const el = document.getElementById('panel-' + p);
+      if (el) el.classList.remove('active');
+    });
+    const target = document.getElementById('panel-' + panel);
+    if (target) target.classList.add('active');
+    clearAlerts();
+  }
+
+  function clearAlerts() {
+    document.querySelectorAll('.alert').forEach(a => {
+      a.classList.remove('error','success');
+      a.style.display = 'none';
+    });
+  }
+
+  function showAlert(id, msgId, message, type) {
+    const el = document.getElementById(id);
+    const msg = document.getElementById(msgId);
+    el.className = 'alert ' + type;
+    msg.textContent = message;
+  }
+
+  function setLoading(btnId, loading) {
+    const btn = document.getElementById(btnId);
+    btn.disabled = loading;
+    btn.classList.toggle('loading', loading);
+  }
+
+  // ── Password visibility toggle ──
+  function togglePw(inputId, btn) {
+    const input = document.getElementById(inputId);
+    const show = input.type === 'password';
+    input.type = show ? 'text' : 'password';
+    btn.innerHTML = show
+      ? `<svg viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`
+      : `<svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+  }
+
+  // ── Password strength ──
+  function checkPwStrength(pw) {
+    const fill = document.getElementById('pw-fill');
+    const label = document.getElementById('pw-label');
+    if (!pw) { fill.style.width = '0'; label.textContent = ''; return; }
+    let score = 0;
+    if (pw.length >= 8) score++;
+    if (/[A-Z]/.test(pw)) score++;
+    if (/[0-9]/.test(pw)) score++;
+    if (/[^A-Za-z0-9]/.test(pw)) score++;
+    const levels = [
+      { w: '25%', color: '#e74c3c', text: 'Weak' },
+      { w: '50%', color: '#e67e22', text: 'Fair' },
+      { w: '75%', color: '#f1c40f', text: 'Good' },
+      { w: '100%', color: '#27ae60', text: 'Strong' },
+    ];
+    const l = levels[score - 1] || levels[0];
+    fill.style.width = l.w;
+    fill.style.background = l.color;
+    label.textContent = l.text;
+    label.style.color = l.color;
+  }
+
+  // ── Validate email ──
+  function isEmail(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
+
+  // ── Login ──
+  async function doLogin() {
+    clearAlerts();
+    const email = document.getElementById('login-email').value.trim();
+    const password = document.getElementById('login-password').value;
+    if (!email || !isEmail(email)) {
+      showAlert('login-alert', 'login-alert-msg', 'Please enter a valid email address.', 'error');
+      return;
+    }
+    if (!password) {
+      showAlert('login-alert', 'login-alert-msg', 'Please enter your password.', 'error');
+      return;
+    }
+    setLoading('btn-login', true);
+    const { data, error } = await db.auth.signInWithPassword({ email, password });
+    setLoading('btn-login', false);
+    if (error) {
+      showAlert('login-alert', 'login-alert-msg', error.message === 'Invalid login credentials'
+        ? 'Email or password is incorrect. Try again.' : error.message, 'error');
+      return;
+    }
+    // Redirect to dashboard
+    window.location.href = 'dashboard.html';
+  }
+
+  // ── Register ──
+  async function doRegister() {
+    clearAlerts();
+    const firstName = document.getElementById('reg-firstname').value.trim();
+    const lastName  = document.getElementById('reg-lastname').value.trim();
+    const email     = document.getElementById('reg-email').value.trim();
+    const phone     = document.getElementById('reg-phone').value.trim();
+    const password  = document.getElementById('reg-password').value;
+
+    if (!firstName || !lastName) {
+      showAlert('register-alert', 'register-alert-msg', 'Please enter your first and last name.', 'error'); return;
+    }
+    if (!isEmail(email)) {
+      showAlert('register-alert', 'register-alert-msg', 'Please enter a valid email address.', 'error'); return;
+    }
+    if (!phone || phone.replace(/\s/g,'').length < 9) {
+      showAlert('register-alert', 'register-alert-msg', 'Please enter a valid Kenyan phone number.', 'error'); return;
+    }
+    if (password.length < 8) {
+      showAlert('register-alert', 'register-alert-msg', 'Password must be at least 8 characters.', 'error'); return;
+    }
+
+    setLoading('btn-register', true);
+    const { data, error } = await db.auth.signUp({
+      email, password,
+      options: {
+        data: { first_name: firstName, last_name: lastName, phone }
+      }
+    });
+    setLoading('btn-register', false);
+
+    if (error) {
+      showAlert('register-alert', 'register-alert-msg', error.message, 'error'); return;
+    }
+
+    // Also insert into profiles table
+    if (data.user) {
+      await db.from('profiles').upsert({
+        id: data.user.id,
+        full_name: `${firstName} ${lastName}`,
+        phone,
+        email
+      });
+    }
+
+    // Show success screen
+    document.getElementById('panel-register').innerHTML = '';
+    document.getElementById('register-success').style.display = 'block';
+  }
+
+  // ── Password reset ──
+  async function doReset() {
+    clearAlerts();
+    const email = document.getElementById('reset-email').value.trim();
+    if (!isEmail(email)) {
+      showAlert('reset-alert', 'reset-alert-msg', 'Please enter a valid email address.', 'error'); return;
+    }
+    setLoading('btn-reset', true);
+    const { error } = await db.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin + '/reset-confirm.html'
+    });
+    setLoading('btn-reset', false);
+    if (error) {
+      showAlert('reset-alert', 'reset-alert-msg', error.message, 'error'); return;
+    }
+    document.getElementById('reset-form').style.display = 'none';
+    document.getElementById('reset-success').style.display = 'block';
+  }
+
+  // ── Load live stat ──
+  async function loadStat() {
+    const { count } = await db.from('listings').select('*', { count: 'exact', head: true }).eq('status', 'active');
+    const el = document.getElementById('stat-total');
+    if (el) el.textContent = count || '0';
+  }
+  loadStat();
+
+  // ── If already logged in, redirect ──
+  db.auth.getSession().then(({ data }) => {
+    if (data.session) window.location.href = 'dashboard.html';
+  });
+
+  // ── Enter key support ──
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Enter') return;
+    const active = document.querySelector('[id^="panel-"].active');
+    if (!active) return;
+    if (active.id === 'panel-login') doLogin();
+    else if (active.id === 'panel-register') doRegister();
+    else if (active.id === 'panel-reset') doReset();
+  });
+</script>
+</body>
+</html>
