@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pricing — NyumbaKisumu</title>
+  <meta name="description" content="List your apartment in Kisumu, Maseno, or Luanda. Simple, affordable pricing with no agent commissions."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet"/>
+  <style>
+    /* ─── Reset & Tokens ─────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --green:       #0F6E56;
+      --green-light: #E1F5EE;
+      --green-mid:   #1D9E75;
+      --green-dark:  #085041;
+      --gold:        #BA7517;
+      --gold-light:  #FAEEDA;
+      --gold-mid:    #D4891A;
+      --text:        #1a1a18;
+      --text-2:      #4a4a46;
+      --text-3:      #888780;
+      --border:      #e0ded8;
+      --surface:     #f7f6f2;
+      --white:       #ffffff;
+      --radius:      12px;
+      --radius-lg:   20px;
+      --shadow-sm:   0 1px 3px rgba(0,0,0,0.07);
+      --shadow:      0 4px 16px rgba(0,0,0,0.08);
+      --shadow-lg:   0 16px 48px rgba(0,0,0,0.14);
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; color: var(--text); background: var(--white); font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased; }
+    a { text-decoration: none; color: inherit; }
+    img { display: block; max-width: 100%; }
+    button { font-family: inherit; cursor: pointer; border: none; background: none; }
+
+    /* ─── Navbar ──────────────────────────────────── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      height: 64px; display: flex; align-items: center; justify-content: space-between;
+      padding: 0 40px; background: var(--white); border-bottom: 1px solid var(--border);
+    }
+    .logo {
+      display: flex; align-items: center; gap: 10px;
+      font-family: 'Playfair Display', serif; font-size: 19px; color: var(--green-dark);
+    }
+    .logo-mark {
+      width: 34px; height: 34px; background: var(--green); border-radius: 9px;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .logo-mark svg { width: 17px; height: 17px; stroke: white; fill: none; stroke-width: 2; stroke-linecap: round; }
+    .nav-links { display: flex; align-items: center; gap: 6px; }
+    .nav-link { font-size: 14px; color: var(--text-2); padding: 8px 14px; border-radius: 8px; transition: background .15s; }
+    .nav-link:hover { background: var(--surface); }
+    .nav-link.current { color: var(--green); font-weight: 600; }
+    .btn-nav { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 600; padding: 9px 18px; border-radius: 9px; background: var(--green); color: white; transition: background .15s; }
+    .btn-nav:hover { background: var(--green-dark); }
+
+    /* ─── Hero ────────────────────────────────────── */
+    .hero {
+      background: var(--green-dark);
+      padding: 80px 40px 96px;
+      text-align: center;
+      position: relative; overflow: hidden;
+    }
+    /* Subtle grid texture */
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: 48px 48px;
+      pointer-events: none;
+    }
+    .hero-inner { position: relative; max-width: 680px; margin: 0 auto; }
+    .hero-tag {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: rgba(255,255,255,0.1); color: #9FE1CB;
+      font-size: 12px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase;
+      padding: 6px 16px; border-radius: 20px; margin-bottom: 28px; border: 1px solid rgba(255,255,255,0.12);
+    }
+    .hero-tag::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: #5DCAA5; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1}50%{opacity:.4} }
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(34px, 5.5vw, 58px);
+      line-height: 1.1; color: white; margin-bottom: 20px;
+    }
+    .hero h1 em { font-style: italic; color: #5DCAA5; }
+    .hero-sub { font-size: 17px; color: rgba(255,255,255,0.6); max-width: 480px; margin: 0 auto 36px; line-height: 1.7; }
+    .hero-trust {
+      display: inline-flex; align-items: center; gap: 20px; flex-wrap: wrap; justify-content: center;
+      background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 14px; padding: 14px 28px;
+    }
+    .trust-item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: rgba(255,255,255,0.7); }
+    .trust-item svg { width: 15px; height: 15px; stroke: #5DCAA5; fill: none; stroke-width: 2.5; flex-shrink: 0; }
+    .trust-sep { width: 1px; height: 20px; background: rgba(255,255,255,0.15); }
+
+    /* ─── Pricing cards section ───────────────────── */
+    .pricing-section {
+      padding: 0 40px 80px;
+      background: var(--surface);
+    }
+    .pricing-lift {
+      max-width: 900px; margin: 0 auto;
+      transform: translateY(-48px);
+    }
+
+    /* Toggle (one-time / monthly) */
+    .billing-toggle {
+      display: flex; justify-content: center; margin-bottom: 36px;
+    }
+    .toggle-track {
+      display: flex; align-items: center;
+      background: var(--white); border: 1.5px solid var(--border);
+      border-radius: 20px; padding: 4px; gap: 2px;
+    }
+    .toggle-opt {
+      font-size: 13px; font-weight: 500; padding: 7px 20px; border-radius: 16px;
+      color: var(--text-3); cursor: pointer; transition: all .18s;
+    }
+    .toggle-opt.active { background: var(--green); color: white; }
+
+    /* Cards */
+    .plans {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start;
+    }
+    .plan-card {
+      background: var(--white); border-radius: var(--radius-lg);
+      border: 1.5px solid var(--border);
+      padding: 36px; position: relative;
+      transition: transform .2s, box-shadow .2s;
+    }
+    .plan-card:hover { transform: translateY(-3px); }
+    .plan-card.basic { box-shadow: var(--shadow); }
+
+    /* Signature element: Featured card lifts with gold shimmer border */
+    .plan-card.featured {
+      border-color: transparent;
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-8px);
+      background:
+        linear-gradient(var(--white), var(--white)) padding-box,
+        linear-gradient(135deg, var(--gold) 0%, #F5C85A 40%, var(--gold) 60%, var(--gold-mid) 100%) border-box;
+      border: 2px solid transparent;
+      animation: shimmer-border 4s linear infinite;
+    }
+    .plan-card.featured:hover { transform: translateY(-12px); }
+    @keyframes shimmer-border {
+      0%   { background: linear-gradient(var(--white),var(--white)) padding-box, linear-gradient(0deg,   var(--gold) 0%, #F5C85A 40%, var(--gold) 100%) border-box; }
+      50%  { background: linear-gradient(var(--white),var(--white)) padding-box, linear-gradient(180deg, var(--gold) 0%, #F5C85A 40%, var(--gold) 100%) border-box; }
+      100% { background: linear-gradient(var(--white),var(--white)) padding-box, linear-gradient(360deg, var(--gold) 0%, #F5C85A 40%, var(--gold) 100%) border-box; }
+    }
+
+    .plan-badge {
+      position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
+      background: linear-gradient(135deg, var(--gold), var(--gold-mid));
+      color: white; font-size: 11px; font-weight: 700; letter-spacing: .06em;
+      text-transform: uppercase; padding: 5px 18px; border-radius: 20px;
+      display: flex; align-items: center; gap: 5px;
+      box-shadow: 0 4px 12px rgba(186,117,23,0.35);
+      white-space: nowrap;
+    }
+    .plan-badge svg { width: 12px; height: 12px; fill: rgba(255,255,255,0.8); }
+
+    .plan-name { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--text-3); margin-bottom: 6px; }
+    .plan-card.featured .plan-name { color: var(--gold); }
+
+    .plan-tagline { font-family: 'Playfair Display', serif; font-size: 18px; color: var(--text); margin-bottom: 24px; line-height: 1.3; }
+
+    .plan-price { margin-bottom: 8px; display: flex; align-items: baseline; gap: 6px; }
+    .price-currency { font-size: 18px; font-weight: 600; color: var(--text-2); margin-top: 6px; }
+    .price-amount { font-family: 'Playfair Display', serif; font-size: 64px; line-height: 1; font-weight: 700; color: var(--green-dark); }
+    .plan-card.featured .price-amount { color: var(--gold); }
+    .price-period { font-size: 13px; color: var(--text-3); }
+
+    .plan-desc { font-size: 13px; color: var(--text-3); margin-bottom: 28px; padding-bottom: 28px; border-bottom: 1px solid var(--border); line-height: 1.6; }
+
+    .plan-features { list-style: none; display: flex; flex-direction: column; gap: 12px; margin-bottom: 32px; }
+    .plan-features li { display: flex; align-items: flex-start; gap: 10px; font-size: 14px; color: var(--text-2); line-height: 1.5; }
+    .feat-check {
+      width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; margin-top: 1px;
+    }
+    .feat-check.yes { background: var(--green-light); }
+    .feat-check.yes svg { width: 10px; height: 10px; stroke: var(--green); fill: none; stroke-width: 3; }
+    .feat-check.no  { background: #f3f4f6; }
+    .feat-check.no svg  { width: 10px; height: 10px; stroke: var(--text-3); fill: none; stroke-width: 2.5; }
+    .plan-card.featured .feat-check.yes { background: #FEF3C7; }
+    .plan-card.featured .feat-check.yes svg { stroke: var(--gold); }
+    .feat-label { flex: 1; }
+    .feat-label strong { display: block; }
+    .feat-sub { font-size: 12px; color: var(--text-3); }
+
+    .plan-btn {
+      width: 100%; padding: 14px; border-radius: var(--radius); font-size: 15px; font-weight: 600;
+      cursor: pointer; transition: all .18s; display: flex; align-items: center; justify-content: center; gap: 8px; border: none;
+    }
+    .plan-btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2.5; }
+    .plan-btn.basic-btn { background: var(--surface); color: var(--green-dark); border: 1.5px solid var(--border); }
+    .plan-btn.basic-btn:hover { background: var(--green-light); border-color: var(--green); }
+    .plan-btn.featured-btn { background: linear-gradient(135deg, var(--gold), var(--gold-mid)); color: white; box-shadow: 0 6px 20px rgba(186,117,23,0.3); }
+    .plan-btn.featured-btn:hover { box-shadow: 0 8px 28px rgba(186,117,23,0.45); transform: translateY(-1px); }
+
+    .plan-note { text-align: center; font-size: 12px; color: var(--text-3); margin-top: 10px; }
+    .plan-note svg { width: 12px; height: 12px; display: inline-block; vertical-align: middle; stroke: var(--text-3); fill: none; stroke-width: 2; margin-right: 3px; }
+
+    /* ─── What you get section ────────────────────── */
+    .value-section { padding: 72px 40px; background: var(--white); }
+    .section-eyebrow { font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--green); margin-bottom: 12px; }
+    .section-title { font-family: 'Playfair Display', serif; font-size: clamp(26px, 3.5vw, 38px); color: var(--text); margin-bottom: 16px; line-height: 1.2; }
+    .section-sub { font-size: 16px; color: var(--text-2); max-width: 520px; line-height: 1.7; }
+    .value-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 52px; }
+    .value-card {
+      padding: 28px; border-radius: var(--radius-lg); background: var(--surface);
+      border: 1px solid var(--border); transition: box-shadow .2s;
+    }
+    .value-card:hover { box-shadow: var(--shadow); }
+    .value-icon {
+      width: 44px; height: 44px; border-radius: 11px; background: var(--green-light);
+      display: flex; align-items: center; justify-content: center; margin-bottom: 18px;
+    }
+    .value-icon svg { width: 21px; height: 21px; stroke: var(--green); fill: none; stroke-width: 1.8; }
+    .value-card h3 { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+    .value-card p { font-size: 13px; color: var(--text-2); line-height: 1.65; }
+
+    /* ─── Comparison table ────────────────────────── */
+    .compare-section { padding: 72px 40px; background: var(--surface); }
+    .compare-wrap { max-width: 760px; margin: 0 auto; }
+    .compare-table { width: 100%; border-collapse: collapse; margin-top: 48px; }
+    .compare-table th {
+      padding: 14px 20px; text-align: left; font-size: 13px; font-weight: 700;
+      background: var(--white); color: var(--text-2); border-bottom: 2px solid var(--border);
+    }
+    .compare-table th.plan-col { text-align: center; width: 160px; }
+    .compare-table th.plan-col.feat-col { color: var(--gold); }
+    .compare-table td {
+      padding: 14px 20px; font-size: 14px; color: var(--text-2);
+      border-bottom: 1px solid var(--border); vertical-align: middle;
+    }
+    .compare-table td.check-col { text-align: center; }
+    .compare-table tr:last-child td { border-bottom: none; }
+    .compare-table tr:hover td { background: rgba(15,110,86,0.02); }
+    .compare-table .group-row td {
+      background: var(--surface); font-size: 11px; font-weight: 700;
+      letter-spacing: .07em; text-transform: uppercase; color: var(--text-3);
+      padding: 10px 20px; border-top: 1px solid var(--border);
+    }
+    .c-yes { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; background: var(--green-light); border-radius: 50%; }
+    .c-yes svg { width: 12px; height: 12px; stroke: var(--green); fill: none; stroke-width: 3; }
+    .c-yes.gold { background: #FEF3C7; }
+    .c-yes.gold svg { stroke: var(--gold); }
+    .c-no { color: var(--border); font-size: 18px; line-height: 1; }
+    .c-text { font-size: 13px; font-weight: 600; color: var(--text); }
+    .c-text.gold { color: var(--gold); }
+
+    /* ─── Social proof ────────────────────────────── */
+    .proof-section { padding: 56px 40px; background: var(--green-dark); }
+    .proof-inner { max-width: 900px; margin: 0 auto; }
+    .proof-label { font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: rgba(255,255,255,0.35); text-align: center; margin-bottom: 36px; }
+    .proof-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .proof-card {
+      background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: var(--radius-lg); padding: 24px 22px;
+    }
+    .proof-stars { color: var(--gold); font-size: 14px; letter-spacing: 2px; margin-bottom: 14px; }
+    .proof-quote { font-size: 14px; color: rgba(255,255,255,0.8); line-height: 1.7; margin-bottom: 18px; font-style: italic; }
+    .proof-author { display: flex; align-items: center; gap: 10px; }
+    .proof-avatar {
+      width: 36px; height: 36px; border-radius: 50%; background: var(--green-mid);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 700; color: white; flex-shrink: 0;
+    }
+    .proof-name { font-size: 13px; font-weight: 600; color: white; }
+    .proof-role { font-size: 11px; color: rgba(255,255,255,0.4); }
+
+    /* ─── FAQ ─────────────────────────────────────── */
+    .faq-section { padding: 80px 40px; background: var(--white); }
+    .faq-wrap { max-width: 720px; margin: 0 auto; }
+    .faq-list { margin-top: 48px; display: flex; flex-direction: column; gap: 0; }
+    .faq-item { border-bottom: 1px solid var(--border); }
+    .faq-item:first-child { border-top: 1px solid var(--border); }
+    .faq-q {
+      width: 100%; display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 0; font-size: 15px; font-weight: 600; color: var(--text);
+      cursor: pointer; gap: 16px; text-align: left; background: none; border: none;
+      transition: color .15s;
+    }
+    .faq-q:hover { color: var(--green); }
+    .faq-q svg {
+      width: 18px; height: 18px; stroke: var(--text-3); fill: none; stroke-width: 2;
+      flex-shrink: 0; transition: transform .25s;
+    }
+    .faq-item.open .faq-q { color: var(--green); }
+    .faq-item.open .faq-q svg { transform: rotate(45deg); stroke: var(--green); }
+    .faq-a {
+      font-size: 14px; color: var(--text-2); line-height: 1.8;
+      max-height: 0; overflow: hidden;
+      transition: max-height .35s ease, padding .35s ease;
+    }
+    .faq-item.open .faq-a { max-height: 400px; padding-bottom: 20px; }
+    .faq-a a { color: var(--green); font-weight: 500; }
+    .faq-a a:hover { text-decoration: underline; }
+
+    /* ─── Money-back strip ───────────────────────── */
+    .guarantee-strip {
+      background: var(--green-light); border-top: 1px solid #9FE1CB; border-bottom: 1px solid #9FE1CB;
+      padding: 20px 40px; display: flex; align-items: center; justify-content: center; gap: 12px;
+      font-size: 14px; color: var(--green-dark); font-weight: 500;
+    }
+    .guarantee-strip svg { width: 20px; height: 20px; stroke: var(--green); fill: none; stroke-width: 2; flex-shrink: 0; }
+
+    /* ─── Final CTA ───────────────────────────────── */
+    .cta-section { padding: 96px 40px; background: var(--surface); text-align: center; }
+    .cta-inner { max-width: 600px; margin: 0 auto; }
+    .cta-section .section-title { margin-bottom: 14px; }
+    .cta-section p { font-size: 16px; color: var(--text-2); margin-bottom: 36px; line-height: 1.7; }
+    .cta-buttons { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .btn-cta-primary { display: inline-flex; align-items: center; gap: 8px; background: var(--green); color: white; font-size: 15px; font-weight: 600; padding: 14px 28px; border-radius: var(--radius); transition: all .18s; }
+    .btn-cta-primary:hover { background: var(--green-dark); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(15,110,86,0.25); }
+    .btn-cta-primary svg { width: 16px; height: 16px; stroke: white; fill: none; stroke-width: 2.5; }
+    .btn-cta-secondary { display: inline-flex; align-items: center; gap: 8px; background: transparent; color: var(--text-2); font-size: 15px; font-weight: 500; padding: 14px 28px; border-radius: var(--radius); border: 1.5px solid var(--border); transition: all .18s; }
+    .btn-cta-secondary:hover { border-color: var(--green); color: var(--green); }
+    .cta-disclaimer { font-size: 12px; color: var(--text-3); margin-top: 18px; }
+
+    /* ─── Footer ──────────────────────────────────── */
+    footer { background: var(--text); color: rgba(255,255,255,0.5); padding: 40px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+    .footer-logo { font-family: 'Playfair Display', serif; font-size: 17px; color: white; }
+    .footer-links { display: flex; gap: 20px; }
+    .footer-links a { font-size: 13px; transition: color .15s; }
+    .footer-links a:hover { color: white; }
+    .footer-copy { font-size: 12px; }
+
+    /* ─── Responsive ─────────────────────────────── */
+    @media (max-width: 860px) {
+      .plans { grid-template-columns: 1fr; max-width: 440px; margin: 0 auto; }
+      .plan-card.featured { transform: none; }
+      .plan-card.featured:hover { transform: translateY(-3px); }
+      .value-grid { grid-template-columns: 1fr 1fr; }
+      .proof-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 640px) {
+      nav { padding: 0 20px; }
+      .nav-links .nav-link { display: none; }
+      .hero { padding: 56px 20px 72px; }
+      .pricing-section { padding: 0 20px 60px; }
+      .pricing-lift { transform: translateY(-32px); }
+      .value-section, .compare-section, .faq-section, .cta-section { padding: 56px 20px; }
+      .proof-section { padding: 48px 20px; }
+      .value-grid { grid-template-columns: 1fr; }
+      .compare-table th.plan-col { width: 110px; }
+      .compare-table th, .compare-table td { padding: 12px 14px; font-size: 13px; }
+      .guarantee-strip { flex-direction: column; text-align: center; padding: 20px; }
+      footer { flex-direction: column; align-items: flex-start; padding: 28px 20px; }
+      .price-amount { font-size: 52px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .plan-card.featured { animation: none; }
+      * { transition-duration: 0.01ms !important; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── NAVBAR ── -->
+<nav>
+  <a href="index.html" class="logo">
+    <div class="logo-mark">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    </div>
+    NyumbaKisumu
+  </a>
+  <div class="nav-links">
+    <a href="listings.html" class="nav-link">Browse</a>
+    <a href="pricing.html" class="nav-link current">Pricing</a>
+    <a href="login.html" class="nav-link">Sign in</a>
+    <a href="post-listing.html" class="btn-nav">
+      <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:white;fill:none;stroke-width:2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      List your apartment
+    </a>
+  </div>
+</nav>
+
+<!-- ── HERO ── -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-tag">Simple, honest pricing</div>
+    <h1>Reach <em>thousands</em> of buyers.<br>Pay once. Keep everything.</h1>
+    <p class="hero-sub">No agent commissions. No monthly fees. No hidden charges. Just a small flat fee to get your apartment in front of every buyer and tenant searching in Kisumu, Maseno, and Luanda.</p>
+    <div class="hero-trust">
+      <div class="trust-item">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        No agent commission
+      </div>
+      <div class="trust-sep"></div>
+      <div class="trust-item">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        Pay once, stay live 30 days
+      </div>
+      <div class="trust-sep"></div>
+      <div class="trust-item">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        M-Pesa payments accepted
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── PRICING CARDS ── -->
+<section class="pricing-section">
+  <div class="pricing-lift">
+
+    <div class="plans">
+
+      <!-- Basic Plan -->
+      <div class="plan-card basic">
+        <div class="plan-name">Standard listing</div>
+        <div class="plan-tagline">Everything you need to get found</div>
+        <div class="plan-price">
+          <span class="price-currency">KES</span>
+          <span class="price-amount" id="basic-price">800</span>
+        </div>
+        <div class="plan-desc">One flat fee. Your listing stays live for 30 days and appears in search results across all areas — Kisumu, Maseno, and Luanda.</div>
+
+        <ul class="plan-features">
+          <li>
+            <div class="feat-check yes"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="feat-label"><strong>Live for 30 days</strong><span class="feat-sub">Renewable for another KES 800</span></div>
+          </li>
+          <li>
+            <div class="feat-check yes"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="feat-label"><strong>Up to 6 photos</strong><span class="feat-sub">Show buyers exactly what they're getting</span></div>
+          </li>
+          <li>
+            <div class="feat-check yes"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="feat-label"><strong>Buyer enquiries via WhatsApp</strong><span class="feat-sub">Buyers contact you directly — no middleman</span></div>
+          </li>
+          <li>
+            <div class="feat-check yes"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="feat-label"><strong>Appears in search & filters</strong><span class="feat-sub">Shown by area, price, and bedroom count</span></div>
+          </li>
+          <li>
+            <div class="feat-check yes"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="feat-label"><strong>Seller dashboard</strong><span class="feat-sub">Track views, enquiries, and manage your listing</span></div>
+          </li>
+          <li>
+            <div class="feat-check no"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+            <div class="feat-label" style="color:var(--text-3)"><strong style="color:var(--text-3)">Featured placement</strong><span class="feat-sub">Not included — upgrade to get top visibility</span></div>
+          </li>
+          <li>
+            <div class="feat-check no"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+            <div class="feat-label" style="color:var(--text-3)"><strong style="color:var(--text-3)">Up to 15 photos</strong><span class="feat-sub">Standard plan is capped at 6</span></div>
+          </li>
+        </ul>
+
+        <button class="plan-btn basic-btn" onclick="window.location.href='post-listing.html?plan=basic'">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          List for KES 800
+        </button>
+        <div class="plan-note">
+          <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+          Paid securely via M-Pesa
+        </div>
+      </div>
+
+      <!-- Featured Plan -->
+      <div class="plan-card featured">
+        <div class="plan-badge">
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          Most effective · Best value
+        </div>
+
+        <div class="plan-name">Featured listing</div>
+        <div class="plan-tagline">Maximum visibility, faster results</div>
+        <div class="plan-price">
+          <span class="price-currency">KES</span>
+          <span class="price-amount" id="featured-price">2,500</span>
+        </div>
+        <div class="plan-desc">Your listing is pinned to the top of search results and the homepage with a bold Featured badge — seen first by every buyer in your area.</div>
+
+        <ul class="plan-features">
+          <li>
+            <div class="feat-check yes gold"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="feat-label"><strong>Live for 30 days</strong><span class="feat-sub">Renewable — same rate</span></div>
+          </li>
+          <li>
+            <div class="feat-check yes gold"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="feat-label"><strong>Up to 15 photos</strong><span class="feat-sub">More photos = more buyer confidence</span></div>
+          </li>
+          <li>
+            <div class="feat-check yes gold"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="feat-label"><strong>Buyer enquiries via WhatsApp</strong><span class="feat-sub">Direct contact, zero commission</span></div>
+          </li>
+          <li>
+            <div class="feat-check yes gold"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="feat-label"><strong>Priority search placement</strong><span class="feat-sub">Appears above all standard listings</span></div>
+          </li>
+          <li>
+            <div class="feat-check yes gold"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="feat-label"><strong>Homepage "Featured" section</strong><span class="feat-sub">Shown to every visitor on the front page</span></div>
+          </li>
+          <li>
+            <div class="feat-check yes gold"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="feat-label"><strong>Gold "Featured" badge</strong><span class="feat-sub">Stands out in search results immediately</span></div>
+          </li>
+          <li>
+            <div class="feat-check yes gold"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="feat-label"><strong>Seller dashboard + analytics</strong><span class="feat-sub">See exactly how many people viewed your listing</span></div>
+          </li>
+        </ul>
+
+        <button class="plan-btn featured-btn" onclick="window.location.href='post-listing.html?plan=featured'">
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          Get Featured for KES 2,500
+        </button>
+        <div class="plan-note" style="color:var(--gold)">
+          <svg viewBox="0 0 24 24" style="stroke:var(--gold)"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+          Paid securely via M-Pesa
+        </div>
+      </div>
+
+    </div><!-- /.plans -->
+  </div><!-- /.pricing-lift -->
+</section>
+
+<!-- ── WHAT YOU GET ── -->
+<section class="value-section">
+  <div style="max-width:900px;margin:0 auto">
+    <div class="section-eyebrow">Why it works</div>
+    <h2 class="section-title">Your listing works harder<br>than any agent ever could</h2>
+    <p class="section-sub">Agents charge 5–10% commission and show your property to a handful of people. NyumbaKisumu puts you in front of everyone searching online — every day, 24/7.</p>
+    <div class="value-grid">
+      <div class="value-card">
+        <div class="value-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg></div>
+        <h3>Live in under 10 minutes</h3>
+        <p>Fill in your details, upload photos, pay via M-Pesa, and your listing is live. No appointments, no waiting, no back-and-forth with an agent.</p>
+      </div>
+      <div class="value-card">
+        <div class="value-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></div>
+        <h3>Reach buyers everywhere</h3>
+        <p>Students from Maseno University, families relocating to Milimani, professionals in Kisumu CBD — your listing reaches the right people in the right area.</p>
+      </div>
+      <div class="value-card">
+        <div class="value-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div>
+        <h3>Zero commission on the deal</h3>
+        <p>When a buyer contacts you directly through WhatsApp, any deal you close is entirely yours. KES 800 is all you ever pay — nothing taken from the sale.</p>
+      </div>
+      <div class="value-card">
+        <div class="value-icon"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div>
+        <h3>Track every view and enquiry</h3>
+        <p>Your seller dashboard shows who's looking, how many people enquired, and lets you respond to buyers — all in one place, on any device.</p>
+      </div>
+      <div class="value-card">
+        <div class="value-icon"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
+        <h3>8 areas across Western Kenya</h3>
+        <p>Milimani, Kisumu CBD, Kondele, Riat Hills, Mamboleo, Maseno, Luanda, and Ahero — with filters that show buyers only what's relevant to them.</p>
+      </div>
+      <div class="value-card">
+        <div class="value-icon"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 11a2 2 0 011.93-2.18h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L9.91 16a16 16 0 006.09 6.09l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 22.92z"/></svg></div>
+        <h3>Buyers call or WhatsApp you directly</h3>
+        <p>No platform inbox. No delays. When a buyer clicks enquire, your WhatsApp opens immediately — you talk to real buyers in real time.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── COMPARISON TABLE ── -->
+<section class="compare-section">
+  <div class="compare-wrap">
+    <div style="text-align:center">
+      <div class="section-eyebrow">Plan comparison</div>
+      <h2 class="section-title">Exactly what's in each plan</h2>
+    </div>
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th class="plan-col">Standard<br><span style="font-size:12px;font-weight:400;color:var(--text-3)">KES 800</span></th>
+          <th class="plan-col feat-col">Featured ★<br><span style="font-size:12px;font-weight:400;color:var(--text-3)">KES 2,500</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="group-row"><td colspan="3">Listing basics</td></tr>
+        <tr>
+          <td>Listing duration</td>
+          <td class="check-col"><span class="c-text">30 days</span></td>
+          <td class="check-col"><span class="c-text gold">30 days</span></td>
+        </tr>
+        <tr>
+          <td>Number of photos</td>
+          <td class="check-col"><span class="c-text">Up to 6</span></td>
+          <td class="check-col"><span class="c-text gold">Up to 15</span></td>
+        </tr>
+        <tr>
+          <td>Appears in search results</td>
+          <td class="check-col"><div class="c-yes"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></td>
+          <td class="check-col"><div class="c-yes gold"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></td>
+        </tr>
+        <tr>
+          <td>Area + price + bedroom filters</td>
+          <td class="check-col"><div class="c-yes"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></td>
+          <td class="check-col"><div class="c-yes gold"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></td>
+        </tr>
+        <tr>
+          <td>Buyer contact via WhatsApp</td>
+          <td class="check-col"><div class="c-yes"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></td>
+          <td class="check-col"><div class="c-yes gold"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></td>
+        </tr>
+        <tr>
+          <td>Seller dashboard</td>
+          <td class="check-col"><div class="c-yes"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></td>
+          <td class="check-col"><div class="c-yes gold"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></td>
+        </tr>
+
+        <tr class="group-row"><td colspan="3">Visibility & promotion</td></tr>
+        <tr>
+          <td>Featured badge on listing card</td>
+          <td class="check-col"><span class="c-no">—</span></td>
+          <td class="check-col"><div class="c-yes gold"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></td>
+        </tr>
+        <tr>
+          <td>Priority placement above standard listings</td>
+          <td class="check-col"><span class="c-no">—</span></td>
+          <td class="check-col"><div class="c-yes gold"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></td>
+        </tr>
+        <tr>
+          <td>Homepage "Featured listings" section</td>
+          <td class="check-col"><span class="c-no">—</span></td>
+          <td class="check-col"><div class="c-yes gold"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></td>
+        </tr>
+        <tr>
+          <td>Gold highlight in search results</td>
+          <td class="check-col"><span class="c-no">—</span></td>
+          <td class="check-col"><div class="c-yes gold"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></td>
+        </tr>
+
+        <tr class="group-row"><td colspan="3">What you never pay</td></tr>
+        <tr>
+          <td>Agent commission on the deal</td>
+          <td class="check-col"><div class="c-yes"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></td>
+          <td class="check-col"><div class="c-yes gold"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></td>
+        </tr>
+        <tr>
+          <td>Monthly subscription fee</td>
+          <td class="check-col"><div class="c-yes"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></td>
+          <td class="check-col"><div class="c-yes gold"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></td>
+        </tr>
+        <tr>
+          <td>Hidden platform fees</td>
+          <td class="check-col"><div class="c-yes"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></td>
+          <td class="check-col"><div class="c-yes gold"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ── SOCIAL PROOF ── -->
+<section class="proof-section">
+  <div class="proof-inner">
+    <div class="proof-label">What sellers in Kisumu say</div>
+    <div class="proof-grid">
+      <div class="proof-card">
+        <div class="proof-stars">★★★★★</div>
+        <p class="proof-quote">"Nilipata tenant ndani ya wiki moja. I paid KES 800, a tenant who pays KES 18,000 per month found me here. Best investment I've made this year."</p>
+        <div class="proof-author">
+          <div class="proof-avatar">AM</div>
+          <div>
+            <div class="proof-name">Achieng Moraa</div>
+            <div class="proof-role">Landlord · Kondele, Kisumu</div>
+          </div>
+        </div>
+      </div>
+      <div class="proof-card">
+        <div class="proof-stars">★★★★★</div>
+        <p class="proof-quote">"I listed my bedsitter near Maseno University. Three students WhatsApp'd me in two days. One moved in by end of week. The featured listing was worth every shilling."</p>
+        <div class="proof-author">
+          <div class="proof-avatar">PO</div>
+          <div>
+            <div class="proof-name">Peter Otieno</div>
+            <div class="proof-role">Property owner · Maseno</div>
+          </div>
+        </div>
+      </div>
+      <div class="proof-card">
+        <div class="proof-stars">★★★★★</div>
+        <p class="proof-quote">"An agent wanted 10% of the sale price — KES 180,000 on my apartment. NyumbaKisumu charged me KES 2,500 and I sold it myself in 3 weeks. Saved me a fortune."</p>
+        <div class="proof-author">
+          <div class="proof-avatar">GW</div>
+          <div>
+            <div class="proof-name">Grace Wambua</div>
+            <div class="proof-role">Seller · Milimani, Kisumu</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── GUARANTEE STRIP ── -->
+<div class="guarantee-strip">
+  <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+  <strong>No surprises, ever.</strong> &nbsp;You pay KES 800 or KES 2,500 once. If your listing doesn't go live within 24 hours, we refund you in full — back to your M-Pesa, no questions asked.
+</div>
+
+<!-- ── FAQ ── -->
+<section class="faq-section">
+  <div class="faq-wrap">
+    <div style="text-align:center;margin-bottom:0">
+      <div class="section-eyebrow">Questions answered</div>
+      <h2 class="section-title">Everything you need to know</h2>
+    </div>
+
+    <div class="faq-list">
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          How do I pay? Is M-Pesa accepted?
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </button>
+        <div class="faq-a">Yes — M-Pesa is the primary payment method. After filling in your listing details, you'll be prompted to pay via M-Pesa STK push (the request comes directly to your phone). Once confirmed, your listing goes live immediately. We do not accept cash or bank transfer at this time.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          What happens after 30 days?
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </button>
+        <div class="faq-a">Your listing is automatically paused — not deleted. You'll get an email reminder 5 days before it expires. To renew, simply log in to your seller dashboard and pay the same fee again. All your details, photos, and enquiry history are saved, so renewal takes under a minute.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          Can I upgrade from Standard to Featured later?
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </button>
+        <div class="faq-a">Yes. If you listed at the Standard plan and want to upgrade to Featured, go to your seller dashboard, click on your listing, and choose "Upgrade to Featured." You'll pay the difference (KES 1,700) and your listing will immediately move to the top of results with the Featured badge.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          How many listings can I post?
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </button>
+        <div class="faq-a">There is no limit. You can post as many apartments as you own or manage. Each listing is priced individually — KES 800 per Standard or KES 2,500 per Featured. If you have 5 or more listings, <a href="mailto:hello@nyumbakisumu.co.ke">contact us</a> for a bulk discount package.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          Do buyers pay anything?
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </button>
+        <div class="faq-a">No. Browsing, searching, and contacting sellers is completely free for buyers. There are no registration fees and no charges for sending enquiries. This is intentional — it means more buyers on the platform, which means more people seeing your listing.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          Is this safe? How do I know buyers are real?
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </button>
+        <div class="faq-a">All buyer enquiries include the buyer's name and phone number, so you can verify who you're talking to before agreeing to anything. We also recommend always meeting in a public place for viewings and never accepting deposits before a viewing. All contact happens via WhatsApp — a platform you already know and trust.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          What areas does NyumbaKisumu cover?
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </button>
+        <div class="faq-a">We currently cover 8 areas: Milimani, Kisumu CBD, Kondele, Riat Hills, Mamboleo, Maseno (including near Maseno University), Luanda, and Ahero. We're actively expanding — if your area isn't listed, <a href="mailto:hello@nyumbakisumu.co.ke">let us know</a> and we'll prioritise adding it.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          Can I edit my listing after publishing?
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </button>
+        <div class="faq-a">Yes, anytime. Log in to your seller dashboard, find your listing, and click Edit. You can change the price, update photos, edit the description, and toggle furnished/unfurnished status. Changes are saved immediately with no additional charge.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          What if my apartment sells before the 30 days are up?
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </button>
+        <div class="faq-a">Congratulations! Simply log in and mark your listing as Sold or Rented from your dashboard. It will immediately be removed from public search results. We don't offer refunds for unused days — but at KES 800, even a week's visibility is excellent value compared to what you'd pay an agent.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FINAL CTA ── -->
+<section class="cta-section">
+  <div class="cta-inner">
+    <div class="section-eyebrow">Ready to list?</div>
+    <h2 class="section-title">Your next tenant or buyer<br>is already searching</h2>
+    <p>Start with KES 800 and be live in 10 minutes. Or go Featured for KES 2,500 and be the first listing they see. Either way, you're in control — no agents, no commissions, no waiting.</p>
+    <div class="cta-buttons">
+      <a href="post-listing.html?plan=featured" class="btn-cta-primary">
+        <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        Get Featured — KES 2,500
+      </a>
+      <a href="post-listing.html?plan=basic" class="btn-cta-secondary">
+        Start with Standard — KES 800
+      </a>
+    </div>
+    <div class="cta-disclaimer">Both plans paid via M-Pesa · No monthly fees · Cancel anytime · Refund within 24hrs if listing doesn't go live</div>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-logo">NyumbaKisumu</div>
+  <div class="footer-links">
+    <a href="listings.html">Browse listings</a>
+    <a href="post-listing.html">List a property</a>
+    <a href="login.html">Seller login</a>
+    <a href="mailto:hello@nyumbakisumu.co.ke">Contact</a>
+  </div>
+  <div class="footer-copy">© 2025 NyumbaKisumu · Kisumu, Western Kenya</div>
+</footer>
+
+<script>
+  function toggleFaq(btn) {
+    const item = btn.closest('.faq-item');
+    const isOpen = item.classList.contains('open');
+    // Close all
+    document.querySelectorAll('.faq-item.open').forEach(el => el.classList.remove('open'));
+    // Open clicked (unless it was already open)
+    if (!isOpen) item.classList.add('open');
+  }
+
+  // Scroll-triggered number count-up on the price amounts
+  function animatePrice(el, target, prefix) {
+    const duration = 900;
+    const start = performance.now();
+    const from = 0;
+    const to = parseInt(target.replace(/,/g, ''));
+    const update = (now) => {
+      const elapsed = now - start;
+      const progress = Math.min(elapsed / duration, 1);
+      const ease = 1 - Math.pow(1 - progress, 3);
+      const current = Math.round(from + (to - from) * ease);
+      el.textContent = current.toLocaleString('en-KE');
+      if (progress < 1) requestAnimationFrame(update);
+      else el.textContent = target; // set exact final value
+    };
+    requestAnimationFrame(update);
+  }
+
+  // Trigger count-up when pricing cards scroll into view
+  const basicPriceEl    = document.getElementById('basic-price');
+  const featuredPriceEl = document.getElementById('featured-price');
+  let animated = false;
+
+  const priceObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting && !animated) {
+        animated = true;
+        animatePrice(basicPriceEl, '800', 'KES ');
+        animatePrice(featuredPriceEl, '2,500', 'KES ');
+      }
+    });
+  }, { threshold: 0.3 });
+
+  priceObserver.observe(basicPriceEl);
+
+  // Open first FAQ by default
+  document.querySelector('.faq-item')?.classList.add('open');
+</script>
+</body>
+</html>
