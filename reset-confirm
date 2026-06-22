@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Reset Password — NyumbaKisumu</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --green:       #0F6E56;
+      --green-light: #E1F5EE;
+      --green-mid:   #1D9E75;
+      --green-dark:  #085041;
+      --gold:        #BA7517;
+      --text:        #1a1a18;
+      --text-2:      #4a4a46;
+      --text-3:      #888780;
+      --border:      #e0ded8;
+      --surface:     #f7f6f2;
+      --white:       #ffffff;
+      --red:         #c0392b;
+      --red-light:   #fdecea;
+      --radius:      10px;
+      --radius-lg:   16px;
+      --shadow-lg:   0 8px 40px rgba(0,0,0,0.12);
+    }
+    html, body { height: 100%; }
+    body {
+      font-family: 'Inter', sans-serif; color: var(--text);
+      background: var(--green-dark); font-size: 15px; line-height: 1.6;
+      display: flex; flex-direction: column; min-height: 100vh;
+    }
+    a { text-decoration: none; color: inherit; }
+    button { font-family: inherit; cursor: pointer; border: none; background: none; }
+
+    /* ── Background pattern ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+
+    /* ── Nav ── */
+    nav {
+      position: relative; z-index: 10;
+      height: 64px; padding: 0 32px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .logo { display: flex; align-items: center; gap: 10px; font-family: 'Playfair Display', serif; font-size: 20px; color: white; }
+    .logo-icon { width: 34px; height: 34px; background: rgba(255,255,255,0.12); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+    .logo-icon svg { width: 18px; height: 18px; fill: none; stroke: white; stroke-width: 2; stroke-linecap: round; }
+    .nav-right { font-size: 13px; color: rgba(255,255,255,0.5); }
+    .nav-right a { color: rgba(255,255,255,0.8); font-weight: 500; margin-left: 6px; }
+    .nav-right a:hover { color: white; }
+
+    /* ── Center card ── */
+    .center {
+      flex: 1; display: flex; align-items: center; justify-content: center;
+      padding: 32px 16px; position: relative; z-index: 1;
+    }
+    .card {
+      background: var(--white); border-radius: 20px;
+      width: 100%; max-width: 420px;
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+      animation: card-in .3s ease;
+    }
+    @keyframes card-in { from { opacity:0; transform: translateY(16px) scale(.98); } to { opacity:1; transform: none; } }
+
+    /* Card states — only one visible at a time */
+    .state { display: none; }
+    .state.active { display: block; }
+
+    /* ── LOADING STATE ── */
+    #state-loading { padding: 48px 36px; text-align: center; }
+    .spinner-ring {
+      width: 48px; height: 48px; border-radius: 50%;
+      border: 3px solid var(--green-light);
+      border-top-color: var(--green);
+      animation: spin .8s linear infinite;
+      margin: 0 auto 20px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    #state-loading p { font-size: 14px; color: var(--text-3); }
+
+    /* ── INVALID/EXPIRED STATE ── */
+    #state-invalid { padding: 40px 36px; text-align: center; }
+    .state-icon {
+      width: 64px; height: 64px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 20px;
+    }
+    .state-icon.red   { background: var(--red-light); }
+    .state-icon.green { background: var(--green-light); }
+    .state-icon svg { width: 28px; height: 28px; fill: none; stroke-width: 2; }
+    .state-icon.red svg   { stroke: var(--red); }
+    .state-icon.green svg { stroke: var(--green); }
+    #state-invalid h2 { font-family: 'Playfair Display', serif; font-size: 22px; margin-bottom: 10px; }
+    #state-invalid p { font-size: 14px; color: var(--text-3); margin-bottom: 24px; line-height: 1.7; }
+
+    /* ── FORM STATE ── */
+    .card-top {
+      background: var(--green-dark); padding: 28px 36px 24px;
+      position: relative; overflow: hidden;
+    }
+    .card-top::before {
+      content: ''; position: absolute; inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4z'/%3E%3C/g%3E%3C/svg%3E");
+    }
+    .card-top-eyebrow {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(255,255,255,0.1); color: #9FE1CB;
+      font-size: 11px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase;
+      padding: 4px 12px; border-radius: 20px; margin-bottom: 14px;
+      position: relative;
+    }
+    .card-top-eyebrow::before {
+      content: ''; width: 6px; height: 6px; border-radius: 50%;
+      background: #5DCAA5; animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(.8)} }
+    .card-top h1 { font-family: 'Playfair Display', serif; font-size: 24px; color: white; margin-bottom: 6px; position: relative; }
+    .card-top p  { font-size: 13px; color: rgba(255,255,255,0.55); position: relative; }
+
+    /* Form body */
+    .card-body { padding: 28px 36px 32px; }
+
+    /* Alert */
+    .alert {
+      display: none; align-items: flex-start; gap: 10px;
+      padding: 12px 16px; border-radius: var(--radius);
+      font-size: 13px; margin-bottom: 20px; line-height: 1.5;
+    }
+    .alert.error   { display: flex; background: var(--red-light);   color: var(--red);        border: 1px solid #f5c6c2; }
+    .alert.success { display: flex; background: var(--green-light); color: var(--green-dark); border: 1px solid #9FE1CB; }
+    .alert svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; flex-shrink: 0; margin-top: 1px; }
+
+    /* Form groups */
+    .form-group { margin-bottom: 18px; }
+    .form-group:last-of-type { margin-bottom: 0; }
+    label { display: block; font-size: 13px; font-weight: 500; color: var(--text-2); margin-bottom: 6px; }
+    .input-wrap { position: relative; }
+    .input-icon { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); pointer-events: none; }
+    .input-icon svg { width: 16px; height: 16px; stroke: var(--text-3); fill: none; stroke-width: 2; display: block; }
+    input[type="password"] {
+      width: 100%; padding: 11px 42px 11px 40px;
+      border: 1.5px solid var(--border); border-radius: var(--radius);
+      font-family: inherit; font-size: 14px; color: var(--text);
+      background: var(--white); outline: none;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    input[type="password"]:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(15,110,86,.09); }
+    input.has-error { border-color: var(--red); }
+    input.has-error:focus { box-shadow: 0 0 0 3px rgba(192,57,43,.09); }
+    .field-error { font-size: 12px; color: var(--red); margin-top: 5px; display: none; }
+    .field-error.show { display: block; }
+
+    /* Eye toggle */
+    .pw-eye {
+      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+      color: var(--text-3); padding: 4px; border-radius: 4px; transition: color .15s;
+    }
+    .pw-eye:hover { color: var(--text); }
+    .pw-eye svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; display: block; }
+
+    /* ── Password strength ── */
+    .pw-strength { margin-top: 10px; }
+    .pw-track { height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; margin-bottom: 6px; }
+    .pw-bar   { height: 100%; width: 0; border-radius: 2px; transition: width .3s, background .3s; }
+    .pw-rules { display: grid; grid-template-columns: 1fr 1fr; gap: 5px 12px; margin-top: 8px; }
+    .pw-rule  {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 12px; color: var(--text-3); transition: color .2s;
+    }
+    .pw-rule svg { width: 13px; height: 13px; stroke: var(--border); fill: none; stroke-width: 2.5; flex-shrink: 0; transition: stroke .2s; }
+    .pw-rule.met { color: var(--green); }
+    .pw-rule.met svg { stroke: var(--green); }
+    .pw-strength-label { font-size: 12px; color: var(--text-3); margin-bottom: 2px; }
+
+    /* Match indicator */
+    .match-indicator { font-size: 12px; margin-top: 5px; display: none; }
+    .match-indicator.show { display: flex; align-items: center; gap: 5px; }
+    .match-indicator.match   { color: var(--green); }
+    .match-indicator.nomatch { color: var(--red); }
+    .match-indicator svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 2.5; flex-shrink: 0; }
+
+    /* Submit */
+    .btn-submit {
+      width: 100%; margin-top: 22px; padding: 13px;
+      background: var(--green); color: white;
+      font-size: 15px; font-weight: 600; border-radius: var(--radius);
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: background .15s;
+    }
+    .btn-submit:hover:not(:disabled) { background: var(--green-dark); }
+    .btn-submit:disabled { opacity: .6; cursor: not-allowed; }
+    .btn-submit .spinner { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,.3); border-top-color: white; border-radius: 50%; animation: spin .7s linear infinite; display: none; }
+    .btn-submit.loading .spinner { display: block; }
+    .btn-submit.loading .btn-label { display: none; }
+
+    /* Divider */
+    .back-link {
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      font-size: 13px; color: var(--text-3); margin-top: 18px;
+    }
+    .back-link a { color: var(--green); font-weight: 500; }
+    .back-link a:hover { text-decoration: underline; }
+
+    /* ── SUCCESS STATE ── */
+    #state-success { padding: 40px 36px; text-align: center; }
+    #state-success h2 { font-family: 'Playfair Display', serif; font-size: 24px; margin-bottom: 10px; }
+    #state-success p  { font-size: 14px; color: var(--text-3); margin-bottom: 28px; line-height: 1.7; }
+    .countdown-ring {
+      position: relative; width: 64px; height: 64px;
+      margin: 0 auto 28px;
+    }
+    .countdown-ring svg { transform: rotate(-90deg); }
+    .countdown-ring circle {
+      fill: none; stroke: var(--green-light); stroke-width: 4;
+    }
+    .countdown-ring circle.progress {
+      stroke: var(--green);
+      stroke-dasharray: 163; stroke-dashoffset: 0;
+      transition: stroke-dashoffset 1s linear;
+    }
+    .countdown-number {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; font-weight: 700; color: var(--green-dark);
+    }
+    .btn-dashboard {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--green); color: white;
+      font-size: 14px; font-weight: 600; padding: 12px 28px; border-radius: var(--radius);
+      transition: background .15s; width: 100%; justify-content: center;
+    }
+    .btn-dashboard:hover { background: var(--green-dark); }
+    .btn-dashboard svg { width: 15px; height: 15px; stroke: white; fill: none; stroke-width: 2.5; }
+
+    /* ── Footer ── */
+    footer {
+      position: relative; z-index: 1;
+      text-align: center; padding: 20px 16px;
+      font-size: 12px; color: rgba(255,255,255,0.3);
+    }
+    footer a { color: rgba(255,255,255,0.45); }
+    footer a:hover { color: rgba(255,255,255,0.7); }
+
+    /* ── Responsive ── */
+    @media (max-width: 480px) {
+      nav { padding: 0 16px; }
+      .card-top { padding: 24px 24px 20px; }
+      .card-body { padding: 24px 24px 28px; }
+      #state-loading, #state-invalid, #state-success { padding: 36px 24px; }
+      .pw-rules { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav>
+  <a href="index.html" class="logo">
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    </div>
+    NyumbaKisumu
+  </a>
+  <div class="nav-right">
+    Remember it? <a href="login.html">Sign in →</a>
+  </div>
+</nav>
+
+<!-- ── CARD ── -->
+<div class="center">
+  <div class="card">
+
+    <!-- STATE: Loading (while Supabase verifies the token) -->
+    <div class="state active" id="state-loading">
+      <div class="spinner-ring"></div>
+      <p>Verifying your reset link…</p>
+    </div>
+
+    <!-- STATE: Invalid / expired link -->
+    <div class="state" id="state-invalid">
+      <div class="state-icon red">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+      </div>
+      <h2>Link expired or invalid</h2>
+      <p>This password reset link has expired or has already been used.<br/>Reset links are valid for <strong>1 hour</strong> after they are sent.</p>
+      <a href="login.html" style="
+        display:inline-flex; align-items:center; gap:8px;
+        width:100%; justify-content:center;
+        background:var(--green); color:white;
+        font-size:14px; font-weight:600;
+        padding:12px 24px; border-radius:var(--radius);
+        margin-bottom:12px;
+      ">Request a new reset link</a>
+      <a href="index.html" style="font-size:13px; color:var(--text-3); display:block; text-align:center">
+        ← Back to homepage
+      </a>
+    </div>
+
+    <!-- STATE: Reset form -->
+    <div class="state" id="state-form">
+      <div class="card-top">
+        <div class="card-top-eyebrow">Secure reset</div>
+        <h1>Set new password</h1>
+        <p>Choose a strong password you haven't used before.</p>
+      </div>
+      <div class="card-body">
+
+        <div class="alert" id="form-alert">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <span id="form-alert-msg"></span>
+        </div>
+
+        <!-- New password -->
+        <div class="form-group">
+          <label for="pw-new">New password</label>
+          <div class="input-wrap">
+            <div class="input-icon"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
+            <input type="password" id="pw-new" placeholder="At least 8 characters" autocomplete="new-password" oninput="onNewPw()"/>
+            <button class="pw-eye" onclick="toggleEye('pw-new',this)" type="button" aria-label="Show password">
+              <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+          <div class="pw-strength">
+            <div class="pw-track"><div class="pw-bar" id="pw-bar"></div></div>
+            <div class="pw-strength-label" id="pw-strength-label">Enter a password to check strength</div>
+            <div class="pw-rules">
+              <div class="pw-rule" id="rule-len">  <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>8+ characters</div>
+              <div class="pw-rule" id="rule-upper"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Uppercase letter</div>
+              <div class="pw-rule" id="rule-num">  <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>A number</div>
+              <div class="pw-rule" id="rule-sym">  <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>A symbol (!@#…)</div>
+            </div>
+          </div>
+          <div class="field-error" id="err-pw-new">Password must be at least 8 characters.</div>
+        </div>
+
+        <!-- Confirm password -->
+        <div class="form-group" style="margin-top:18px">
+          <label for="pw-confirm">Confirm password</label>
+          <div class="input-wrap">
+            <div class="input-icon"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
+            <input type="password" id="pw-confirm" placeholder="Repeat your new password" autocomplete="new-password" oninput="onConfirmPw()"/>
+            <button class="pw-eye" onclick="toggleEye('pw-confirm',this)" type="button" aria-label="Show password">
+              <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+          <div class="match-indicator" id="match-indicator">
+            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            <span id="match-text"></span>
+          </div>
+          <div class="field-error" id="err-pw-confirm">Passwords do not match.</div>
+        </div>
+
+        <button class="btn-submit" id="btn-submit" onclick="doReset()" disabled>
+          <div class="spinner"></div>
+          <span class="btn-label">
+            <svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:white;fill:none;stroke-width:2;display:inline;vertical-align:middle;margin-right:4px"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Save new password
+          </span>
+        </button>
+
+        <div class="back-link">
+          <a href="login.html">← Back to sign in</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- STATE: Success -->
+    <div class="state" id="state-success">
+      <div class="state-icon green" style="margin:0 auto 20px">
+        <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+      </div>
+      <h2>Password updated!</h2>
+      <p>Your password has been changed successfully.<br/>Redirecting you to sign in…</p>
+      <div class="countdown-ring">
+        <svg width="64" height="64" viewBox="0 0 64 64">
+          <circle cx="32" cy="32" r="26"/>
+          <circle cx="32" cy="32" r="26" class="progress" id="countdown-circle"/>
+        </svg>
+        <div class="countdown-number" id="countdown-number">5</div>
+      </div>
+      <a href="login.html" class="btn-dashboard">
+        <svg viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+        Sign in now
+      </a>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── FOOTER ── -->
+<footer>
+  © 2025 NyumbaKisumu &nbsp;·&nbsp;
+  <a href="index.html">Home</a> &nbsp;·&nbsp;
+  <a href="listings.html">Listings</a>
+</footer>
+
+<script>
+  const SUPABASE_URL = 'https://vliuuloyfhyxcsuchpss.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_oIIcecf3wzKMual5K24Z8Q_zmxVfgsx';
+  const { createClient } = supabase;
+  const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  // ─────────────────────────────────────────
+  // STATE MACHINE
+  // ─────────────────────────────────────────
+  function showState(id) {
+    document.querySelectorAll('.state').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  // ─────────────────────────────────────────
+  // INIT — Supabase handles the token from
+  // the URL hash automatically on load.
+  // We just need to check the session.
+  // ─────────────────────────────────────────
+  async function init() {
+    // Give Supabase a moment to parse the hash tokens
+    await new Promise(r => setTimeout(r, 800));
+
+    const { data: { session }, error } = await db.auth.getSession();
+
+    if (error || !session) {
+      // Try parsing hash manually (older Supabase versions)
+      const hash = window.location.hash;
+      if (hash.includes('error=')) {
+        showState('state-invalid');
+        return;
+      }
+      // No session and no error in hash — might be a direct visit
+      if (!hash.includes('access_token')) {
+        showState('state-invalid');
+        return;
+      }
+    }
+
+    if (session) {
+      showState('state-form');
+    } else {
+      showState('state-invalid');
+    }
+  }
+
+  // Listen for auth state changes (Supabase fires PASSWORD_RECOVERY event)
+  db.auth.onAuthStateChange((event, session) => {
+    if (event === 'PASSWORD_RECOVERY') {
+      showState('state-form');
+    }
+  });
+
+  // ─────────────────────────────────────────
+  // PASSWORD STRENGTH
+  // ─────────────────────────────────────────
+  function checkStrength(pw) {
+    const rules = {
+      'rule-len':   pw.length >= 8,
+      'rule-upper': /[A-Z]/.test(pw),
+      'rule-num':   /[0-9]/.test(pw),
+      'rule-sym':   /[^A-Za-z0-9]/.test(pw),
+    };
+    const score = Object.values(rules).filter(Boolean).length;
+    Object.entries(rules).forEach(([id, met]) =>
+      document.getElementById(id).classList.toggle('met', met)
+    );
+    const bar   = document.getElementById('pw-bar');
+    const label = document.getElementById('pw-strength-label');
+    if (!pw) {
+      bar.style.width = '0'; label.textContent = 'Enter a password to check strength'; label.style.color = '';
+      return 0;
+    }
+    const levels = [
+      { w:'25%', color:'#e74c3c', text:'Weak — add uppercase, numbers & symbols' },
+      { w:'50%', color:'#e67e22', text:'Fair' },
+      { w:'75%', color:'#d97706', text:'Good' },
+      { w:'100%', color:'#16a34a', text:'Strong ✓' },
+    ];
+    const l = levels[score - 1] || levels[0];
+    bar.style.width = l.w; bar.style.background = l.color;
+    label.textContent = l.text; label.style.color = l.color;
+    return score;
+  }
+
+  // ─────────────────────────────────────────
+  // REAL-TIME MATCH INDICATOR
+  // ─────────────────────────────────────────
+  function checkMatch() {
+    const pw1 = document.getElementById('pw-new').value;
+    const pw2 = document.getElementById('pw-confirm').value;
+    const indicator = document.getElementById('match-indicator');
+    const text      = document.getElementById('match-text');
+    if (!pw2) { indicator.className = 'match-indicator'; return false; }
+    if (pw1 === pw2) {
+      indicator.className = 'match-indicator show match';
+      indicator.querySelector('svg').innerHTML = '<polyline points="20 6 9 17 4 12"/>';
+      text.textContent = 'Passwords match';
+      return true;
+    } else {
+      indicator.className = 'match-indicator show nomatch';
+      indicator.querySelector('svg').innerHTML = '<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>';
+      text.textContent = 'Passwords do not match';
+      return false;
+    }
+  }
+
+  // ─────────────────────────────────────────
+  // INPUT HANDLERS — enable button when valid
+  // ─────────────────────────────────────────
+  function onNewPw() {
+    const pw = document.getElementById('pw-new').value;
+    document.getElementById('err-pw-new').classList.remove('show');
+    document.getElementById('pw-new').classList.remove('has-error');
+    checkStrength(pw);
+    updateSubmitBtn();
+    if (document.getElementById('pw-confirm').value) checkMatch();
+  }
+
+  function onConfirmPw() {
+    document.getElementById('err-pw-confirm').classList.remove('show');
+    document.getElementById('pw-confirm').classList.remove('has-error');
+    checkMatch();
+    updateSubmitBtn();
+  }
+
+  function updateSubmitBtn() {
+    const pw1   = document.getElementById('pw-new').value;
+    const pw2   = document.getElementById('pw-confirm').value;
+    const valid = pw1.length >= 8 && pw1 === pw2;
+    document.getElementById('btn-submit').disabled = !valid;
+  }
+
+  // ─────────────────────────────────────────
+  // SUBMIT
+  // ─────────────────────────────────────────
+  async function doReset() {
+    const pw1 = document.getElementById('pw-new').value;
+    const pw2 = document.getElementById('pw-confirm').value;
+    const alertEl = document.getElementById('form-alert');
+    alertEl.className = 'alert';
+
+    // Validate
+    let valid = true;
+    if (pw1.length < 8) {
+      document.getElementById('pw-new').classList.add('has-error');
+      document.getElementById('err-pw-new').classList.add('show');
+      valid = false;
+    }
+    if (pw1 !== pw2) {
+      document.getElementById('pw-confirm').classList.add('has-error');
+      document.getElementById('err-pw-confirm').classList.add('show');
+      valid = false;
+    }
+    if (!valid) return;
+
+    // Submit
+    const btn = document.getElementById('btn-submit');
+    btn.disabled = true; btn.classList.add('loading');
+
+    const { error } = await db.auth.updateUser({ password: pw1 });
+
+    btn.disabled = false; btn.classList.remove('loading');
+
+    if (error) {
+      alertEl.className = 'alert error';
+      document.getElementById('form-alert-msg').textContent =
+        error.message.includes('same password')
+          ? 'New password must be different from your current password.'
+          : error.message || 'Something went wrong. Please request a new reset link.';
+      return;
+    }
+
+    // Sign out so they log in fresh with new password
+    await db.auth.signOut();
+    showState('state-success');
+    startCountdown();
+  }
+
+  // ─────────────────────────────────────────
+  // COUNTDOWN + AUTO-REDIRECT
+  // ─────────────────────────────────────────
+  function startCountdown() {
+    let secs = 5;
+    const circle = document.getElementById('countdown-circle');
+    const number = document.getElementById('countdown-number');
+    const circumference = 163; // 2 * π * 26
+
+    circle.style.strokeDashoffset = '0';
+
+    const interval = setInterval(() => {
+      secs--;
+      number.textContent = secs;
+      // Animate ring draining
+      const offset = circumference * (1 - secs / 5);
+      circle.style.strokeDashoffset = offset;
+      if (secs <= 0) {
+        clearInterval(interval);
+        window.location.href = 'login.html';
+      }
+    }, 1000);
+  }
+
+  // ─────────────────────────────────────────
+  // EYE TOGGLE
+  // ─────────────────────────────────────────
+  function toggleEye(inputId, btn) {
+    const input = document.getElementById(inputId);
+    const show  = input.type === 'password';
+    input.type  = show ? 'text' : 'password';
+    btn.innerHTML = show
+      ? `<svg viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`
+      : `<svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+  }
+
+  // ─────────────────────────────────────────
+  // ENTER KEY
+  // ─────────────────────────────────────────
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !document.getElementById('btn-submit').disabled) doReset();
+  });
+
+  // ─────────────────────────────────────────
+  // BOOT
+  // ─────────────────────────────────────────
+  init();
+</script>
+</body>
+</html>
