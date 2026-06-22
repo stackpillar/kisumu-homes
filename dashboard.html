@@ -603,88 +603,79 @@
     </div>
 
     <!-- PAGE: SETTINGS -->
-    <div class="page" id="page-settings">
-      <div class="section-head" style="margin-bottom:24px"><h2>Account settings</h2></div>
-      <div class="settings-grid">
-        <div class="settings-section">
-          <h3><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile</h3>
-          <div class="profile-avatar-row">
-            <div class="profile-avatar-lg" id="settings-avatar">?</div>
-            <div class="profile-avatar-info">
-              <strong id="settings-fullname">—</strong>
-              <span id="settings-email-display">—</span>
-            </div>
-          </div>
-          <div class="form-grid">
-            <div class="form-group">
-              <label>First name</label>
-              <input type="text" id="s-firstname" placeholder="First name"/>
-            </div>
-            <div class="form-group">
-              <label>Last name</label>
-              <input type="text" id="s-lastname" placeholder="Last name"/>
-            </div>
-          </div>
-          <div class="form-group">
-            <label>Phone number (M-Pesa)</label>
-            <input type="tel" id="s-phone" placeholder="07XX XXX XXX"/>
-            <div class="hint">Buyers use this to reach you on WhatsApp</div>
-          </div>
-          <div class="form-group">
-            <label>Email address</label>
-            <input type="email" id="s-email" placeholder="you@example.com"/>
-          </div>
-          <button class="btn btn-primary btn-lg" id="btn-save-profile" onclick="saveProfile()" style="width:100%;justify-content:center">Save profile</button>
-        </div>
+<div class="page" id="page-settings">
+  <div class="section-head" style="margin-bottom:24px"><h2>Account settings</h2></div>
+  <div class="settings-grid">
 
-        <div style="display:flex;flex-direction:column;gap:20px">
-          <div class="settings-section">
-            <h3><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>Notifications</h3>
-            <div class="notif-list">
-              <div class="toggle-row">
-                <div class="toggle-label"><strong>New enquiry</strong><span>Get notified when a buyer messages you</span></div>
-                <label class="switch"><input type="checkbox" id="notif-enquiry" checked/><span class="switch-track"></span></label>
-              </div>
-              <div class="toggle-row">
-                <div class="toggle-label"><strong>Listing approved</strong><span>When your listing goes live</span></div>
-                <label class="switch"><input type="checkbox" id="notif-approved" checked/><span class="switch-track"></span></label>
-              </div>
-              <div class="toggle-row">
-                <div class="toggle-label"><strong>Listing expiring</strong><span>7 days before your listing expires</span></div>
-                <label class="switch"><input type="checkbox" id="notif-expiring" checked/><span class="switch-track"></span></label>
-              </div>
-              <div class="toggle-row">
-                <div class="toggle-label"><strong>Payment confirmed</strong><span>M-Pesa receipt notifications</span></div>
-                <label class="switch"><input type="checkbox" id="notif-payment" checked/><span class="switch-track"></span></label>
-              </div>
-            </div>
-            <button class="btn btn-outline btn-sm" style="margin-top:14px;width:100%;justify-content:center" onclick="showToast('Notification preferences saved','success')">Save preferences</button>
-          </div>
-
-          <div class="settings-section">
-            <h3><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>Change password</h3>
-            <div class="form-group">
-              <label>New password</label>
-              <input type="password" id="s-newpw" placeholder="At least 8 characters"/>
-            </div>
-            <div class="form-group">
-              <label>Confirm new password</label>
-              <input type="password" id="s-confirmpw" placeholder="Repeat password"/>
-            </div>
-            <button class="btn btn-outline btn-sm" style="width:100%;justify-content:center" onclick="changePassword()">Update password</button>
-          </div>
+    <!-- Profile card — redirects to profile.html -->
+    <div class="settings-section">
+      <h3>
+        <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Profile
+      </h3>
+      <div class="profile-avatar-row">
+        <div class="profile-avatar-lg" id="settings-avatar">?</div>
+        <div class="profile-avatar-info">
+          <strong id="settings-fullname">—</strong>
+          <span id="settings-email-display">—</span>
         </div>
       </div>
+      <p style="font-size:13px; color:var(--text-3); margin-bottom:18px; line-height:1.6">
+        Edit your name, phone number, email address, and password from your dedicated profile page.
+      </p>
+      <a href="profile.html" class="btn btn-primary btn-lg" style="width:100%; justify-content:center; text-decoration:none">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" width="15" height="15">
+          <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+          <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+        </svg>
+        Edit profile & password
+      </a>
+    </div>
 
-      <div class="danger-zone">
-        <h3>Danger zone</h3>
-        <p>Deleting your account permanently removes all your listings, enquiries, and payment records. This cannot be undone.</p>
-        <button class="btn btn-danger" onclick="confirmDeleteAccount()">
-          <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
-          Delete my account
+    <!-- Right column: Notifications only -->
+    <div style="display:flex; flex-direction:column; gap:20px">
+      <div class="settings-section">
+        <h3>
+          <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+          Notifications
+        </h3>
+        <div class="notif-list">
+          <div class="toggle-row">
+            <div class="toggle-label"><strong>New enquiry</strong><span>Get notified when a buyer messages you</span></div>
+            <label class="switch"><input type="checkbox" id="notif-enquiry" checked/><span class="switch-track"></span></label>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-label"><strong>Listing approved</strong><span>When your listing goes live</span></div>
+            <label class="switch"><input type="checkbox" id="notif-approved" checked/><span class="switch-track"></span></label>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-label"><strong>Listing expiring</strong><span>7 days before your listing expires</span></div>
+            <label class="switch"><input type="checkbox" id="notif-expiring" checked/><span class="switch-track"></span></label>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-label"><strong>Payment confirmed</strong><span>M-Pesa receipt notifications</span></div>
+            <label class="switch"><input type="checkbox" id="notif-payment" checked/><span class="switch-track"></span></label>
+          </div>
+        </div>
+        <button class="btn btn-outline btn-sm" style="margin-top:14px; width:100%; justify-content:center"
+          onclick="showToast('Notification preferences saved','success')">
+          Save preferences
         </button>
       </div>
     </div>
+
+  </div>
+
+  <!-- Danger zone -->
+  <div class="danger-zone">
+    <h3>Danger zone</h3>
+    <p>Deleting your account permanently removes all your listings, enquiries, and payment records. This cannot be undone.</p>
+    <a href="profile.html#danger-zone" class="btn btn-danger" style="text-decoration:none">
+      <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+      Manage in profile
+    </a>
+  </div>
+</div>
 
   </div><!-- /.main -->
 </div><!-- /.shell -->
