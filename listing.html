@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Loading listing… — NyumbaKisumu</title>
-  <meta name="description" content="View apartment details on NyumbaKisumu"/>
+  <title>Listing — NyumbaKisumu</title>
+  <meta name="description" content="View apartment listing details on NyumbaKisumu — photos, specs, price, and contact the seller directly."/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -17,6 +17,8 @@
       --green-dark:  #085041;
       --gold:        #BA7517;
       --gold-light:  #FAEEDA;
+      --red:         #C53030;
+      --red-light:   #FFF5F5;
       --text:        #1a1a18;
       --text-2:      #4a4a46;
       --text-3:      #888780;
@@ -25,489 +27,304 @@
       --white:       #ffffff;
       --radius:      10px;
       --radius-lg:   16px;
-      --shadow:      0 1px 4px rgba(0,0,0,0.07), 0 6px 16px rgba(0,0,0,0.06);
-      --shadow-lg:   0 8px 40px rgba(0,0,0,0.14);
     }
     html { scroll-behavior: smooth; }
     body { font-family: 'Inter', sans-serif; color: var(--text); background: var(--surface); font-size: 15px; line-height: 1.6; }
     a { text-decoration: none; color: inherit; }
-    img { display: block; max-width: 100%; }
-    button { font-family: inherit; cursor: pointer; border: none; background: none; }
+    button { font-family: inherit; cursor: pointer; border: none; }
+    input, select, textarea { font-family: inherit; }
 
-    /* ── NAVBAR ── */
+    /* ── Navbar ── */
     nav {
-      position: sticky; top: 0; z-index: 200;
+      position: sticky; top: 0; z-index: 100;
       display: flex; align-items: center; justify-content: space-between;
       padding: 0 32px; height: 64px;
       background: var(--white); border-bottom: 1px solid var(--border);
     }
-    .logo {
-      display: flex; align-items: center; gap: 10px;
-      font-family: 'Playfair Display', serif; font-size: 20px; color: var(--green-dark);
-    }
-    .logo-icon {
-      width: 34px; height: 34px; background: var(--green); border-radius: 8px;
-      display: flex; align-items: center; justify-content: center;
-    }
+    .logo { display: flex; align-items: center; gap: 10px; font-family: 'Playfair Display', serif; font-size: 20px; color: var(--green-dark); }
+    .logo-icon { width: 34px; height: 34px; background: var(--green); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
     .logo-icon svg { width: 18px; height: 18px; fill: none; stroke: white; stroke-width: 2; stroke-linecap: round; }
     .nav-links { display: flex; align-items: center; gap: 8px; }
     .nav-link { font-size: 14px; color: var(--text-2); padding: 8px 14px; border-radius: var(--radius); transition: background .15s; }
     .nav-link:hover { background: var(--surface); }
-    .btn { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 500; padding: 9px 18px; border-radius: var(--radius); transition: all .15s; cursor: pointer; border: none; }
-    .btn-primary { background: var(--green); color: white; }
+    .btn-primary { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 500; padding: 9px 18px; border-radius: var(--radius); background: var(--green); color: white; transition: background .15s; }
     .btn-primary:hover { background: var(--green-dark); }
-    .btn-outline { background: transparent; color: var(--text-2); border: 1.5px solid var(--border); }
-    .btn-outline:hover { border-color: var(--green); color: var(--green); background: var(--green-light); }
 
-    /* ── BREADCRUMB ── */
+    /* ── Breadcrumb ── */
     .breadcrumb {
-      padding: 14px 32px;
-      background: var(--white);
+      padding: 14px 32px; display: flex; align-items: center; gap: 8px;
+      font-size: 13px; color: var(--text-3); background: var(--white);
       border-bottom: 1px solid var(--border);
-      display: flex; align-items: center; gap: 8px;
-      font-size: 13px; color: var(--text-3);
     }
     .breadcrumb a { color: var(--text-3); transition: color .15s; }
     .breadcrumb a:hover { color: var(--green); }
-    .breadcrumb svg { width: 12px; height: 12px; stroke: var(--border); fill: none; stroke-width: 2.5; }
-    .breadcrumb-current { color: var(--text-2); font-weight: 500; }
+    .breadcrumb svg { width: 14px; height: 14px; stroke: var(--border); fill: none; stroke-width: 2; flex-shrink: 0; }
+    .breadcrumb span { color: var(--text-2); font-weight: 500; }
 
-    /* ── MAIN LAYOUT ── */
-    .listing-wrap {
-      max-width: 1180px; margin: 0 auto;
-      padding: 28px 32px 60px;
-      display: grid;
-      grid-template-columns: 1fr 380px;
-      gap: 32px;
-      align-items: start;
-    }
-    .listing-main { min-width: 0; }
-    .listing-sidebar { position: sticky; top: 88px; }
+    /* ── Page layout ── */
+    .page-wrap { max-width: 1100px; margin: 0 auto; padding: 32px 24px 80px; }
+    .layout { display: grid; grid-template-columns: 1fr 360px; gap: 32px; align-items: start; }
 
-    /* ── GALLERY ── */
-    .gallery { border-radius: var(--radius-lg); overflow: hidden; background: #1a1a18; margin-bottom: 28px; position: relative; }
+    /* ── LEFT COLUMN ── */
+
+    /* Photo gallery */
+    .gallery { border-radius: var(--radius-lg); overflow: hidden; background: var(--surface); margin-bottom: 24px; position: relative; }
     .gallery-main {
-      position: relative; height: 480px; cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      background: var(--surface);
+      width: 100%; aspect-ratio: 16/9; position: relative; overflow: hidden;
+      background: var(--surface); display: flex; align-items: center; justify-content: center;
     }
-    .gallery-main img { width: 100%; height: 100%; object-fit: cover; transition: opacity .25s; }
-    .gallery-main .no-photo {
-      display: flex; flex-direction: column; align-items: center; gap: 12px;
-      color: var(--text-3);
-    }
-    .gallery-main .no-photo svg { width: 52px; height: 52px; stroke: var(--border); fill: none; stroke-width: 1.5; }
-    .gallery-main .no-photo span { font-size: 14px; }
+    .gallery-main img { width: 100%; height: 100%; object-fit: cover; transition: opacity .3s; }
+    .gallery-no-photo { display: flex; flex-direction: column; align-items: center; gap: 12px; color: var(--text-3); }
+    .gallery-no-photo svg { width: 48px; height: 48px; stroke: var(--border); fill: none; stroke-width: 1.5; }
+    .gallery-no-photo p { font-size: 14px; }
 
-    /* Gallery arrows */
+    /* Nav arrows */
     .gallery-arrow {
       position: absolute; top: 50%; transform: translateY(-50%);
-      width: 42px; height: 42px; border-radius: 50%;
-      background: rgba(255,255,255,0.92); box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+      width: 38px; height: 38px; border-radius: 50%;
+      background: rgba(255,255,255,0.92); border: 1px solid var(--border);
       display: flex; align-items: center; justify-content: center;
-      cursor: pointer; transition: all .15s; z-index: 5; border: none;
+      cursor: pointer; transition: all .15s; z-index: 2;
     }
-    .gallery-arrow:hover { background: white; transform: translateY(-50%) scale(1.06); }
-    .gallery-arrow svg { width: 16px; height: 16px; stroke: var(--text); fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
-    .gallery-arrow.prev { left: 14px; }
-    .gallery-arrow.next { right: 14px; }
-    .gallery-arrow.hidden { display: none; }
-
-    /* Photo counter */
+    .gallery-arrow:hover { background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
+    .gallery-arrow svg { width: 16px; height: 16px; stroke: var(--text); fill: none; stroke-width: 2.5; }
+    .gallery-arrow.prev { left: 12px; }
+    .gallery-arrow.next { right: 12px; }
     .gallery-counter {
-      position: absolute; bottom: 14px; right: 14px;
-      background: rgba(0,0,0,0.55); color: white;
-      font-size: 12px; font-weight: 600; padding: 4px 12px;
-      border-radius: 20px; letter-spacing: .02em;
+      position: absolute; bottom: 12px; right: 14px;
+      background: rgba(0,0,0,0.55); color: white; font-size: 12px; font-weight: 500;
+      padding: 3px 10px; border-radius: 20px; z-index: 2;
     }
-
-    /* Expand icon */
-    .gallery-expand {
-      position: absolute; top: 14px; right: 14px;
-      width: 34px; height: 34px; border-radius: 8px;
-      background: rgba(0,0,0,0.45); display: flex; align-items: center; justify-content: center;
-      cursor: pointer; transition: background .15s;
-    }
-    .gallery-expand:hover { background: rgba(0,0,0,0.65); }
-    .gallery-expand svg { width: 14px; height: 14px; stroke: white; fill: none; stroke-width: 2; }
 
     /* Thumbnails */
-    .gallery-thumbs {
-      display: flex; gap: 6px; padding: 8px;
-      background: rgba(0,0,0,0.06);
-      overflow-x: auto; scrollbar-width: none;
-    }
-    .gallery-thumbs::-webkit-scrollbar { display: none; }
+    .gallery-thumbs { display: flex; gap: 8px; padding: 10px; overflow-x: auto; background: var(--white); border-top: 1px solid var(--border); }
+    .gallery-thumbs::-webkit-scrollbar { height: 4px; }
+    .gallery-thumbs::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
     .gallery-thumb {
-      width: 72px; height: 52px; flex-shrink: 0; border-radius: 6px;
-      overflow: hidden; cursor: pointer; position: relative;
-      opacity: .55; transition: opacity .15s;
-      border: 2px solid transparent;
+      width: 72px; height: 52px; border-radius: 6px; overflow: hidden; flex-shrink: 0;
+      border: 2px solid transparent; cursor: pointer; transition: border-color .15s;
     }
-    .gallery-thumb.active { opacity: 1; border-color: var(--green-mid); }
-    .gallery-thumb:hover { opacity: .85; }
+    .gallery-thumb.active { border-color: var(--green); }
     .gallery-thumb img { width: 100%; height: 100%; object-fit: cover; }
-    .gallery-thumb-placeholder {
-      width: 100%; height: 100%; background: var(--surface);
-      display: flex; align-items: center; justify-content: center;
-    }
-    .gallery-thumb-placeholder svg { width: 20px; height: 20px; stroke: var(--border); fill: none; stroke-width: 1.5; }
 
-    /* ── LIGHTBOX ── */
-    .lightbox {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.92);
-      z-index: 1000; display: none; align-items: center; justify-content: center;
+    /* Featured badge overlay */
+    .featured-overlay {
+      position: absolute; top: 14px; left: 14px; z-index: 2;
+      background: var(--gold); color: white; font-size: 11px; font-weight: 700;
+      padding: 4px 12px; border-radius: 20px; letter-spacing: .04em;
+      display: flex; align-items: center; gap: 5px;
     }
-    .lightbox.open { display: flex; }
-    .lightbox-img { max-width: 90vw; max-height: 88vh; border-radius: var(--radius); object-fit: contain; }
-    .lightbox-close {
-      position: absolute; top: 20px; right: 20px;
-      width: 40px; height: 40px; border-radius: 50%;
-      background: rgba(255,255,255,0.15); color: white;
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer; font-size: 18px; transition: background .15s;
-    }
-    .lightbox-close:hover { background: rgba(255,255,255,0.25); }
-    .lightbox-arrow {
-      position: absolute; top: 50%; transform: translateY(-50%);
-      width: 48px; height: 48px; border-radius: 50%;
-      background: rgba(255,255,255,0.12); color: white;
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer; transition: background .15s;
-    }
-    .lightbox-arrow:hover { background: rgba(255,255,255,0.22); }
-    .lightbox-arrow svg { width: 18px; height: 18px; stroke: white; fill: none; stroke-width: 2.5; stroke-linecap: round; }
-    .lightbox-arrow.prev { left: 20px; }
-    .lightbox-arrow.next { right: 20px; }
-    .lightbox-counter {
-      position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
-      color: rgba(255,255,255,0.6); font-size: 13px;
-    }
+    .featured-overlay svg { width: 12px; height: 12px; stroke: white; fill: none; stroke-width: 2; }
 
-    /* ── LISTING HEADER ── */
-    .listing-header { margin-bottom: 22px; }
-    .listing-badges { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
-    .badge {
-      display: inline-flex; align-items: center; gap: 5px;
-      font-size: 11px; font-weight: 700; padding: 4px 12px;
-      border-radius: 20px; letter-spacing: .04em; text-transform: uppercase;
+    /* Share & save row */
+    .action-row { display: flex; align-items: center; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+    .action-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 7px 14px; border-radius: 20px; border: 1.5px solid var(--border);
+      background: var(--white); font-size: 13px; font-weight: 500; color: var(--text-2);
+      cursor: pointer; transition: all .15s;
     }
-    .badge-type-sale   { background: var(--green-dark); color: white; }
-    .badge-type-rent   { background: var(--green); color: white; }
-    .badge-featured    { background: var(--gold); color: white; }
-    .badge-student     { background: #3b82f6; color: white; }
-    .badge-luxury      { background: #7c3aed; color: white; }
-    .badge-standard    { background: var(--surface); color: var(--text-2); border: 1.5px solid var(--border); }
+    .action-pill:hover { border-color: var(--green); color: var(--green); }
+    .action-pill svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; }
+    .action-pill.whatsapp { border-color: #25D366; color: #128C3E; background: #F0FDF5; }
+    .action-pill.whatsapp:hover { background: #25D366; color: white; }
 
-    .listing-title {
-      font-family: 'Playfair Display', serif;
-      font-size: clamp(22px, 3vw, 30px);
-      color: var(--text); line-height: 1.25; margin-bottom: 8px;
-    }
-    .listing-address {
-      display: flex; align-items: center; gap: 6px;
-      font-size: 14px; color: var(--text-3);
-    }
-    .listing-address svg { width: 14px; height: 14px; stroke: var(--green); fill: none; stroke-width: 2; flex-shrink: 0; }
-    .listing-price-row {
-      display: flex; align-items: baseline; gap: 10px;
-      margin-top: 16px; flex-wrap: wrap;
-    }
-    .listing-price {
-      font-size: 32px; font-weight: 700; color: var(--green-dark); line-height: 1;
-    }
-    .listing-price-suffix { font-size: 15px; color: var(--text-3); }
-    .listing-price-note { font-size: 13px; color: var(--text-3); }
+    /* Listing header */
+    .listing-header { margin-bottom: 20px; }
+    .listing-badges { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+    .badge { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 20px; }
+    .badge.student  { background: var(--green-light); color: var(--green-dark); }
+    .badge.standard { background: var(--surface); color: var(--text-2); border: 1px solid var(--border); }
+    .badge.luxury   { background: var(--gold-light); color: var(--gold); }
+    .badge.sale     { background: var(--green-light); color: var(--green-dark); }
+    .badge.rent     { background: var(--blue-light, #E6F1FB); color: #185FA5; }
+    .listing-title  { font-family: 'Playfair Display', serif; font-size: clamp(22px,3vw,32px); color: var(--text); line-height: 1.2; margin-bottom: 10px; }
+    .listing-location { display: flex; align-items: center; gap: 6px; font-size: 14px; color: var(--text-3); }
+    .listing-location svg { width: 15px; height: 15px; stroke: var(--green); fill: none; stroke-width: 2; flex-shrink: 0; }
 
-    /* ── KEY SPECS ── */
-    .specs-bar {
-      display: flex; gap: 0; border-radius: var(--radius-lg);
-      border: 1px solid var(--border); background: var(--white);
-      overflow: hidden; margin-bottom: 28px;
+    /* Price block */
+    .price-block {
+      background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-lg);
+      padding: 20px 24px; margin-bottom: 20px;
+      display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
     }
-    .spec-item {
-      flex: 1; display: flex; flex-direction: column; align-items: center;
-      gap: 5px; padding: 16px 12px; text-align: center;
-      border-right: 1px solid var(--border); position: relative;
-    }
-    .spec-item:last-child { border-right: none; }
-    .spec-icon { width: 28px; height: 28px; border-radius: 7px; background: var(--green-light); display: flex; align-items: center; justify-content: center; }
-    .spec-icon svg { width: 14px; height: 14px; stroke: var(--green); fill: none; stroke-width: 2; }
-    .spec-val { font-size: 16px; font-weight: 700; color: var(--text); line-height: 1; }
-    .spec-lbl { font-size: 11px; color: var(--text-3); }
+    .price-main { font-family: 'Playfair Display', serif; font-size: 34px; font-weight: 700; color: var(--green-dark); }
+    .price-main span { font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 400; color: var(--text-3); }
+    .price-meta { font-size: 13px; color: var(--text-3); margin-top: 4px; }
+    .price-views { display: flex; align-items: center; gap: 5px; font-size: 13px; color: var(--text-3); }
+    .price-views svg { width: 15px; height: 15px; stroke: var(--text-3); fill: none; stroke-width: 2; }
 
-    /* ── SECTION BLOCKS ── */
-    .detail-block {
-      background: var(--white); border: 1px solid var(--border);
-      border-radius: var(--radius-lg); padding: 24px;
-      margin-bottom: 20px;
-    }
-    .detail-block h3 {
-      font-size: 16px; font-weight: 600; color: var(--text);
-      margin-bottom: 16px; padding-bottom: 14px;
-      border-bottom: 1px solid var(--border);
-      display: flex; align-items: center; gap: 8px;
-    }
-    .detail-block h3 svg { width: 16px; height: 16px; stroke: var(--green); fill: none; stroke-width: 2; }
+    /* Specs grid */
+    .specs-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 20px; }
+    .specs-card h3 { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 18px; }
+    .specs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 14px; }
+    .spec-item { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 14px 10px; background: var(--surface); border-radius: var(--radius); }
+    .spec-icon { width: 36px; height: 36px; border-radius: 8px; background: var(--green-light); display: flex; align-items: center; justify-content: center; margin-bottom: 8px; }
+    .spec-icon svg { width: 18px; height: 18px; stroke: var(--green); fill: none; stroke-width: 1.8; stroke-linecap: round; }
+    .spec-val { font-size: 15px; font-weight: 700; color: var(--text); line-height: 1.2; }
+    .spec-lbl { font-size: 11px; color: var(--text-3); margin-top: 3px; }
 
     /* Description */
-    .description-text {
-      font-size: 14px; color: var(--text-2); line-height: 1.8;
-      overflow: hidden; transition: max-height .3s ease;
-    }
-    .description-text.clamped { max-height: 110px; }
-    .read-more {
-      margin-top: 10px; font-size: 13px; font-weight: 600;
-      color: var(--green); cursor: pointer; display: inline-flex; align-items: center; gap: 5px;
-    }
-    .read-more svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 2.5; transition: transform .2s; }
-    .read-more.open svg { transform: rotate(180deg); }
+    .desc-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 20px; }
+    .desc-card h3 { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 14px; }
+    .desc-text { font-size: 14px; color: var(--text-2); line-height: 1.8; white-space: pre-line; }
+    .desc-text.collapsed { display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; }
+    .read-more { font-size: 13px; color: var(--green); font-weight: 500; margin-top: 10px; cursor: pointer; display: inline-block; }
+    .read-more:hover { text-decoration: underline; }
 
-    /* Amenities */
-    .amenities-grid {
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px;
+    /* Map placeholder */
+    .map-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 20px; }
+    .map-card-header { padding: 18px 24px 14px; border-bottom: 1px solid var(--border); }
+    .map-card-header h3 { font-size: 15px; font-weight: 600; color: var(--text); }
+    .map-card-header p { font-size: 13px; color: var(--text-3); margin-top: 2px; }
+    .map-placeholder {
+      height: 220px; background: var(--surface);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 10px; color: var(--text-3);
     }
-    .amenity-item {
-      display: flex; align-items: center; gap: 10px;
-      padding: 10px 14px; border-radius: var(--radius);
-      background: var(--surface); font-size: 13px; font-weight: 500; color: var(--text-2);
-    }
-    .amenity-item svg { width: 15px; height: 15px; stroke: var(--green); fill: none; stroke-width: 2; flex-shrink: 0; }
-    .amenity-item.missing { opacity: .4; }
-    .amenity-item.missing svg { stroke: var(--text-3); }
+    .map-placeholder svg { width: 36px; height: 36px; stroke: var(--border); fill: none; stroke-width: 1.5; }
+    .map-placeholder p { font-size: 13px; }
+    .map-placeholder a { font-size: 13px; color: var(--green); font-weight: 500; }
+    .map-placeholder a:hover { text-decoration: underline; }
 
-    /* Details table */
-    .details-table { width: 100%; }
-    .details-table tr td {
-      padding: 9px 0; font-size: 13px;
-      border-bottom: 1px solid var(--surface);
-      vertical-align: middle;
-    }
-    .details-table tr:last-child td { border-bottom: none; }
-    .details-table .dt-label { color: var(--text-3); width: 48%; }
-    .details-table .dt-val { font-weight: 600; color: var(--text); }
+    /* Similar listings */
+    .similar-section { margin-top: 8px; }
+    .similar-section h3 { font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 16px; }
+    .similar-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px,1fr)); gap: 14px; }
+    .similar-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; cursor: pointer; transition: transform .2s, box-shadow .2s; }
+    .similar-card:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+    .similar-img { height: 130px; background: var(--surface); overflow: hidden; }
+    .similar-img img { width: 100%; height: 100%; object-fit: cover; }
+    .similar-body { padding: 12px 14px; }
+    .similar-area { font-size: 11px; font-weight: 600; color: var(--green); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 3px; }
+    .similar-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 6px; line-height: 1.3; }
+    .similar-price { font-size: 15px; font-weight: 700; color: var(--green-dark); }
 
-    /* Map */
-    .map-container {
-      height: 260px; border-radius: var(--radius);
-      overflow: hidden; background: #e8e4db; position: relative;
-    }
-    .map-container iframe { width: 100%; height: 100%; border: none; }
-    .map-pin-overlay {
-      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -100%);
-      display: flex; flex-direction: column; align-items: center; pointer-events: none;
-    }
-    .map-pin-overlay svg { width: 32px; height: 32px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); }
-    .map-pin-label {
-      background: var(--green-dark); color: white; font-size: 11px; font-weight: 600;
-      padding: 3px 10px; border-radius: 20px; white-space: nowrap;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2); margin-top: 4px;
-    }
+    /* ── RIGHT COLUMN ── */
 
-    /* ── SIMILAR LISTINGS ── */
-    .similar-section { margin-top: 32px; }
-    .similar-section h3 { font-family: 'Playfair Display', serif; font-size: 20px; margin-bottom: 18px; }
-    .similar-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-    .card {
-      background: white; border-radius: var(--radius-lg); border: 1px solid var(--border);
-      overflow: hidden; transition: transform .2s, box-shadow .2s; cursor: pointer;
-    }
-    .card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
-    .card-img { height: 150px; background: var(--surface); position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; }
-    .card-img img { width: 100%; height: 100%; object-fit: cover; }
-    .card-img svg { width: 28px; height: 28px; stroke: var(--border); fill: none; stroke-width: 1.5; }
-    .card-body { padding: 14px; }
-    .card-area { font-size: 10px; font-weight: 700; color: var(--green); text-transform: uppercase; letter-spacing: .07em; margin-bottom: 4px; }
-    .card-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 3px; line-height: 1.3; }
-    .card-price { font-size: 15px; font-weight: 700; color: var(--green-dark); margin-top: 8px; }
+    /* Sticky contact card */
+    .contact-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; position: sticky; top: 80px; }
+    .contact-card-title { font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+    .contact-card-sub { font-size: 13px; color: var(--text-3); margin-bottom: 20px; }
 
-    /* ── SIDEBAR ── */
-    .sidebar-card {
-      background: var(--white); border: 1px solid var(--border);
-      border-radius: var(--radius-lg); overflow: hidden;
-      box-shadow: var(--shadow);
-    }
-    .sidebar-price-header {
-      background: var(--green-dark); padding: 20px 22px;
-    }
-    .sidebar-price { font-size: 28px; font-weight: 700; color: white; line-height: 1; }
-    .sidebar-price-sub { font-size: 13px; color: rgba(255,255,255,0.6); margin-top: 4px; }
-    .sidebar-price-type {
-      display: inline-flex; margin-top: 10px;
-      background: rgba(255,255,255,0.15); color: rgba(255,255,255,0.9);
-      font-size: 11px; font-weight: 600; padding: 3px 12px; border-radius: 20px;
-      text-transform: uppercase; letter-spacing: .05em;
-    }
-
-    /* Enquiry form */
-    .enquiry-form { padding: 20px 22px; }
-    .enquiry-form h4 { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 14px; }
-    .form-group { margin-bottom: 12px; }
-    .form-group label { display: block; font-size: 11px; font-weight: 600; color: var(--text-3); margin-bottom: 5px; text-transform: uppercase; letter-spacing: .04em; }
-    .form-group input, .form-group textarea, .form-group select {
-      width: 100%; padding: 10px 13px;
-      border: 1.5px solid var(--border); border-radius: var(--radius);
-      font-family: inherit; font-size: 13px; color: var(--text);
-      background: var(--white); outline: none; transition: border-color .15s;
-    }
-    .form-group input:focus, .form-group textarea:focus {
-      border-color: var(--green); box-shadow: 0 0 0 3px rgba(15,110,86,0.08);
-    }
-    .form-group textarea { min-height: 90px; resize: vertical; line-height: 1.6; }
-    .btn-submit {
-      width: 100%; padding: 13px; border-radius: var(--radius);
-      background: var(--green); color: white; font-size: 14px; font-weight: 600;
-      transition: background .15s; cursor: pointer; border: none;
-      display: flex; align-items: center; justify-content: center; gap: 8px;
-    }
-    .btn-submit svg { width: 16px; height: 16px; stroke: white; fill: none; stroke-width: 2; }
-    .btn-submit:hover { background: var(--green-dark); }
-    .btn-submit:disabled { opacity: .6; cursor: not-allowed; }
-    .btn-whatsapp {
-      width: 100%; margin-top: 10px; padding: 12px;
-      border-radius: var(--radius); background: #25D366; color: white;
-      font-size: 14px; font-weight: 600; cursor: pointer; border: none;
-      display: flex; align-items: center; justify-content: center; gap: 8px;
-      transition: background .15s;
-    }
-    .btn-whatsapp:hover { background: #1da851; }
-    .btn-whatsapp svg { width: 18px; height: 18px; fill: white; }
-    .enquiry-divider {
-      text-align: center; font-size: 11px; color: var(--text-3);
-      margin: 12px 0; position: relative;
-    }
-    .enquiry-divider::before, .enquiry-divider::after {
-      content: ''; position: absolute; top: 50%; width: 38%;
-      height: 1px; background: var(--border);
-    }
-    .enquiry-divider::before { left: 0; }
-    .enquiry-divider::after { right: 0; }
-    .enquiry-success {
-      text-align: center; padding: 20px;
-      display: none;
-    }
-    .enquiry-success svg { width: 44px; height: 44px; stroke: var(--green); fill: none; stroke-width: 1.5; margin: 0 auto 12px; }
-    .enquiry-success h4 { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
-    .enquiry-success p { font-size: 13px; color: var(--text-3); }
-
-    /* Seller card */
-    .seller-card {
-      border-top: 1px solid var(--border); padding: 18px 22px;
-      display: flex; align-items: center; gap: 14px;
-    }
-    .seller-avatar {
-      width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0;
-      background: var(--green-mid); color: white;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 16px; font-weight: 700;
-    }
+    /* Seller info */
+    .seller-row { display: flex; align-items: center; gap: 12px; padding: 14px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); margin-bottom: 20px; }
+    .seller-avatar { width: 42px; height: 42px; border-radius: 50%; background: var(--green-light); display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; color: var(--green-dark); flex-shrink: 0; }
     .seller-name { font-size: 14px; font-weight: 600; color: var(--text); }
     .seller-since { font-size: 12px; color: var(--text-3); }
-    .seller-badge {
-      margin-top: 4px; display: inline-flex; align-items: center; gap: 4px;
-      font-size: 10px; font-weight: 600; color: var(--green);
-      background: var(--green-light); padding: 2px 8px; border-radius: 10px;
-    }
-    .seller-badge svg { width: 9px; height: 9px; fill: var(--green); }
+    .verified-badge { display: inline-flex; align-items: center; gap: 3px; font-size: 11px; color: var(--green); font-weight: 600; margin-top: 3px; }
+    .verified-badge svg { width: 12px; height: 12px; stroke: var(--green); fill: none; stroke-width: 2.5; }
 
-    /* Share row */
-    .share-row {
-      border-top: 1px solid var(--border); padding: 14px 22px;
-      display: flex; gap: 8px; align-items: center;
+    /* Call / WhatsApp buttons */
+    .contact-btns { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+    .btn-call {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 13px; border-radius: var(--radius); font-size: 15px; font-weight: 600;
+      background: var(--green); color: white; transition: background .15s;
     }
-    .share-label { font-size: 12px; color: var(--text-3); font-weight: 500; margin-right: 4px; }
-    .share-btn {
-      padding: 7px 14px; border-radius: 8px;
-      font-size: 12px; font-weight: 600; cursor: pointer; border: 1.5px solid var(--border);
-      background: white; color: var(--text-2); transition: all .15s;
-      display: flex; align-items: center; gap: 6px;
+    .btn-call:hover { background: var(--green-dark); }
+    .btn-call svg { width: 18px; height: 18px; stroke: white; fill: none; stroke-width: 2; }
+    .btn-whatsapp {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 13px; border-radius: var(--radius); font-size: 15px; font-weight: 600;
+      background: #25D366; color: white; transition: background .15s;
     }
-    .share-btn svg { width: 13px; height: 13px; }
-    .share-btn:hover { border-color: var(--green); color: var(--green); background: var(--green-light); }
-    .share-btn.copied { border-color: var(--green); color: var(--green); background: var(--green-light); }
+    .btn-whatsapp:hover { background: #128C3E; }
+    .btn-whatsapp svg { width: 18px; height: 18px; fill: white; }
 
-    /* Report link */
-    .report-link {
-      text-align: center; padding: 10px;
-      font-size: 11px; color: var(--text-3);
-      border-top: 1px solid var(--border);
-    }
-    .report-link a { color: var(--text-3); text-decoration: underline; }
+    /* Divider */
+    .or-divider { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--text-3); margin-bottom: 18px; }
+    .or-divider::before, .or-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
 
-    /* ── SKELETON ── */
-    .skeleton-wrap { max-width: 1180px; margin: 0 auto; padding: 28px 32px; display: grid; grid-template-columns: 1fr 380px; gap: 32px; }
-    .skel { background: linear-gradient(90deg, #f0efe9 25%, #e8e7e1 50%, #f0efe9 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; border-radius: 8px; }
+    /* Enquiry form */
+    .field { margin-bottom: 14px; }
+    .field label { display: block; font-size: 12px; font-weight: 600; color: var(--text-2); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 5px; }
+    .field input, .field textarea {
+      width: 100%; padding: 10px 14px; border: 1.5px solid var(--border);
+      border-radius: var(--radius); font-size: 14px; color: var(--text);
+      background: var(--surface); outline: none; transition: border-color .15s, background .15s;
+      font-family: inherit;
+    }
+    .field input:focus, .field textarea:focus { border-color: var(--green); background: var(--white); }
+    .field input.error, .field textarea.error { border-color: var(--red); }
+    .field textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
+    .field-error { font-size: 11px; color: var(--red); margin-top: 4px; display: none; }
+    .field-error.show { display: block; }
+
+    .btn-enquire {
+      width: 100%; padding: 13px; background: var(--green); color: white;
+      font-size: 15px; font-weight: 600; border-radius: var(--radius);
+      transition: background .15s; display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .btn-enquire:hover:not(:disabled) { background: var(--green-dark); }
+    .btn-enquire:disabled { opacity: .6; cursor: not-allowed; }
+    .spinner { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,.3); border-top-color: white; border-radius: 50%; animation: spin .7s linear infinite; display: none; }
+    .btn-enquire.loading .spinner { display: block; }
+    .btn-enquire.loading .btn-text { display: none; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .enquiry-note { font-size: 11px; color: var(--text-3); text-align: center; margin-top: 10px; line-height: 1.5; }
+
+    /* Enquiry success */
+    .enquiry-success { display: none; text-align: center; padding: 16px 0; }
+    .enquiry-success-icon { width: 52px; height: 52px; background: var(--green-light); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; }
+    .enquiry-success-icon svg { width: 24px; height: 24px; stroke: var(--green); fill: none; stroke-width: 2.5; }
+    .enquiry-success h4 { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+    .enquiry-success p { font-size: 13px; color: var(--text-3); }
+
+    /* Safety tip */
+    .safety-tip {
+      margin-top: 16px; padding: 12px 14px; background: var(--gold-light);
+      border-radius: var(--radius); border: 1px solid #FAC775;
+      font-size: 12px; color: #5C3A00; line-height: 1.6;
+      display: flex; gap: 8px;
+    }
+    .safety-tip svg { width: 14px; height: 14px; stroke: var(--gold); fill: none; stroke-width: 2; flex-shrink: 0; margin-top: 2px; }
+
+    /* ── Not found state ── */
+    .not-found { text-align: center; padding: 80px 24px; }
+    .not-found svg { width: 48px; height: 48px; stroke: var(--border); fill: none; stroke-width: 1.5; margin: 0 auto 16px; display: block; }
+    .not-found h2 { font-size: 20px; font-weight: 600; color: var(--text); margin-bottom: 8px; }
+    .not-found p { font-size: 14px; color: var(--text-3); margin-bottom: 20px; }
+
+    /* ── Skeleton ── */
+    .skel { height: 14px; background: linear-gradient(90deg,#f0efe9 25%,#e8e7e1 50%,#f0efe9 75%); background-size:200% 100%; animation:shimmer 1.4s infinite; border-radius:4px; }
+    .skel.short { width: 55%; }
+    .skel.xshort { width: 35%; }
+    .skel-block { background: linear-gradient(90deg,#f0efe9 25%,#e8e7e1 50%,#f0efe9 75%); background-size:200% 100%; animation:shimmer 1.4s infinite; border-radius: var(--radius-lg); }
     @keyframes shimmer { to { background-position: -200% 0; } }
 
-    /* ── NOT FOUND ── */
-    .not-found {
-      max-width: 480px; margin: 80px auto; text-align: center; padding: 0 32px;
-    }
-    .not-found svg { width: 64px; height: 64px; stroke: var(--border); fill: none; stroke-width: 1.2; margin: 0 auto 20px; }
-    .not-found h2 { font-family: 'Playfair Display', serif; font-size: 24px; margin-bottom: 10px; }
-    .not-found p { font-size: 14px; color: var(--text-3); margin-bottom: 24px; }
+    /* ── Footer ── */
+    footer { background: var(--text); color: rgba(255,255,255,0.6); padding: 48px 32px 28px; }
+    .footer-inner { max-width: 1100px; margin: 0 auto; }
+    .footer-top { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; margin-bottom: 40px; }
+    .footer-logo { font-family: 'Playfair Display', serif; font-size: 20px; color: white; margin-bottom: 10px; }
+    .footer-tagline { font-size: 13px; line-height: 1.7; max-width: 240px; }
+    .footer-col h4 { font-size: 12px; font-weight: 700; color: white; margin-bottom: 14px; letter-spacing: .08em; text-transform: uppercase; }
+    .footer-col a { display: block; font-size: 13px; color: rgba(255,255,255,0.55); margin-bottom: 8px; transition: color .15s; }
+    .footer-col a:hover { color: white; }
+    .footer-bottom { border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+    .footer-bottom p { font-size: 12px; }
 
-    /* ── TOAST ── */
-    .toast {
-      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
-      background: var(--text); color: white; padding: 11px 20px;
-      border-radius: var(--radius); font-size: 13px; font-weight: 500;
-      box-shadow: var(--shadow-lg); display: flex; align-items: center; gap: 8px;
-      transition: transform .25s; z-index: 2000; white-space: nowrap;
-    }
-    .toast.show { transform: translateX(-50%) translateY(0); }
-    .toast.success { background: var(--green-dark); }
-    .toast svg { width: 14px; height: 14px; stroke: white; fill: none; stroke-width: 2.5; }
-
-    /* ── FOOTER ── */
-    footer {
-      background: var(--text); color: rgba(255,255,255,0.5);
-      padding: 28px 32px; text-align: center; font-size: 12px;
-    }
-    footer a { color: rgba(255,255,255,0.55); margin: 0 12px; transition: color .15s; }
-    footer a:hover { color: white; }
-
-    /* ── RESPONSIVE ── */
-    @media (max-width: 960px) {
-      .listing-wrap { grid-template-columns: 1fr; padding: 20px 20px 50px; }
-      .listing-sidebar { position: static; }
-      .gallery-main { height: 320px; }
-      .similar-grid { grid-template-columns: repeat(2, 1fr); }
-    }
-    @media (max-width: 640px) {
+    /* ── Responsive ── */
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+      .contact-card { position: static; }
       nav { padding: 0 16px; }
       .nav-links .nav-link { display: none; }
-      .breadcrumb { padding: 10px 16px; }
-      .listing-wrap { padding: 16px 16px 40px; gap: 20px; }
-      .gallery-main { height: 240px; }
-      .specs-bar { flex-wrap: wrap; }
-      .spec-item { min-width: calc(50% - 0px); }
-      .similar-grid { grid-template-columns: 1fr; }
-      .amenities-grid { grid-template-columns: 1fr 1fr; }
-      footer { padding: 20px 16px; }
+      .breadcrumb { padding: 12px 16px; }
+      .page-wrap { padding: 20px 16px 60px; }
+      footer { padding: 40px 16px 24px; }
+      .footer-top { grid-template-columns: 1fr 1fr; gap: 28px; }
+    }
+    @media (max-width: 480px) {
+      .specs-grid { grid-template-columns: repeat(2,1fr); }
+      .footer-top { grid-template-columns: 1fr; }
+      .similar-grid { grid-template-columns: 1fr 1fr; }
     }
   </style>
 </head>
 <body>
-
-<!-- ── TOAST ── -->
-<div class="toast" id="toast">
-  <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-  <span id="toast-msg"></span>
-</div>
-
-<!-- ── LIGHTBOX ── -->
-<div class="lightbox" id="lightbox" onclick="closeLightboxOnBg(event)">
-  <div class="lightbox-close" onclick="closeLightbox()">✕</div>
-  <div class="lightbox-arrow prev" onclick="lightboxNav(-1)">
-    <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
-  </div>
-  <img class="lightbox-img" id="lightbox-img" src="" alt=""/>
-  <div class="lightbox-arrow next" onclick="lightboxNav(1)">
-    <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
-  </div>
-  <div class="lightbox-counter" id="lightbox-counter"></div>
-</div>
 
 <!-- ── NAVBAR ── -->
 <nav>
@@ -518,9 +335,11 @@
     NyumbaKisumu
   </a>
   <div class="nav-links">
+    <a href="index.html" class="nav-link">Home</a>
     <a href="listings.html" class="nav-link">Browse</a>
+    <a href="how-it-works.html" class="nav-link">How it works</a>
     <a href="login.html" class="nav-link">Sign in</a>
-    <a href="post-listing.html" class="btn btn-primary">List your apartment</a>
+    <a href="post-listing.html" class="btn-primary">List your apartment</a>
   </div>
 </nav>
 
@@ -530,635 +349,551 @@
   <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
   <a href="listings.html">Listings</a>
   <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
-  <span class="breadcrumb-current" id="breadcrumb-title">Loading…</span>
+  <span id="breadcrumb-area">Loading…</span>
 </div>
 
-<!-- ── MAIN CONTENT ── -->
-<div id="listing-root"></div>
+<!-- ── MAIN ── -->
+<div class="page-wrap">
 
-<!-- ── FOOTER ── -->
-<footer>
-  <div style="margin-bottom:10px">
-    <a href="index.html">Home</a>
-    <a href="listings.html">Browse</a>
-    <a href="post-listing.html">List a property</a>
-    <a href="login.html">Seller login</a>
+  <!-- NOT FOUND STATE -->
+  <div class="not-found" id="not-found" style="display:none">
+    <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    <h2>Listing not found</h2>
+    <p>This listing may have been removed or the link is incorrect.</p>
+    <a href="listings.html" class="btn-primary" style="display:inline-flex">Browse all listings</a>
   </div>
-  <p>© 2025 NyumbaKisumu · Kisumu · Maseno · Luanda</p>
-</footer>
 
-<script>
-const SUPABASE_URL = 'https://vliuuloyfhyxcsuchpss.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_oIIcecf3wzKMual5K24Z8Q_zmxVfgsx';
-const { createClient } = supabase;
-const db = createClient(SUPABASE_URL, SUPABASE_KEY);
-
-// ── State ──
-let photos = [];
-let currentPhotoIndex = 0;
-let lightboxIndex = 0;
-
-// ── Boot ──
-const params = new URLSearchParams(location.search);
-const listingId = params.get('id');
-
-if (!listingId) {
-  renderNotFound();
-} else {
-  renderSkeleton();
-  loadListing(listingId);
-}
-
-// ── Load listing ──
-async function loadListing(id) {
-  const { data: listing, error } = await db
-    .from('listings')
-    .select('*, listing_photos(*), profiles(full_name, created_at, phone)')
-    .eq('id', id)
-    .single();
-
-  if (error || !listing) { renderNotFound(); return; }
-
-  photos = (listing.listing_photos || []).sort((a, b) => (b.is_cover ? 1 : 0) - (a.is_cover ? 1 : 0));
-
-  document.title = `${listing.title} — NyumbaKisumu`;
-  document.getElementById('breadcrumb-title').textContent = listing.title;
-
-  renderListing(listing);
-  loadSimilar(listing);
-}
-
-// ── Render full listing ──
-function renderListing(l) {
-  const root = document.getElementById('listing-root');
-
-  const priceFormatted = Number(l.price).toLocaleString('en-KE');
-  const priceLabel = l.price_type === 'rent'
-    ? `<span class="listing-price">KES ${priceFormatted}</span><span class="listing-price-suffix">/month</span>`
-    : `<span class="listing-price">KES ${priceFormatted}</span>`;
-
-  const typeLabel = l.price_type === 'rent' ? 'To Let' : 'For Sale';
-  const typeCls   = l.price_type === 'rent' ? 'badge-type-rent' : 'badge-type-sale';
-
-  const catBadge = l.category === 'student'
-    ? `<span class="badge badge-student">Student Housing</span>`
-    : l.category === 'luxury'
-    ? `<span class="badge badge-luxury">Luxury</span>`
-    : '';
-  const featuredBadge = l.is_featured ? `<span class="badge badge-featured">⭐ Featured</span>` : '';
-
-  // Key specs (only show if value exists)
-  const specs = [
-    l.bedrooms   !== null ? { icon: bedroomIcon(),  val: l.bedrooms,   lbl: 'Bedroom' + (l.bedrooms !== 1 ? 's' : '') } : null,
-    l.bathrooms  !== null ? { icon: bathroomIcon(), val: l.bathrooms,  lbl: 'Bathroom' + (l.bathrooms !== 1 ? 's' : '') } : null,
-    l.size_sqm   !== null ? { icon: sizeIcon(),     val: l.size_sqm + 'm²', lbl: 'Floor area' } : null,
-    l.floor      !== null ? { icon: floorIcon(),    val: floorLabel(l.floor), lbl: 'Floor' } : null,
-  ].filter(Boolean);
-  if (l.furnished) specs.push({ icon: furnishedIcon(), val: 'Yes', lbl: 'Furnished' });
-
-  const specsHtml = specs.length ? `
-    <div class="specs-bar">
-      ${specs.map(s => `
-        <div class="spec-item">
-          <div class="spec-icon">${s.icon}</div>
-          <div class="spec-val">${s.val}</div>
-          <div class="spec-lbl">${s.lbl}</div>
-        </div>`).join('')}
-    </div>` : '';
-
-  // Amenities
-  const AMENITIES = [
-    { key: 'has_parking',      label: 'Parking',        icon: parkingIcon() },
-    { key: 'has_water',        label: 'Water supply',   icon: waterIcon() },
-    { key: 'has_security',     label: 'Security',       icon: securityIcon() },
-    { key: 'has_wifi',         label: 'WiFi ready',     icon: wifiIcon() },
-    { key: 'has_backup_power', label: 'Backup power',   icon: powerIcon() },
-    { key: 'has_gym',          label: 'Gym',            icon: gymIcon() },
-    { key: 'has_pool',         label: 'Swimming pool',  icon: poolIcon() },
-    { key: 'has_balcony',      label: 'Balcony',        icon: balconyIcon() },
-  ];
-  const presentAmenities = AMENITIES.filter(a => l[a.key]);
-  const amenitiesHtml = presentAmenities.length ? `
-    <div class="detail-block">
-      <h3>${amenityIconHeader()} Amenities</h3>
-      <div class="amenities-grid">
-        ${presentAmenities.map(a => `
-          <div class="amenity-item">
-            ${a.icon}
-            ${a.label}
-          </div>`).join('')}
+  <!-- SKELETON LOADING -->
+  <div id="skeleton-wrap">
+    <div class="layout">
+      <div>
+        <div class="skel-block" style="width:100%;aspect-ratio:16/9;margin-bottom:20px"></div>
+        <div class="skel short" style="margin-bottom:12px"></div>
+        <div class="skel" style="margin-bottom:8px;height:28px"></div>
+        <div class="skel xshort" style="margin-bottom:24px"></div>
+        <div class="skel-block" style="height:120px;margin-bottom:20px"></div>
+        <div class="skel-block" style="height:180px"></div>
       </div>
-    </div>` : '';
+      <div>
+        <div class="skel-block" style="height:420px"></div>
+      </div>
+    </div>
+  </div>
 
-  // Details table
-  const detailRows = [
-    { label: 'Listing type',  val: l.price_type === 'rent' ? 'To Let' : 'For Sale' },
-    { label: 'Category',      val: capitalize(l.category || '—') },
-    { label: 'Area',          val: l.area || '—' },
-    l.sub_area ? { label: 'Sub-area', val: l.sub_area } : null,
-    l.bedrooms !== null ? { label: 'Bedrooms', val: l.bedrooms } : null,
-    l.bathrooms !== null ? { label: 'Bathrooms', val: l.bathrooms } : null,
-    l.size_sqm !== null ? { label: 'Size', val: l.size_sqm + ' m²' } : null,
-    l.floor !== null ? { label: 'Floor', val: floorLabel(l.floor) } : null,
-    { label: 'Furnished', val: l.furnished ? 'Yes' : 'No' },
-    { label: 'Date listed', val: new Date(l.created_at).toLocaleDateString('en-KE', { day:'numeric', month:'long', year:'numeric' }) },
-  ].filter(Boolean);
+  <!-- LISTING CONTENT -->
+  <div id="listing-content" style="display:none">
+    <div class="layout">
 
-  // Seller info
-  const sellerName     = l.profiles?.full_name || 'Private seller';
-  const sellerInitials = sellerName.split(' ').map(n => n[0]).slice(0,2).join('').toUpperCase();
-  const sellerSince    = l.profiles?.created_at
-    ? new Date(l.profiles.created_at).toLocaleDateString('en-KE', { month: 'long', year: 'numeric' })
-    : '';
-  const sellerPhone    = l.profiles?.phone || l.contact_phone || '';
-
-  // Map embed — centre on Kisumu by default, adjust if area known
-  const MAP_COORDS = {
-    'Milimani':   '-0.1022,34.7617',
-    'Kisumu CBD': '-0.1017,34.7520',
-    'Kondele':    '-0.0850,34.7290',
-    'Riat Hills': '-0.0670,34.7750',
-    'Mamboleo':   '-0.0780,34.7010',
-    'Maseno':     '-0.0052,34.5990',
-    'Luanda':     '0.1150,34.5330',
-    'Ahero':      '-0.1680,34.9200',
-  };
-  const coords = MAP_COORDS[l.area] || '-0.1022,34.7617';
-  const mapUrl = `https://maps.google.com/maps?q=${coords}&z=15&output=embed`;
-
-  // WhatsApp
-  const waPhone = sellerPhone ? sellerPhone.replace(/^0/, '254').replace(/\s/g, '') : '';
-  const waMsg   = encodeURIComponent(`Hi, I'm interested in your listing on NyumbaKisumu: "${l.title}" — ${l.area}. Is it still available?`);
-  const waHref  = waPhone ? `https://wa.me/${waPhone}?text=${waMsg}` : '#';
-
-  root.innerHTML = `
-    <div class="listing-wrap">
-
-      <!-- ══ LEFT COLUMN ══ -->
-      <div class="listing-main">
+      <!-- ── LEFT ── -->
+      <div>
 
         <!-- Gallery -->
-        <div class="gallery">
+        <div class="gallery" id="gallery">
           <div class="gallery-main" id="gallery-main">
-            ${buildMainPhoto(0)}
-            ${photos.length > 1 ? `
-              <button class="gallery-arrow prev hidden" id="arrow-prev" onclick="galleryNav(-1)">
-                <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
-              </button>
-              <button class="gallery-arrow next" id="arrow-next" onclick="galleryNav(1)">
-                <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
-              </button>` : ''}
-            ${photos.length > 0 ? `<div class="gallery-counter" id="gallery-counter">1 / ${photos.length}</div>` : ''}
-            <div class="gallery-expand" onclick="openLightbox(currentPhotoIndex)" title="View full screen">
-              <svg viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>
+            <div class="gallery-no-photo" id="gallery-no-photo" style="display:none">
+              <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              <p>No photos for this listing yet</p>
+            </div>
+            <img id="gallery-img" src="" alt="" style="display:none"/>
+            <button class="gallery-arrow prev" id="prev-btn" onclick="changePhoto(-1)" style="display:none">
+              <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+            <button class="gallery-arrow next" id="next-btn" onclick="changePhoto(1)" style="display:none">
+              <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+            <div class="gallery-counter" id="gallery-counter" style="display:none"></div>
+            <div class="featured-overlay" id="featured-badge" style="display:none">
+              <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              Featured listing
             </div>
           </div>
-          ${photos.length > 1 ? `
-            <div class="gallery-thumbs" id="gallery-thumbs">
-              ${photos.map((p, i) => `
-                <div class="gallery-thumb ${i === 0 ? 'active' : ''}" id="thumb-${i}" onclick="galleryGoto(${i})">
-                  <img src="${p.url}" alt="Photo ${i+1}" loading="lazy"/>
-                </div>`).join('')}
-            </div>` : ''}
+          <div class="gallery-thumbs" id="gallery-thumbs" style="display:none"></div>
         </div>
 
-        <!-- Header -->
+        <!-- Share row -->
+        <div class="action-row">
+          <button class="action-pill" onclick="shareWhatsApp()" id="share-wa">
+            <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+            Share on WhatsApp
+          </button>
+          <button class="action-pill" onclick="copyLink()">
+            <svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+            Copy link
+          </button>
+          <button class="action-pill" onclick="window.print()">
+            <svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+            Print
+          </button>
+        </div>
+
+        <!-- Title & price -->
         <div class="listing-header">
-          <div class="listing-badges">
-            <span class="badge ${typeCls}">${typeLabel}</span>
-            ${featuredBadge}
-            ${catBadge}
-          </div>
-          <h1 class="listing-title">${l.title}</h1>
-          <div class="listing-address">
+          <div class="listing-badges" id="listing-badges"></div>
+          <h1 class="listing-title" id="listing-title"></h1>
+          <div class="listing-location" id="listing-location">
             <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-            ${l.address || l.area}${l.sub_area ? ', ' + l.sub_area : ''}, ${l.area}, Kisumu
-          </div>
-          <div class="listing-price-row">
-            ${priceLabel}
-            ${l.price_type === 'rent' ? '<span class="listing-price-note">Monthly rent · Negotiable</span>' : ''}
+            <span id="listing-loc-text"></span>
           </div>
         </div>
 
-        <!-- Specs bar -->
-        ${specsHtml}
+        <div class="price-block">
+          <div>
+            <div class="price-main" id="listing-price"></div>
+            <div class="price-meta" id="listing-price-meta"></div>
+          </div>
+          <div class="price-views">
+            <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            <span id="listing-views">— views</span>
+          </div>
+        </div>
+
+        <!-- Specs -->
+        <div class="specs-card">
+          <h3>Property details</h3>
+          <div class="specs-grid" id="specs-grid"></div>
+        </div>
 
         <!-- Description -->
-        ${l.description ? `
-          <div class="detail-block">
-            <h3>
-              <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-              Description
-            </h3>
-            <div class="description-text clamped" id="desc-text">${l.description.replace(/\n/g, '<br>')}</div>
-            <div class="read-more" id="read-more-btn" onclick="toggleDesc()">
-              Read more
-              <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
-            </div>
-          </div>` : ''}
-
-        <!-- Amenities -->
-        ${amenitiesHtml}
-
-        <!-- Property details -->
-        <div class="detail-block">
-          <h3>
-            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
-            Property details
-          </h3>
-          <table class="details-table">
-            ${detailRows.map(r => `
-              <tr>
-                <td class="dt-label">${r.label}</td>
-                <td class="dt-val">${r.val}</td>
-              </tr>`).join('')}
-          </table>
+        <div class="desc-card" id="desc-card" style="display:none">
+          <h3>About this property</h3>
+          <div class="desc-text collapsed" id="desc-text"></div>
+          <span class="read-more" id="read-more" onclick="toggleDesc()">Read more ↓</span>
         </div>
 
         <!-- Map -->
-        <div class="detail-block">
-          <h3>
-            <svg viewBox="0 0 24 24"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
-            Location — ${l.area}
-          </h3>
-          <div class="map-container">
-            <iframe
-              src="${mapUrl}"
-              allowfullscreen="" loading="lazy"
-              referrerpolicy="no-referrer-when-downgrade"
-              title="Map showing ${l.area}">
-            </iframe>
+        <div class="map-card">
+          <div class="map-card-header">
+            <h3>Location</h3>
+            <p id="map-sub">Kisumu, Kenya</p>
           </div>
-          <div style="margin-top:10px;font-size:12px;color:var(--text-3)">
-            📍 Exact address shared with serious buyers on request.
+          <div class="map-placeholder">
+            <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <p id="map-area-label">Area shown after enquiry</p>
+            <a id="map-link" href="#" target="_blank" rel="noopener">Open in Google Maps →</a>
           </div>
         </div>
 
         <!-- Similar listings -->
         <div class="similar-section">
-          <h3>Similar listings in ${l.area}</h3>
-          <div id="similar-listings">
-            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
-              ${[1,2,3].map(() => `
-                <div style="background:var(--white);border-radius:var(--radius-lg);border:1px solid var(--border);overflow:hidden">
-                  <div class="skel" style="height:150px"></div>
-                  <div style="padding:14px">
-                    <div class="skel" style="height:10px;width:50%;margin-bottom:8px"></div>
-                    <div class="skel" style="height:13px;margin-bottom:6px"></div>
-                    <div class="skel" style="height:16px;width:60%"></div>
-                  </div>
-                </div>`).join('')}
-            </div>
+          <h3>Similar listings in this area</h3>
+          <div class="similar-grid" id="similar-grid">
+            <div class="skel-block" style="height:200px"></div>
+            <div class="skel-block" style="height:200px"></div>
+            <div class="skel-block" style="height:200px"></div>
           </div>
         </div>
 
-      </div><!-- /.listing-main -->
+      </div>
 
-      <!-- ══ SIDEBAR ══ -->
-      <div class="listing-sidebar">
-        <div class="sidebar-card">
+      <!-- ── RIGHT ── -->
+      <div>
+        <div class="contact-card">
+          <div class="contact-card-title">Interested in this property?</div>
+          <div class="contact-card-sub">Contact the seller directly — no agents, no commission.</div>
 
-          <!-- Price header -->
-          <div class="sidebar-price-header">
-            <div class="sidebar-price">KES ${priceFormatted}</div>
-            <div class="sidebar-price-sub">${l.area}${l.bedrooms ? ' · ' + l.bedrooms + ' bed' : ''}</div>
-            <div class="sidebar-price-type">${typeLabel}</div>
-          </div>
-
-          <!-- Enquiry form -->
-          <div class="enquiry-form">
-            <div id="enquiry-form-wrap">
-              <h4>Contact seller about this property</h4>
-              <div class="form-group">
-                <label>Your name</label>
-                <input type="text" id="enq-name" placeholder="Full name"/>
-              </div>
-              <div class="form-group">
-                <label>Phone number</label>
-                <input type="tel" id="enq-phone" placeholder="07XX XXX XXX"/>
-              </div>
-              <div class="form-group">
-                <label>Message</label>
-                <textarea id="enq-msg" placeholder="Hi, I'm interested in this property. Is it still available?">Hi, I'm interested in this property. Is it still available?</textarea>
-              </div>
-              <button class="btn-submit" id="btn-enq" onclick="submitEnquiry('${l.id}', '${l.seller_id || ''}')">
-                <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-                Send enquiry
-              </button>
-              ${sellerPhone ? `
-                <div class="enquiry-divider">or</div>
-                <a href="${waHref}" target="_blank" class="btn-whatsapp">
-                  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-                  Chat on WhatsApp
-                </a>` : ''}
-            </div>
-            <div class="enquiry-success" id="enquiry-success">
-              <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-              <h4>Enquiry sent!</h4>
-              <p>The seller will contact you shortly on the number you provided.</p>
-              ${sellerPhone ? `<a href="${waHref}" target="_blank" class="btn-whatsapp" style="margin-top:14px">Also message on WhatsApp</a>` : ''}
-            </div>
-          </div>
-
-          <!-- Seller card -->
-          <div class="seller-card">
-            <div class="seller-avatar">${sellerInitials}</div>
+          <!-- Seller info -->
+          <div class="seller-row">
+            <div class="seller-avatar" id="seller-avatar">?</div>
             <div>
-              <div class="seller-name">${sellerName}</div>
-              ${sellerSince ? `<div class="seller-since">Member since ${sellerSince}</div>` : ''}
-              <div class="seller-badge">
-                <svg viewBox="0 0 12 12"><path d="M6 1l1.5 3 3.5.5-2.5 2.5.5 3.5L6 9l-3 1.5.5-3.5L1 4.5 4.5 4z"/>
-                </svg>
+              <div class="seller-name" id="seller-name">Loading…</div>
+              <div class="verified-badge">
+                <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
                 Verified seller
               </div>
+              <div class="seller-since" id="seller-since"></div>
             </div>
           </div>
 
-          <!-- Share row -->
-          <div class="share-row">
-            <span class="share-label">Share:</span>
-            <button class="share-btn" onclick="shareWhatsApp('${encodeURIComponent(l.title)}')">
-              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-              WhatsApp
-            </button>
-            <button class="share-btn" id="copy-btn" onclick="copyLink()">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
-              Copy link
-            </button>
+          <!-- Direct contact buttons -->
+          <div class="contact-btns">
+            <a class="btn-call" id="btn-call" href="#">
+              <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.12 1.2 2 2 0 012.11 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>
+              Call seller
+            </a>
+            <a class="btn-whatsapp" id="btn-whatsapp" href="#" target="_blank" rel="noopener">
+              <!-- WhatsApp icon -->
+              <svg viewBox="0 0 24 24" width="18" height="18"><path fill="white" d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+              WhatsApp seller
+            </a>
           </div>
 
-          <!-- Report -->
-          <div class="report-link">
-            <a href="mailto:hello@nyumbakisumu.co.ke?subject=Report listing ${l.id}">Report this listing</a>
+          <div class="or-divider">or send an enquiry</div>
+
+          <!-- Enquiry form -->
+          <div id="enquiry-form">
+            <div class="field">
+              <label>Your name</label>
+              <input type="text" id="enq-name" placeholder="e.g. Brian Otieno"/>
+              <div class="field-error" id="err-enq-name">Please enter your name</div>
+            </div>
+            <div class="field">
+              <label>Phone number</label>
+              <input type="tel" id="enq-phone" placeholder="07XX XXX XXX"/>
+              <div class="field-error" id="err-enq-phone">Please enter your phone number</div>
+            </div>
+            <div class="field">
+              <label>Email <span style="font-size:10px;font-weight:400;color:var(--text-3)">optional</span></label>
+              <input type="email" id="enq-email" placeholder="you@example.com"/>
+            </div>
+            <div class="field">
+              <label>Message</label>
+              <textarea id="enq-message" rows="3" placeholder="Hi, I'm interested in this apartment. Is it still available?"></textarea>
+              <div class="field-error" id="err-enq-msg">Please enter a message</div>
+            </div>
+            <button class="btn-enquire" id="btn-enquire" onclick="sendEnquiry()">
+              <div class="spinner"></div>
+              <span class="btn-text">Send enquiry</span>
+            </button>
+            <p class="enquiry-note">Your contact details are shared only with the seller of this listing.</p>
           </div>
 
+          <!-- Success state -->
+          <div class="enquiry-success" id="enquiry-success">
+            <div class="enquiry-success-icon">
+              <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <h4>Enquiry sent!</h4>
+            <p>The seller will contact you on your phone soon. You can also call or WhatsApp them directly using the buttons above.</p>
+          </div>
+
+          <!-- Safety tip -->
+          <div class="safety-tip">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <span>Always view the property in person before making any payment. Never send money before seeing the apartment.</span>
+          </div>
         </div>
-      </div><!-- /.listing-sidebar -->
+      </div>
 
-    </div><!-- /.listing-wrap -->
-  `;
+    </div>
+  </div>
+</div>
 
-  // Check if description needs toggle
-  const descEl = document.getElementById('desc-text');
-  if (descEl && descEl.scrollHeight <= 115) {
-    document.getElementById('read-more-btn')?.remove();
-    descEl.classList.remove('clamped');
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div>
+        <div class="footer-logo">NyumbaKisumu</div>
+        <p class="footer-tagline">Find and list apartments in Kisumu, Maseno, and Luanda — no agents, no commission.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Browse</h4>
+        <a href="listings.html">All listings</a>
+        <a href="listings.html?category=student">Student housing</a>
+        <a href="listings.html?category=standard">Standard</a>
+        <a href="listings.html?category=luxury">Luxury</a>
+      </div>
+      <div class="footer-col">
+        <h4>Areas</h4>
+        <a href="listings.html?area=Milimani">Milimani</a>
+        <a href="listings.html?area=Maseno">Maseno</a>
+        <a href="listings.html?area=Luanda">Luanda</a>
+        <a href="listings.html?area=Kondele">Kondele</a>
+      </div>
+      <div class="footer-col">
+        <h4>Platform</h4>
+        <a href="post-listing.html">List a property</a>
+        <a href="login.html">Seller login</a>
+        <a href="how-it-works.html">How it works</a>
+        <a href="contact.html">Contact us</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 NyumbaKisumu. All rights reserved.</p>
+      <p>Kisumu · Maseno · Luanda · Western Kenya</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const SUPABASE_URL = 'https://vliuuloyfhyxcsuchpss.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_oIIcecf3wzKMual5K24Z8Q_zmxVfgsx';
+  const { createClient } = supabase;
+  const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  // ── State ──
+  let listing = null;
+  let photos  = [];
+  let currentPhoto = 0;
+
+  // ── Get listing ID from URL ──
+  const listingId = new URLSearchParams(window.location.search).get('id');
+
+  // ── Load listing ──
+  async function loadListing() {
+    if (!listingId) { showNotFound(); return; }
+
+    const { data, error } = await db
+      .from('listings')
+      .select('*, profiles(full_name, phone, created_at), listing_photos(*)')
+      .eq('id', listingId)
+      .single();
+
+    if (error || !data) { showNotFound(); return; }
+    listing = data;
+
+    // Increment view count
+    db.from('listings').update({ views: (data.views || 0) + 1 }).eq('id', listingId);
+
+    renderListing(data);
+    loadSimilar(data.area, data.id, data.category);
   }
-}
 
-// ── Gallery navigation ──
-function buildMainPhoto(index) {
-  if (!photos.length) {
-    return `<div class="no-photo">
-      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-      <span>No photos uploaded yet</span>
-    </div>`;
+  // ── Render ──
+  function renderListing(l) {
+    // Page title & meta
+    document.title = `${l.title} — NyumbaKisumu`;
+    document.querySelector('meta[name="description"]').setAttribute('content', `${l.title} in ${l.area}, Kisumu. ${l.price_type==='rent'?'KES '+Number(l.price).toLocaleString()+'/month rent':'For sale at KES '+Number(l.price).toLocaleString()}. Contact seller directly on NyumbaKisumu.`);
+
+    // Breadcrumb
+    document.getElementById('breadcrumb-area').textContent = l.area;
+
+    // Gallery
+    photos = (l.listing_photos || []).sort((a,b) => a.position - b.position);
+    const cover = photos.find(p=>p.is_cover) || photos[0];
+    if (cover) {
+      const coverIdx = photos.indexOf(cover);
+      currentPhoto = coverIdx >= 0 ? coverIdx : 0;
+    }
+    renderGallery();
+
+    // Featured badge
+    if (l.is_featured) document.getElementById('featured-badge').style.display = 'flex';
+
+    // Badges
+    const catLabel = l.category.charAt(0).toUpperCase() + l.category.slice(1);
+    document.getElementById('listing-badges').innerHTML = `
+      <span class="badge ${l.category}">${catLabel}</span>
+      <span class="badge ${l.price_type}">${l.price_type === 'sale' ? 'For sale' : 'To let / rent'}</span>
+      ${l.furnished ? '<span class="badge standard">Furnished</span>' : ''}
+    `;
+
+    // Title & location
+    document.getElementById('listing-title').textContent = l.title;
+    document.getElementById('listing-loc-text').textContent =
+      `${l.area}${l.sub_area ? ', ' + l.sub_area : ''}${l.address ? ' — ' + l.address : ''}`;
+
+    // Price
+    document.getElementById('listing-price').innerHTML =
+      `KES ${Number(l.price).toLocaleString('en-KE')}${l.price_type === 'rent' ? '<span>/month</span>' : ''}`;
+    document.getElementById('listing-price-meta').textContent =
+      l.price_type === 'rent' ? 'Monthly rent — negotiable' : 'Asking price — negotiable';
+    document.getElementById('listing-views').textContent = `${l.views || 0} views`;
+
+    // Specs
+    const specs = [];
+    if (l.bedrooms !== null) specs.push({ icon: bedIcon, val: l.bedrooms == 0 ? 'Studio' : l.bedrooms, lbl: l.bedrooms == 0 ? 'Bedsitter' : 'Bedrooms' });
+    if (l.bathrooms)  specs.push({ icon: bathIcon, val: l.bathrooms, lbl: 'Bathrooms' });
+    if (l.size_sqm)   specs.push({ icon: sizeIcon, val: l.size_sqm + 'm²', lbl: 'Floor area' });
+    specs.push({ icon: furnIcon, val: l.furnished ? 'Yes' : 'No', lbl: 'Furnished' });
+    specs.push({ icon: typeIcon, val: l.price_type === 'rent' ? 'Rent' : 'Sale', lbl: 'Listing type' });
+    specs.push({ icon: catIcon,  val: catLabel, lbl: 'Category' });
+
+    document.getElementById('specs-grid').innerHTML = specs.map(s => `
+      <div class="spec-item">
+        <div class="spec-icon">${s.icon}</div>
+        <div class="spec-val">${s.val}</div>
+        <div class="spec-lbl">${s.lbl}</div>
+      </div>`).join('');
+
+    // Description
+    if (l.description) {
+      document.getElementById('desc-card').style.display = 'block';
+      document.getElementById('desc-text').textContent = l.description;
+    }
+
+    // Map
+    document.getElementById('map-sub').textContent = `${l.area}${l.sub_area ? ', ' + l.sub_area : ''}, Kisumu`;
+    document.getElementById('map-area-label').textContent = `${l.area}, Kisumu — exact address shared after enquiry`;
+    const mapsQuery = encodeURIComponent(`${l.area}, ${l.sub_area || ''} Kisumu Kenya`);
+    document.getElementById('map-link').href = `https://www.google.com/maps/search/?api=1&query=${mapsQuery}`;
+
+    // Seller
+    const profile = l.profiles || {};
+    const name = profile.full_name || 'Seller';
+    const initials = name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
+    document.getElementById('seller-avatar').textContent = initials;
+    document.getElementById('seller-name').textContent = name;
+    document.getElementById('seller-since').textContent = profile.created_at
+      ? `Member since ${new Date(profile.created_at).toLocaleDateString('en-KE',{month:'long',year:'numeric'})}`
+      : '';
+
+    // Contact buttons
+    const phone = profile.phone || '';
+    const cleanPhone = phone.replace(/\s/g,'');
+    const wa254 = cleanPhone.startsWith('0') ? '254' + cleanPhone.slice(1) : cleanPhone;
+    const waMsg = encodeURIComponent(`Hello, I saw your listing "${l.title}" on NyumbaKisumu and I'm interested. Is it still available?`);
+    document.getElementById('btn-call').href = `tel:${cleanPhone}`;
+    document.getElementById('btn-call').textContent = phone ? `Call ${phone}` : 'Call seller';
+    document.getElementById('btn-call').innerHTML = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="white" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.12 1.2 2 2 0 012.11 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg> Call ${phone || 'seller'}`;
+    document.getElementById('btn-whatsapp').href = `https://wa.me/${wa254}?text=${waMsg}`;
+
+    // Share
+    document.getElementById('share-wa').onclick = shareWhatsApp;
+
+    // Pre-fill enquiry message
+    document.getElementById('enq-message').value = `Hello, I'm interested in "${l.title}". Is it still available?`;
+
+    // Show content
+    document.getElementById('skeleton-wrap').style.display = 'none';
+    document.getElementById('listing-content').style.display = 'block';
   }
-  return `<img src="${photos[index].url}" alt="Photo ${index+1}" onclick="openLightbox(${index})" style="cursor:zoom-in"/>`;
-}
 
-function galleryNav(dir) {
-  galleryGoto(currentPhotoIndex + dir);
-}
+  // ── Gallery ──
+  function renderGallery() {
+    const img = document.getElementById('gallery-img');
+    const noPhoto = document.getElementById('gallery-no-photo');
+    const thumbsWrap = document.getElementById('gallery-thumbs');
+    const counter = document.getElementById('gallery-counter');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
 
-function galleryGoto(index) {
-  if (!photos.length) return;
-  currentPhotoIndex = Math.max(0, Math.min(photos.length - 1, index));
+    if (!photos.length) {
+      noPhoto.style.display = 'flex'; img.style.display = 'none';
+      return;
+    }
 
-  const mainEl = document.getElementById('gallery-main');
-  const imgEl = mainEl?.querySelector('img');
-  if (imgEl) {
-    imgEl.src = photos[currentPhotoIndex].url;
-    imgEl.setAttribute('onclick', `openLightbox(${currentPhotoIndex})`);
+    noPhoto.style.display = 'none';
+    img.style.display = 'block';
+    img.src = photos[currentPhoto].url;
+    img.alt = listing?.title || 'Apartment photo';
+
+    if (photos.length > 1) {
+      counter.style.display = 'block';
+      counter.textContent = `${currentPhoto+1} / ${photos.length}`;
+      prevBtn.style.display = 'flex';
+      nextBtn.style.display = 'flex';
+
+      thumbsWrap.style.display = 'flex';
+      thumbsWrap.innerHTML = photos.map((p,i) => `
+        <div class="gallery-thumb ${i===currentPhoto?'active':''}" onclick="goPhoto(${i})">
+          <img src="${p.url}" alt="Photo ${i+1}" loading="lazy"/>
+        </div>`).join('');
+    }
   }
 
-  // Counter
-  const counter = document.getElementById('gallery-counter');
-  if (counter) counter.textContent = `${currentPhotoIndex + 1} / ${photos.length}`;
+  function changePhoto(dir) {
+    currentPhoto = (currentPhoto + dir + photos.length) % photos.length;
+    renderGallery();
+  }
+  function goPhoto(i) { currentPhoto = i; renderGallery(); }
 
-  // Arrows
-  const prev = document.getElementById('arrow-prev');
-  const next = document.getElementById('arrow-next');
-  if (prev) prev.classList.toggle('hidden', currentPhotoIndex === 0);
-  if (next) next.classList.toggle('hidden', currentPhotoIndex === photos.length - 1);
-
-  // Thumbs
-  document.querySelectorAll('.gallery-thumb').forEach((t, i) => {
-    t.classList.toggle('active', i === currentPhotoIndex);
+  // Keyboard nav
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowLeft')  changePhoto(-1);
+    if (e.key === 'ArrowRight') changePhoto(1);
   });
 
-  // Scroll thumb into view
-  const activeThumb = document.getElementById('thumb-' + currentPhotoIndex);
-  activeThumb?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-}
-
-// ── Lightbox ──
-function openLightbox(index) {
-  if (!photos.length) return;
-  lightboxIndex = index;
-  updateLightbox();
-  document.getElementById('lightbox').classList.add('open');
-  document.body.style.overflow = 'hidden';
-}
-function closeLightbox() {
-  document.getElementById('lightbox').classList.remove('open');
-  document.body.style.overflow = '';
-}
-function closeLightboxOnBg(e) {
-  if (e.target === e.currentTarget) closeLightbox();
-}
-function lightboxNav(dir) {
-  lightboxIndex = Math.max(0, Math.min(photos.length - 1, lightboxIndex + dir));
-  updateLightbox();
-}
-function updateLightbox() {
-  document.getElementById('lightbox-img').src = photos[lightboxIndex].url;
-  document.getElementById('lightbox-counter').textContent = `${lightboxIndex + 1} / ${photos.length}`;
-}
-document.addEventListener('keydown', e => {
-  if (!document.getElementById('lightbox').classList.contains('open')) return;
-  if (e.key === 'Escape') closeLightbox();
-  if (e.key === 'ArrowLeft')  lightboxNav(-1);
-  if (e.key === 'ArrowRight') lightboxNav(1);
-});
-
-// ── Description toggle ──
-function toggleDesc() {
-  const el  = document.getElementById('desc-text');
-  const btn = document.getElementById('read-more-btn');
-  if (!el) return;
-  const clamped = el.classList.toggle('clamped');
-  btn.classList.toggle('open', !clamped);
-  btn.childNodes[0].textContent = clamped ? 'Read more ' : 'Show less ';
-}
-
-// ── Enquiry submit ──
-async function submitEnquiry(listingId, sellerId) {
-  const name  = document.getElementById('enq-name').value.trim();
-  const phone = document.getElementById('enq-phone').value.trim();
-  const msg   = document.getElementById('enq-msg').value.trim();
-
-  if (!name)  { showToast('Please enter your name', 'error'); return; }
-  if (!phone) { showToast('Please enter your phone number', 'error'); return; }
-  if (!msg)   { showToast('Please write a message', 'error'); return; }
-
-  const btn = document.getElementById('btn-enq');
-  btn.disabled = true;
-  btn.innerHTML = `<div style="width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite"></div> Sending…`;
-
-  const { error } = await db.from('enquiries').insert({
-    listing_id:  listingId,
-    seller_id:   sellerId || null,
-    buyer_name:  name,
-    buyer_phone: phone,
-    message:     msg,
-  });
-
-  btn.disabled = false;
-  btn.innerHTML = `<svg viewBox="0 0 24 24" width="16" height="16" stroke="white" fill="none" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Send enquiry`;
-
-  if (error) {
-    showToast('Could not send — please try WhatsApp instead', 'error');
-    return;
+  // ── Read more ──
+  let descExpanded = false;
+  function toggleDesc() {
+    descExpanded = !descExpanded;
+    const el = document.getElementById('desc-text');
+    const btn = document.getElementById('read-more');
+    el.classList.toggle('collapsed', !descExpanded);
+    btn.textContent = descExpanded ? 'Show less ↑' : 'Read more ↓';
   }
 
-  // Show success state
-  document.getElementById('enquiry-form-wrap').style.display = 'none';
-  const successEl = document.getElementById('enquiry-success');
-  successEl.style.display = 'block';
-  showToast('Enquiry sent successfully!', 'success');
-}
-
-// ── Similar listings ──
-async function loadSimilar(listing) {
-  let { data } = await db
-    .from('listings')
-    .select('*, listing_photos(*)')
-    .eq('status', 'active')
-    .eq('area', listing.area)
-    .neq('id', listing.id)
-    .order('is_featured', { ascending: false })
-    .limit(3);
-
-  // Fallback to same category
-  if (!data || data.length < 2) {
-    const { data: catData } = await db
+  // ── Similar listings ──
+  async function loadSimilar(area, excludeId, category) {
+    const { data } = await db
       .from('listings')
       .select('*, listing_photos(*)')
-      .eq('status', 'active')
-      .eq('category', listing.category)
-      .neq('id', listing.id)
+      .eq('status','active')
+      .eq('area', area)
+      .neq('id', excludeId)
       .limit(3);
-    data = catData || [];
+
+    const grid = document.getElementById('similar-grid');
+    if (!data?.length) {
+      grid.innerHTML = '<p style="font-size:13px;color:var(--text-3);grid-column:1/-1">No similar listings in this area yet.</p>';
+      return;
+    }
+    grid.innerHTML = data.map(l => {
+      const cover = (l.listing_photos||[]).find(p=>p.is_cover)||(l.listing_photos||[])[0];
+      return `<div class="similar-card" onclick="window.location='listing.html?id=${l.id}'">
+        <div class="similar-img">${cover?`<img src="${cover.url}" alt="${l.title}" loading="lazy"/>`:'<div style="width:100%;height:100%;background:var(--surface)"></div>'}</div>
+        <div class="similar-body">
+          <div class="similar-area">${l.area}</div>
+          <div class="similar-title">${l.title}</div>
+          <div class="similar-price">KES ${Number(l.price).toLocaleString('en-KE')}${l.price_type==='rent'?'<span style="font-size:12px;font-weight:400;color:var(--text-3)">/mo</span>':''}</div>
+        </div>
+      </div>`;
+    }).join('');
   }
 
-  const el = document.getElementById('similar-listings');
-  if (!el) return;
+  // ── Send enquiry ──
+  async function sendEnquiry() {
+    const name    = document.getElementById('enq-name').value.trim();
+    const phone   = document.getElementById('enq-phone').value.trim();
+    const email   = document.getElementById('enq-email').value.trim();
+    const message = document.getElementById('enq-message').value.trim();
+    let ok = true;
 
-  if (!data.length) {
-    el.innerHTML = `<p style="font-size:13px;color:var(--text-3);padding:10px 0">No similar listings found yet.</p>`;
-    return;
+    // Clear errors
+    ['enq-name','enq-phone','enq-message'].forEach(id => document.getElementById(id).classList.remove('error'));
+    ['err-enq-name','err-enq-phone','err-enq-msg'].forEach(id => document.getElementById(id).classList.remove('show'));
+
+    if (!name)    { document.getElementById('enq-name').classList.add('error'); document.getElementById('err-enq-name').classList.add('show'); ok=false; }
+    if (!phone || phone.replace(/\s/g,'').length < 9) { document.getElementById('enq-phone').classList.add('error'); document.getElementById('err-enq-phone').classList.add('show'); ok=false; }
+    if (!message) { document.getElementById('enq-message').classList.add('error'); document.getElementById('err-enq-msg').classList.add('show'); ok=false; }
+    if (!ok) return;
+
+    const btn = document.getElementById('btn-enquire');
+    btn.disabled = true; btn.classList.add('loading');
+
+    const { error } = await db.from('enquiries').insert({
+      listing_id: listingId,
+      buyer_name: name,
+      buyer_phone: phone,
+      buyer_email: email || null,
+      message
+    });
+
+    btn.disabled = false; btn.classList.remove('loading');
+
+    if (error) { alert('Something went wrong. Please try calling the seller directly.'); return; }
+
+    document.getElementById('enquiry-form').style.display = 'none';
+    document.getElementById('enquiry-success').style.display = 'block';
   }
 
-  el.innerHTML = `<div class="similar-grid">
-    ${data.map(l => {
-      const cover = (l.listing_photos || []).find(p => p.is_cover) || (l.listing_photos || [])[0];
-      const imgHtml = cover
-        ? `<img src="${cover.url}" alt="${l.title}" loading="lazy"/>`
-        : `<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>`;
-      const price = Number(l.price).toLocaleString('en-KE');
-      const suffix = l.price_type === 'rent' ? '/mo' : '';
-      return `
-        <div class="card" onclick="window.location='listing.html?id=${l.id}'">
-          <div class="card-img">${imgHtml}</div>
-          <div class="card-body">
-            <div class="card-area">${l.area}</div>
-            <div class="card-title">${l.title}</div>
-            ${l.bedrooms ? `<div style="font-size:12px;color:var(--text-3)">${l.bedrooms} bed${l.bedrooms !== 1 ? 's' : ''}${l.bathrooms ? ' · ' + l.bathrooms + ' bath' : ''}</div>` : ''}
-            <div class="card-price">KES ${price}${suffix}</div>
-          </div>
-        </div>`;
-    }).join('')}
-  </div>`;
-}
+  // ── Share ──
+  function shareWhatsApp() {
+    const url = window.location.href;
+    const title = listing?.title || 'Apartment listing';
+    const price = listing ? `KES ${Number(listing.price).toLocaleString('en-KE')}${listing.price_type==='rent'?'/month':''}` : '';
+    const msg = encodeURIComponent(`🏠 *${title}*\n📍 ${listing?.area || ''}, Kisumu\n💰 ${price}\n\nView on NyumbaKisumu: ${url}`);
+    window.open(`https://wa.me/?text=${msg}`, '_blank');
+  }
 
-// ── Share ──
-function shareWhatsApp(title) {
-  const url = encodeURIComponent(window.location.href);
-  const text = encodeURIComponent(`Check out this listing on NyumbaKisumu: ${decodeURIComponent(title)} — ${window.location.href}`);
-  window.open(`https://wa.me/?text=${text}`, '_blank');
-}
-function copyLink() {
-  navigator.clipboard.writeText(window.location.href).then(() => {
-    const btn = document.getElementById('copy-btn');
-    if (btn) { btn.textContent = '✓ Copied!'; btn.classList.add('copied'); }
-    setTimeout(() => { if (btn) { btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Copy link`; btn.classList.remove('copied'); }}, 2200);
-  });
-}
+  function copyLink() {
+    navigator.clipboard.writeText(window.location.href).then(() => {
+      const btn = event.target.closest('.action-pill');
+      const orig = btn.innerHTML;
+      btn.innerHTML = `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Copied!`;
+      btn.style.borderColor = 'var(--green)'; btn.style.color = 'var(--green)';
+      setTimeout(() => { btn.innerHTML = orig; btn.style.borderColor=''; btn.style.color=''; }, 2000);
+    });
+  }
 
-// ── Render states ──
-function renderSkeleton() {
-  document.getElementById('listing-root').innerHTML = `
-    <div class="skeleton-wrap">
-      <div>
-        <div class="skel" style="height:440px;border-radius:var(--radius-lg);margin-bottom:24px"></div>
-        <div class="skel" style="height:18px;width:30%;margin-bottom:12px"></div>
-        <div class="skel" style="height:30px;width:80%;margin-bottom:8px"></div>
-        <div class="skel" style="height:30px;width:55%;margin-bottom:20px"></div>
-        <div class="skel" style="height:90px;border-radius:var(--radius-lg);margin-bottom:20px"></div>
-        <div class="skel" style="height:200px;border-radius:var(--radius-lg)"></div>
-      </div>
-      <div>
-        <div class="skel" style="height:480px;border-radius:var(--radius-lg)"></div>
-      </div>
-    </div>`;
-}
+  // ── Not found ──
+  function showNotFound() {
+    document.getElementById('skeleton-wrap').style.display = 'none';
+    document.getElementById('not-found').style.display = 'block';
+    document.getElementById('breadcrumb-area').textContent = 'Not found';
+  }
 
-function renderNotFound() {
-  document.getElementById('listing-root').innerHTML = `
-    <div class="not-found">
-      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-      <h2>Listing not found</h2>
-      <p>This listing may have been removed, or the link may be incorrect.</p>
-      <a href="listings.html" class="btn btn-primary">Browse all listings</a>
-    </div>`;
-  document.getElementById('breadcrumb-title').textContent = 'Not found';
-}
+  // ── SVG icons for specs ──
+  const bedIcon  = `<svg viewBox="0 0 24 24"><path d="M2 4v16M22 4v16M2 12h20M2 8h4a2 2 0 012 2v2H2V8zM16 8h4a2 2 0 012 2v2h-6V8z"/></svg>`;
+  const bathIcon = `<svg viewBox="0 0 24 24"><path d="M9 6l1-1a2 2 0 012.83 0l6.17 6.17a1 1 0 010 1.41L17 14M3 20h18M5 20v-4a3 3 0 013-3h1"/></svg>`;
+  const sizeIcon = `<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="1"/><path d="M3 9h18M9 21V9"/></svg>`;
+  const furnIcon = `<svg viewBox="0 0 24 24"><rect x="2" y="8" width="20" height="10" rx="2"/><path d="M6 8V6a2 2 0 012-2h8a2 2 0 012 2v2"/><line x1="6" y1="14" x2="6" y2="18"/><line x1="18" y1="14" x2="18" y2="18"/></svg>`;
+  const typeIcon = `<svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`;
+  const catIcon  = `<svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
 
-// ── Toast ──
-let toastTimer;
-function showToast(msg, type = 'success') {
-  const t = document.getElementById('toast');
-  document.getElementById('toast-msg').textContent = msg;
-  clearTimeout(toastTimer);
-  t.className = `toast ${type} show`;
-  toastTimer = setTimeout(() => t.classList.remove('show'), 3200);
-}
-
-// ── Helpers ──
-function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
-function floorLabel(n) {
-  if (n === 0) return 'Ground floor';
-  const s = ['th','st','nd','rd'];
-  const v = n % 100;
-  return n + (s[(v-20) % 10] || s[v] || s[0]) + ' floor';
-}
-
-// ── SVG icon helpers ──
-function bedroomIcon()  { return `<svg viewBox="0 0 24 24"><path d="M2 4v16M22 4v16M2 12h20M2 8h4a2 2 0 012 2v2H2V8zM16 8h4a2 2 0 012 2v2h-6V8z"/></svg>`; }
-function bathroomIcon() { return `<svg viewBox="0 0 24 24"><path d="M9 6l1-1a2 2 0 012.83 0l6.17 6.17a1 1 0 010 1.41L17 14M3 20h18M5 20v-4a3 3 0 013-3h1"/></svg>`; }
-function sizeIcon()     { return `<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="1"/></svg>`; }
-function floorIcon()    { return `<svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><polyline points="8 8 3 12 8 16"/><polyline points="16 8 21 12 16 16"/></svg>`; }
-function furnishedIcon(){ return `<svg viewBox="0 0 24 24"><path d="M20 9V7a2 2 0 00-2-2H6a2 2 0 00-2 2v2M2 11v5a2 2 0 002 2h16a2 2 0 002-2v-5a2 2 0 00-4 0v1H6v-1a2 2 0 00-4 0z"/></svg>`; }
-function parkingIcon()  { return `<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 17V7h4a3 3 0 010 6H9"/></svg>`; }
-function waterIcon()    { return `<svg viewBox="0 0 24 24"><path d="M12 2C6 9 4 13 4 16a8 8 0 0016 0c0-3-2-7-8-14z"/></svg>`; }
-function securityIcon() { return `<svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`; }
-function wifiIcon()     { return `<svg viewBox="0 0 24 24"><path d="M5 12.55a11 11 0 0114.08 0M1.42 9a16 16 0 0121.16 0M8.53 16.11a6 6 0 016.95 0M12 20h.01"/></svg>`; }
-function powerIcon()    { return `<svg viewBox="0 0 24 24"><path d="M18.36 6.64a9 9 0 11-12.73 0M12 2v10"/></svg>`; }
-function gymIcon()      { return `<svg viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8zM6 1v3M10 1v3M14 1v3"/></svg>`; }
-function poolIcon()     { return `<svg viewBox="0 0 24 24"><path d="M2 12h20M2 17c2-2 4 0 6 0s4-2 6-2 4 2 6 2M6 7V5a2 2 0 014 0v2M14 7V5a2 2 0 014 0v2"/></svg>`; }
-function balconyIcon()  { return `<svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`; }
-function amenityIconHeader() { return `<svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>`; }
+  // ── Init ──
+  loadListing();
 </script>
 </body>
 </html>
