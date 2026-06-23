@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Terms of Service — NyumbaKisumu</title>
+  <meta name="description" content="Terms of Service for NyumbaKisumu — the apartment listing platform for Kisumu, Maseno, and Luanda."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --green:       #0F6E56;
+      --green-light: #E1F5EE;
+      --green-dark:  #085041;
+      --text:        #1a1a18;
+      --text-2:      #4a4a46;
+      --text-3:      #888780;
+      --border:      #e0ded8;
+      --surface:     #f7f6f2;
+      --white:       #ffffff;
+      --radius:      10px;
+      --radius-lg:   16px;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; color: var(--text); background: var(--surface); font-size: 15px; line-height: 1.7; }
+    a { text-decoration: none; color: inherit; }
+    button { font-family: inherit; cursor: pointer; border: none; }
+
+    /* ── Navbar ── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 32px; height: 64px;
+      background: var(--white); border-bottom: 1px solid var(--border);
+    }
+    .logo { display: flex; align-items: center; gap: 10px; font-family: 'Playfair Display', serif; font-size: 20px; color: var(--green-dark); }
+    .logo-icon { width: 34px; height: 34px; background: var(--green); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+    .logo-icon svg { width: 18px; height: 18px; fill: none; stroke: white; stroke-width: 2; stroke-linecap: round; }
+    .nav-links { display: flex; align-items: center; gap: 8px; }
+    .nav-link { font-size: 14px; color: var(--text-2); padding: 8px 14px; border-radius: var(--radius); transition: background .15s; }
+    .nav-link:hover { background: var(--surface); }
+    .btn-primary { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 500; padding: 9px 18px; border-radius: var(--radius); background: var(--green); color: white; transition: background .15s; }
+    .btn-primary:hover { background: var(--green-dark); }
+
+    /* ── Hero ── */
+    .hero {
+      background: var(--green-dark); padding: 56px 32px 64px;
+      text-align: center; position: relative; overflow: hidden;
+    }
+    .hero::before {
+      content: ''; position: absolute; inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+    .hero h1 { font-family: 'Playfair Display', serif; font-size: clamp(28px,4vw,42px); color: white; margin-bottom: 12px; position: relative; }
+    .hero p { font-size: 15px; color: rgba(255,255,255,0.6); position: relative; }
+    .hero .updated { display: inline-block; margin-top: 14px; font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: #9FE1CB; position: relative; }
+
+    /* ── Layout ── */
+    .page-wrap { max-width: 1040px; margin: 0 auto; padding: 56px 24px 80px; display: grid; grid-template-columns: 220px 1fr; gap: 48px; align-items: start; }
+
+    /* ── Sidebar TOC ── */
+    .toc { position: sticky; top: 80px; }
+    .toc-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--text-3); margin-bottom: 14px; }
+    .toc-list { list-style: none; display: flex; flex-direction: column; gap: 2px; }
+    .toc-list li a {
+      display: block; font-size: 13px; color: var(--text-2); padding: 6px 10px;
+      border-radius: var(--radius); border-left: 2px solid transparent;
+      transition: all .15s;
+    }
+    .toc-list li a:hover { background: var(--green-light); color: var(--green); border-left-color: var(--green); }
+    .toc-list li a.active { background: var(--green-light); color: var(--green-dark); border-left-color: var(--green); font-weight: 500; }
+
+    /* ── Content ── */
+    .content { min-width: 0; }
+    .intro-box {
+      background: var(--green-light); border: 1px solid #9FE1CB;
+      border-radius: var(--radius-lg); padding: 20px 24px;
+      font-size: 14px; color: var(--green-dark); line-height: 1.7;
+      margin-bottom: 40px;
+    }
+    .intro-box strong { font-weight: 600; }
+
+    .section { margin-bottom: 48px; scroll-margin-top: 84px; }
+    .section-num {
+      display: inline-block; font-size: 11px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .1em; color: var(--green);
+      margin-bottom: 8px;
+    }
+    .section h2 {
+      font-family: 'Playfair Display', serif; font-size: 24px;
+      color: var(--text); margin-bottom: 16px; line-height: 1.2;
+    }
+    .section p { font-size: 14px; color: var(--text-2); margin-bottom: 14px; line-height: 1.8; }
+    .section p:last-child { margin-bottom: 0; }
+    .section ul, .section ol { padding-left: 20px; margin-bottom: 14px; }
+    .section ul li, .section ol li { font-size: 14px; color: var(--text-2); margin-bottom: 8px; line-height: 1.7; }
+    .section ul li::marker { color: var(--green); }
+
+    /* Highlight box */
+    .highlight {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 16px 18px;
+      font-size: 14px; color: var(--text-2); margin: 16px 0;
+      border-left: 3px solid var(--green);
+    }
+    .highlight strong { color: var(--text); }
+
+    /* Warning box */
+    .warning {
+      background: #FAEEDA; border: 1px solid #FAC775;
+      border-radius: var(--radius); padding: 14px 18px;
+      font-size: 13px; color: #5C3A00; margin: 16px 0;
+      display: flex; gap: 10px; align-items: flex-start;
+    }
+    .warning svg { width: 16px; height: 16px; stroke: #BA7517; fill: none; stroke-width: 2; flex-shrink: 0; margin-top: 2px; }
+
+    /* Divider */
+    .section-divider { height: 1px; background: var(--border); margin-bottom: 48px; }
+
+    /* Contact CTA */
+    .contact-cta {
+      background: var(--green-dark); border-radius: var(--radius-lg);
+      padding: 32px; text-align: center; margin-top: 48px;
+    }
+    .contact-cta h3 { font-family: 'Playfair Display', serif; font-size: 22px; color: white; margin-bottom: 8px; }
+    .contact-cta p { font-size: 14px; color: rgba(255,255,255,0.65); margin-bottom: 20px; }
+    .contact-cta a {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: white; color: var(--green-dark); font-size: 14px; font-weight: 600;
+      padding: 11px 24px; border-radius: var(--radius); transition: background .15s;
+    }
+    .contact-cta a:hover { background: var(--green-light); }
+
+    /* ── Footer ── */
+    footer { background: var(--text); color: rgba(255,255,255,0.6); padding: 48px 32px 28px; }
+    .footer-inner { max-width: 1040px; margin: 0 auto; }
+    .footer-top { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; margin-bottom: 40px; }
+    .footer-logo { font-family: 'Playfair Display', serif; font-size: 20px; color: white; margin-bottom: 10px; }
+    .footer-tagline { font-size: 13px; line-height: 1.7; max-width: 240px; }
+    .footer-col h4 { font-size: 12px; font-weight: 700; color: white; margin-bottom: 14px; letter-spacing: .08em; text-transform: uppercase; }
+    .footer-col a { display: block; font-size: 13px; color: rgba(255,255,255,0.55); margin-bottom: 8px; transition: color .15s; }
+    .footer-col a:hover { color: white; }
+    .footer-bottom { border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+    .footer-bottom p { font-size: 12px; }
+
+    /* ── Responsive ── */
+    @media (max-width: 860px) {
+      .page-wrap { grid-template-columns: 1fr; gap: 0; }
+      .toc { display: none; }
+      nav { padding: 0 16px; }
+      .nav-links .nav-link { display: none; }
+      .hero { padding: 40px 16px 48px; }
+      footer { padding: 40px 16px 24px; }
+      .footer-top { grid-template-columns: 1fr 1fr; gap: 28px; }
+    }
+    @media (max-width: 480px) {
+      .footer-top { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── NAVBAR ── -->
+<nav>
+  <a href="index.html" class="logo">
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    </div>
+    NyumbaKisumu
+  </a>
+  <div class="nav-links">
+    <a href="index.html" class="nav-link">Home</a>
+    <a href="listings.html" class="nav-link">Browse</a>
+    <a href="how-it-works.html" class="nav-link">How it works</a>
+    <a href="contact.html" class="nav-link">Contact</a>
+    <a href="post-listing.html" class="btn-primary">List your apartment</a>
+  </div>
+</nav>
+
+<!-- ── HERO ── -->
+<section class="hero">
+  <h1>Terms of Service</h1>
+  <p>Please read these terms carefully before using NyumbaKisumu.</p>
+  <span class="updated">Last updated: January 2025</span>
+</section>
+
+<!-- ── MAIN ── -->
+<div class="page-wrap">
+
+  <!-- Table of contents -->
+  <aside class="toc">
+    <div class="toc-title">Contents</div>
+    <ul class="toc-list">
+      <li><a href="#acceptance">1. Acceptance of terms</a></li>
+      <li><a href="#platform">2. What NyumbaKisumu is</a></li>
+      <li><a href="#accounts">3. User accounts</a></li>
+      <li><a href="#listings">4. Listing rules</a></li>
+      <li><a href="#payments">5. Payments & fees</a></li>
+      <li><a href="#buyers">6. Buyers & renters</a></li>
+      <li><a href="#prohibited">7. Prohibited conduct</a></li>
+      <li><a href="#content">8. Content & photos</a></li>
+      <li><a href="#liability">9. Limitation of liability</a></li>
+      <li><a href="#termination">10. Termination</a></li>
+      <li><a href="#disputes">11. Disputes</a></li>
+      <li><a href="#changes">12. Changes to terms</a></li>
+      <li><a href="#contact">13. Contact us</a></li>
+    </ul>
+  </aside>
+
+  <!-- Content -->
+  <main class="content">
+
+    <div class="intro-box">
+      <strong>Summary in plain English:</strong> NyumbaKisumu is a listing platform — we connect people who have apartments with people who need them. We are not a real estate agent, we do not own any property, and we are not a party to any transaction between buyers and sellers. By using the platform you agree to these terms.
+    </div>
+
+    <!-- 1 -->
+    <div class="section" id="acceptance">
+      <div class="section-num">Section 1</div>
+      <h2>Acceptance of terms</h2>
+      <p>By accessing or using NyumbaKisumu — including browsing listings, creating an account, posting a listing, or sending an enquiry — you agree to be bound by these Terms of Service and our Privacy Policy.</p>
+      <p>If you do not agree to these terms, you must not use the platform. These terms apply to all users including buyers, renters, sellers, landlords, and property agents.</p>
+      <p>You must be at least 18 years old to create an account or post a listing on NyumbaKisumu.</p>
+    </div>
+    <div class="section-divider"></div>
+
+    <!-- 2 -->
+    <div class="section" id="platform">
+      <div class="section-num">Section 2</div>
+      <h2>What NyumbaKisumu is</h2>
+      <p>NyumbaKisumu is an online property listing marketplace serving Kisumu, Maseno, Luanda, and surrounding areas of Western Kenya. We provide a platform for property owners and agents to advertise apartments for sale or rent, and for buyers and renters to find and contact them.</p>
+      <div class="highlight">
+        <strong>Important:</strong> NyumbaKisumu is not a real estate agent, broker, or property manager. We do not own, manage, or control any property listed on the platform. We are not a party to any agreement, transaction, or dispute between a seller and a buyer.
+      </div>
+      <p>All transactions, agreements, and negotiations happen directly between the seller and buyer. NyumbaKisumu takes no responsibility for the outcome of any transaction.</p>
+    </div>
+    <div class="section-divider"></div>
+
+    <!-- 3 -->
+    <div class="section" id="accounts">
+      <div class="section-num">Section 3</div>
+      <h2>User accounts</h2>
+      <p>To post a listing you must create a seller account. When creating an account you agree to:</p>
+      <ul>
+        <li>Provide accurate and truthful information including your real name, email address, and phone number</li>
+        <li>Keep your account information up to date</li>
+        <li>Keep your password secure and not share it with anyone</li>
+        <li>Be responsible for all activity that occurs under your account</li>
+        <li>Notify us immediately at hello@nyumbakisumu.co.ke if you suspect unauthorised access to your account</li>
+      </ul>
+      <p>We reserve the right to suspend or terminate any account that provides false information, violates these terms, or engages in fraudulent activity.</p>
+    </div>
+    <div class="section-divider"></div>
+
+    <!-- 4 -->
+    <div class="section" id="listings">
+      <div class="section-num">Section 4</div>
+      <h2>Listing rules</h2>
+      <p>By posting a listing on NyumbaKisumu you confirm that:</p>
+      <ul>
+        <li>You are the owner of the property, or you are legally authorised to list it on behalf of the owner</li>
+        <li>All information in your listing is accurate, truthful, and not misleading</li>
+        <li>The property exists and is genuinely available for sale or rent at the price stated</li>
+        <li>Your listing does not violate any Kenyan law or regulation</li>
+        <li>Photos you upload are of the actual property being listed</li>
+        <li>You will respond to genuine buyer enquiries promptly</li>
+        <li>You will update or remove your listing when the property is no longer available</li>
+      </ul>
+      <div class="warning">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span>Fraudulent listings — including listings for properties you do not own or have no right to list, fake addresses, or misleading photos — will result in immediate account termination and may be reported to the relevant Kenyan authorities.</span>
+      </div>
+      <p>NyumbaKisumu reserves the right to remove any listing at any time without notice, and without a refund of listing fees, if we determine the listing violates these terms.</p>
+      <p>Listings are reviewed before going live. We aim to approve or reject listings within 2 hours of payment confirmation. We reserve the right to reject any listing that does not meet our quality or content standards.</p>
+    </div>
+    <div class="section-divider"></div>
+
+    <!-- 5 -->
+    <div class="section" id="payments">
+      <div class="section-num">Section 5</div>
+      <h2>Payments & fees</h2>
+      <p>Listing fees are charged to sellers. The current fees are:</p>
+      <ul>
+        <li><strong>Standard listing:</strong> KES 800 — active for 60 days</li>
+        <li><strong>Featured listing:</strong> KES 2,500 — active for 90 days with top placement</li>
+      </ul>
+      <p>Payments are processed via M-Pesa. By making a payment you authorise NyumbaKisumu to charge the stated amount to your M-Pesa account.</p>
+      <div class="highlight">
+        <strong>Refund policy:</strong> Listing fees are non-refundable once your listing has been approved and published. If your listing is rejected by our team, a full refund will be issued within 3 business days. If you experience a payment issue, contact us at hello@nyumbakisumu.co.ke with your M-Pesa transaction reference.
+      </div>
+      <p>Fees are subject to change. Any fee changes will be announced at least 14 days in advance on the platform. Your existing paid listing duration will not be affected by fee changes.</p>
+      <p>NyumbaKisumu does not charge commission on sales or rental agreements. The listing fee is the only charge from NyumbaKisumu.</p>
+    </div>
+    <div class="section-divider"></div>
+
+    <!-- 6 -->
+    <div class="section" id="buyers">
+      <div class="section-num">Section 6</div>
+      <h2>Buyers & renters</h2>
+      <p>Browsing listings and sending enquiries is free. As a buyer or renter using NyumbaKisumu you agree to:</p>
+      <ul>
+        <li>Contact sellers only for genuine enquiries about properties you are interested in</li>
+        <li>Not send spam, unsolicited commercial messages, or abusive content to sellers</li>
+        <li>Verify the property in person before making any payment to a seller</li>
+        <li>Conduct your own due diligence on any property before entering into an agreement</li>
+      </ul>
+      <div class="warning">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span><strong>Safety warning:</strong> Never send money to a seller before viewing the property in person and verifying ownership documents. NyumbaKisumu is not responsible for any financial loss resulting from fraudulent sellers. If you suspect a listing is fraudulent, report it to us immediately.</span>
+      </div>
+      <p>NyumbaKisumu does not verify the identity of all sellers or the accuracy of all listings. We encourage buyers to exercise caution and common sense in all property transactions.</p>
+    </div>
+    <div class="section-divider"></div>
+
+    <!-- 7 -->
+    <div class="section" id="prohibited">
+      <div class="section-num">Section 7</div>
+      <h2>Prohibited conduct</h2>
+      <p>The following are strictly prohibited on NyumbaKisumu:</p>
+      <ul>
+        <li>Posting false, misleading, or fraudulent listings</li>
+        <li>Listing property you do not own or are not authorised to list</li>
+        <li>Creating multiple accounts to circumvent a suspension or ban</li>
+        <li>Scraping, copying, or reproducing listing data without permission</li>
+        <li>Harassing, threatening, or abusing other users</li>
+        <li>Using the platform to facilitate money laundering or other illegal activity</li>
+        <li>Posting listings for properties outside our covered areas without approval</li>
+        <li>Impersonating another person, company, or NyumbaKisumu itself</li>
+        <li>Attempting to interfere with or disrupt the platform or its security</li>
+        <li>Collecting personal data of other users without their consent</li>
+      </ul>
+      <p>Violation of any of the above may result in immediate account termination without refund and may be reported to the relevant authorities.</p>
+    </div>
+    <div class="section-divider"></div>
+
+    <!-- 8 -->
+    <div class="section" id="content">
+      <div class="section-num">Section 8</div>
+      <h2>Content & photos</h2>
+      <p>By uploading photos or text to NyumbaKisumu you confirm that:</p>
+      <ul>
+        <li>You own the content or have the right to use it</li>
+        <li>The content does not infringe the copyright, trademark, or other rights of any third party</li>
+        <li>Photos are genuine photos of the property being listed — not stock images or photos of a different property</li>
+        <li>You grant NyumbaKisumu a non-exclusive licence to display your content on the platform for the duration of your listing</li>
+      </ul>
+      <p>NyumbaKisumu reserves the right to remove any content that violates these terms or that we determine is inappropriate, misleading, or harmful.</p>
+    </div>
+    <div class="section-divider"></div>
+
+    <!-- 9 -->
+    <div class="section" id="liability">
+      <div class="section-num">Section 9</div>
+      <h2>Limitation of liability</h2>
+      <p>NyumbaKisumu provides the platform on an "as is" and "as available" basis. We do not guarantee that the platform will be available at all times or free from errors.</p>
+      <p>To the fullest extent permitted by Kenyan law, NyumbaKisumu is not liable for:</p>
+      <ul>
+        <li>Any loss or damage arising from a transaction between a buyer and a seller</li>
+        <li>The accuracy or completeness of any listing</li>
+        <li>Any fraudulent listings or fraudulent sellers</li>
+        <li>Any loss of data, profits, or business arising from use of the platform</li>
+        <li>Any indirect, incidental, or consequential damages</li>
+      </ul>
+      <p>Our total liability to you for any claim arising from use of the platform shall not exceed the listing fee you paid for the relevant listing.</p>
+    </div>
+    <div class="section-divider"></div>
+
+    <!-- 10 -->
+    <div class="section" id="termination">
+      <div class="section-num">Section 10</div>
+      <h2>Termination</h2>
+      <p>You may close your account at any time by contacting us at hello@nyumbakisumu.co.ke. Closing your account will remove your listings and profile from the platform. Listing fees already paid are non-refundable upon voluntary account closure.</p>
+      <p>NyumbaKisumu may suspend or terminate your account at any time if you violate these terms, engage in fraudulent activity, or for any other reason at our discretion. We will attempt to notify you by email before doing so except where immediate action is required.</p>
+    </div>
+    <div class="section-divider"></div>
+
+    <!-- 11 -->
+    <div class="section" id="disputes">
+      <div class="section-num">Section 11</div>
+      <h2>Disputes</h2>
+      <p>These terms are governed by the laws of Kenya. Any dispute arising from your use of NyumbaKisumu shall first be attempted to be resolved through direct communication with our team at hello@nyumbakisumu.co.ke.</p>
+      <p>If a dispute cannot be resolved informally, it shall be submitted to the jurisdiction of the courts of Kenya.</p>
+      <p>NyumbaKisumu is not responsible for resolving disputes between buyers and sellers. Any dispute about a property transaction is solely between the parties involved.</p>
+    </div>
+    <div class="section-divider"></div>
+
+    <!-- 12 -->
+    <div class="section" id="changes">
+      <div class="section-num">Section 12</div>
+      <h2>Changes to terms</h2>
+      <p>We may update these Terms of Service from time to time. When we do, we will update the "Last updated" date at the top of this page and notify registered sellers by email.</p>
+      <p>Your continued use of NyumbaKisumu after changes are posted constitutes your acceptance of the updated terms. If you do not agree to the updated terms, you must stop using the platform.</p>
+    </div>
+    <div class="section-divider"></div>
+
+    <!-- 13 -->
+    <div class="section" id="contact">
+      <div class="section-num">Section 13</div>
+      <h2>Contact us</h2>
+      <p>If you have any questions about these Terms of Service, please contact us:</p>
+      <ul>
+        <li><strong>Email:</strong> hello@nyumbakisumu.co.ke</li>
+        <li><strong>WhatsApp:</strong> Available via the contact page</li>
+        <li><strong>Location:</strong> Kisumu, Western Kenya</li>
+      </ul>
+    </div>
+
+    <!-- Contact CTA -->
+    <div class="contact-cta">
+      <h3>Have a question about our terms?</h3>
+      <p>Our team is happy to clarify anything. Reach out and we'll respond within a few hours.</p>
+      <a href="contact.html">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        Contact us
+      </a>
+    </div>
+
+  </main>
+</div>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div>
+        <div class="footer-logo">NyumbaKisumu</div>
+        <p class="footer-tagline">Find and list apartments in Kisumu, Maseno, and Luanda — no agents, no commission.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Browse</h4>
+        <a href="listings.html">All listings</a>
+        <a href="listings.html?category=student">Student housing</a>
+        <a href="listings.html?category=standard">Standard</a>
+        <a href="listings.html?category=luxury">Luxury</a>
+      </div>
+      <div class="footer-col">
+        <h4>Platform</h4>
+        <a href="post-listing.html">List a property</a>
+        <a href="how-it-works.html">How it works</a>
+        <a href="contact.html">Contact us</a>
+        <a href="login.html">Seller login</a>
+      </div>
+      <div class="footer-col">
+        <h4>Legal</h4>
+        <a href="terms.html" style="color:white">Terms of Service</a>
+        <a href="privacy.html">Privacy Policy</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 NyumbaKisumu. All rights reserved.</p>
+      <p>Kisumu · Maseno · Luanda · Western Kenya</p>
+    </div>
+  </div>
+</footer>
+
+<!-- TOC active highlight on scroll -->
+<script>
+  const sections = document.querySelectorAll('.section[id]');
+  const tocLinks = document.querySelectorAll('.toc-list a');
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(s => {
+      if (window.scrollY >= s.offsetTop - 100) current = s.id;
+    });
+    tocLinks.forEach(a => {
+      a.classList.toggle('active', a.getAttribute('href') === '#' + current);
+    });
+  });
+</script>
+</body>
+</html>

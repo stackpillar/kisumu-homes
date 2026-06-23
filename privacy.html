@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Privacy Policy — NyumbaKisumu</title>
+  <meta name="description" content="Privacy Policy for NyumbaKisumu — how we collect, use, and protect your personal data."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --green:       #0F6E56;
+      --green-light: #E1F5EE;
+      --green-dark:  #085041;
+      --text:        #1a1a18;
+      --text-2:      #4a4a46;
+      --text-3:      #888780;
+      --border:      #e0ded8;
+      --surface:     #f7f6f2;
+      --white:       #ffffff;
+      --radius:      10px;
+      --radius-lg:   16px;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; color: var(--text); background: var(--surface); font-size: 15px; line-height: 1.7; }
+    a { text-decoration: none; color: inherit; }
+    button { font-family: inherit; cursor: pointer; border: none; }
+
+    /* ── Navbar ── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 32px; height: 64px;
+      background: var(--white); border-bottom: 1px solid var(--border);
+    }
+    .logo { display: flex; align-items: center; gap: 10px; font-family: 'Playfair Display', serif; font-size: 20px; color: var(--green-dark); }
+    .logo-icon { width: 34px; height: 34px; background: var(--green); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+    .logo-icon svg { width: 18px; height: 18px; fill: none; stroke: white; stroke-width: 2; stroke-linecap: round; }
+    .nav-links { display: flex; align-items: center; gap: 8px; }
+    .nav-link { font-size: 14px; color: var(--text-2); padding: 8px 14px; border-radius: var(--radius); transition: background .15s; }
+    .nav-link:hover { background: var(--surface); }
+    .btn-primary { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 500; padding: 9px 18px; border-radius: var(--radius); background: var(--green); color: white; transition: background .15s; }
+    .btn-primary:hover { background: var(--green-dark); }
+
+    /* ── Hero ── */
+    .hero {
+      background: var(--green-dark); padding: 56px 32px 64px;
+      text-align: center; position: relative; overflow: hidden;
+    }
+    .hero::before {
+      content: ''; position: absolute; inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+    .hero h1 { font-family: 'Playfair Display', serif; font-size: clamp(28px,4vw,42px); color: white; margin-bottom: 12px; position: relative; }
+    .hero p { font-size: 15px; color: rgba(255,255,255,0.6); position: relative; }
+    .hero .updated { display: inline-block; margin-top: 14px; font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: #9FE1CB; position: relative; }
+
+    /* ── Layout ── */
+    .page-wrap { max-width: 1040px; margin: 0 auto; padding: 56px 24px 80px; display: grid; grid-template-columns: 220px 1fr; gap: 48px; align-items: start; }
+
+    /* ── Sidebar TOC ── */
+    .toc { position: sticky; top: 80px; }
+    .toc-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--text-3); margin-bottom: 14px; }
+    .toc-list { list-style: none; display: flex; flex-direction: column; gap: 2px; }
+    .toc-list li a {
+      display: block; font-size: 13px; color: var(--text-2); padding: 6px 10px;
+      border-radius: var(--radius); border-left: 2px solid transparent;
+      transition: all .15s;
+    }
+    .toc-list li a:hover { background: var(--green-light); color: var(--green); border-left-color: var(--green); }
+    .toc-list li a.active { background: var(--green-light); color: var(--green-dark); border-left-color: var(--green); font-weight: 500; }
+
+    /* ── Content ── */
+    .content { min-width: 0; }
+    .intro-box {
+      background: var(--green-light); border: 1px solid #9FE1CB;
+      border-radius: var(--radius-lg); padding: 20px 24px;
+      font-size: 14px; color: var(--green-dark); line-height: 1.7;
+      margin-bottom: 40px;
+    }
+    .intro-box strong { font-weight: 600; }
+
+    .section { margin-bottom: 48px; scroll-margin-top: 84px; }
+    .section-num {
+      display: inline-block; font-size: 11px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .1em; color: var(--green);
+      margin-bottom: 8px;
+    }
+    .section h2 { font-family: 'Playfair Display', serif; font-size: 24px; color: var(--text); margin-bottom: 16px; line-height: 1.2; }
+    .section p { font-size: 14px; color: var(--text-2); margin-bottom: 14px; line-height: 1.8; }
+    .section p:last-child { margin-bottom: 0; }
+    .section ul, .section ol { padding-left: 20px; margin-bottom: 14px; }
+    .section ul li, .section ol li { font-size: 14px; color: var(--text-2); margin-bottom: 8px; line-height: 1.7; }
+    .section ul li::marker { color: var(--green); }
+
+    /* Data table */
+    .data-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+    .data-table th {
+      text-align: left; font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .06em; color: var(--text-3); padding: 10px 14px;
+      background: var(--surface); border-bottom: 1px solid var(--border);
+    }
+    .data-table td { padding: 11px 14px; border-bottom: 1px solid var(--border); color: var(--text-2); vertical-align: top; line-height: 1.6; }
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table td:first-child { font-weight: 600; color: var(--text); white-space: nowrap; }
+
+    /* Highlight box */
+    .highlight {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 16px 18px;
+      font-size: 14px; color: var(--text-2); margin: 16px 0;
+      border-left: 3px solid var(--green);
+    }
+    .highlight strong { color: var(--text); }
+
+    /* Warning box */
+    .warning {
+      background: #FAEEDA; border: 1px solid #FAC775;
+      border-radius: var(--radius); padding: 14px 18px;
+      font-size: 13px; color: #5C3A00; margin: 16px 0;
+      display: flex; gap: 10px; align-items: flex-start;
+    }
+    .warning svg { width: 16px; height: 16px; stroke: #BA7517; fill: none; stroke-width: 2; flex-shrink: 0; margin-top: 2px; }
+
+    /* Rights cards */
+    .rights-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin: 16px 0; }
+    .right-card {
+      background: var(--white); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 16px; display: flex; flex-direction: column; gap: 8px;
+    }
+    .right-card-icon {
+      width: 32px; height: 32px; border-radius: 8px; background: var(--green-light);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .right-card-icon svg { width: 15px; height: 15px; stroke: var(--green); fill: none; stroke-width: 2; }
+    .right-card strong { font-size: 13px; font-weight: 600; color: var(--text); }
+    .right-card span { font-size: 12px; color: var(--text-3); line-height: 1.5; }
+
+    /* Divider */
+    .section-divider { height: 1px; background: var(--border); margin-bottom: 48px; }
+
+    /* Contact CTA */
+    .contact-cta {
+      background: var(--green-dark); border-radius: var(--radius-lg);
+      padding: 32px; text-align: center; margin-top: 48px;
+    }
+    .contact-cta h3 { font-family: 'Playfair Display', serif; font-size: 22px; color: white; margin-bottom: 8px; }
+    .contact-cta p { font-size: 14px; color: rgba(255,255,255,0.65); margin-bottom: 20px; }
+    .contact-cta a {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: white; color: var(--green-dark); font-size: 14px; font-weight: 600;
+      padding: 11px 24px; border-radius: var(--radius); transition: background .15s;
+    }
+    .contact-cta a:hover { background: var(--green-light); }
+
+    /* ── Footer ── */
+    footer { background: var(--text); color: rgba(255,255,255,0.6); padding: 48px 32px 28px; }
+    .footer-inner { max-width: 1040px; margin: 0 auto; }
+    .footer-top { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; margin-bottom: 40px; }
+    .footer-logo { font-family: 'Playfair Display', serif; font-size: 20px; color: white; margin-bottom: 10px; }
+    .footer-tagline { font-size: 13px; line-height: 1.7; max-width: 240px; }
+    .footer-col h4 { font-size: 12px; font-weight: 700; color: white; margin-bottom: 14px; letter-spacing: .08em; text-transform: uppercase; }
+    .footer-col a { display: block; font-size: 13px; color: rgba(255,255,255,0.55); margin-bottom: 8px; transition: color .15s; }
+    .footer-col a:hover { color: white; }
+    .footer-bottom { border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+    .footer-bottom p { font-size: 12px; }
+
+    /* ── Responsive ── */
+    @media (max-width: 860px) {
+      .page-wrap { grid-template-columns: 1fr; gap: 0; }
+      .toc { display: none; }
+      nav { padding: 0 16px; }
+      .nav-links .nav-link { display: none; }
+      .hero { padding: 40px 16px 48px; }
+      footer { padding: 40px 16px 24px; }
+      .footer-top { grid-template-columns: 1fr 1fr; gap: 28px; }
+      .rights-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 480px) {
+      .footer-top { grid-template-columns: 1fr; }
+      .rights-grid { grid-template-columns: 1fr; }
+      .data-table { font-size: 12px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── NAVBAR ── -->
+<nav>
+  <a href="index.html" class="logo">
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    </div>
+    NyumbaKisumu
+  </a>
+  <div class="nav-links">
+    <a href="index.html" class="nav-link">Home</a>
+    <a href="listings.html" class="nav-link">Browse</a>
+    <a href="how-it-works.html" class="nav-link">How it works</a>
+    <a href="contact.html" class="nav-link">Contact</a>
+    <a href="post-listing.html" class="btn-primary">List your apartment</a>
+  </div>
+</nav>
+
+<!-- ── HERO ── -->
+<section class="hero">
+  <h1>Privacy Policy</h1>
+  <p>How NyumbaKisumu collects, uses, and protects your personal information.</p>
+  <span class="updated">Last updated: January 2025</span>
+</section>
+
+<!-- ── MAIN ── -->
+<div class="page-wrap">
+
+  <!-- Table of contents -->
+  <aside class="toc">
+    <div class="toc-title">Contents</div>
+    <ul class="toc-list">
+      <li><a href="#overview">1. Overview</a></li>
+      <li><a href="#data-we-collect">2. Data we collect</a></li>
+      <li><a href="#how-we-use">3. How we use your data</a></li>
+      <li><a href="#sharing">4. Who we share data with</a></li>
+      <li><a href="#storage">5. Data storage & security</a></li>
+      <li><a href="#cookies">6. Cookies</a></li>
+      <li><a href="#mpesa">7. M-Pesa & payments</a></li>
+      <li><a href="#retention">8. How long we keep data</a></li>
+      <li><a href="#your-rights">9. Your rights</a></li>
+      <li><a href="#children">10. Children's privacy</a></li>
+      <li><a href="#third-party">11. Third-party links</a></li>
+      <li><a href="#changes">12. Changes to this policy</a></li>
+      <li><a href="#contact">13. Contact us</a></li>
+    </ul>
+  </aside>
+
+  <!-- Content -->
+  <main class="content">
+
+    <div class="intro-box">
+      <strong>Plain English summary:</strong> We collect the information you give us when you register, post a listing, or contact a seller. We use it to run the platform and never sell your personal data to third parties. You can request to see, correct, or delete your data at any time by emailing hello@nyumbakisumu.co.ke.
+    </div>
+
+    <!-- 1 -->
+    <div class="section" id="overview">
+      <div class="section-num">Section 1</div>
+      <h2>Overview</h2>
+      <p>NyumbaKisumu ("we", "us", "our") is committed to protecting your privacy. This Privacy Policy explains what personal information we collect when you use NyumbaKisumu, how we use it, and what choices you have.</p>
+      <p>This policy applies to all users of NyumbaKisumu — including buyers, renters, sellers, and landlords — accessing the platform via any device.</p>
+      <p>By using NyumbaKisumu you agree to the collection and use of information as described in this policy. If you do not agree, please stop using the platform.</p>
+      <div class="highlight">
+        <strong>Data controller:</strong> NyumbaKisumu operates as the data controller for personal information collected on this platform. For any privacy enquiries contact us at <strong>hello@nyumbakisumu.co.ke</strong>.
+      </div>
+    </div>
+    <div class="section-divider"></div>
+
+    <!-- 2 -->
+    <div class="section" id="data-we-collect">
+      <div class="section-num">Section 2</div>
+      <h2>Data we collect</h2>
+      <p>We collect personal data in the following ways:</p>
+
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Data type</th>
+            <th>What we collect</th>
+            <th>When</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Account info</td>
+            <td>Full name, email address, phone number, password (hashed)</td>
+            <td>When you register as a seller</td>
+          </tr>
+          <tr>
+            <td>Listing info</td>
+            <td>Property details, photos, price, area, contact phone number</td>
+            <td>When you post a listing</td>
+          </tr>
+          <tr>
+            <td>Enquiry info</td>
+            <td>Buyer name, phone number, and message content</td>
+            <td>When a buyer sends an enquiry</td>
+          </tr>
+          <tr>
+            <td>Payment info</td>
+            <td>M-Pesa phone number, transaction reference, amount paid</td>
+            <td>When you pay a listing fee</td>
+          </tr>
+          <tr>
+            <td>Usage data</td>
+            <td>Pages visited, search queries, browser type, IP address</td>
+            <td>Automatically when you use the site</td>
+          </tr>
+          <tr>
+            <td>Communications</td>
+            <td>Emails or messages sent to our support team</td>
+            <td>When you contact us</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p>We do not collect your national ID number, bank account details, or any sensitive personal data beyond what is listed above.</p>
+    </div>
+    <div class="section-divider"></div>
+
+    <!-- 3 -->
+    <div class="section" id="how-we-use">
+      <div class="section-num">Section 3</div>
+      <h2>How we use your data</h2>
+      <p>We use the personal data we collect for the following purposes:</p>
+      <ul>
+        <li><strong>To run the platform</strong> — creating and managing your account, publishing your listings, and delivering buyer enquiries to you</li>
+        <li><strong>To process payments</strong> — verifying M-Pesa transactions and activating listings after payment confirmation</li>
+        <li><strong>To communicate with you</strong> — sending listing confirmation emails, payment receipts, and important platform updates</li>
+        <li><strong>To improve the platform</strong> — analysing how people use NyumbaKisumu so we can make it better</li>
+        <li><strong>To detect and prevent fraud</strong> — identifying suspicious listings or accounts and protecting other users</li>
+        <li><strong>To comply with legal obligations</strong> — responding to lawful requests from Kenyan authorities where required</li>
+      </ul>
+      <div class="highlight">
+        <strong>We will never:</strong> sell your personal data to advertisers or third parties, send you unsolicited marketing from other businesses, or use your data for any purpose not listed above without your consent.
+      </div>
+    </div>
+    <div class="section-divider"></div>
+
+    <!-- 4 -->
+    <div class="section" id="sharing">
+      <div class="section-num">Section 4</div>
+      <h2>Who we share data with</h2>
+      <p>We share your data only in the following limited circumstances:</p>
+      <ul>
+        <li><strong>Other users (limited):</strong> When you post a listing, your contact phone number and listing details are visible to buyers on the platform. Buyers who send you an enquiry share their name, phone number, and message with you.</li>
+        <li><strong>Supabase:</strong> Our database and authentication provider (Supabase, Inc.) stores your account data and listings securely in the EU region.</li>
+        <li><strong>Safaricom M-Pesa:</strong> Payment processing is handled by Safaricom. We share your phone number and payment amount with Safaricom to process the STK Push. We do not store your M-Pesa PIN — this is handled entirely by Safaricom.</li>
+        <li><strong>Netlify:</strong> Our hosting provider (Netlify, Inc.) may process request logs including IP addresses as part of normal web hosting operations.</li>
+        <li><strong>Legal authorities:</strong> We may disclose personal data to Kenyan authorities if required by law, court order, or to protect the rights and safety of our users.</li>
+      </ul>
+      <p>We do not sell, rent, or trade your personal data to any third party for marketing purposes. We do not use advertising networks that track you across other websites.</p>
+    </div>
+    <div class="section-divider"></div>
+
+    <!-- 5 -->
+    <div class="section" id="storage">
+      <div class="section-num">Section 5</div>
+      <h2>Data storage & security</h2>
+      <p>Your data is stored on Supabase servers located in the EU (Ireland). Supabase is SOC 2 compliant and uses encryption at rest and in transit.</p>
+      <p>We take the following measures to protect your data:</p>
+      <ul>
+        <li>All data transmitted between your browser and our servers uses HTTPS encryption</li>
+        <li>Passwords are hashed using industry-standard bcrypt — we cannot see your password</li>
+        <li>Your M-Pesa PIN is never passed through our systems — it goes directly to Safaricom</li>
+        <li>Database access is protected by Row Level Security (RLS) — sellers can only access their own listings and enquiries</li>
+        <li>Admin access to the database is protected by strong authentication</li>
+      </ul>
+      <div class="warning">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span>No system is 100% secure. While we work hard to protect your data, we cannot guarantee absolute security. If you suspect your account has been compromised, change your password immediately and contact us at hello@nyumbakisumu.co.ke.</span>
+      </div>
+    </div>
+    <div class="section-divider"></div>
+
+    <!-- 6 -->
+    <div class="section" id="cookies">
+      <div class="section-num">Section 6</div>
+      <h2>Cookies</h2>
+      <p>NyumbaKisumu uses a small number of cookies and local storage items to make the platform work. We do not use advertising cookies or third-party tracking cookies.</p>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Cookie / storage</th>
+            <th>Purpose</th>
+            <th>Duration</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Supabase session</td>
+            <td>Keeps you logged in to your seller account</td>
+            <td>7 days or until you sign out</td>
+          </tr>
+          <tr>
+            <td>Search preferences</td>
+            <td>Remembers your last search filters</td>
+            <td>Session only</td>
+          </tr>
+          <tr>
+            <td>Google Fonts</td>
+            <td>Loads the Inter and Playfair Display fonts from Google</td>
+            <td>Cached by browser</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>You can disable cookies in your browser settings, but this may prevent you from logging in or using some features of the platform.</p>
+      <p>We use Google Maps embeds on individual listing pages to show approximate location. Google Maps may set its own cookies subject to Google's Privacy Policy.</p>
+    </div>
+    <div class="section-divider"></div>
+
+    <!-- 7 -->
+    <div class="section" id="mpesa">
+      <div class="section-num">Section 7</div>
+      <h2>M-Pesa & payments</h2>
+      <p>When you pay a listing fee via M-Pesa, here is exactly what happens with your data:</p>
+      <ul>
+        <li>You provide your M-Pesa phone number on our platform</li>
+        <li>We send your phone number and the payment amount to Safaricom's Daraja API</li>
+        <li>Safaricom sends an STK Push directly to your phone</li>
+        <li>You enter your M-Pesa PIN on your phone — <strong>this PIN is never seen or stored by NyumbaKisumu</strong></li>
+        <li>Safaricom confirms the payment to us with a transaction reference number (e.g. QF12AB3CD4)</li>
+        <li>We store the transaction reference, amount, and payment status in our database linked to your listing</li>
+      </ul>
+      <div class="highlight">
+        <strong>We do not store card numbers, bank account details, or your M-Pesa PIN.</strong> All payment processing is handled entirely by Safaricom. For M-Pesa payment disputes, contact Safaricom on 234.
+      </div>
+    </div>
+    <div class="section-divider"></div>
+
+    <!-- 8 -->
+    <div class="section" id="retention">
+      <div class="section-num">Section 8</div>
+      <h2>How long we keep your data</h2>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Data type</th>
+            <th>How long we keep it</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Account information</td>
+            <td>Until you delete your account, plus 30 days for recovery</td>
+          </tr>
+          <tr>
+            <td>Active listings</td>
+            <td>For the duration of the listing (60 or 90 days), then archived</td>
+          </tr>
+          <tr>
+            <td>Expired listings</td>
+            <td>12 months after expiry, then permanently deleted</td>
+          </tr>
+          <tr>
+            <td>Buyer enquiries</td>
+            <td>90 days after the listing expires</td>
+          </tr>
+          <tr>
+            <td>Payment records</td>
+            <td>7 years (required for financial record-keeping under Kenyan law)</td>
+          </tr>
+          <tr>
+            <td>Usage / access logs</td>
+            <td>90 days, then automatically deleted</td>
+          </tr>
+          <tr>
+            <td>Support emails</td>
+            <td>2 years from the date of the last communication</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>When data is deleted, it is permanently removed from our systems and cannot be recovered. Payment records are the exception — we are required by Kenyan tax and financial regulations to retain these for 7 years.</p>
+    </div>
+    <div class="section-divider"></div>
+
+    <!-- 9 -->
+    <div class="section" id="your-rights">
+      <div class="section-num">Section 9</div>
+      <h2>Your rights</h2>
+      <p>You have the following rights over your personal data. To exercise any of them, email us at hello@nyumbakisumu.co.ke and we will respond within 7 business days.</p>
+
+      <div class="rights-grid">
+        <div class="right-card">
+          <div class="right-card-icon">
+            <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </div>
+          <strong>Access</strong>
+          <span>Request a copy of all personal data we hold about you</span>
+        </div>
+        <div class="right-card">
+          <div class="right-card-icon">
+            <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </div>
+          <strong>Correction</strong>
+          <span>Ask us to correct inaccurate or incomplete data</span>
+        </div>
+        <div class="right-card">
+          <div class="right-card-icon">
+            <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+          </div>
+          <strong>Deletion</strong>
+          <span>Request deletion of your account and personal data</span>
+        </div>
+        <div class="right-card">
+          <div class="right-card-icon">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+          </div>
+          <strong>Objection</strong>
+          <span>Object to processing of your data for specific purposes</span>
+        </div>
+        <div class="right-card">
+          <div class="right-card-icon">
+            <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          </div>
+          <strong>Portability</strong>
+          <span>Request your data in a machine-readable format</span>
+        </div>
+        <div class="right-card">
+          <div class="right-card-icon">
+            <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+          </div>
+          <strong>Restriction</strong>
+          <span>Ask us to limit how we process your data in certain cases</span>
+        </div>
+      </div>
+
+      <p style="margin-top:16px">We will process all requests free of charge. In some cases we may be unable to delete certain data (such as payment records required by law) and will explain this clearly.</p>
+      <p>You can also update or delete your own profile information directly from your <a href="dashboard.html" style="color:var(--green);font-weight:500">seller dashboard</a> at any time.</p>
+    </div>
+    <div class="section-divider"></div>
+
+    <!-- 10 -->
+    <div class="section" id="children">
+      <div class="section-num">Section 10</div>
+      <h2>Children's privacy</h2>
+      <p>NyumbaKisumu is not intended for use by anyone under the age of 18. We do not knowingly collect personal data from children under 18.</p>
+      <p>If you believe a child under 18 has provided us with personal information, please contact us at hello@nyumbakisumu.co.ke and we will delete that information promptly.</p>
+    </div>
+    <div class="section-divider"></div>
+
+    <!-- 11 -->
+    <div class="section" id="third-party">
+      <div class="section-num">Section 11</div>
+      <h2>Third-party links</h2>
+      <p>NyumbaKisumu may contain links to external websites — for example, links to WhatsApp, Google Maps, or other services. This Privacy Policy does not apply to those websites.</p>
+      <p>We encourage you to read the privacy policies of any external websites you visit. We are not responsible for the privacy practices of third-party sites.</p>
+      <p>When you click a WhatsApp link on a listing page, you are opening WhatsApp directly and your conversation with the seller is subject to WhatsApp's and Meta's privacy policies.</p>
+    </div>
+    <div class="section-divider"></div>
+
+    <!-- 12 -->
+    <div class="section" id="changes">
+      <div class="section-num">Section 12</div>
+      <h2>Changes to this policy</h2>
+      <p>We may update this Privacy Policy from time to time. When we make significant changes, we will update the "Last updated" date at the top of this page and notify registered sellers by email.</p>
+      <p>We encourage you to review this policy periodically. Your continued use of NyumbaKisumu after any changes constitutes your acceptance of the updated policy.</p>
+    </div>
+    <div class="section-divider"></div>
+
+    <!-- 13 -->
+    <div class="section" id="contact">
+      <div class="section-num">Section 13</div>
+      <h2>Contact us</h2>
+      <p>If you have any questions about this Privacy Policy or wish to exercise your data rights, please contact us:</p>
+      <ul>
+        <li><strong>Email:</strong> hello@nyumbakisumu.co.ke</li>
+        <li><strong>Subject line:</strong> "Privacy Request — [your name]"</li>
+        <li><strong>Response time:</strong> Within 7 business days</li>
+        <li><strong>Location:</strong> Kisumu, Western Kenya</li>
+      </ul>
+      <p>For M-Pesa payment disputes specifically, contact Safaricom directly on <strong>234</strong> (free from Safaricom lines) as we do not have access to change M-Pesa transaction records.</p>
+    </div>
+
+    <!-- Contact CTA -->
+    <div class="contact-cta">
+      <h3>Questions about your privacy?</h3>
+      <p>We take privacy seriously. Email us and we'll respond within 7 business days.</p>
+      <a href="mailto:hello@nyumbakisumu.co.ke">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        hello@nyumbakisumu.co.ke
+      </a>
+    </div>
+
+  </main>
+</div>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div>
+        <div class="footer-logo">NyumbaKisumu</div>
+        <p class="footer-tagline">Find and list apartments in Kisumu, Maseno, and Luanda — no agents, no commission.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Browse</h4>
+        <a href="listings.html">All listings</a>
+        <a href="listings.html?category=student">Student housing</a>
+        <a href="listings.html?category=standard">Standard</a>
+        <a href="listings.html?category=luxury">Luxury</a>
+      </div>
+      <div class="footer-col">
+        <h4>Platform</h4>
+        <a href="post-listing.html">List a property</a>
+        <a href="how-it-works.html">How it works</a>
+        <a href="contact.html">Contact us</a>
+        <a href="login.html">Seller login</a>
+      </div>
+      <div class="footer-col">
+        <h4>Legal</h4>
+        <a href="terms.html">Terms of Service</a>
+        <a href="privacy.html" style="color:white">Privacy Policy</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 NyumbaKisumu. All rights reserved.</p>
+      <p>Kisumu · Maseno · Luanda · Western Kenya</p>
+    </div>
+  </div>
+</footer>
+
+<!-- TOC active highlight on scroll -->
+<script>
+  const sections = document.querySelectorAll('.section[id]');
+  const tocLinks = document.querySelectorAll('.toc-list a');
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(s => {
+      if (window.scrollY >= s.offsetTop - 100) current = s.id;
+    });
+    tocLinks.forEach(a => {
+      a.classList.toggle('active', a.getAttribute('href') === '#' + current);
+    });
+  });
+</script>
+</body>
+</html>
