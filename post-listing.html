@@ -210,7 +210,7 @@
     .success-icon { width: 72px; height: 72px; background: var(--green-light); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; }
     .success-icon svg { width: 36px; height: 36px; stroke: var(--green); fill: none; stroke-width: 2.5; }
     .success-screen h2 { font-family: 'Playfair Display', serif; font-size: 28px; color: var(--text); margin-bottom: 10px; }
-    .success-screen p { font-size: 15px; color: var(--text-2); max-width: 400px; margin: 0 auto 28px; }
+    .success-screen p { font-size: 15px; color: var(--text-2); max-width: 440px; margin: 0 auto 28px; }
     .success-actions { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
 
     /* ── Toast ── */
@@ -224,6 +224,67 @@
     .toast.error { background: var(--red); }
     .toast.success { background: var(--green-dark); }
 
+    /* ── Payment modal ── */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(15,15,12,0.55);
+      display: none; align-items: center; justify-content: center;
+      z-index: 1000; padding: 20px;
+    }
+    .modal-overlay.show { display: flex; }
+    .modal-box {
+      background: white; border-radius: var(--radius-lg); max-width: 460px; width: 100%;
+      padding: 28px; max-height: 90vh; overflow-y: auto; position: relative;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+    }
+    .modal-close-x {
+      position: absolute; top: 14px; right: 14px; width: 30px; height: 30px;
+      border-radius: 50%; background: var(--surface); color: var(--text-2);
+      font-size: 18px; line-height: 1; display: flex; align-items: center; justify-content: center;
+    }
+    .modal-close-x:hover { background: var(--border); }
+    .modal-box h2 { font-size: 18px; font-weight: 600; margin-bottom: 4px; padding-right: 30px; }
+    .modal-box p.hint { font-size: 13px; color: var(--text-3); margin-bottom: 18px; }
+    .pay-amount { font-size: 28px; font-weight: 700; color: var(--green-dark); margin-bottom: 18px; }
+    .pay-amount span { font-size: 13px; font-weight: 500; color: var(--text-3); }
+    .pay-tabs { display: flex; border: 1.5px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 20px; }
+    .pay-tab { flex: 1; padding: 10px; text-align: center; font-size: 14px; font-weight: 600; color: var(--text-3); cursor: pointer; background: white; transition: all .15s; }
+    .pay-tab.active { background: var(--green); color: white; }
+    .pay-panel { display: none; }
+    .pay-panel.active { display: block; }
+    .bank-details { background: var(--surface); border-radius: var(--radius); padding: 14px 16px; margin-bottom: 16px; font-size: 13px; }
+    .bank-details div { display: flex; justify-content: space-between; padding: 4px 0; }
+    .bank-details div span:first-child { color: var(--text-3); }
+    .bank-details div span:last-child { font-weight: 600; }
+    .stk-status {
+      display: none; align-items: center; gap: 10px; background: var(--green-light);
+      border-radius: var(--radius); padding: 12px 14px; font-size: 13px; color: var(--green-dark); margin: 14px 0;
+    }
+    .stk-status.show { display: flex; }
+    .spinner {
+      width: 16px; height: 16px; border: 2px solid var(--green); border-top-color: transparent;
+      border-radius: 50%; animation: spin .7s linear infinite; flex-shrink: 0;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .manual-code-box { display: none; margin-top: 14px; }
+    .manual-code-box.show { display: block; }
+    .btn-confirm-pay {
+      width: 100%; padding: 12px; border-radius: var(--radius); background: var(--green);
+      color: white; font-size: 14px; font-weight: 600; margin-top: 8px; transition: background .15s;
+    }
+    .btn-confirm-pay:hover { background: var(--green-dark); }
+    .btn-confirm-pay:disabled { opacity: .6; cursor: not-allowed; }
+    .btn-confirm-pay.secondary { background: white; color: var(--text-2); border: 1.5px solid var(--border); }
+    .btn-confirm-pay.secondary:hover { border-color: var(--text-2); background: white; color: var(--text); }
+    .skip-link {
+      display: block; text-align: center; margin-top: 18px; font-size: 13px;
+      color: var(--text-3); cursor: pointer; padding: 4px;
+    }
+    .skip-link:hover { color: var(--text-2); text-decoration: underline; }
+    .pay-note {
+      font-size: 12px; color: var(--text-3); background: var(--surface);
+      border-radius: var(--radius); padding: 10px 12px; margin-top: 16px; line-height: 1.5;
+    }
+
     /* ── Responsive ── */
     @media (max-width: 640px) {
       nav { padding: 0 16px; }
@@ -233,6 +294,7 @@
       .cat-grid { grid-template-columns: 1fr; }
       .pricing-options { grid-template-columns: 1fr; }
       .steps-bar .step-label { display: none; }
+      .modal-box { padding: 22px 18px; }
     }
   </style>
 </head>
@@ -502,7 +564,7 @@
       </div>
 
       <div style="background:var(--green-light);border-radius:var(--radius);padding:14px 16px;margin-top:20px;font-size:13px;color:var(--green-dark)">
-        <strong>Payment via M-Pesa:</strong> After submitting, you'll receive an M-Pesa STK Push to complete payment. Your listing goes live within minutes of payment confirmation.
+        <strong>Payment:</strong> After submitting, you can pay instantly via M-Pesa or bank transfer — or skip payment and pay later. Either way, your listing is reviewed by our team before it goes live.
       </div>
     </div>
 
@@ -531,7 +593,7 @@
       <div id="order-summary"></div>
 
       <div style="margin-top:20px;padding:16px;background:var(--surface);border-radius:var(--radius);font-size:13px;color:var(--text-2)">
-        By submitting you agree that your listing information is accurate and you are authorised to list this property. Listings are reviewed within 2 hours.
+        By submitting you agree that your listing information is accurate and you are authorised to list this property. Your listing is saved immediately and reviewed by our team — typically within a few hours — before it appears publicly.
       </div>
     </div>
 
@@ -539,7 +601,7 @@
       <button class="btn-back" onclick="goStep(3)">← Back</button>
       <button class="btn-submit" id="submit-btn" onclick="submitListing()">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-        Submit & pay via M-Pesa
+        Submit listing →
       </button>
     </div>
   </div>
@@ -552,7 +614,7 @@
       <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
     </div>
     <h2>Listing submitted!</h2>
-    <p>Your apartment has been submitted. Complete the M-Pesa payment to go live — check your phone for the STK Push prompt.</p>
+    <p id="success-message">Your apartment has been saved and is pending review by our team. You'll be able to see it in your dashboard right away — it will appear publicly once approved.</p>
     <div class="success-actions">
       <a href="dashboard.html" style="padding:11px 22px;background:var(--green);color:white;border-radius:var(--radius);font-size:14px;font-weight:600">View my listings</a>
       <a href="index.html" style="padding:11px 22px;border:1.5px solid var(--border);border-radius:var(--radius);font-size:14px;font-weight:500;color:var(--text-2)">Back to home</a>
@@ -560,6 +622,63 @@
   </div>
 
 </div><!-- end page-wrap -->
+
+<!-- ══════════════════════════════════ -->
+<!-- PAYMENT MODAL                     -->
+<!-- ══════════════════════════════════ -->
+<div class="modal-overlay" id="payment-modal">
+  <div class="modal-box">
+    <button class="modal-close-x" onclick="skipPayment()" title="Close and skip for now">×</button>
+    <h2>Complete your payment</h2>
+    <p class="hint">Your listing is saved and already pending review. Paying now is optional — it does not change when it gets approved.</p>
+    <div class="pay-amount" id="pay-amount">KES 800 <span>one-time</span></div>
+
+    <div class="pay-tabs">
+      <div class="pay-tab active" id="tab-mpesa" onclick="switchPayTab('mpesa')">M-Pesa</div>
+      <div class="pay-tab" id="tab-bank" onclick="switchPayTab('bank')">Bank transfer</div>
+    </div>
+
+    <!-- M-Pesa panel -->
+    <div class="pay-panel active" id="panel-mpesa">
+      <div class="field">
+        <label>M-Pesa phone number</label>
+        <input type="tel" id="mpesa-phone" placeholder="0712 345 678"/>
+      </div>
+      <button class="btn-confirm-pay" id="stk-btn" onclick="sendStkPush()">Send M-Pesa prompt</button>
+
+      <div class="stk-status" id="stk-status">
+        <div class="spinner"></div>
+        <span id="stk-status-text">Sending prompt to your phone…</span>
+      </div>
+
+      <div class="manual-code-box" id="mpesa-manual-box">
+        <div class="field">
+          <label>Enter your M-Pesa code <span class="opt">e.g. QFT7H8K2LM</span></label>
+          <input type="text" id="mpesa-code" placeholder="M-Pesa transaction code" style="text-transform:uppercase"/>
+        </div>
+        <button class="btn-confirm-pay" onclick="confirmManualPayment('mpesa')">Confirm M-Pesa payment</button>
+      </div>
+    </div>
+
+    <!-- Bank panel -->
+    <div class="pay-panel" id="panel-bank">
+      <div class="bank-details">
+        <div><span>Bank</span><span>Equity Bank</span></div>
+        <div><span>Account name</span><span>NyumbaKisumu Ltd</span></div>
+        <div><span>Account number</span><span>0123456789</span></div>
+        <div><span>Branch</span><span>Kisumu</span></div>
+      </div>
+      <div class="field">
+        <label>Enter your bank transaction reference</label>
+        <input type="text" id="bank-ref" placeholder="e.g. FT24183920XX"/>
+      </div>
+      <button class="btn-confirm-pay" onclick="confirmManualPayment('bank')">Confirm bank payment</button>
+    </div>
+
+    <div class="pay-note">Already paid or paying later? You can skip — your listing stays pending and our admin team can approve it with or without a confirmed payment.</div>
+    <span class="skip-link" onclick="skipPayment()">Skip for now →</span>
+  </div>
+</div>
 
 <script>
   const SUPABASE_URL = 'https://vliuuloyfhyxcsuchpss.supabase.co';
@@ -574,6 +693,9 @@
   let selectedPlan = 'basic';
   let photos = []; // { file, previewUrl, coverIndex }
   let coverIndex = 0;
+  let currentListingId = null;
+  let currentPlanPrice = 0;
+  let stkTimer = null;
 
   // ── Toast ──
   function showToast(msg, type = '') {
@@ -603,6 +725,10 @@
     selectedPlan = plan;
     document.getElementById('plan-basic').classList.toggle('selected', plan === 'basic');
     document.getElementById('plan-featured').classList.toggle('selected', plan === 'featured');
+  }
+
+  function getPlanPrice() {
+    return selectedPlan === 'featured' ? 2500 : 800;
   }
 
   // ── Photo handling ──
@@ -745,20 +871,21 @@
       <div class="summary-row"><span>Photos</span><strong>${photos.length} photo(s)</strong></div>`;
 
     const planLabel = selectedPlan === 'featured' ? 'Featured listing (90 days)' : 'Standard listing (60 days)';
-    const planPrice = selectedPlan === 'featured' ? 2500 : 800;
+    const planPrice = getPlanPrice();
     document.getElementById('order-summary').innerHTML = `
       <div class="summary-row"><span>${planLabel}</span><span>KES ${planPrice.toLocaleString()}</span></div>
-      <div class="summary-row"><span>Total due via M-Pesa</span><span>KES ${planPrice.toLocaleString()}</span></div>`;
+      <div class="summary-row"><span>Total (optional, pay now or later)</span><span>KES ${planPrice.toLocaleString()}</span></div>`;
   }
 
-  // ── Submit listing ──
+  // ── Submit listing: saves as pending immediately, then opens payment modal ──
   async function submitListing() {
     const btn = document.getElementById('submit-btn');
     btn.disabled = true;
     btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> Submitting…';
 
     try {
-      // Check auth — if not logged in, save form data and redirect to login
+      // Check auth — listing is still saved even if not logged in (seller_id null),
+      // but sellers should normally be logged in to see it in their dashboard.
       const { data: { user } } = await db.auth.getUser();
 
       const listingData = {
@@ -775,6 +902,7 @@
         address: document.getElementById('address').value.trim() || null,
         category: selectedCat,
         is_featured: selectedPlan === 'featured',
+        // Stays pending until admin.html explicitly approves it — regardless of payment.
         status: 'pending',
         payment_status: 'unpaid',
         seller_id: user ? user.id : null,
@@ -782,6 +910,9 @@
 
       const { data: listing, error } = await db.from('listings').insert(listingData).select().single();
       if (error) throw error;
+
+      currentListingId = listing.id;
+      currentPlanPrice = getPlanPrice();
 
       // Upload photos
       if (photos.length) {
@@ -794,23 +925,114 @@
         }
       }
 
-      // Show success
-      document.getElementById('step-4').style.display = 'none';
-      document.querySelector('.steps-bar').style.display = 'none';
-      document.getElementById('success-screen').style.display = 'block';
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      // Listing is already saved as pending — now offer payment (optional).
+      openPaymentModal();
 
     } catch (err) {
       console.error(err);
       showToast('Something went wrong. Please try again.', 'error');
       btn.disabled = false;
-      btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Submit & pay via M-Pesa';
+      btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Submit listing →';
     }
+  }
+
+  // ── Payment modal ──
+  function openPaymentModal() {
+    document.getElementById('pay-amount').innerHTML = `KES ${currentPlanPrice.toLocaleString()} <span>one-time</span>`;
+    document.getElementById('mpesa-phone').value = document.getElementById('phone').value || '';
+    document.getElementById('mpesa-code').value = '';
+    document.getElementById('bank-ref').value = '';
+    document.getElementById('mpesa-manual-box').classList.remove('show');
+    document.getElementById('stk-status').classList.remove('show');
+    switchPayTab('mpesa');
+    document.getElementById('payment-modal').classList.add('show');
+  }
+
+  function switchPayTab(tab) {
+    document.getElementById('tab-mpesa').classList.toggle('active', tab === 'mpesa');
+    document.getElementById('tab-bank').classList.toggle('active', tab === 'bank');
+    document.getElementById('panel-mpesa').classList.toggle('active', tab === 'mpesa');
+    document.getElementById('panel-bank').classList.toggle('active', tab === 'bank');
+  }
+
+  // Simulates an STK push wait, then reveals the manual-code fallback.
+  // To trigger a REAL M-Pesa prompt, replace the body of this function with a call
+  // to a Supabase Edge Function that talks to the Daraja API (secrets must stay server-side).
+  function sendStkPush() {
+    const phone = document.getElementById('mpesa-phone').value.trim();
+    if (phone.length < 9) { showToast('Enter a valid M-Pesa phone number', 'error'); return; }
+
+    const stkBtn = document.getElementById('stk-btn');
+    const status = document.getElementById('stk-status');
+    const statusText = document.getElementById('stk-status-text');
+
+    stkBtn.disabled = true;
+    status.classList.add('show');
+    statusText.textContent = 'Sending prompt to your phone…';
+    document.getElementById('mpesa-manual-box').classList.remove('show');
+
+    if (stkTimer) clearTimeout(stkTimer);
+    stkTimer = setTimeout(() => {
+      statusText.textContent = "Didn't get the prompt? Enter your M-Pesa code below.";
+      document.getElementById('mpesa-manual-box').classList.add('show');
+      stkBtn.disabled = false;
+      stkBtn.textContent = 'Resend prompt';
+    }, 4000);
+  }
+
+  // Records the payment as "pending verification" — admin confirms it manually,
+  // and can approve the listing with or without a confirmed payment either way.
+  async function confirmManualPayment(method) {
+    const codeEl = method === 'mpesa' ? document.getElementById('mpesa-code') : document.getElementById('bank-ref');
+    const code = codeEl.value.trim();
+    if (!code) { showToast('Please enter your payment code or reference', 'error'); return; }
+
+    const allBtns = document.querySelectorAll('#payment-modal .btn-confirm-pay');
+    allBtns.forEach(b => b.disabled = true);
+
+    try {
+      await db.from('listings').update({
+        payment_status: 'submitted',
+        payment_method: method
+      }).eq('id', currentListingId);
+
+      await db.from('payments').insert({
+        listing_id: currentListingId,
+        amount: currentPlanPrice,
+        method: method,
+        reference: code,
+        status: 'pending_verification'
+      });
+
+      showToast('Payment details received — pending verification', 'success');
+    } catch (err) {
+      console.error('Payment record error:', err);
+      // Listing itself is already saved — don't block the seller's flow on this.
+    }
+
+    finishSubmission();
+  }
+
+  // "Skip for now" — listing remains pending/unpaid, admin can still approve it.
+  function skipPayment() {
+    finishSubmission();
+  }
+
+  function finishSubmission() {
+    if (stkTimer) clearTimeout(stkTimer);
+    document.getElementById('payment-modal').classList.remove('show');
+    document.getElementById('step-4').style.display = 'none';
+    document.querySelector('.steps-bar').style.display = 'none';
+    document.getElementById('success-screen').style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   // ── Keyboard shortcut: Enter moves to next step ──
   document.addEventListener('keydown', e => {
-    if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA' && currentStep < 4) goStep(currentStep + 1);
+    if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA' && currentStep < 4
+        && !document.getElementById('payment-modal').classList.contains('show')) {
+      goStep(currentStep + 1);
+    }
   });
 </script>
 </body>
