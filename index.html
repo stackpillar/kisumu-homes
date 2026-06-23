@@ -9,7 +9,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    /* ── Reset & tokens ── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
       --green:       #0F6E56;
@@ -50,14 +49,31 @@
       display: flex; align-items: center; justify-content: center;
     }
     .logo-icon svg { width: 18px; height: 18px; fill: none; stroke: white; stroke-width: 2; stroke-linecap: round; }
-    .nav-links { display: flex; align-items: center; gap: 8px; }
-    .nav-link { font-size: 14px; color: var(--text-2); padding: 8px 14px; border-radius: var(--radius); transition: background .15s; }
-    .nav-link:hover { background: var(--surface); }
+    .nav-links { display: flex; align-items: center; gap: 6px; }
+    .nav-link { font-size: 14px; color: var(--text-2); padding: 8px 14px; border-radius: var(--radius); transition: background .15s; white-space: nowrap; }
+    .nav-link:hover { background: var(--surface); color: var(--text); }
     .btn { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 500; padding: 9px 18px; border-radius: var(--radius); transition: all .15s; }
     .btn-primary { background: var(--green); color: white; }
     .btn-primary:hover { background: var(--green-dark); }
     .btn-outline { background: transparent; color: var(--green); border: 1.5px solid var(--green); }
     .btn-outline:hover { background: var(--green-light); }
+
+    /* Mobile menu */
+    .mobile-menu-btn {
+      display: none; background: none; border: none; cursor: pointer;
+      padding: 6px; border-radius: 6px;
+    }
+    .mobile-menu-btn svg { width: 22px; height: 22px; stroke: var(--text); fill: none; stroke-width: 2; display: block; }
+    .mobile-nav {
+      display: none; position: fixed; top: 64px; left: 0; right: 0;
+      background: var(--white); border-bottom: 1px solid var(--border);
+      padding: 16px; z-index: 99; flex-direction: column; gap: 4px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+    }
+    .mobile-nav.open { display: flex; }
+    .mobile-nav a { font-size: 15px; color: var(--text-2); padding: 10px 14px; border-radius: var(--radius); }
+    .mobile-nav a:hover { background: var(--surface); }
+    .mobile-nav .btn-primary { text-align: center; justify-content: center; margin-top: 8px; }
 
     /* ── Hero ── */
     .hero {
@@ -74,16 +90,17 @@
     .hero-eyebrow {
       display: inline-block; background: rgba(255,255,255,0.12); color: #9FE1CB;
       font-size: 12px; font-weight: 500; letter-spacing: .06em; text-transform: uppercase;
-      padding: 5px 14px; border-radius: 20px; margin-bottom: 20px;
+      padding: 5px 14px; border-radius: 20px; margin-bottom: 20px; position: relative;
     }
     .hero h1 {
       font-family: 'Playfair Display', serif; font-size: clamp(32px, 5vw, 52px);
       color: white; line-height: 1.15; margin-bottom: 16px; position: relative;
     }
     .hero h1 span { color: #5DCAA5; }
-    .hero-sub { font-size: 16px; color: rgba(255,255,255,0.65); margin-bottom: 40px; max-width: 480px; margin-left: auto; margin-right: auto; }
-
-    /* Search box */
+    .hero-sub {
+      font-size: 16px; color: rgba(255,255,255,0.65); margin-bottom: 40px;
+      max-width: 480px; margin-left: auto; margin-right: auto; position: relative;
+    }
     .search-box {
       background: white; border-radius: var(--radius-lg); padding: 8px;
       display: flex; gap: 8px; flex-wrap: wrap;
@@ -97,22 +114,33 @@
       padding: 10px 14px; border-radius: 8px;
     }
     .search-box input { flex: 2; min-width: 200px; }
-    .search-box button { flex-shrink: 0; background: var(--green); color: white; font-size: 14px; font-weight: 500; padding: 10px 22px; border-radius: 8px; transition: background .15s; }
+    .search-box button {
+      flex-shrink: 0; background: var(--green); color: white;
+      font-size: 14px; font-weight: 500; padding: 10px 22px; border-radius: 8px;
+      transition: background .15s; font-family: inherit;
+    }
     .search-box button:hover { background: var(--green-mid); }
-
-    /* Hero stats */
-    .hero-stats { display: flex; justify-content: center; gap: 32px; flex-wrap: wrap; }
+    .hero-stats { display: flex; justify-content: center; gap: 32px; flex-wrap: wrap; position: relative; }
     .hero-stat { text-align: center; }
     .hero-stat-val { font-size: 22px; font-weight: 600; color: white; }
     .hero-stat-lbl { font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 2px; }
 
-    /* ── Section wrapper ── */
+    /* ── Sections ── */
     .section { padding: 56px 32px; }
     .section-alt { background: var(--surface); }
     .section-header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 28px; }
     .section-title { font-family: 'Playfair Display', serif; font-size: 26px; color: var(--text); }
     .see-all { font-size: 14px; color: var(--green); font-weight: 500; }
     .see-all:hover { text-decoration: underline; }
+
+    /* ── Trust bar ── */
+    .trust-bar {
+      background: var(--green-light); border-top: 1px solid #9FE1CB; border-bottom: 1px solid #9FE1CB;
+      padding: 18px 32px; display: flex; align-items: center; justify-content: center;
+      gap: 40px; flex-wrap: wrap;
+    }
+    .trust-item { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; color: var(--green-dark); }
+    .trust-item svg { width: 16px; height: 16px; stroke: var(--green); fill: none; stroke-width: 2; flex-shrink: 0; }
 
     /* ── Area pills ── */
     .area-pills { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 28px; }
@@ -125,8 +153,6 @@
 
     /* ── Listings grid ── */
     .listings-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
-
-    /* ── Listing card ── */
     .card {
       background: white; border-radius: var(--radius-lg); border: 1px solid var(--border);
       overflow: hidden; transition: transform .2s, box-shadow .2s; cursor: pointer;
@@ -159,12 +185,9 @@
     .card-meta-item { display: flex; align-items: center; gap: 4px; }
     .card-meta-item svg { width: 14px; height: 14px; stroke: var(--text-3); fill: none; stroke-width: 2; }
 
-    /* ── Category cards ── */
+    /* ── Categories ── */
     .categories { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
-    .cat-card {
-      border-radius: var(--radius-lg); padding: 24px; cursor: pointer;
-      transition: transform .2s; border: 1.5px solid transparent;
-    }
+    .cat-card { border-radius: var(--radius-lg); padding: 24px; cursor: pointer; transition: transform .2s; border: 1.5px solid transparent; }
     .cat-card:hover { transform: translateY(-2px); }
     .cat-card.student { background: var(--green-light); border-color: #9FE1CB; }
     .cat-card.standard { background: #EAF3DE; border-color: #C0DD97; }
@@ -184,12 +207,9 @@
     .cat-desc { font-size: 13px; color: var(--text-2); margin-bottom: 10px; }
     .cat-count { font-size: 12px; font-weight: 600; color: var(--text-3); }
 
-    /* ── Areas section ── */
+    /* ── Areas ── */
     .areas { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
-    .area-card {
-      border-radius: var(--radius); padding: 20px 16px; background: white;
-      border: 1px solid var(--border); cursor: pointer; transition: all .15s; text-align: center;
-    }
+    .area-card { border-radius: var(--radius); padding: 20px 16px; background: white; border: 1px solid var(--border); cursor: pointer; transition: all .15s; text-align: center; }
     .area-card:hover { border-color: var(--green); background: var(--green-light); }
     .area-card-name { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
     .area-card-count { font-size: 12px; color: var(--text-3); }
@@ -202,24 +222,35 @@
     .cta-banner h2 { font-family: 'Playfair Display', serif; font-size: 28px; color: white; margin-bottom: 8px; }
     .cta-banner p { font-size: 15px; color: rgba(255,255,255,0.65); max-width: 420px; }
     .cta-actions { display: flex; gap: 12px; flex-wrap: wrap; }
-    .btn-white { background: white; color: var(--green-dark); font-weight: 600; padding: 12px 24px; border-radius: var(--radius); font-size: 15px; transition: all .15s; }
+    .btn-white { background: white; color: var(--green-dark); font-weight: 600; padding: 12px 24px; border-radius: var(--radius); font-size: 15px; transition: all .15s; display: inline-block; }
     .btn-white:hover { background: var(--green-light); }
-    .btn-ghost { background: transparent; color: white; border: 1.5px solid rgba(255,255,255,0.4); font-size: 15px; padding: 12px 24px; border-radius: var(--radius); transition: all .15s; }
+    .btn-ghost { background: transparent; color: white; border: 1.5px solid rgba(255,255,255,0.4); font-size: 15px; padding: 12px 24px; border-radius: var(--radius); transition: all .15s; display: inline-block; }
     .btn-ghost:hover { border-color: white; }
 
     /* ── Footer ── */
-    footer {
-      background: var(--text); color: rgba(255,255,255,0.6);
-      padding: 48px 32px 28px;
+    footer { background: var(--text); color: rgba(255,255,255,0.6); padding: 56px 32px 28px; }
+    .footer-inner { max-width: 1200px; margin: 0 auto; }
+    .footer-top { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; gap: 40px; margin-bottom: 48px; }
+    .footer-logo { font-family: 'Playfair Display', serif; font-size: 22px; color: white; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+    .footer-logo-icon { width: 30px; height: 30px; background: var(--green); border-radius: 7px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .footer-logo-icon svg { width: 15px; height: 15px; fill: none; stroke: white; stroke-width: 2; stroke-linecap: round; }
+    .footer-tagline { font-size: 13px; line-height: 1.8; max-width: 240px; color: rgba(255,255,255,0.5); margin-bottom: 20px; }
+    .footer-social { display: flex; gap: 8px; }
+    .footer-social a {
+      width: 34px; height: 34px; border-radius: 8px; background: rgba(255,255,255,0.08);
+      display: flex; align-items: center; justify-content: center; transition: background .15s;
     }
-    .footer-top { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; margin-bottom: 40px; }
-    .footer-logo { font-family: 'Playfair Display', serif; font-size: 20px; color: white; margin-bottom: 10px; }
-    .footer-tagline { font-size: 13px; line-height: 1.7; max-width: 240px; }
-    .footer-col h4 { font-size: 13px; font-weight: 600; color: white; margin-bottom: 14px; letter-spacing: .04em; text-transform: uppercase; }
-    .footer-col a { display: block; font-size: 13px; color: rgba(255,255,255,0.55); margin-bottom: 8px; transition: color .15s; }
+    .footer-social a:hover { background: var(--green); }
+    .footer-social svg { width: 15px; height: 15px; stroke: rgba(255,255,255,0.6); fill: none; stroke-width: 2; }
+    .footer-col h4 { font-size: 11px; font-weight: 700; color: white; margin-bottom: 16px; letter-spacing: .1em; text-transform: uppercase; }
+    .footer-col a { display: block; font-size: 13px; color: rgba(255,255,255,0.5); margin-bottom: 10px; transition: color .15s; }
     .footer-col a:hover { color: white; }
-    .footer-bottom { border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
-    .footer-bottom p { font-size: 12px; }
+    .footer-divider { height: 1px; background: rgba(255,255,255,0.08); margin-bottom: 24px; }
+    .footer-bottom { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+    .footer-bottom p { font-size: 12px; color: rgba(255,255,255,0.35); }
+    .footer-bottom-links { display: flex; gap: 20px; }
+    .footer-bottom-links a { font-size: 12px; color: rgba(255,255,255,0.35); transition: color .15s; }
+    .footer-bottom-links a:hover { color: white; }
 
     /* ── Loading & empty states ── */
     .loading-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
@@ -234,18 +265,28 @@
     .empty-state p { font-size: 15px; }
 
     /* ── Responsive ── */
+    @media (max-width: 1024px) {
+      .footer-top { grid-template-columns: 2fr 1fr 1fr; }
+      .footer-top > *:nth-child(4),
+      .footer-top > *:nth-child(5) { display: none; }
+    }
     @media (max-width: 768px) {
       nav { padding: 0 16px; }
-      .nav-links .nav-link { display: none; }
+      .nav-links { display: none; }
+      .mobile-menu-btn { display: flex; }
       .hero { padding: 48px 16px 56px; }
       .section { padding: 40px 16px; }
+      .trust-bar { padding: 16px; gap: 20px; }
       .footer-top { grid-template-columns: 1fr 1fr; gap: 28px; }
+      .footer-top > *:nth-child(4),
+      .footer-top > *:nth-child(5) { display: block; }
       .cta-banner { padding: 32px 24px; }
     }
     @media (max-width: 480px) {
       .footer-top { grid-template-columns: 1fr; }
       .search-box { flex-direction: column; }
       .search-box select, .search-box input, .search-box button { width: 100%; }
+      .footer-bottom { flex-direction: column; align-items: flex-start; gap: 8px; }
     }
   </style>
 </head>
@@ -253,24 +294,35 @@
 
 <!-- ── NAVBAR ── -->
 <nav>
-  <a href="/" class="logo">
+  <a href="index.html" class="logo">
     <div class="logo-icon">
       <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
     </div>
     NyumbaKisumu
   </a>
-<div class="nav-links">
-  <a href="listings.html" class="nav-link">Browse</a>
-  <a href="pricing.html" class="nav-link">Pricing</a>
+  <div class="nav-links">
+    <a href="listings.html" class="nav-link">Browse</a>
+    <a href="how-it-works.html" class="nav-link">How it works</a>
+    <a href="pricing.html" class="nav-link">Pricing</a>
+    <a href="contact.html" class="nav-link">Contact</a>
+    <a href="login.html" class="nav-link">Sign in</a>
+    <a href="post-listing.html" class="btn btn-primary">List your apartment</a>
+  </div>
+  <!-- Mobile menu button -->
+  <button class="mobile-menu-btn" onclick="toggleMobileMenu()" aria-label="Open menu">
+    <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  </button>
+</nav>
 
-  <a href="#areas" class="nav-link">Areas</a>
-  <a href="#categories" class="nav-link">Property types</a>
-
-  <a href="login.html" class="nav-link">Sign in</a>
+<!-- Mobile nav -->
+<div class="mobile-nav" id="mobile-nav">
+  <a href="listings.html">Browse listings</a>
+  <a href="how-it-works.html">How it works</a>
+  <a href="pricing.html">Pricing</a>
+  <a href="contact.html">Contact</a>
+  <a href="login.html">Sign in</a>
   <a href="post-listing.html" class="btn btn-primary">List your apartment</a>
 </div>
-  
-</nav>
 
 <!-- ── HERO ── -->
 <section class="hero">
@@ -315,10 +367,31 @@
   </div>
 </section>
 
+<!-- ── TRUST BAR ── -->
+<div class="trust-bar">
+  <div class="trust-item">
+    <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+    No agents or middlemen
+  </div>
+  <div class="trust-item">
+    <svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+    Pay once via M-Pesa
+  </div>
+  <div class="trust-item">
+    <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.12 1.2 2 2 0 012.11 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>
+    Buyers contact you directly
+  </div>
+  <div class="trust-item">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    Live in under 10 minutes
+  </div>
+</div>
+
 <!-- ── CATEGORIES ── -->
 <section class="section" id="categories">
   <div class="section-header">
     <h2 class="section-title">What are you looking for?</h2>
+    <a href="how-it-works.html" class="see-all">How it works →</a>
   </div>
   <div class="categories">
     <div class="cat-card student" onclick="filterCategory('student')">
@@ -355,7 +428,6 @@
     <a href="listings.html" class="see-all">See all →</a>
   </div>
   <div id="featured-listings">
-    <!-- Skeletons while loading -->
     <div class="loading-grid">
       <div class="skeleton"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line short"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div></div></div>
       <div class="skeleton"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line short"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div></div></div>
@@ -370,7 +442,6 @@
     <h2 class="section-title">Latest listings</h2>
     <a href="listings.html" class="see-all">Browse all →</a>
   </div>
-
   <div class="area-pills" id="area-pills">
     <div class="pill active" onclick="filterArea(null, this)">All areas</div>
     <div class="pill" onclick="filterArea('Milimani', this)">Milimani</div>
@@ -380,7 +451,6 @@
     <div class="pill" onclick="filterArea('Luanda', this)">Luanda</div>
     <div class="pill" onclick="filterArea('Riat Hills', this)">Riat Hills</div>
   </div>
-
   <div id="latest-listings">
     <div class="loading-grid">
       <div class="skeleton"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line short"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div></div></div>
@@ -394,16 +464,17 @@
 <section class="section section-alt" id="areas">
   <div class="section-header">
     <h2 class="section-title">Browse by area</h2>
+    <a href="listings.html" class="see-all">All listings →</a>
   </div>
   <div class="areas">
-    <div class="area-card" onclick="filterArea('Milimani')"><div class="area-card-name">Milimani</div><div class="area-card-count">Kisumu's premier estate</div></div>
-    <div class="area-card" onclick="filterArea('Kisumu CBD')"><div class="area-card-name">Kisumu CBD</div><div class="area-card-count">Central business district</div></div>
-    <div class="area-card" onclick="filterArea('Kondele')"><div class="area-card-name">Kondele</div><div class="area-card-count">Affordable & accessible</div></div>
-    <div class="area-card" onclick="filterArea('Riat Hills')"><div class="area-card-name">Riat Hills</div><div class="area-card-count">Scenic hillside views</div></div>
-    <div class="area-card" onclick="filterArea('Mamboleo')"><div class="area-card-name">Mamboleo</div><div class="area-card-count">Growing suburb</div></div>
-    <div class="area-card" onclick="filterArea('Maseno')"><div class="area-card-name">Maseno</div><div class="area-card-count">Near Maseno University</div></div>
-    <div class="area-card" onclick="filterArea('Luanda')"><div class="area-card-name">Luanda</div><div class="area-card-count">North of Kisumu</div></div>
-    <div class="area-card" onclick="filterArea('Ahero')"><div class="area-card-name">Ahero</div><div class="area-card-count">Along Kisumu–Nairobi road</div></div>
+    <div class="area-card" onclick="goArea('Milimani')"><div class="area-card-name">Milimani</div><div class="area-card-count">Kisumu's premier estate</div></div>
+    <div class="area-card" onclick="goArea('Kisumu CBD')"><div class="area-card-name">Kisumu CBD</div><div class="area-card-count">Central business district</div></div>
+    <div class="area-card" onclick="goArea('Kondele')"><div class="area-card-name">Kondele</div><div class="area-card-count">Affordable & accessible</div></div>
+    <div class="area-card" onclick="goArea('Riat Hills')"><div class="area-card-name">Riat Hills</div><div class="area-card-count">Scenic hillside views</div></div>
+    <div class="area-card" onclick="goArea('Mamboleo')"><div class="area-card-name">Mamboleo</div><div class="area-card-count">Growing suburb</div></div>
+    <div class="area-card" onclick="goArea('Maseno')"><div class="area-card-name">Maseno</div><div class="area-card-count">Near Maseno University</div></div>
+    <div class="area-card" onclick="goArea('Luanda')"><div class="area-card-name">Luanda</div><div class="area-card-count">North of Kisumu</div></div>
+    <div class="area-card" onclick="goArea('Ahero')"><div class="area-card-name">Ahero</div><div class="area-card-count">Along Kisumu–Nairobi road</div></div>
   </div>
 </section>
 
@@ -423,47 +494,99 @@
 
 <!-- ── FOOTER ── -->
 <footer>
-  <div class="footer-top">
-    <div>
-      <div class="footer-logo">NyumbaKisumu</div>
-      <p class="footer-tagline">The easiest way to find and list apartments in Kisumu, Maseno, and Luanda — without agents or commissions.</p>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <!-- Brand -->
+      <div>
+        <div class="footer-logo">
+          <div class="footer-logo-icon">
+            <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          </div>
+          NyumbaKisumu
+        </div>
+        <p class="footer-tagline">The easiest way to find and list apartments in Kisumu, Maseno, and Luanda — without agents or commissions.</p>
+        <div class="footer-social">
+          <a href="https://wa.me/254700000000" target="_blank" rel="noopener" title="WhatsApp">
+            <svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
+          </a>
+          <a href="mailto:hello@nyumbakisumu.co.ke" title="Email">
+            <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- Browse -->
+      <div class="footer-col">
+        <h4>Browse</h4>
+        <a href="listings.html">All listings</a>
+        <a href="listings.html?category=student">Student housing</a>
+        <a href="listings.html?category=standard">Standard</a>
+        <a href="listings.html?category=luxury">Luxury</a>
+        <a href="listings.html?type=rent">To let</a>
+        <a href="listings.html?type=sale">For sale</a>
+      </div>
+
+      <!-- Areas -->
+      <div class="footer-col">
+        <h4>Areas</h4>
+        <a href="listings.html?area=Milimani">Milimani</a>
+        <a href="listings.html?area=Maseno">Maseno</a>
+        <a href="listings.html?area=Luanda">Luanda</a>
+        <a href="listings.html?area=Kondele">Kondele</a>
+        <a href="listings.html?area=Riat Hills">Riat Hills</a>
+        <a href="listings.html?area=Kisumu CBD">Kisumu CBD</a>
+      </div>
+
+      <!-- Platform -->
+      <div class="footer-col">
+        <h4>Platform</h4>
+        <a href="post-listing.html">List a property</a>
+        <a href="pricing.html">Pricing</a>
+        <a href="how-it-works.html">How it works</a>
+        <a href="login.html">Seller login</a>
+      </div>
+
+      <!-- Company -->
+      <div class="footer-col">
+        <h4>Company</h4>
+        <a href="contact.html">Contact us</a>
+        <a href="terms.html">Terms of service</a>
+        <a href="privacy.html">Privacy policy</a>
+        <a href="how-it-works.html#faq">FAQ</a>
+      </div>
     </div>
-    <div class="footer-col">
-      <h4>Browse</h4>
-      <a href="listings.html">All listings</a>
-      <a href="listings.html?category=student">Student housing</a>
-      <a href="listings.html?category=standard">Standard</a>
-      <a href="listings.html?category=luxury">Luxury</a>
+
+    <div class="footer-divider"></div>
+
+    <div class="footer-bottom">
+      <p>© 2025 NyumbaKisumu. All rights reserved. Built for Western Kenya.</p>
+      <div class="footer-bottom-links">
+        <a href="terms.html">Terms</a>
+        <a href="privacy.html">Privacy</a>
+        <a href="contact.html">Contact</a>
+        <a href="sitemap.html">Sitemap</a>
+      </div>
     </div>
-    <div class="footer-col">
-      <h4>Areas</h4>
-      <a href="listings.html?area=Milimani">Milimani</a>
-      <a href="listings.html?area=Maseno">Maseno</a>
-      <a href="listings.html?area=Luanda">Luanda</a>
-      <a href="listings.html?area=Kondele">Kondele</a>
-    </div>
-    <div class="footer-col">
-      <h4>Platform</h4>
-      <a href="post-listing.html">List a property</a>
-      <a href="login.html">Seller login</a>
-      <a href="dashboard.html">My listings</a>
-      <a href="contact.html">Contact us</a>
-    </div>
-  </div>
-  <div class="footer-bottom">
-    <p>© 2025 NyumbaKisumu. All rights reserved.</p>
-    <p>Kisumu · Maseno · Luanda · Western Kenya</p>
   </div>
 </footer>
 
-<!-- ── SUPABASE + JS ── -->
 <script>
-  // ── CONFIG — replace these with your actual Supabase credentials ──
   const SUPABASE_URL = 'https://vliuuloyfhyxcsuchpss.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_oIIcecf3wzKMual5K24Z8Q_zmxVfgsx';
-
   const { createClient } = supabase;
   const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  // ── Mobile menu ──
+  function toggleMobileMenu() {
+    document.getElementById('mobile-nav').classList.toggle('open');
+  }
+  document.addEventListener('click', e => {
+    const nav = document.getElementById('mobile-nav');
+    const btn = document.querySelector('.mobile-menu-btn');
+    if (nav.classList.contains('open') && !nav.contains(e.target) && !btn.contains(e.target)) {
+      nav.classList.remove('open');
+    }
+  });
 
   // ── Format price ──
   function formatPrice(price, type) {
@@ -471,7 +594,7 @@
     return type === 'rent' ? `KES ${p}<span>/mo</span>` : `KES ${p}`;
   }
 
-  // ── Build a listing card ──
+  // ── Build listing card ──
   function buildCard(listing) {
     const photos = listing.listing_photos || [];
     const cover = photos.find(p => p.is_cover) || photos[0];
@@ -502,20 +625,20 @@
       </div>`;
   }
 
-  // ── Render listings into a container ──
+  // ── Render listings ──
   function renderListings(containerId, listings) {
     const el = document.getElementById(containerId);
     if (!listings.length) {
       el.innerHTML = `<div class="empty-state">
         <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
-        <p>No listings here yet — be the first to post!</p>
+        <p>No listings here yet — <a href="post-listing.html" style="color:var(--green);font-weight:500">be the first to post!</a></p>
       </div>`;
       return;
     }
     el.innerHTML = `<div class="listings-grid">${listings.map(buildCard).join('')}</div>`;
   }
 
-  // ── Load featured listings ──
+  // ── Load featured ──
   async function loadFeatured() {
     const { data, error } = await db
       .from('listings')
@@ -528,7 +651,7 @@
     renderListings('featured-listings', data || []);
   }
 
-  // ── Load latest listings (with optional area filter) ──
+  // ── Load latest ──
   let currentArea = null;
   async function loadLatest(area) {
     document.getElementById('latest-listings').innerHTML = `<div class="loading-grid">
@@ -543,7 +666,7 @@
     renderListings('latest-listings', data || []);
   }
 
-  // ── Load counts for category cards ──
+  // ── Load counts ──
   async function loadCounts() {
     const cats = ['student', 'standard', 'luxury'];
     for (const cat of cats) {
@@ -551,7 +674,6 @@
       const el = document.getElementById('count-' + cat);
       if (el) el.textContent = `${count || 0} listing${count !== 1 ? 's' : ''} available`;
     }
-    // Total count for hero stat
     const { count: total } = await db.from('listings').select('*', { count: 'exact', head: true }).eq('status', 'active');
     const stat = document.getElementById('stat-listings');
     if (stat) stat.textContent = total || '0';
@@ -563,9 +685,11 @@
     document.querySelectorAll('#area-pills .pill').forEach(p => p.classList.remove('active'));
     if (el) el.classList.add('active');
     loadLatest(area);
-    if (area) {
-      document.querySelector('.section:has(#latest-listings)') && window.scrollTo({ top: document.getElementById('latest-listings').offsetTop - 100, behavior: 'smooth' });
-    }
+  }
+
+  // ── Go to listings page filtered by area ──
+  function goArea(area) {
+    window.location.href = `listings.html?area=${encodeURIComponent(area)}`;
   }
 
   // ── Filter by category ──
@@ -577,15 +701,14 @@
   function doSearch() {
     const area = document.getElementById('search-area').value;
     const type = document.getElementById('search-type').value;
-    const q = document.getElementById('search-q').value;
+    const q    = document.getElementById('search-q').value;
     const params = new URLSearchParams();
     if (area) params.set('area', area);
     if (type) params.set('type', type);
-    if (q) params.set('q', q);
+    if (q)    params.set('q', q);
     window.location.href = `listings.html?${params.toString()}`;
   }
 
-  // ── Search on Enter key ──
   document.getElementById('search-q').addEventListener('keydown', e => {
     if (e.key === 'Enter') doSearch();
   });
