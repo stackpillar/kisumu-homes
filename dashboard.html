@@ -37,6 +37,7 @@
     .nav-item:hover{background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.9)}
     .nav-item.active{background:rgba(255,255,255,0.12);color:white}
     .nav-item .badge-count{margin-left:auto;background:var(--green-mid);color:white;font-size:10px;font-weight:700;padding:1px 7px;border-radius:20px;min-width:18px;text-align:center}
+    .nav-item .badge-count.red{background:#c0392b}
     .sidebar-footer{padding:16px 12px;border-top:1px solid rgba(255,255,255,0.08)}
     .sidebar-user{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--radius);cursor:pointer;transition:background .15s}
     .sidebar-user:hover{background:rgba(255,255,255,0.07)}
@@ -57,6 +58,8 @@
     .main{margin-left:var(--sidebar-w);padding-top:var(--topbar-h);min-height:100vh;width:100%}
     .page{display:none;padding:28px}
     .page.active{display:block}
+    /* Messages page has its own layout — no default padding */
+    #page-messages{padding:0}
 
     /* Buttons */
     .btn{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:500;padding:8px 16px;border-radius:var(--radius);transition:all .15s;cursor:pointer;border:none}
@@ -158,6 +161,7 @@
     .activity-dot.enquiry{background:var(--green-light);color:var(--green)}
     .activity-dot.listing{background:#EAF3DE;color:#27500A}
     .activity-dot.payment{background:var(--gold-light);color:var(--gold)}
+    .activity-dot.message{background:#EDE9FE;color:var(--purple)}
     .activity-text{font-size:13px;color:var(--text-2);line-height:1.5;flex:1}
     .activity-text strong{color:var(--text);font-weight:600}
     .activity-time{font-size:11px;color:var(--text-3);white-space:nowrap}
@@ -229,6 +233,66 @@
     .enquiry-msg{font-size:13px;color:var(--text-2);line-height:1.6}
     .enquiry-actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
 
+    /* ── MESSAGES (inbox) ── */
+    .messages-layout{display:grid;grid-template-columns:320px 1fr;height:calc(100vh - var(--topbar-h));overflow:hidden}
+    .thread-list{border-right:1px solid var(--border);background:var(--white);overflow-y:auto;display:flex;flex-direction:column}
+    .thread-list-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+    .thread-list-head h3{font-size:15px;font-weight:600;color:var(--text)}
+    .thread-search{padding:10px 14px;border-bottom:1px solid var(--border);flex-shrink:0}
+    .thread-search input{width:100%;padding:7px 12px;border:1.5px solid var(--border);border-radius:var(--radius);font-size:13px;outline:none;background:var(--surface);color:var(--text);transition:border-color .15s}
+    .thread-search input:focus{border-color:var(--green);background:white}
+    .thread-item{display:flex;gap:12px;padding:14px 18px;cursor:pointer;transition:background .15s;border-bottom:1px solid var(--border);position:relative}
+    .thread-item:hover{background:var(--surface)}
+    .thread-item.active{background:var(--green-light)}
+    .thread-item.unread .thread-preview{font-weight:600;color:var(--text)}
+    .thread-item.unread::after{content:'';position:absolute;top:50%;right:16px;transform:translateY(-50%);width:8px;height:8px;border-radius:50%;background:var(--green)}
+    .thread-avatar{width:40px;height:40px;border-radius:50%;background:var(--green-light);color:var(--green-dark);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .thread-meta{flex:1;min-width:0}
+    .thread-name{font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .thread-listing-ref{font-size:11px;color:var(--green);font-weight:500;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .thread-preview{font-size:12px;color:var(--text-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:20px}
+    .thread-time{font-size:10px;color:var(--text-3);white-space:nowrap;position:absolute;top:14px;right:16px}
+
+    /* Chat pane */
+    .chat-pane{display:flex;flex-direction:column;background:var(--surface);overflow:hidden}
+    .chat-pane-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;color:var(--text-3)}
+    .chat-pane-empty svg{width:48px;height:48px;stroke:var(--border);fill:none;stroke-width:1.2;margin-bottom:16px}
+    .chat-pane-empty p{font-size:14px}
+    .chat-header{background:var(--white);border-bottom:1px solid var(--border);padding:14px 20px;display:flex;align-items:center;gap:14px;flex-shrink:0}
+    .chat-header-avatar{width:36px;height:36px;border-radius:50%;background:var(--green-light);color:var(--green-dark);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .chat-header-name{font-size:14px;font-weight:600;color:var(--text)}
+    .chat-header-sub{font-size:12px;color:var(--text-3)}
+    .chat-header-actions{margin-left:auto;display:flex;gap:8px}
+    .chat-messages{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:10px}
+    .chat-messages::-webkit-scrollbar{width:4px}
+    .chat-messages::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+    .chat-bubble-row{display:flex;gap:8px;align-items:flex-end}
+    .chat-bubble-row.seller{flex-direction:row-reverse}
+    .bubble-avatar{width:28px;height:28px;border-radius:50%;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-bottom:2px}
+    .bubble-avatar.buyer{background:var(--green-light);color:var(--green-dark)}
+    .bubble-avatar.seller-av{background:var(--green);color:white}
+    .chat-bubble{max-width:68%;padding:10px 14px;border-radius:18px;font-size:13px;line-height:1.55;position:relative}
+    .chat-bubble.buyer{background:var(--white);color:var(--text);border:1px solid var(--border);border-bottom-left-radius:4px}
+    .chat-bubble.seller-b{background:var(--green);color:white;border-bottom-right-radius:4px}
+    .bubble-time{font-size:10px;margin-top:4px;color:var(--text-3)}
+    .chat-bubble-row.seller .bubble-time{text-align:right}
+    .chat-date-divider{text-align:center;font-size:11px;color:var(--text-3);padding:6px 0;position:relative}
+    .chat-date-divider::before{content:'';position:absolute;top:50%;left:0;right:0;height:1px;background:var(--border)}
+    .chat-date-divider span{background:var(--surface);padding:0 12px;position:relative}
+    .chat-input-bar{background:var(--white);border-top:1px solid var(--border);padding:14px 20px;display:flex;gap:10px;align-items:flex-end;flex-shrink:0}
+    .chat-input-bar textarea{flex:1;resize:none;border:1.5px solid var(--border);border-radius:var(--radius-lg);padding:10px 14px;font-size:13px;color:var(--text);outline:none;transition:border-color .15s;min-height:42px;max-height:140px;line-height:1.5;background:var(--surface)}
+    .chat-input-bar textarea:focus{border-color:var(--green);background:white}
+    .chat-send-btn{width:40px;height:40px;border-radius:50%;background:var(--green);color:white;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .15s;flex-shrink:0;border:none}
+    .chat-send-btn:hover{background:var(--green-dark)}
+    .chat-send-btn:disabled{opacity:.5;cursor:not-allowed}
+    .chat-send-btn svg{width:16px;height:16px;stroke:white;fill:none;stroke-width:2}
+    .chat-wa-hint{font-size:11px;color:var(--text-3);padding:4px 20px 10px;background:var(--white);display:flex;align-items:center;gap:6px;border-top:1px solid var(--surface);flex-shrink:0}
+    .typing-indicator{display:flex;gap:3px;padding:8px 12px}
+    .typing-indicator span{width:6px;height:6px;border-radius:50%;background:var(--text-3);animation:bounce .9s infinite}
+    .typing-indicator span:nth-child(2){animation-delay:.15s}
+    .typing-indicator span:nth-child(3){animation-delay:.3s}
+    @keyframes bounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-5px)}}
+
     /* Payments */
     .payments-table{width:100%;border-collapse:collapse}
     .payments-table th{text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text-3);padding:10px 16px;border-bottom:1px solid var(--border);background:var(--surface);white-space:nowrap}
@@ -261,7 +325,15 @@
     .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:99}
 
     @media(max-width:1100px){.overview-grid{grid-template-columns:1fr}.settings-grid{grid-template-columns:1fr}}
-    @media(max-width:900px){.sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}.sidebar-overlay.open{display:block}.topbar{left:0}.main{margin-left:0}.hamburger{display:flex}.listings-table thead{display:none}.listings-table td{display:block;padding:6px 16px}.listings-table td:first-child{padding-top:14px}.listings-table td:last-child{padding-bottom:14px}.listings-table tr{display:block;border-bottom:1px solid var(--border)}}
+    @media(max-width:900px){
+      .sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}.sidebar-overlay.open{display:block}
+      .topbar{left:0}.main{margin-left:0}.hamburger{display:flex}
+      .listings-table thead{display:none}.listings-table td{display:block;padding:6px 16px}
+      .listings-table td:first-child{padding-top:14px}.listings-table td:last-child{padding-bottom:14px}
+      .listings-table tr{display:block;border-bottom:1px solid var(--border)}
+      .messages-layout{grid-template-columns:1fr}
+      .thread-list{display:none}.thread-list.mobile-open{display:flex}
+    }
     @media(max-width:600px){.stat-grid{grid-template-columns:1fr 1fr}.page{padding:16px}.form-grid{grid-template-columns:1fr}.topbar{padding:0 16px}}
     @media(max-width:400px){.stat-grid{grid-template-columns:1fr}}
   </style>
@@ -302,8 +374,13 @@
         My listings
         <span class="badge-count" id="nav-badge-listings">0</span>
       </button>
-      <button class="nav-item" id="nav-enquiries" onclick="showPage('enquiries')">
+      <button class="nav-item" id="nav-messages" onclick="showPage('messages')">
         <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        Messages
+        <span class="badge-count red" id="nav-badge-messages" style="display:none">0</span>
+      </button>
+      <button class="nav-item" id="nav-enquiries" onclick="showPage('enquiries')">
+        <svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
         Enquiries
         <span class="badge-count" id="nav-badge-enquiries" style="display:none">0</span>
       </button>
@@ -372,9 +449,9 @@
           <div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
         </div>
         <div class="stat-card amber">
-          <div class="stat-label">New enquiries</div>
+          <div class="stat-label">Unread messages</div>
           <div class="stat-val" id="stat-new-enq">—</div>
-          <div class="stat-delta" id="stat-new-enq-delta">unread messages</div>
+          <div class="stat-delta" id="stat-new-enq-delta">unread conversations</div>
           <div class="stat-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg></div>
         </div>
         <div class="stat-card blue">
@@ -394,7 +471,7 @@
         <div class="card" style="padding:20px 24px">
           <div class="section-head">
             <h2>Recent activity</h2>
-            <button class="btn btn-outline btn-sm" onclick="showPage('enquiries')">View all enquiries</button>
+            <button class="btn btn-outline btn-sm" onclick="showPage('messages')">View messages</button>
           </div>
           <div class="activity-feed" id="activity-feed">
             <div style="padding:20px 0;text-align:center;color:var(--text-3);font-size:13px">Loading activity…</div>
@@ -402,7 +479,7 @@
         </div>
         <div style="display:flex;flex-direction:column;gap:20px">
           <div class="card" style="padding:20px 22px">
-            <div class="section-head" style="margin-bottom:12px"><h2>Enquiries · last 7 days</h2></div>
+            <div class="section-head" style="margin-bottom:12px"><h2>Messages · last 7 days</h2></div>
             <div class="chart-bars" id="chart-bars"></div>
             <div class="chart-labels" id="chart-labels"></div>
           </div>
@@ -439,12 +516,50 @@
       <div class="card" style="overflow:hidden">
         <table class="listings-table">
           <thead>
-            <tr><th>Property</th><th>Price</th><th>Status</th><th>Enquiries</th><th>Views</th><th>Posted</th><th>Actions</th></tr>
+            <tr><th>Property</th><th>Price</th><th>Status</th><th>Messages</th><th>Views</th><th>Posted</th><th>Actions</th></tr>
           </thead>
           <tbody id="listings-tbody">
             <tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-3)">Loading listings…</td></tr>
           </tbody>
         </table>
+      </div>
+    </div>
+
+    <!-- PAGE: MESSAGES (in-site chat) -->
+    <div class="page" id="page-messages">
+      <div class="messages-layout">
+        <!-- Thread list (left panel) -->
+        <div class="thread-list" id="thread-list">
+          <div class="thread-list-head">
+            <h3>Messages</h3>
+            <span id="msg-thread-count" style="font-size:12px;color:var(--text-3)"></span>
+          </div>
+          <div class="thread-search">
+            <input type="text" placeholder="Search conversations…" id="thread-search-input" oninput="renderThreadList()"/>
+          </div>
+          <div id="thread-items" style="flex:1;overflow-y:auto">
+            <div style="padding:30px 20px;text-align:center;color:var(--text-3);font-size:13px">Loading…</div>
+          </div>
+        </div>
+
+        <!-- Chat pane (right panel) -->
+        <div class="chat-pane" id="chat-pane">
+          <div class="chat-pane-empty" id="chat-empty">
+            <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+            <p>Select a conversation to view messages</p>
+          </div>
+          <div id="chat-active" style="display:none;flex-direction:column;flex:1;overflow:hidden">
+            <div class="chat-header" id="chat-header"></div>
+            <div class="chat-messages" id="chat-messages"></div>
+            <div class="chat-wa-hint" id="chat-wa-hint"></div>
+            <div class="chat-input-bar">
+              <textarea id="chat-reply-input" placeholder="Type your reply…" rows="1" onkeydown="handleChatKeydown(event)" oninput="autoResizeTextarea(this)"></textarea>
+              <button class="chat-send-btn" id="chat-send-btn" onclick="sendChatReply()" title="Send reply">
+                <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -513,7 +628,7 @@
             </h3>
             <div class="notif-list">
               <div class="toggle-row">
-                <div class="toggle-label"><strong>New enquiry</strong><span>Get notified when a buyer messages you</span></div>
+                <div class="toggle-label"><strong>New message</strong><span>Get notified when a buyer messages you</span></div>
                 <label class="switch"><input type="checkbox" id="notif-enquiry" checked/><span class="switch-track"></span></label>
               </div>
               <div class="toggle-row">
@@ -537,7 +652,7 @@
       </div>
       <div class="danger-zone">
         <h3>Danger zone</h3>
-        <p>Deleting your account permanently removes all your listings, enquiries, and payment records. This cannot be undone.</p>
+        <p>Deleting your account permanently removes all your listings, messages, and payment records. This cannot be undone.</p>
         <a href="profile.html#danger-zone" class="btn btn-danger" style="text-decoration:none">
           <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
           Manage in profile
@@ -545,8 +660,8 @@
       </div>
     </div>
 
-  </div>
-</div>
+  </div><!-- /.main -->
+</div><!-- /.shell -->
 
 <!-- EDIT LISTING MODAL -->
 <div class="modal-overlay" id="modal-edit">
@@ -632,7 +747,7 @@
     <div class="modal-head"><h3>Delete listing?</h3><div class="modal-close" onclick="closeModal('modal-delete')">✕</div></div>
     <div class="modal-body">
       <p style="font-size:14px;color:var(--text-2);line-height:1.7">
-        This will permanently delete <strong id="delete-listing-name"></strong>. Any enquiries linked to it will also be removed. This cannot be undone.
+        This will permanently delete <strong id="delete-listing-name"></strong>. Any messages and enquiries linked to it will also be removed. This cannot be undone.
       </p>
     </div>
     <div class="modal-foot">
@@ -642,7 +757,7 @@
   </div>
 </div>
 
-<!-- REPLY MODAL -->
+<!-- REPLY MODAL (WhatsApp quick-reply for enquiries page) -->
 <div class="modal-overlay" id="modal-reply">
   <div class="modal" style="max-width:440px">
     <div class="modal-head"><h3>Reply to enquiry</h3><div class="modal-close" onclick="closeModal('modal-reply')">✕</div></div>
@@ -668,13 +783,18 @@ const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let currentUser = null;
+let currentProfile = null;
 let allListings = [];
 let allEnquiries = [];
 let allPayments = [];
+let allMessages = []; // flat list from messages table
+let threads = [];     // grouped by (listing_id + buyer_token)
+let activeThread = null;
 let listingFilter = 'all';
 let enquiryFilter = 'all';
 let deleteTargetId = null;
 let replyTargetEnquiry = null;
+let msgPollTimer = null;
 
 const AMENITY_KEYS = [
   { key:'has_parking', label:'Parking' },
@@ -699,6 +819,8 @@ async function init() {
     renderOverview();
     document.getElementById('loading-screen').style.display = 'none';
     document.getElementById('app-shell').style.display = 'flex';
+    // Poll for new messages every 30 s while dashboard is open
+    msgPollTimer = setInterval(pollNewMessages, 30000);
   } catch(err) {
     console.error('Init error:', err);
     window.location.href = 'login.html';
@@ -708,6 +830,7 @@ async function init() {
 // ── LOAD PROFILE ──
 async function loadProfile() {
   const { data } = await db.from('profiles').select('*').eq('id', currentUser.id).single();
+  currentProfile = data;
   const email = currentUser.email || '';
   const name = (data && data.full_name) ? data.full_name : email.split('@')[0];
   const initials = name.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase() || '?';
@@ -729,9 +852,10 @@ async function loadAllData() {
     .order('created_at', { ascending: false });
   allListings = listingsData || [];
 
-  // Enquiries — via listing IDs owned by this seller
-  if (allListings.length) {
-    const ids = allListings.map(l => l.id);
+  const ids = allListings.map(l => l.id);
+
+  // Enquiries
+  if (ids.length) {
     const { data: enqData } = await db
       .from('enquiries')
       .select('*, listings(title, area)')
@@ -750,17 +874,130 @@ async function loadAllData() {
     .order('created_at', { ascending: false });
   allPayments = payData || [];
 
-  // Nav badges
+  // Messages (in-site chat)
+  if (ids.length) {
+    const { data: msgData } = await db
+      .from('messages')
+      .select('*')
+      .in('listing_id', ids)
+      .order('created_at', { ascending: true });
+    allMessages = msgData || [];
+  } else {
+    allMessages = [];
+  }
+
+  buildThreads();
+  updateNavBadges();
+}
+
+// ── BUILD THREADS from flat messages list ──
+function buildThreads() {
+  const map = new Map();
+  // First seed from enquiries (so we capture buyers who only sent initial enquiry, no chat yet)
+  allEnquiries.forEach(e => {
+    const key = `${e.listing_id}__${e.buyer_token || e.buyer_phone || e.id}`;
+    if (!map.has(key)) {
+      map.set(key, {
+        key,
+        listing_id: e.listing_id,
+        buyer_token: e.buyer_token || null,
+        buyer_name: e.buyer_name || 'Unknown buyer',
+        buyer_phone: e.buyer_phone || '',
+        listing_title: e.listings?.title || 'Listing',
+        listing_area: e.listings?.area || '',
+        messages: [{
+          id: 'enq-' + e.id,
+          sender: 'buyer',
+          message: e.message || '',
+          created_at: e.created_at,
+          read_at: e.read_at
+        }],
+        last_at: e.created_at,
+        unread_count: e.read_at ? 0 : 1
+      });
+    }
+  });
+
+  // Layer in actual messages from the messages table
+  allMessages.forEach(m => {
+    const key = `${m.listing_id}__${m.buyer_token || m.buyer_phone || ''}`;
+    if (map.has(key)) {
+      const t = map.get(key);
+      // Avoid duplicating the initial enquiry message if it's already there
+      const isDupe = t.messages.some(x => x.id === 'enq-' + m.id || ((x.content||x.message) === (m.content||m.message) && Math.abs(new Date(x.created_at) - new Date(m.created_at)) < 2000));
+      if (!isDupe) t.messages.push(m);
+      if (new Date(m.created_at) > new Date(t.last_at)) t.last_at = m.created_at;
+      if (m.sender === 'buyer' && !m.read_at) t.unread_count = (t.unread_count || 0) + 1;
+    } else {
+      // Message without a matching enquiry (shouldn't happen often but handle gracefully)
+      const listing = allListings.find(l => l.id === m.listing_id);
+      map.set(key, {
+        key,
+        listing_id: m.listing_id,
+        buyer_token: m.buyer_token || null,
+        buyer_name: m.buyer_name || 'Buyer',
+        buyer_phone: m.buyer_phone || '',
+        listing_title: listing?.title || 'Listing',
+        listing_area: listing?.area || '',
+        messages: [m],
+        last_at: m.created_at,
+        unread_count: (m.sender === 'buyer' && !m.read_at) ? 1 : 0
+      });
+    }
+  });
+
+  // Sort messages within each thread by date, then sort threads by latest message
+  threads = Array.from(map.values()).map(t => {
+    t.messages.sort((a,b) => new Date(a.created_at) - new Date(b.created_at));
+    return t;
+  }).sort((a,b) => new Date(b.last_at) - new Date(a.last_at));
+}
+
+// ── POLL FOR NEW MESSAGES ──
+async function pollNewMessages() {
+  if (allListings.length === 0) return;
+  const ids = allListings.map(l => l.id);
+  const { data: msgData } = await db
+    .from('messages')
+    .select('*')
+    .in('listing_id', ids)
+    .order('created_at', { ascending: true });
+  const newMsgs = msgData || [];
+  const hadCount = allMessages.length;
+  allMessages = newMsgs;
+  buildThreads();
+  updateNavBadges();
+  // If messages page is open, refresh thread list without losing active thread
+  if (document.getElementById('page-messages').classList.contains('active')) {
+    renderThreadList();
+    if (activeThread) {
+      const refreshed = threads.find(t => t.key === activeThread.key);
+      if (refreshed) { activeThread = refreshed; renderChatPane(activeThread); }
+    }
+  }
+  // Notify if new messages arrived
+  if (allMessages.length > hadCount) {
+    const diff = allMessages.length - hadCount;
+    showToast(`${diff} new message${diff>1?'s':''} received`, 'success');
+  }
+}
+
+// ── UPDATE NAV BADGES ──
+function updateNavBadges() {
   document.getElementById('nav-badge-listings').textContent = allListings.length;
-  const unread = allEnquiries.filter(e => !e.read_at).length;
+
+  const totalUnreadMsgs = threads.reduce((s,t) => s + (t.unread_count||0), 0);
+  const msgBadge = document.getElementById('nav-badge-messages');
+  msgBadge.textContent = totalUnreadMsgs;
+  msgBadge.style.display = totalUnreadMsgs > 0 ? 'inline-block' : 'none';
+
+  const unreadEnq = allEnquiries.filter(e => !e.read_at).length;
   const enqBadge = document.getElementById('nav-badge-enquiries');
-  enqBadge.textContent = unread;
-  enqBadge.style.display = unread > 0 ? 'inline-block' : 'none';
+  enqBadge.textContent = unreadEnq;
+  enqBadge.style.display = unreadEnq > 0 ? 'inline-block' : 'none';
 }
 
 // ── ADMIN DISABLE / RECYCLE BIN DISPLAY ──
-// Translates the admin's is_disabled / recycle_bin / disabled_reason fields
-// (set from admin.html) into what the seller sees on their own dashboard.
 function getListingStatusDisplay(l) {
   if (l.recycle_bin) {
     const daysLeft = l.purge_at ? Math.max(0, Math.ceil((new Date(l.purge_at) - new Date()) / 86400000)) : null;
@@ -784,7 +1021,7 @@ function getListingStatusDisplay(l) {
 // ── OVERVIEW ──
 function renderOverview() {
   const active = allListings.filter(l => l.status === 'active' && !l.is_disabled).length;
-  const unread = allEnquiries.filter(e => !e.read_at).length;
+  const totalUnreadMsgs = threads.reduce((s,t) => s + (t.unread_count||0), 0);
   const confirmedPayments = allPayments.filter(p => p.status === 'confirmed' || p.status === 'paid');
   const totalPaid = confirmedPayments.reduce((s,p) => s + (Number(p.amount)||0), 0);
   const totalViews = allListings.reduce((s,l) => s + (Number(l.views)||0), 0);
@@ -792,8 +1029,8 @@ function renderOverview() {
   document.getElementById('stat-active-delta').textContent = `of ${allListings.length} total listing${allListings.length!==1?'s':''}`;
   document.getElementById('stat-enquiries').textContent = allEnquiries.length;
   document.getElementById('stat-enquiries-delta').textContent = `${allEnquiries.length} buyer${allEnquiries.length!==1?'s':''} reached out`;
-  document.getElementById('stat-new-enq').textContent = unread;
-  document.getElementById('stat-new-enq-delta').textContent = unread > 0 ? `${unread} unread — check enquiries` : 'All caught up ✓';
+  document.getElementById('stat-new-enq').textContent = totalUnreadMsgs;
+  document.getElementById('stat-new-enq-delta').textContent = totalUnreadMsgs > 0 ? `${totalUnreadMsgs} unread — check messages` : 'All caught up ✓';
   document.getElementById('stat-paid').textContent = `KES ${totalPaid.toLocaleString('en-KE')}`;
   document.getElementById('stat-paid-delta').textContent = `${confirmedPayments.length} payment${confirmedPayments.length!==1?'s':''}`;
   document.getElementById('stat-views').textContent = totalViews.toLocaleString('en-KE');
@@ -804,9 +1041,14 @@ function renderOverview() {
 
 function renderActivityFeed() {
   const items = [];
-  allEnquiries.slice(0,5).forEach(e => items.push({ type:'enquiry', time:e.created_at, html:`<strong>${escHtml(e.buyer_name||'Someone')}</strong> enquired about <strong>${escHtml(e.listings?.title||'your listing')}</strong>` }));
+  // Most recent messages from buyers
+  threads.slice(0,4).forEach(t => {
+    const lastBuyer = [...t.messages].reverse().find(m => m.sender === 'buyer');
+    if (lastBuyer) items.push({ type:'message', time:lastBuyer.created_at, html:`<strong>${escHtml(t.buyer_name)}</strong> sent a message about <strong>${escHtml(t.listing_title)}</strong>` });
+  });
+  allEnquiries.slice(0,3).forEach(e => items.push({ type:'enquiry', time:e.created_at, html:`<strong>${escHtml(e.buyer_name||'Someone')}</strong> enquired about <strong>${escHtml(e.listings?.title||'your listing')}</strong>` }));
   allListings.slice(0,3).forEach(l => items.push({ type:'listing', time:l.created_at, html:`You posted <strong>${escHtml(l.title)}</strong> in ${l.area}` }));
-  allPayments.slice(0,3).forEach(p => items.push({ type:'payment', time:p.created_at, html:`Payment of <strong>KES ${Number(p.amount||0).toLocaleString('en-KE')}</strong> recorded` }));
+  allPayments.slice(0,2).forEach(p => items.push({ type:'payment', time:p.created_at, html:`Payment of <strong>KES ${Number(p.amount||0).toLocaleString('en-KE')}</strong> recorded` }));
   items.sort((a,b) => new Date(b.time) - new Date(a.time));
   const top = items.slice(0,8);
   const feed = document.getElementById('activity-feed');
@@ -815,11 +1057,12 @@ function renderActivityFeed() {
     return;
   }
   const icons = {
-    enquiry:`<svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>`,
+    enquiry:`<svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13"/></svg>`,
+    message:`<svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>`,
     listing:`<svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>`,
     payment:`<svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>`,
   };
-  feed.innerHTML = top.map(item => `<div class="activity-item"><div class="activity-dot ${item.type}">${icons[item.type]}</div><div class="activity-text">${item.html}</div><div class="activity-time">${timeAgo(item.time)}</div></div>`).join('');
+  feed.innerHTML = top.map(item => `<div class="activity-item"><div class="activity-dot ${item.type}">${icons[item.type]||icons.enquiry}</div><div class="activity-text">${item.html}</div><div class="activity-time">${timeAgo(item.time)}</div></div>`).join('');
 }
 
 function renderChart() {
@@ -828,12 +1071,15 @@ function renderChart() {
     const d = new Date(); d.setDate(d.getDate()-i);
     const key = d.toISOString().slice(0,10);
     labels.push(d.toLocaleDateString('en-KE',{weekday:'short'}));
-    counts.push(allEnquiries.filter(e => e.created_at && e.created_at.slice(0,10)===key).length);
+    // Count both enquiries and messages on that day
+    const enqCount = allEnquiries.filter(e => e.created_at && e.created_at.slice(0,10)===key).length;
+    const msgCount = allMessages.filter(m => m.sender==='buyer' && m.created_at && m.created_at.slice(0,10)===key).length;
+    counts.push(enqCount + msgCount);
   }
   const max = Math.max(...counts,1);
   document.getElementById('chart-bars').innerHTML = counts.map((c,i) => {
     const h = Math.round((c/max)*68)+8;
-    return `<div class="chart-bar" style="height:${h}px"><div class="bar-tip">${labels[i]}: ${c} enquir${c===1?'y':'ies'}</div></div>`;
+    return `<div class="chart-bar" style="height:${h}px"><div class="bar-tip">${labels[i]}: ${c} message${c===1?'':'s'}</div></div>`;
   }).join('');
   document.getElementById('chart-labels').innerHTML = labels.map(l => `<div class="chart-label">${l}</div>`).join('');
 }
@@ -887,7 +1133,8 @@ function renderListingsTable() {
   tbody.innerHTML = rows.map(l => {
     const cover = (l.listing_photos||[]).find(p=>p.is_cover)||(l.listing_photos||[])[0];
     const imgHtml = cover ? `<img src="${cover.url}" alt=""/>` : `<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>`;
-    const enqCount = allEnquiries.filter(e => e.listing_id === l.id).length;
+    const msgCount = threads.filter(t => t.listing_id === l.id).reduce((s,t) => s + t.messages.length, 0);
+    const unreadCount = threads.filter(t => t.listing_id === l.id).reduce((s,t) => s + (t.unread_count||0), 0);
     const posted = new Date(l.created_at).toLocaleDateString('en-KE',{day:'numeric',month:'short',year:'numeric'});
     const isPaused = l.status === 'paused';
     const disp = getListingStatusDisplay(l);
@@ -903,20 +1150,27 @@ function renderListingsTable() {
       </div></td>
       <td><div class="listing-price-text">KES ${Number(l.price).toLocaleString('en-KE')}${l.price_type==='rent'?'/mo':''}</div><div class="listing-price-sub">${l.price_type==='rent'?'Monthly rent':'For sale'}</div></td>
       <td><span class="status ${disp.cls}">${disp.label}</span></td>
-      <td style="font-size:13px;font-weight:600;color:${enqCount>0?'var(--green-dark)':'var(--text-3)'}">${enqCount}</td>
+      <td>
+        <span style="font-size:13px;font-weight:600;color:${msgCount>0?'var(--green-dark)':'var(--text-3)'}">
+          ${msgCount}${unreadCount>0?` <span style="color:var(--red);font-size:11px">(${unreadCount} new)</span>`:''}
+        </span>
+      </td>
       <td style="font-size:13px;color:var(--text-3)">${l.views||0}</td>
       <td style="font-size:12px;color:var(--text-3)">${posted}</td>
       <td><div class="actions-cell">
         <a href="listing.html?id=${l.id}" target="_blank" class="icon-btn" title="View live listing">
           <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
         </a>
+        <div class="icon-btn" title="View messages" onclick="showPage('messages')">
+          <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        </div>
         <div class="icon-btn" data-id="${l.id}" onclick="shareListing('${l.id}')" title="Share listing">
           <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
         </div>
         <div class="icon-btn" data-id="${l.id}" onclick="openEditModal(this.dataset.id)" title="Edit">
           <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
         </div>
-        ${l.status==='expired' ? `<div class="icon-btn" data-id="${l.id}" onclick="renewListing('${l.id}')" title="Renew listing — resubmit for approval">
+        ${l.status==='expired' ? `<div class="icon-btn" data-id="${l.id}" onclick="renewListing('${l.id}')" title="Renew listing">
           <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
         </div>` : ''}
         ${isLocked
@@ -940,10 +1194,7 @@ function statusLabel(s) {
 
 async function togglePause(id, currentStatus) {
   const l = allListings.find(l => l.id === id);
-  if (l && l.is_disabled) {
-    showToast('This listing was disabled by the admin. Contact admin for more information.', 'error');
-    return;
-  }
+  if (l && l.is_disabled) { showToast('This listing was disabled by the admin. Contact admin for more information.', 'error'); return; }
   const newStatus = currentStatus === 'paused' ? 'active' : 'paused';
   const { error } = await db.from('listings').update({ status: newStatus }).eq('id', id);
   if (error) { showToast('Could not update listing','error'); return; }
@@ -952,7 +1203,6 @@ async function togglePause(id, currentStatus) {
   showToast(newStatus==='active'?'Listing is now active':'Listing paused','success');
 }
 
-// Resubmits an expired listing for admin review — sellers can relist without re-creating the whole entry.
 async function renewListing(id) {
   const { error } = await db.from('listings').update({ status: 'pending' }).eq('id', id);
   if (error) { showToast('Could not renew: '+error.message, 'error'); return; }
@@ -962,7 +1212,6 @@ async function renewListing(id) {
   showToast('Listing resubmitted — it will go live once approved again', 'success');
 }
 
-// Opens a pre-filled WhatsApp share for the listing's public page.
 function shareListing(id) {
   const l = allListings.find(l => l.id === id);
   if (!l) return;
@@ -994,7 +1243,7 @@ function openEditModal(id) {
   ).join('');
   openModal('modal-edit');
   if (l.is_disabled) {
-    setTimeout(() => showToast("This listing is disabled by the admin. Saving changes won't make it live again — contact admin once you've fixed the issue.", 'error'), 350);
+    setTimeout(() => showToast("This listing is disabled by the admin. Contact admin once you've addressed the issue.", 'error'), 350);
   }
 }
 
@@ -1039,16 +1288,210 @@ async function confirmDelete() {
   btn.disabled = true; btn.innerHTML = '<span class="spinner-sm" style="border-top-color:var(--red)"></span> Deleting…';
   await db.from('listing_photos').delete().eq('listing_id', deleteTargetId);
   await db.from('enquiries').delete().eq('listing_id', deleteTargetId);
+  await db.from('messages').delete().eq('listing_id', deleteTargetId);
   const { data, error } = await db.from('listings').delete().eq('id', deleteTargetId).select();
   btn.disabled = false; btn.innerHTML = 'Delete listing';
   if (error) { showToast('Could not delete: '+error.message,'error'); return; }
   if (!data || data.length === 0) { showToast('Delete blocked by database permissions (RLS)','error'); return; }
   allListings = allListings.filter(l => l.id !== deleteTargetId);
   allEnquiries = allEnquiries.filter(e => e.listing_id !== deleteTargetId);
+  allMessages = allMessages.filter(m => m.listing_id !== deleteTargetId);
+  buildThreads(); updateNavBadges();
   deleteTargetId = null;
   closeModal('modal-delete'); renderListingsTable(); renderOverview();
-  document.getElementById('nav-badge-listings').textContent = allListings.length;
   showToast('Listing deleted','success');
+}
+
+// ── MESSAGES PAGE ──
+function renderThreadList() {
+  const q = (document.getElementById('thread-search-input')?.value||'').toLowerCase();
+  const filtered = q
+    ? threads.filter(t => t.buyer_name.toLowerCase().includes(q) || t.listing_title.toLowerCase().includes(q))
+    : threads;
+
+  document.getElementById('msg-thread-count').textContent = `${filtered.length} conversation${filtered.length!==1?'s':''}`;
+
+  const el = document.getElementById('thread-items');
+  if (!filtered.length) {
+    el.innerHTML = `<div style="padding:40px 20px;text-align:center;color:var(--text-3);font-size:13px">${q?'No matching conversations.':'No messages yet. When buyers contact you through a listing, conversations appear here.'}</div>`;
+    return;
+  }
+  el.innerHTML = filtered.map(t => {
+    const lastMsg = t.messages[t.messages.length-1];
+    const preview = lastMsg ? (lastMsg.sender==='seller'?'You: ':'')+(lastMsg.content||lastMsg.message||'') : '';
+    const initials = t.buyer_name.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase()||'?';
+    const isActive = activeThread && activeThread.key === t.key;
+    const isUnread = (t.unread_count||0) > 0;
+    return `<div class="thread-item${isActive?' active':''}${isUnread?' unread':''}" onclick="openThread('${t.key}')">
+      <div class="thread-avatar">${initials}</div>
+      <div class="thread-meta">
+        <div class="thread-name">${escHtml(t.buyer_name)}</div>
+        <div class="thread-listing-ref">${escHtml(t.listing_title)}${t.listing_area?' · '+t.listing_area:''}</div>
+        <div class="thread-preview">${escHtml(preview)}</div>
+      </div>
+      <div class="thread-time">${timeAgo(t.last_at)}</div>
+    </div>`;
+  }).join('');
+}
+
+function openThread(key) {
+  activeThread = threads.find(t => t.key === key) || null;
+  if (!activeThread) return;
+  renderThreadList(); // re-render to update active highlight
+  renderChatPane(activeThread);
+  markThreadRead(activeThread);
+}
+
+function renderChatPane(t) {
+  document.getElementById('chat-empty').style.display = 'none';
+  const active = document.getElementById('chat-active');
+  active.style.display = 'flex';
+
+  // Header
+  const initials = t.buyer_name.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase()||'?';
+  const waLink = t.buyer_phone
+    ? `<a href="https://wa.me/${formatWaPhone(t.buyer_phone)}" target="_blank" class="btn btn-sm" style="background:#25D366;color:white;text-decoration:none">
+        <svg viewBox="0 0 24 24" width="13" height="13" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.997 2C6.477 2 2 6.477 2 12c0 1.885.52 3.648 1.425 5.157L2 22l4.955-1.397A9.954 9.954 0 0011.997 22C17.517 22 22 17.523 22 12S17.517 2 11.997 2z"/></svg>
+        WhatsApp
+      </a>`
+    : '';
+  const listing = allListings.find(l => l.id === t.listing_id);
+  const liveLink = listing
+    ? `<a href="listing.html?id=${t.listing_id}" target="_blank" class="btn btn-outline btn-sm" style="text-decoration:none">View listing</a>`
+    : '';
+  document.getElementById('chat-header').innerHTML = `
+    <div class="chat-header-avatar">${initials}</div>
+    <div>
+      <div class="chat-header-name">${escHtml(t.buyer_name)}</div>
+      <div class="chat-header-sub">${t.buyer_phone||'No phone'} · Re: ${escHtml(t.listing_title)}</div>
+    </div>
+    <div class="chat-header-actions">${waLink}${liveLink}</div>`;
+
+  // WhatsApp hint
+  document.getElementById('chat-wa-hint').innerHTML = t.buyer_phone
+    ? `<svg viewBox="0 0 24 24" width="12" height="12" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.997 2C6.477 2 2 6.477 2 12c0 1.885.52 3.648 1.425 5.157L2 22l4.955-1.397A9.954 9.954 0 0011.997 22C17.517 22 22 17.523 22 12S17.517 2 11.997 2z"/></svg>
+    Replies are saved here and also delivered via WhatsApp if the buyer's number is available.`
+    : `Replies are saved here. No phone number — buyer will see your reply when they revisit the listing.`;
+
+  // Messages
+  renderChatMessages(t);
+
+  // Scroll to bottom
+  setTimeout(() => {
+    const mc = document.getElementById('chat-messages');
+    mc.scrollTop = mc.scrollHeight;
+  }, 50);
+}
+
+function renderChatMessages(t) {
+  const mc = document.getElementById('chat-messages');
+  if (!t.messages.length) {
+    mc.innerHTML = '<div style="text-align:center;color:var(--text-3);font-size:13px;padding:20px">No messages yet</div>';
+    return;
+  }
+  let lastDate = '';
+  const sellerName = currentProfile?.full_name || currentUser?.email?.split('@')[0] || 'You';
+  const sellerInitials = sellerName.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase()||'S';
+  const buyerInitials = t.buyer_name.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase()||'?';
+
+  mc.innerHTML = t.messages.map(m => {
+    const msgDate = new Date(m.created_at).toLocaleDateString('en-KE',{weekday:'long',day:'numeric',month:'long'});
+    const dateDivider = msgDate !== lastDate
+      ? `<div class="chat-date-divider"><span>${msgDate}</span></div>`
+      : '';
+    lastDate = msgDate;
+    const isSeller = m.sender === 'seller';
+    const time = new Date(m.created_at).toLocaleTimeString('en-KE',{hour:'2-digit',minute:'2-digit'});
+    const avatarHtml = isSeller
+      ? `<div class="bubble-avatar seller-av">${sellerInitials}</div>`
+      : `<div class="bubble-avatar buyer">${buyerInitials}</div>`;
+    return `${dateDivider}
+      <div class="chat-bubble-row ${isSeller?'seller':''}">
+        ${avatarHtml}
+        <div>
+          <div class="chat-bubble ${isSeller?'seller-b':'buyer'}">${escHtml(m.content||m.message||'')}</div>
+          <div class="bubble-time">${time}${isSeller?' · Sent':''}</div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+async function sendChatReply() {
+  if (!activeThread) return;
+  const input = document.getElementById('chat-reply-input');
+  const text = input.value.trim();
+  if (!text) return;
+
+  const btn = document.getElementById('chat-send-btn');
+  btn.disabled = true;
+
+  const newMsg = {
+    listing_id: activeThread.listing_id,
+    buyer_token: activeThread.buyer_token || null,
+    buyer_name: activeThread.buyer_name,
+    buyer_phone: activeThread.buyer_phone || null,
+    sender: 'seller',
+    content: text,
+  };
+
+  const { data, error } = await db.from('messages').insert(newMsg).select().single();
+  btn.disabled = false;
+
+  if (error) {
+    showToast('Could not send: ' + error.message, 'error');
+    return;
+  }
+
+  // Add to local state
+  allMessages.push(data || { ...newMsg, id: Date.now(), created_at: new Date().toISOString() });
+  buildThreads();
+  activeThread = threads.find(t => t.key === activeThread.key) || activeThread;
+  input.value = '';
+  input.style.height = 'auto';
+  renderChatMessages(activeThread);
+  renderThreadList();
+  // Scroll to bottom
+  setTimeout(() => {
+    const mc = document.getElementById('chat-messages');
+    mc.scrollTop = mc.scrollHeight;
+  }, 30);
+
+  // Also open WhatsApp if buyer has phone (optional — sends same message there too)
+  if (activeThread.buyer_phone) {
+    // Don't auto-open WhatsApp to avoid spam — seller can use the header button if they want
+  }
+}
+
+function handleChatKeydown(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendChatReply();
+  }
+}
+
+function autoResizeTextarea(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 140) + 'px';
+}
+
+async function markThreadRead(t) {
+  if (!t.unread_count) return;
+  // Mark enquiries as read
+  const enqIds = allEnquiries.filter(e => e.listing_id === t.listing_id && !e.read_at).map(e => e.id);
+  if (enqIds.length) {
+    await db.from('enquiries').update({ read_at: new Date().toISOString() }).in('id', enqIds);
+    enqIds.forEach(id => { const e = allEnquiries.find(e => e.id === id); if (e) e.read_at = new Date().toISOString(); });
+  }
+  // Mark messages as read
+  const unreadIds = t.messages
+    .filter(m => m.sender === 'buyer' && !m.read_at && !String(m.id).startsWith('enq-'))
+    .map(m => m.id);
+  if (unreadIds.length) {
+    await db.from('messages').update({ read_at: new Date().toISOString() }).in('id', unreadIds);
+    unreadIds.forEach(id => { const m = allMessages.find(m => m.id === id); if (m) m.read_at = new Date().toISOString(); });
+  }
+  buildThreads();
+  updateNavBadges();
 }
 
 // ── ENQUIRIES PAGE ──
@@ -1064,7 +1507,7 @@ function renderEnquiries() {
   const el = document.getElementById('enquiry-list');
   if (!filtered.length) {
     el.innerHTML = `<div class="empty-state">
-      <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13"/></svg>
       <h3>${enquiryFilter==='unread'?'All caught up!':'No enquiries yet'}</h3>
       <p>${enquiryFilter==='unread'?'No unread messages.':"When buyers message you, they'll appear here."}</p>
     </div>`;
@@ -1083,44 +1526,41 @@ function renderEnquiries() {
         <div class="enquiry-listing-ref">Re: ${escHtml(e.listings?.title||'Listing')} · ${e.listings?.area||''}</div>
         <div class="enquiry-msg">${escHtml(e.message||'')}</div>
         <div class="enquiry-actions">
-          <button class="btn btn-primary btn-sm" data-id="${e.id}" onclick="openReplyModal(this.dataset.id)">
+          <button class="btn btn-primary btn-sm" onclick="showPage('messages')" title="Open in Messages">
+            <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+            Open conversation
+          </button>
+          <button class="btn btn-outline btn-sm" data-id="${e.id}" onclick="openReplyModal(this.dataset.id)">
             <svg viewBox="0 0 24 24"><polyline points="9 17 4 12 9 7"/><path d="M20 18v-2a4 4 0 00-4-4H4"/></svg>
-            Reply via WhatsApp
+            Quick WhatsApp reply
           </button>
           ${e.buyer_phone?`<a class="btn btn-sm" style="background:#25D366;color:white" href="https://wa.me/${formatWaPhone(e.buyer_phone)}" target="_blank">WhatsApp</a>`:''}
-          ${!e.read_at?`<button class="btn btn-outline btn-sm" data-id="${e.id}" onclick="markRead(this.dataset.id)">Mark as read</button>`:''}
+          ${!e.read_at?`<button class="btn btn-outline btn-sm" data-id="${e.id}" onclick="markEnqRead(this.dataset.id)">Mark read</button>`:''}
         </div>
       </div>
     </div>`;
   }).join('');
   const unreadIds = filtered.filter(e => !e.read_at).map(e => e.id);
-  if (unreadIds.length) setTimeout(() => markAllRead(unreadIds), 2000);
+  if (unreadIds.length) setTimeout(() => markAllEnqRead(unreadIds), 2000);
 }
 
 function formatWaPhone(phone) {
   return (phone||'').replace(/^0/,'254').replace(/\s/g,'');
 }
 
-async function markRead(id) {
+async function markEnqRead(id) {
   await db.from('enquiries').update({ read_at: new Date().toISOString() }).eq('id', id);
   const e = allEnquiries.find(e => e.id === id);
   if (e) e.read_at = new Date().toISOString();
   document.getElementById('enq-'+id)?.classList.remove('unread');
-  updateEnqBadge();
+  buildThreads(); updateNavBadges();
 }
 
-async function markAllRead(ids) {
+async function markAllEnqRead(ids) {
   if (!ids.length) return;
   await db.from('enquiries').update({ read_at: new Date().toISOString() }).in('id', ids);
   ids.forEach(id => { const e = allEnquiries.find(e => e.id === id); if (e) e.read_at = new Date().toISOString(); });
-  updateEnqBadge();
-}
-
-function updateEnqBadge() {
-  const unread = allEnquiries.filter(e => !e.read_at).length;
-  const badge = document.getElementById('nav-badge-enquiries');
-  badge.textContent = unread;
-  badge.style.display = unread > 0 ? 'inline-block' : 'none';
+  buildThreads(); updateNavBadges();
 }
 
 function openReplyModal(id) {
@@ -1189,7 +1629,7 @@ function renderPayments() {
 }
 
 // ── NAVIGATION ──
-const pageTitles = { overview:'Overview', listings:'My listings', enquiries:'Enquiries', payments:'Payments', settings:'Settings' };
+const pageTitles = { overview:'Overview', listings:'My listings', messages:'Messages', enquiries:'Enquiries', payments:'Payments', settings:'Settings' };
 function showPage(name) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -1199,6 +1639,7 @@ function showPage(name) {
   document.getElementById('topbar-title').textContent = pageTitles[name]||name;
   if (name==='overview')  renderOverview();
   if (name==='listings')  renderListingsTable();
+  if (name==='messages')  { renderThreadList(); }
   if (name==='enquiries') renderEnquiries();
   if (name==='payments')  renderPayments();
   closeSidebar();
@@ -1218,7 +1659,11 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
 });
 
 // ── SIGN OUT ──
-async function doSignOut() { await db.auth.signOut(); window.location.href='login.html'; }
+async function doSignOut() {
+  clearInterval(msgPollTimer);
+  await db.auth.signOut();
+  window.location.href = 'login.html';
+}
 
 // ── TOAST ──
 let toastTimer;
