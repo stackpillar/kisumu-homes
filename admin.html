@@ -85,7 +85,6 @@
     ══════════════════════════════════ */
     .main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
 
-    /* Top bar */
     .topbar {
       background: var(--white); border-bottom: 1px solid var(--border);
       padding: 0 28px; height: 60px; display: flex; align-items: center; justify-content: space-between;
@@ -108,7 +107,6 @@
     .topbar-btn.green { background: var(--green); color: white; }
     .topbar-btn.green:hover { background: var(--green-dark); }
 
-    /* Page area */
     .page-area { padding: 28px; flex: 1; }
 
     /* ══════════════════════════════════
@@ -140,7 +138,7 @@
     /* ══════════════════════════════════
        SECTION CARDS
     ══════════════════════════════════ */
-    .card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-lg); }
+    .card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-lg); margin-bottom: 20px; }
     .card-header { padding: 18px 22px 14px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
     .card-title { font-size: 14px; font-weight: 600; color: var(--text); }
     .card-body { padding: 0; }
@@ -148,7 +146,7 @@
     /* ══════════════════════════════════
        TABS
     ══════════════════════════════════ */
-    .tab-bar { display: flex; gap: 0; border-bottom: 1px solid var(--border); padding: 0 22px; }
+    .tab-bar { display: flex; gap: 0; border-bottom: 1px solid var(--border); padding: 0 22px; overflow-x: auto; }
     .tab-btn {
       padding: 12px 16px; font-size: 13px; font-weight: 500; color: var(--text-3);
       background: none; border-bottom: 2px solid transparent; margin-bottom: -1px;
@@ -175,6 +173,13 @@
     .filter-search:focus { border-color: var(--green); }
 
     /* ══════════════════════════════════
+       BULK ACTION BAR
+    ══════════════════════════════════ */
+    .bulk-bar { display: none; align-items: center; gap: 10px; padding: 10px 22px; background: var(--green-light); border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+    .bulk-bar.show { display: flex; }
+    .bulk-count { font-size: 13px; font-weight: 600; color: var(--green-dark); }
+
+    /* ══════════════════════════════════
        TABLE
     ══════════════════════════════════ */
     .table-wrap { overflow-x: auto; }
@@ -183,8 +188,8 @@
     td { padding: 13px 16px; border-bottom: 1px solid var(--border); font-size: 13px; color: var(--text-2); vertical-align: middle; }
     tr:last-child td { border-bottom: none; }
     tr:hover td { background: var(--surface); }
+    input[type="checkbox"] { width: 15px; height: 15px; accent-color: var(--green); cursor: pointer; }
 
-    /* Listing thumbnail */
     .listing-thumb { display: flex; align-items: center; gap: 12px; }
     .thumb-img { width: 48px; height: 38px; border-radius: 6px; background: var(--surface); object-fit: cover; flex-shrink: 0; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; }
     .thumb-img svg { width: 18px; height: 18px; stroke: var(--text-3); fill: none; stroke-width: 1.5; }
@@ -193,7 +198,6 @@
     .listing-title { font-size: 13px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
     .listing-meta { font-size: 11px; color: var(--text-3); margin-top: 1px; }
 
-    /* Badges */
     .badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 20px; white-space: nowrap; }
     .badge.pending   { background: var(--gold-light); color: var(--gold); }
     .badge.active    { background: var(--green-light); color: var(--green-dark); }
@@ -206,8 +210,7 @@
     .badge.unpaid    { background: var(--red-light); color: var(--red); }
     .badge::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
 
-    /* Action buttons */
-    .action-btns { display: flex; align-items: center; gap: 6px; }
+    .action-btns { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
     .action-btn {
       padding: 5px 10px; border-radius: 6px; font-size: 12px; font-weight: 500;
       transition: all .15s; white-space: nowrap;
@@ -223,14 +226,8 @@
     .action-btn.delete  { background: transparent; color: var(--text-3); border: 1px solid var(--border); }
     .action-btn.delete:hover { background: var(--red-light); color: var(--red); border-color: var(--red); }
 
-    /* ══════════════════════════════════
-       LAYOUT PANELS
-    ══════════════════════════════════ */
     .two-col { display: grid; grid-template-columns: 1fr 320px; gap: 20px; }
 
-    /* ══════════════════════════════════
-       PAYMENTS TABLE
-    ══════════════════════════════════ */
     .revenue-banner {
       background: var(--green-dark); border-radius: var(--radius-lg); padding: 24px 28px;
       display: flex; align-items: center; justify-content: space-between; gap: 20px;
@@ -243,15 +240,9 @@
     .rev-val { font-size: 22px; font-weight: 700; color: white; }
     .rev-lbl { font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 2px; }
 
-    /* ══════════════════════════════════
-       USERS TABLE
-    ══════════════════════════════════ */
     .user-cell { display: flex; align-items: center; gap: 10px; }
     .user-avatar { width: 30px; height: 30px; border-radius: 50%; background: var(--green-light); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: var(--green-dark); flex-shrink: 0; }
 
-    /* ══════════════════════════════════
-       QUICK STATS PANEL
-    ══════════════════════════════════ */
     .quick-panel { display: flex; flex-direction: column; gap: 16px; }
     .quick-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 18px 20px; }
     .quick-card h4 { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 14px; }
@@ -260,9 +251,6 @@
     .quick-row span:first-child { color: var(--text-2); }
     .quick-row span:last-child { font-weight: 600; color: var(--text); }
 
-    /* ══════════════════════════════════
-       LOADING / EMPTY
-    ══════════════════════════════════ */
     .table-loading { text-align: center; padding: 48px; color: var(--text-3); }
     .table-loading svg { width: 36px; height: 36px; stroke: var(--border); fill: none; stroke-width: 1.5; margin: 0 auto 12px; display: block; }
     .skeleton-row td { padding: 12px 16px; }
@@ -272,7 +260,7 @@
     @keyframes shimmer { to { background-position: -200% 0; } }
 
     /* ══════════════════════════════════
-       MODAL
+       MODALS (shared)
     ══════════════════════════════════ */
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 500; display: none; align-items: center; justify-content: center; padding: 20px; }
     .modal-overlay.open { display: flex; }
@@ -286,31 +274,33 @@
     .modal-body label { display: block; font-size: 12px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 5px; }
     .modal-body .val { font-size: 14px; color: var(--text); font-weight: 500; }
     .modal-body .val.mono { font-family: monospace; font-size: 13px; background: var(--surface); padding: 4px 8px; border-radius: 5px; }
-    .modal-footer { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; gap: 10px; justify-content: flex-end; }
+    .modal-body input[type="text"], .modal-body input[type="number"], .modal-body select, .modal-body textarea {
+      width: 100%; padding: 9px 12px; border: 1.5px solid var(--border); border-radius: 8px;
+      font-size: 13px; font-family: inherit; color: var(--text); background: var(--white); outline: none;
+    }
+    .modal-body input:focus, .modal-body select:focus, .modal-body textarea:focus { border-color: var(--green); }
+    .modal-body .check-field { display: flex; align-items: center; gap: 8px; }
+    .modal-body .check-field label { margin: 0; text-transform: none; font-size: 13px; font-weight: 500; color: var(--text-2); }
+    .modal-footer { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }
     .btn-modal { padding: 9px 18px; border-radius: 8px; font-size: 13px; font-weight: 600; transition: all .15s; }
     .btn-modal.approve { background: var(--green); color: white; }
     .btn-modal.approve:hover { background: var(--green-dark); }
     .btn-modal.reject { background: var(--red-light); color: var(--red); border: 1px solid var(--red); }
     .btn-modal.reject:hover { background: var(--red); color: white; }
     .btn-modal.cancel { background: var(--surface); color: var(--text-2); }
+    .confirm-warning { background: var(--gold-light); color: var(--gold); border-radius: 8px; padding: 10px 12px; font-size: 12px; margin-top: 10px; line-height: 1.5; }
 
     /* ══════════════════════════════════
        TOAST
     ══════════════════════════════════ */
-    .toast { position: fixed; bottom: 24px; right: 24px; z-index: 999; background: var(--text); color: white; padding: 12px 20px; border-radius: var(--radius); font-size: 13px; transform: translateY(60px); opacity: 0; transition: all .3s; }
+    .toast { position: fixed; bottom: 24px; right: 24px; z-index: 999; background: var(--text); color: white; padding: 12px 20px; border-radius: var(--radius); font-size: 13px; transform: translateY(60px); opacity: 0; transition: all .3s; max-width: 320px; }
     .toast.show { transform: translateY(0); opacity: 1; }
     .toast.success { background: var(--green-dark); }
     .toast.error   { background: var(--red); }
 
-    /* ══════════════════════════════════
-       VIEWS
-    ══════════════════════════════════ */
     .view { display: none; }
     .view.active { display: block; }
 
-    /* ══════════════════════════════════
-       RESPONSIVE
-    ══════════════════════════════════ */
     @media (max-width: 1100px) {
       .stat-grid { grid-template-columns: repeat(2,1fr); }
       .two-col { grid-template-columns: 1fr; }
@@ -348,13 +338,13 @@
 
   <nav class="sidebar-nav">
     <div class="nav-section-label">Overview</div>
-    <div class="nav-item active" onclick="showView('overview')">
+    <div class="nav-item active" data-view="overview" onclick="showView('overview')">
       <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
       Dashboard
     </div>
 
     <div class="nav-section-label" style="margin-top:8px">Listings</div>
-    <div class="nav-item" onclick="showView('listings')">
+    <div class="nav-item" data-view="listings" onclick="showView('listings')">
       <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
       All listings
       <span class="nav-badge" id="nav-badge-pending">—</span>
@@ -367,22 +357,37 @@
       <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
       Featured listings
     </div>
+    <div class="nav-item" data-view="recycle-bin" onclick="showView('recycle-bin')">
+      <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+      Recycle bin
+      <span class="nav-badge" id="nav-badge-recycle">—</span>
+    </div>
 
     <div class="nav-section-label" style="margin-top:8px">Finance</div>
-    <div class="nav-item" onclick="showView('payments')">
+    <div class="nav-item" data-view="payments" onclick="showView('payments')">
       <svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
       Payments
       <span class="nav-badge gold" id="nav-badge-unpaid">—</span>
     </div>
 
     <div class="nav-section-label" style="margin-top:8px">People</div>
-    <div class="nav-item" onclick="showView('users')">
+    <div class="nav-item" data-view="users" onclick="showView('users')">
       <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
       Sellers
     </div>
-    <div class="nav-item" onclick="showView('enquiries')">
+    <div class="nav-item" data-view="enquiries" onclick="showView('enquiries')">
       <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
       Enquiries
+    </div>
+
+    <div class="nav-section-label" style="margin-top:8px">Analytics</div>
+    <div class="nav-item" data-view="analytics" onclick="showView('analytics')">
+      <svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M18.7 8l-5.1 5.2-4-4L3 13.9"/></svg>
+      Site visits
+    </div>
+    <div class="nav-item" data-view="activity-log" onclick="showView('activity-log')">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+      Activity log
     </div>
 
     <div class="nav-section-label" style="margin-top:8px">Site</div>
@@ -406,7 +411,6 @@
   </div>
 </aside>
 
-<!-- Sidebar overlay (mobile) -->
 <div id="sidebar-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:199;" onclick="closeSidebar()"></div>
 
 <!-- ══════════════════════════════════
@@ -414,7 +418,6 @@
 ══════════════════════════════════ -->
 <div class="main">
 
-  <!-- Topbar -->
   <div class="topbar">
     <div class="topbar-left">
       <button class="mobile-menu-btn" onclick="openSidebar()">
@@ -431,20 +434,17 @@
     </div>
   </div>
 
-  <!-- Page area -->
   <div class="page-area">
 
     <!-- ══════════════════════
          OVERVIEW VIEW
     ══════════════════════ -->
     <div class="view active" id="view-overview">
-
-      <!-- Stat cards -->
       <div class="stat-grid">
         <div class="stat-card">
           <div class="stat-card-top">
             <div class="stat-icon green"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
-            <span class="stat-trend up" id="trend-active">active</span>
+            <span class="stat-trend up">active</span>
           </div>
           <div class="stat-val" id="stat-active">—</div>
           <div class="stat-label">Active listings</div>
@@ -452,7 +452,7 @@
         <div class="stat-card">
           <div class="stat-card-top">
             <div class="stat-icon gold"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
-            <span class="stat-trend pending" id="trend-pending">pending</span>
+            <span class="stat-trend pending">pending</span>
           </div>
           <div class="stat-val" id="stat-pending">—</div>
           <div class="stat-label">Pending approval</div>
@@ -460,7 +460,7 @@
         <div class="stat-card">
           <div class="stat-card-top">
             <div class="stat-icon blue"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></div>
-            <span class="stat-trend up" id="trend-revenue">this month</span>
+            <span class="stat-trend up">this month</span>
           </div>
           <div class="stat-val" id="stat-revenue">—</div>
           <div class="stat-label">Revenue (KES)</div>
@@ -475,41 +475,26 @@
         </div>
       </div>
 
-      <!-- Two column layout -->
       <div class="two-col">
-        <!-- Pending listings table -->
-        <div class="card">
+        <div class="card" style="margin-bottom:0">
           <div class="card-header">
             <span class="card-title">Listings awaiting approval</span>
             <button class="action-btn view" onclick="showView('listings'); setTab('pending')">View all →</button>
           </div>
           <div class="table-wrap">
             <table>
-              <thead>
-                <tr>
-                  <th>Property</th>
-                  <th>Seller</th>
-                  <th>Price</th>
-                  <th>Plan</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
+              <thead><tr><th>Property</th><th>Seller</th><th>Price</th><th>Plan</th><th>Actions</th></tr></thead>
               <tbody id="pending-table-body">
-                <tr class="skeleton-row"><td><div class="skel"></div></td><td><div class="skel short"></div></td><td><div class="skel xshort"></div></td><td><div class="skel xshort"></div></td><td><div class="skel short"></div></td></tr>
-                <tr class="skeleton-row"><td><div class="skel"></div></td><td><div class="skel short"></div></td><td><div class="skel xshort"></div></td><td><div class="skel xshort"></div></td><td><div class="skel short"></div></td></tr>
                 <tr class="skeleton-row"><td><div class="skel"></div></td><td><div class="skel short"></div></td><td><div class="skel xshort"></div></td><td><div class="skel xshort"></div></td><td><div class="skel short"></div></td></tr>
               </tbody>
             </table>
           </div>
         </div>
 
-        <!-- Quick stats panel -->
         <div class="quick-panel">
           <div class="quick-card">
             <h4>Listings by area</h4>
-            <div id="area-breakdown">
-              <div class="quick-row"><span>Loading…</span><span>—</span></div>
-            </div>
+            <div id="area-breakdown"><div class="quick-row"><span>Loading…</span><span>—</span></div></div>
           </div>
           <div class="quick-card">
             <h4>Revenue breakdown</h4>
@@ -538,7 +523,10 @@
       <div class="card">
         <div class="card-header">
           <span class="card-title">All listings</span>
-          <span style="font-size:12px;color:var(--text-3)" id="listings-count"></span>
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="font-size:12px;color:var(--text-3)" id="listings-count"></span>
+            <button class="action-btn view" onclick="exportListingsCSV()">Export CSV</button>
+          </div>
         </div>
         <div class="tab-bar">
           <button class="tab-btn active" id="tab-all"      onclick="setTab('all')">All <span class="count" id="tc-all">—</span></button>
@@ -562,23 +550,43 @@
           </select>
           <input class="filter-search" id="filter-search" type="text" placeholder="Search title or area…" oninput="debounce(loadAllListings,400)()"/>
         </div>
+        <div class="bulk-bar" id="bulk-bar">
+          <span class="bulk-count" id="bulk-count"></span>
+          <button class="action-btn approve" onclick="bulkApprove()">Approve selected</button>
+          <button class="action-btn reject" onclick="bulkReject()">Reject selected</button>
+          <button class="action-btn view" onclick="bulkRecycle()">Move to recycle bin</button>
+        </div>
         <div class="table-wrap">
           <table>
             <thead>
               <tr>
-                <th>Property</th>
-                <th>Area</th>
-                <th>Price</th>
-                <th>Category</th>
-                <th>Status</th>
-                <th>Payment</th>
-                <th>Posted</th>
-                <th>Actions</th>
+                <th><input type="checkbox" onchange="toggleSelectAllListings(this.checked)"/></th>
+                <th>Property</th><th>Area</th><th>Price</th><th>Category</th>
+                <th>Status</th><th>Payment</th><th>Posted</th><th>Actions</th>
               </tr>
             </thead>
             <tbody id="all-listings-body">
-              <tr class="skeleton-row"><td colspan="8"><div class="skel"></div></td></tr>
+              <tr class="skeleton-row"><td colspan="9"><div class="skel"></div></td></tr>
             </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════
+         RECYCLE BIN VIEW
+    ══════════════════════ -->
+    <div class="view" id="view-recycle-bin">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Recycle bin</span>
+          <button class="action-btn delete" onclick="purgeExpired()">Empty expired items</button>
+        </div>
+        <p style="padding:0 22px 14px;font-size:12px;color:var(--text-3)">Items here are hidden from the public site and marked disabled with a reason. They're permanently deleted automatically 30 days after being recycled, or you can restore or delete them sooner.</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Property</th><th>Reason</th><th>Disabled on</th><th>Time left</th><th>Price</th><th>Actions</th></tr></thead>
+            <tbody id="recycle-bin-body"><tr class="skeleton-row"><td colspan="6"><div class="skel"></div></td></tr></tbody>
           </table>
         </div>
       </div>
@@ -591,7 +599,7 @@
       <div class="revenue-banner" id="revenue-banner">
         <div>
           <h3>Payment overview</h3>
-          <p>All M-Pesa listing fee transactions</p>
+          <p>All M-Pesa and bank transfer listing fee transactions</p>
         </div>
         <div class="revenue-amounts">
           <div class="rev-item"><div class="rev-val" id="rev-total-banner">KES —</div><div class="rev-lbl">Total collected</div></div>
@@ -599,24 +607,14 @@
         </div>
       </div>
       <div class="card">
-        <div class="card-header"><span class="card-title">All payments</span></div>
+        <div class="card-header">
+          <span class="card-title">All payments</span>
+          <button class="action-btn view" onclick="exportPaymentsCSV()">Export CSV</button>
+        </div>
         <div class="table-wrap">
           <table>
-            <thead>
-              <tr>
-                <th>Seller</th>
-                <th>Listing</th>
-                <th>Type</th>
-                <th>Amount</th>
-                <th>M-Pesa Ref</th>
-                <th>Status</th>
-                <th>Date</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="payments-body">
-              <tr class="skeleton-row"><td colspan="8"><div class="skel"></div></td></tr>
-            </tbody>
+            <thead><tr><th>Seller</th><th>Listing</th><th>Method</th><th>Amount</th><th>Reference</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
+            <tbody id="payments-body"><tr class="skeleton-row"><td colspan="8"><div class="skel"></div></td></tr></tbody>
           </table>
         </div>
       </div>
@@ -633,12 +631,8 @@
         </div>
         <div class="table-wrap">
           <table>
-            <thead>
-              <tr><th>Seller</th><th>Phone</th><th>Listings</th><th>Joined</th><th>Actions</th></tr>
-            </thead>
-            <tbody id="users-body">
-              <tr class="skeleton-row"><td colspan="5"><div class="skel"></div></td></tr>
-            </tbody>
+            <thead><tr><th>Seller</th><th>Phone</th><th>Listings</th><th>Status</th><th>Joined</th><th>Actions</th></tr></thead>
+            <tbody id="users-body"><tr class="skeleton-row"><td colspan="6"><div class="skel"></div></td></tr></tbody>
           </table>
         </div>
       </div>
@@ -652,12 +646,55 @@
         <div class="card-header"><span class="card-title">Buyer enquiries</span></div>
         <div class="table-wrap">
           <table>
-            <thead>
-              <tr><th>Buyer</th><th>Listing</th><th>Phone</th><th>Message</th><th>Date</th></tr>
-            </thead>
-            <tbody id="enquiries-body">
-              <tr class="skeleton-row"><td colspan="5"><div class="skel"></div></td></tr>
-            </tbody>
+            <thead><tr><th>Buyer</th><th>Listing</th><th>Phone</th><th>Message</th><th>Date</th></tr></thead>
+            <tbody id="enquiries-body"><tr class="skeleton-row"><td colspan="5"><div class="skel"></div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════
+         ANALYTICS VIEW
+    ══════════════════════ -->
+    <div class="view" id="view-analytics">
+      <div class="stat-grid" style="grid-template-columns:repeat(3,1fr)">
+        <div class="stat-card"><div class="stat-val" id="an-total">—</div><div class="stat-label">Total page views</div></div>
+        <div class="stat-card"><div class="stat-val" id="an-today">—</div><div class="stat-label">Views today</div></div>
+        <div class="stat-card"><div class="stat-val" id="an-sessions">—</div><div class="stat-label">Unique sessions (recent)</div></div>
+      </div>
+      <div class="two-col">
+        <div class="card" style="margin-bottom:0">
+          <div class="card-header"><span class="card-title">Recent visits</span></div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Page</th><th>Referrer</th><th>Device</th><th>Time</th></tr></thead>
+              <tbody id="visits-body"><tr class="skeleton-row"><td colspan="4"><div class="skel"></div></td></tr></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="quick-panel">
+          <div class="quick-card">
+            <h4>Top pages</h4>
+            <div id="top-pages"><div class="quick-row"><span>Loading…</span><span>—</span></div></div>
+          </div>
+          <div class="quick-card">
+            <h4>Enable tracking</h4>
+            <p style="font-size:12px;color:var(--text-3);line-height:1.6">Add the tracking snippet to index.html, listings.html, listing.html and other public pages (just before <code>&lt;/body&gt;</code>) to start collecting visits here.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════
+         ACTIVITY LOG VIEW
+    ══════════════════════ -->
+    <div class="view" id="view-activity-log">
+      <div class="card">
+        <div class="card-header"><span class="card-title">Admin activity log</span></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Admin</th><th>Action</th><th>Target</th><th>Details</th><th>Time</th></tr></thead>
+            <tbody id="activity-log-body"><tr class="skeleton-row"><td colspan="5"><div class="skel"></div></td></tr></tbody>
           </table>
         </div>
       </div>
@@ -671,16 +708,58 @@
 ══════════════════════════════════ -->
 <div class="modal-overlay" id="listing-modal">
   <div class="modal">
-    <div class="modal-header">
-      <h3 id="modal-title">Listing details</h3>
-      <button class="modal-close" onclick="closeModal()">×</button>
-    </div>
+    <div class="modal-header"><h3 id="modal-title">Listing details</h3><button class="modal-close" onclick="closeModal()">×</button></div>
     <div class="modal-body" id="modal-body"></div>
     <div class="modal-footer" id="modal-footer"></div>
   </div>
 </div>
 
-<!-- Toast -->
+<!-- ══════════════════════════════════
+     EDIT LISTING MODAL
+══════════════════════════════════ -->
+<div class="modal-overlay" id="edit-listing-modal">
+  <div class="modal" style="max-width:560px">
+    <div class="modal-header"><h3>Edit listing</h3><button class="modal-close" onclick="closeEditListingModal()">×</button></div>
+    <div class="modal-body" id="edit-listing-body"></div>
+    <div class="modal-footer">
+      <button class="btn-modal cancel" onclick="closeEditListingModal()">Cancel</button>
+      <button class="btn-modal approve" onclick="saveListingEdit()">Save changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     PROFILE MODAL
+══════════════════════════════════ -->
+<div class="modal-overlay" id="profile-modal">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-header"><h3 id="profile-modal-title">Seller profile</h3><button class="modal-close" onclick="closeProfileModal()">×</button></div>
+    <div class="modal-body" id="profile-modal-body"></div>
+    <div class="modal-footer" id="profile-modal-footer"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     GENERIC CONFIRM MODAL (reject / recycle / disable / delete / approve-with-warning)
+══════════════════════════════════ -->
+<div class="modal-overlay" id="confirm-modal">
+  <div class="modal" style="max-width:440px">
+    <div class="modal-header"><h3 id="confirm-title">Are you sure?</h3><button class="modal-close" onclick="closeConfirmModal()">×</button></div>
+    <div class="modal-body">
+      <p id="confirm-message" style="font-size:13px;color:var(--text-2);line-height:1.6"></p>
+      <div class="field" id="confirm-reason-wrap" style="display:none;margin-top:14px">
+        <label id="confirm-reason-label">Reason</label>
+        <textarea id="confirm-reason-input" rows="3" placeholder="e.g. Duplicate listing, inappropriate content, fraudulent seller…"></textarea>
+      </div>
+      <div class="confirm-warning" id="confirm-warning-box" style="display:none"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-modal cancel" onclick="closeConfirmModal()">Cancel</button>
+      <button class="btn-modal reject" id="confirm-action-btn">Confirm</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -689,15 +768,20 @@
   const { createClient } = supabase;
   const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  // ── Auth guard: only admins ──
+  // ── State ──
   let currentUser = null;
+  let currentView = 'overview';
+  let currentTab = 'all';
+  let selectedListingIds = new Set();
+  let editingListingId = null;
+  let editingProfileId = null;
+
+  // ── Auth guard: only admins ──
   async function checkAuth() {
     const { data: { user } } = await db.auth.getUser();
     if (!user) { window.location.href = 'login.html?next=admin.html'; return; }
     const { data: profile } = await db.from('profiles').select('*').eq('id', user.id).single();
-    if (!profile || profile.role !== 'admin') {
-      window.location.href = 'dashboard.html'; return;
-    }
+    if (!profile || profile.role !== 'admin') { window.location.href = 'dashboard.html'; return; }
     currentUser = user;
     const initials = (profile.full_name || 'Admin').split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
     document.getElementById('admin-avatar').textContent = initials;
@@ -718,60 +802,95 @@
   }
 
   // ── Format ──
-  const fmtPrice = n => 'KES ' + Number(n).toLocaleString('en-KE');
+  const fmtPrice = n => 'KES ' + Number(n||0).toLocaleString('en-KE');
   const fmtDate  = d => new Date(d).toLocaleDateString('en-KE', { day:'numeric', month:'short', year:'numeric' });
 
+  // ── Activity log helper ──
+  async function logAction(action, targetType, targetId, details='') {
+    try {
+      await db.from('admin_logs').insert({
+        admin_id: currentUser?.id || null,
+        admin_name: document.getElementById('admin-name').textContent || 'Admin',
+        action, target_type: targetType, target_id: String(targetId), details
+      });
+    } catch (e) { console.error('Log error', e); }
+  }
+
   // ── View switching ──
-  let currentView = 'overview';
-  const viewTitles = { overview:'Dashboard', listings:'All listings', payments:'Payments', users:'Sellers', enquiries:'Enquiries' };
+  const viewTitles = { overview:'Dashboard', listings:'All listings', 'recycle-bin':'Recycle bin', payments:'Payments', users:'Sellers', enquiries:'Enquiries', analytics:'Site visits', 'activity-log':'Activity log' };
   function showView(v) {
     document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
     document.getElementById('view-' + v).classList.add('active');
-    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(el => el.classList.toggle('active', el.dataset.view === v));
     currentView = v;
     document.getElementById('topbar-title').textContent = viewTitles[v] || v;
     closeSidebar();
-    if (v === 'listings')   loadAllListings();
-    if (v === 'payments')   loadPayments();
-    if (v === 'users')      loadUsers();
-    if (v === 'enquiries')  loadEnquiries();
+    if (v === 'listings')      { loadAllListings(); loadTabCounts(); }
+    if (v === 'recycle-bin')   loadRecycleBin();
+    if (v === 'payments')      loadPayments();
+    if (v === 'users')         loadUsers();
+    if (v === 'enquiries')     loadEnquiries();
+    if (v === 'analytics')     loadAnalytics();
+    if (v === 'activity-log')  loadActivityLog();
   }
 
-  // ── Listing tabs ──
-  let currentTab = 'all';
   function setTab(tab) {
     currentTab = tab;
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     const btn = document.getElementById('tab-' + tab);
     if (btn) btn.classList.add('active');
     if (currentView === 'listings') loadAllListings();
-    else { showView('listings'); }
+    else showView('listings');
   }
 
-  // ── Mobile sidebar ──
   function openSidebar()  { document.getElementById('sidebar').classList.add('open'); document.getElementById('sidebar-overlay').style.display = 'block'; }
   function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebar-overlay').style.display = 'none'; }
 
-  // ── Modal ──
   function openModal()  { document.getElementById('listing-modal').classList.add('open'); }
   function closeModal() { document.getElementById('listing-modal').classList.remove('open'); }
 
+  // ══════════════════════════════════
+  // GENERIC CONFIRM MODAL
+  // ══════════════════════════════════
+  function openConfirm({ title, message, requireReason=false, reasonLabel='Reason', warningText='', confirmText='Confirm', confirmClass='reject', onConfirm }) {
+    document.getElementById('confirm-title').textContent = title;
+    document.getElementById('confirm-message').textContent = message;
+    const reasonWrap = document.getElementById('confirm-reason-wrap');
+    const reasonInput = document.getElementById('confirm-reason-input');
+    reasonInput.value = '';
+    document.getElementById('confirm-reason-label').textContent = reasonLabel;
+    reasonWrap.style.display = requireReason ? 'block' : 'none';
+    const warnBox = document.getElementById('confirm-warning-box');
+    if (warningText) { warnBox.style.display = 'block'; warnBox.textContent = warningText; } else { warnBox.style.display = 'none'; }
+    const btn = document.getElementById('confirm-action-btn');
+    btn.textContent = confirmText;
+    btn.className = 'btn-modal ' + confirmClass;
+    btn.onclick = () => {
+      if (requireReason && !reasonInput.value.trim()) { toast('Please enter a reason', 'error'); return; }
+      closeConfirmModal();
+      onConfirm(reasonInput.value.trim());
+    };
+    document.getElementById('confirm-modal').classList.add('open');
+  }
+  function closeConfirmModal() { document.getElementById('confirm-modal').classList.remove('open'); }
+
   // ── Load overview stats ──
   async function loadOverview() {
-    // Active listings
-    const { count: active } = await db.from('listings').select('*',{count:'exact',head:true}).eq('status','active');
+    const { count: active, error: activeErr } = await db.from('listings').select('*',{count:'exact',head:true}).eq('status','active').eq('recycle_bin', false);
+    if (activeErr) console.error('Active count error:', activeErr.message);
     document.getElementById('stat-active').textContent = active || 0;
 
-    // Pending
-    const { count: pending } = await db.from('listings').select('*',{count:'exact',head:true}).eq('status','pending');
+    const { count: pending, error: pendingErr } = await db.from('listings').select('*',{count:'exact',head:true}).eq('status','pending').eq('recycle_bin', false);
+    if (pendingErr) { console.error('Pending count error:', pendingErr.message); toast('Pending count error: ' + pendingErr.message, 'error'); }
     document.getElementById('stat-pending').textContent = pending || 0;
     document.getElementById('nav-badge-pending').textContent = pending || 0;
 
-    // Sellers
+    const { count: recycled } = await db.from('listings').select('*',{count:'exact',head:true}).eq('recycle_bin', true);
+    document.getElementById('nav-badge-recycle').textContent = recycled || 0;
+
     const { count: sellers } = await db.from('profiles').select('*',{count:'exact',head:true});
     document.getElementById('stat-sellers').textContent = sellers || 0;
 
-    // Revenue
     const { data: payments } = await db.from('payments').select('amount,type').eq('status','confirmed');
     const total = (payments || []).reduce((s,p) => s + Number(p.amount), 0);
     const stdCount = (payments || []).filter(p=>p.type==='listing_fee').length;
@@ -781,14 +900,12 @@
     document.getElementById('rev-featured').textContent = `KES ${(featCount*2500).toLocaleString()}`;
     document.getElementById('rev-total').textContent = `KES ${total.toLocaleString()}`;
 
-    // Unpaid badge
     const { count: unpaid } = await db.from('payments').select('*',{count:'exact',head:true}).eq('status','pending');
     document.getElementById('nav-badge-unpaid').textContent = unpaid || 0;
 
-    // Area breakdown
     const areas = ['Milimani','Kisumu CBD','Kondele','Maseno','Luanda','Riat Hills','Mamboleo'];
     const areaRows = await Promise.all(areas.map(async area => {
-      const { count } = await db.from('listings').select('*',{count:'exact',head:true}).eq('area',area).eq('status','active');
+      const { count } = await db.from('listings').select('*',{count:'exact',head:true}).eq('area',area).eq('status','active').eq('recycle_bin', false);
       return { area, count: count || 0 };
     }));
     document.getElementById('area-breakdown').innerHTML = areaRows
@@ -796,16 +913,12 @@
       .map(r => `<div class="quick-row"><span>${r.area}</span><span>${r.count}</span></div>`)
       .join('');
 
-    // Category breakdown
     for (const cat of ['student','standard','luxury']) {
-      const { count } = await db.from('listings').select('*',{count:'exact',head:true}).eq('category',cat).eq('status','active');
+      const { count } = await db.from('listings').select('*',{count:'exact',head:true}).eq('category',cat).eq('status','active').eq('recycle_bin', false);
       document.getElementById('cat-'+cat).textContent = count || 0;
     }
 
-    // Load pending listings preview
     loadPendingPreview();
-
-    // Tab counts
     loadTabCounts();
   }
 
@@ -813,7 +926,7 @@
   async function loadPendingPreview() {
     const { data, error } = await db.from('listings')
       .select('*, profiles(full_name, phone), listing_photos(*)')
-      .eq('status','pending')
+      .eq('status','pending').eq('recycle_bin', false)
       .order('created_at', { ascending: false })
       .limit(5);
     const tbody = document.getElementById('pending-table-body');
@@ -823,6 +936,7 @@
     }
     tbody.innerHTML = data.map(l => {
       const cover = (l.listing_photos||[]).find(p=>p.is_cover) || (l.listing_photos||[])[0];
+      const safe = JSON.stringify(l).replace(/"/g,'&quot;');
       return `<tr>
         <td><div class="listing-thumb">
           <div class="thumb-img">${cover ? `<img src="${cover.url}" alt=""/>` : `<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>`}</div>
@@ -832,24 +946,26 @@
         <td>${fmtPrice(l.price)}</td>
         <td><span class="badge ${l.is_featured?'featured':'standard'}">${l.is_featured?'Featured':'Standard'}</span></td>
         <td><div class="action-btns">
-          <button class="action-btn approve" onclick="approveListing('${l.id}')">Approve</button>
-          <button class="action-btn view" onclick="openListingModal(${JSON.stringify(l).replace(/"/g,'&quot;')})">View</button>
-          <button class="action-btn reject" onclick="rejectListing('${l.id}')">Reject</button>
+          <button class="action-btn approve" onclick='approveListing(${safe})'>Approve</button>
+          <button class="action-btn view" onclick='openListingModal(${safe})'>View</button>
+          <button class="action-btn reject" onclick='rejectListing(${safe})'>Reject</button>
         </div></td>
       </tr>`;
     }).join('');
   }
 
-  // ── Tab counts ──
   async function loadTabCounts() {
     const statuses = ['pending','active','expired'];
     const counts = {};
     for (const s of statuses) {
-      const { count } = await db.from('listings').select('*',{count:'exact',head:true}).eq('status',s);
+      const { count, error } = await db.from('listings').select('*',{count:'exact',head:true}).eq('status',s).eq('recycle_bin', false);
+      if (error) console.error(`Tab count error (${s}):`, error.message);
       counts[s] = count || 0;
     }
-    const { count: featured } = await db.from('listings').select('*',{count:'exact',head:true}).eq('is_featured',true).eq('status','active');
-    const { count: total } = await db.from('listings').select('*',{count:'exact',head:true});
+    const { count: featured, error: featErr } = await db.from('listings').select('*',{count:'exact',head:true}).eq('is_featured',true).eq('status','active').eq('recycle_bin', false);
+    if (featErr) console.error('Featured count error:', featErr.message);
+    const { count: total, error: totalErr } = await db.from('listings').select('*',{count:'exact',head:true}).eq('recycle_bin', false);
+    if (totalErr) console.error('Total count error:', totalErr.message);
     document.getElementById('tc-all').textContent     = total || 0;
     document.getElementById('tc-pending').textContent = counts.pending;
     document.getElementById('tc-active').textContent  = counts.active;
@@ -857,14 +973,16 @@
     document.getElementById('tc-expired').textContent = counts.expired;
   }
 
-  // ── All listings view ──
+  // ══════════════════════════════════
+  // ALL LISTINGS VIEW
+  // ══════════════════════════════════
   async function loadAllListings() {
     const tbody = document.getElementById('all-listings-body');
-    tbody.innerHTML = '<tr class="skeleton-row"><td colspan="8"><div class="skel"></div></td></tr>'.repeat(4);
+    tbody.innerHTML = '<tr class="skeleton-row"><td colspan="9"><div class="skel"></div></td></tr>'.repeat(4);
 
-    let query = db.from('listings').select('*, profiles(full_name), listing_photos(*)', {count:'exact'});
+    let query = db.from('listings').select('*, profiles(full_name), listing_photos(*)', {count:'exact'}).eq('recycle_bin', false);
 
-    if (currentTab === 'pending')  query = query.eq('status','pending');
+    if (currentTab === 'pending')       query = query.eq('status','pending');
     else if (currentTab === 'active')   query = query.eq('status','active');
     else if (currentTab === 'featured') query = query.eq('is_featured',true).eq('status','active');
     else if (currentTab === 'expired')  query = query.eq('status','expired');
@@ -882,13 +1000,16 @@
     document.getElementById('listings-count').textContent = `${count||0} listings`;
 
     if (error || !data?.length) {
-      tbody.innerHTML = `<tr><td colspan="8"><div class="table-loading"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg><p>No listings found</p></div></td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="9"><div class="table-loading"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg><p>No listings found</p></div></td></tr>`;
       return;
     }
 
     tbody.innerHTML = data.map(l => {
       const cover = (l.listing_photos||[]).find(p=>p.is_cover)||(l.listing_photos||[])[0];
+      const safe = JSON.stringify(l).replace(/"/g,'&quot;');
+      const payBadgeClass = l.payment_status === 'paid' ? 'paid' : (l.payment_status === 'submitted' ? 'pending' : 'unpaid');
       return `<tr>
+        <td><input type="checkbox" class="listing-select-cb" data-id="${l.id}" onchange="toggleSelectListing('${l.id}', this.checked)" ${selectedListingIds.has(l.id)?'checked':''}/></td>
         <td><div class="listing-thumb">
           <div class="thumb-img">${cover?`<img src="${cover.url}" alt=""/>`:`<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>`}</div>
           <div class="listing-info"><div class="listing-title">${l.title}</div><div class="listing-meta">${l.profiles?.full_name||'—'}</div></div>
@@ -896,32 +1017,111 @@
         <td>${l.area}</td>
         <td style="font-weight:500">${fmtPrice(l.price)}</td>
         <td><span class="badge ${l.category}">${l.category}</span></td>
-        <td><span class="badge ${l.status}">${l.status}</span></td>
-        <td><span class="badge ${l.payment_status}">${l.payment_status}</span></td>
+        <td><span class="badge ${l.status}">${l.status}</span>${(l.is_disabled && !l.recycle_bin) ? ' <span class="badge expired">Inactive</span>' : ''}</td>
+        <td><span class="badge ${payBadgeClass}">${l.payment_status||'unpaid'}</span></td>
         <td>${fmtDate(l.created_at)}</td>
         <td><div class="action-btns">
-          ${l.status==='pending'?`<button class="action-btn approve" onclick="approveListing('${l.id}')">Approve</button>`:''}
+          ${l.status==='pending'?`<button class="action-btn approve" onclick='approveListing(${safe})'>Approve</button>`:''}
           ${l.status==='active'&&!l.is_featured?`<button class="action-btn feature" onclick="featureListing('${l.id}')">Feature</button>`:''}
-          <button class="action-btn view" onclick="openListingModal(${JSON.stringify(l).replace(/"/g,'&quot;')})">View</button>
-          <button class="action-btn delete" onclick="deleteListing('${l.id}')">Delete</button>
+          <button class="action-btn view" onclick='openEditListingModal(${safe})'>Edit</button>
+          <button class="action-btn view" onclick='openListingModal(${safe})'>View</button>
+          ${l.is_disabled
+            ? `<button class="action-btn approve" onclick='activateListing(${safe})'>Activate</button>`
+            : `<button class="action-btn reject" onclick='deactivateListing(${safe})'>Deactivate</button>`}
+          <button class="action-btn reject" onclick='recycleListing(${safe})'>Recycle</button>
+          <button class="action-btn delete" onclick='deleteListingPermanently(${safe})'>Delete</button>
         </div></td>
       </tr>`;
     }).join('');
+    renderBulkBar();
   }
 
-  // ── Approve / Reject / Feature / Delete ──
-  async function approveListing(id) {
-    const { error } = await db.from('listings').update({ status:'active' }).eq('id', id);
-    if (error) { toast('Error approving listing', 'error'); return; }
+  // ── Bulk selection ──
+  function toggleSelectListing(id, checked) {
+    if (checked) selectedListingIds.add(id); else selectedListingIds.delete(id);
+    renderBulkBar();
+  }
+  function toggleSelectAllListings(checked) {
+    document.querySelectorAll('.listing-select-cb').forEach(cb => { cb.checked = checked; if (checked) selectedListingIds.add(cb.dataset.id); else selectedListingIds.delete(cb.dataset.id); });
+    renderBulkBar();
+  }
+  function renderBulkBar() {
+    const bar = document.getElementById('bulk-bar');
+    if (selectedListingIds.size === 0) { bar.classList.remove('show'); return; }
+    bar.classList.add('show');
+    document.getElementById('bulk-count').textContent = selectedListingIds.size + ' selected';
+  }
+  async function bulkApprove() {
+    const ids = [...selectedListingIds];
+    for (const id of ids) await db.from('listings').update({ status:'active' }).eq('id', id);
+    logAction('bulk_approve','listing','multiple', `${ids.length} listing(s)`);
+    toast(`${ids.length} listing(s) approved`, 'success');
+    selectedListingIds.clear(); loadAllListings(); loadOverview();
+  }
+  async function bulkReject() {
+    const ids = [...selectedListingIds];
+    if (!confirm(`Reject ${ids.length} selected listing(s)?`)) return;
+    for (const id of ids) await db.from('listings').update({ status:'rejected' }).eq('id', id);
+    logAction('bulk_reject','listing','multiple', `${ids.length} listing(s)`);
+    toast(`${ids.length} listing(s) rejected`, '');
+    selectedListingIds.clear(); loadAllListings(); loadOverview();
+  }
+  async function bulkRecycle() {
+    const ids = [...selectedListingIds];
+    if (!confirm(`Move ${ids.length} selected listing(s) to the recycle bin?`)) return;
+    const purge = new Date(Date.now()+30*24*60*60*1000).toISOString();
+    for (const id of ids) {
+      await db.from('listings').update({ is_disabled:true, recycle_bin:true, disabled_reason:'Bulk action by admin', disabled_at:new Date().toISOString(), purge_at:purge }).eq('id', id);
+    }
+    logAction('bulk_recycle','listing','multiple', `${ids.length} listing(s)`);
+    toast(`${ids.length} listing(s) moved to recycle bin`, 'success');
+    selectedListingIds.clear(); loadAllListings(); loadOverview();
+  }
+
+  // ══════════════════════════════════
+  // APPROVE (with unpaid warning) / REJECT / FEATURE
+  // ══════════════════════════════════
+  function approveListing(l) {
+    const isPaid = l.payment_status === 'paid';
+    if (!isPaid) {
+      openConfirm({
+        title: 'Approve unpaid listing?',
+        message: `"${l.title}" has not been confirmed as paid (current status: ${l.payment_status||'unpaid'}). You can still approve it now — payment can be confirmed separately under Payments.`,
+        warningText: '⚠ This listing will go live without a confirmed payment.',
+        confirmText: 'Approve anyway',
+        confirmClass: 'approve',
+        onConfirm: () => doApprove(l.id, l.title)
+      });
+    } else {
+      doApprove(l.id, l.title);
+    }
+  }
+  async function doApprove(id, title) {
+    const { data, error } = await db.from('listings').update({ status:'active' }).eq('id', id).select();
+    if (error) { toast('Error approving listing: ' + error.message, 'error'); return; }
+    if (!data || data.length === 0) { toast('Approve blocked by database permissions (RLS)', 'error'); return; }
+    logAction('approve_listing','listing', id, title||'');
     toast('Listing approved and live ✓', 'success');
     loadOverview(); if (currentView==='listings') loadAllListings();
   }
 
-  async function rejectListing(id) {
-    if (!confirm('Reject this listing? The seller will need to resubmit.')) return;
-    const { error } = await db.from('listings').update({ status:'rejected' }).eq('id', id);
-    if (error) { toast('Error rejecting listing', 'error'); return; }
-    toast('Listing rejected', '');
+  function rejectListing(l) {
+    openConfirm({
+      title: 'Reject this listing?',
+      message: `"${l.title}" will be rejected and the seller notified to resubmit.`,
+      requireReason: true,
+      reasonLabel: 'Reason for rejection (shown to seller)',
+      confirmText: 'Reject listing',
+      confirmClass: 'reject',
+      onConfirm: (reason) => doReject(l.id, l.title, reason)
+    });
+  }
+  async function doReject(id, title, reason) {
+    const { data, error } = await db.from('listings').update({ status:'rejected', disabled_reason: reason }).eq('id', id).select();
+    if (error) { toast('Error rejecting listing: ' + error.message, 'error'); return; }
+    if (!data || data.length === 0) { toast('Reject blocked by database permissions (RLS)', 'error'); return; }
+    logAction('reject_listing','listing', id, reason);
+    toast('Listing rejected', 'success');
     loadOverview(); if (currentView==='listings') loadAllListings();
   }
 
@@ -929,110 +1129,400 @@
     const until = new Date(Date.now() + 90*24*60*60*1000).toISOString();
     const { error } = await db.from('listings').update({ is_featured:true, featured_until:until }).eq('id', id);
     if (error) { toast('Error featuring listing', 'error'); return; }
+    logAction('feature_listing','listing', id, '');
     toast('Listing marked as featured ✓', 'success');
     if (currentView==='listings') loadAllListings();
   }
 
-  async function deleteListing(id) {
-    if (!confirm('Permanently delete this listing? This cannot be undone.')) return;
-    const { error } = await db.from('listings').delete().eq('id', id);
-    if (error) { toast('Error deleting listing', 'error'); return; }
-    toast('Listing deleted', '');
+  // ══════════════════════════════════
+  // ACTIVATE / DEACTIVATE (instant toggle, no recycle bin timer)
+  // ══════════════════════════════════
+  function deactivateListing(l) {
+    openConfirm({
+      title: 'Deactivate this listing?',
+      message: `"${l.title}" will be immediately hidden from the public site and show as disabled, with the reason you give below. It is NOT moved to the recycle bin — no 30-day timer, and you (or you again) can reactivate it any time.`,
+      requireReason: true,
+      reasonLabel: 'Reason (shown on the disabled listing page)',
+      confirmText: 'Deactivate listing',
+      confirmClass: 'reject',
+      onConfirm: (reason) => doDeactivate(l.id, l.title, reason)
+    });
+  }
+  async function doDeactivate(id, title, reason) {
+    const { data, error } = await db.from('listings').update({
+      is_disabled: true, disabled_reason: reason || 'Disabled by admin', disabled_at: new Date().toISOString()
+    }).eq('id', id).select();
+    if (error) { toast('Error deactivating listing: ' + error.message, 'error'); return; }
+    if (!data || data.length === 0) { toast('Deactivate blocked by database permissions (RLS)', 'error'); return; }
+    logAction('deactivate_listing','listing', id, reason);
+    toast('Listing deactivated', 'success');
+    loadOverview(); if (currentView==='listings') loadAllListings();
+  }
+  async function activateListing(l) {
+    const { data, error } = await db.from('listings').update({
+      is_disabled: false, disabled_reason: null, disabled_at: null
+    }).eq('id', l.id).select();
+    if (error) { toast('Error activating listing: ' + error.message, 'error'); return; }
+    if (!data || data.length === 0) { toast('Activate blocked by database permissions (RLS)', 'error'); return; }
+    logAction('activate_listing','listing', l.id, l.title||'');
+    toast('Listing activated ✓', 'success');
     loadOverview(); if (currentView==='listings') loadAllListings();
   }
 
-  // ── Listing detail modal ──
+  // ══════════════════════════════════
+  // RECYCLE BIN / DELETE
+  // ══════════════════════════════════
+  function recycleListing(l) {
+    openConfirm({
+      title: 'Move to recycle bin?',
+      message: `"${l.title}" will be hidden from the public site and marked disabled. It stays in the recycle bin for 30 days before permanent deletion, and can be restored any time before that.`,
+      requireReason: true,
+      reasonLabel: 'Reason (shown on the disabled listing page)',
+      confirmText: 'Move to recycle bin',
+      confirmClass: 'reject',
+      onConfirm: (reason) => doRecycle(l.id, l.title, reason)
+    });
+  }
+  async function doRecycle(id, title, reason) {
+    const purge = new Date(Date.now() + 30*24*60*60*1000).toISOString();
+    const { data, error } = await db.from('listings').update({
+      is_disabled: true, recycle_bin: true, disabled_reason: reason || 'Disabled by admin',
+      disabled_at: new Date().toISOString(), purge_at: purge
+    }).eq('id', id).select();
+    if (error) { toast('Error moving to recycle bin: ' + error.message, 'error'); return; }
+    if (!data || data.length === 0) { toast('Recycle blocked by database permissions (RLS)', 'error'); return; }
+    logAction('recycle_listing','listing', id, reason);
+    toast('Listing moved to recycle bin', 'success');
+    loadOverview(); if (currentView==='listings') loadAllListings(); if (currentView==='recycle-bin') loadRecycleBin();
+  }
+
+  function deleteListingPermanently(l) {
+    openConfirm({
+      title: 'Permanently delete this listing?',
+      message: `"${l.title}" and all its photos and enquiries will be permanently removed. This cannot be undone.`,
+      warningText: '⚠ This action is irreversible.',
+      confirmText: 'Delete permanently',
+      confirmClass: 'reject',
+      onConfirm: () => doDeleteListing(l.id, l.title)
+    });
+  }
+  async function doDeleteListing(id, title) {
+    const { data, error } = await db.from('listings').delete().eq('id', id).select();
+    if (error) { toast('Error deleting listing: ' + error.message, 'error'); return; }
+    if (!data || data.length === 0) {
+      toast('Delete blocked by database permissions (RLS) — see chat for the fix', 'error');
+      console.warn('Delete returned 0 rows for listing', id, '— check that the "Admins can delete any listing" RLS policy exists on the listings table.');
+      return;
+    }
+    logAction('delete_listing','listing', id, title||'');
+    toast('Listing permanently deleted', 'success');
+    loadOverview(); if (currentView==='listings') loadAllListings(); if (currentView==='recycle-bin') loadRecycleBin();
+  }
+
+  async function loadRecycleBin() {
+    const tbody = document.getElementById('recycle-bin-body');
+    tbody.innerHTML = '<tr class="skeleton-row"><td colspan="6"><div class="skel"></div></td></tr>'.repeat(3);
+    const { data, error } = await db.from('listings').select('*').eq('recycle_bin', true).order('disabled_at',{ascending:false});
+    document.getElementById('nav-badge-recycle').textContent = data?.length || 0;
+    if (error || !data?.length) {
+      tbody.innerHTML = `<tr><td colspan="6"><div class="table-loading"><p>Recycle bin is empty</p></div></td></tr>`;
+      return;
+    }
+    tbody.innerHTML = data.map(l => {
+      const daysLeft = Math.max(0, Math.ceil((new Date(l.purge_at) - new Date()) / 86400000));
+      const safe = JSON.stringify(l).replace(/"/g,'&quot;');
+      return `<tr>
+        <td>${l.title}<div class="listing-meta">${l.area}</div></td>
+        <td style="max-width:220px">${l.disabled_reason||'—'}</td>
+        <td>${fmtDate(l.disabled_at)}</td>
+        <td>${daysLeft} day(s) left</td>
+        <td>${fmtPrice(l.price)}</td>
+        <td><div class="action-btns">
+          <button class="action-btn approve" onclick="restoreListing('${l.id}')">Restore</button>
+          <button class="action-btn delete" onclick='deleteListingPermanently(${safe})'>Delete permanently</button>
+        </div></td>
+      </tr>`;
+    }).join('');
+  }
+  async function restoreListing(id) {
+    const { error } = await db.from('listings').update({ is_disabled:false, recycle_bin:false, disabled_reason:null, disabled_at:null, purge_at:null }).eq('id', id);
+    if (error) { toast('Error restoring listing', 'error'); return; }
+    logAction('restore_listing','listing', id, '');
+    toast('Listing restored ✓', 'success');
+    loadRecycleBin(); loadOverview();
+  }
+  async function purgeExpired() {
+    if (!confirm('Permanently delete all recycle bin items past their 30-day limit?')) return;
+    const { data } = await db.from('listings').select('id').eq('recycle_bin', true).lt('purge_at', new Date().toISOString());
+    if (!data?.length) { toast('Nothing to purge', ''); return; }
+    for (const row of data) await db.from('listings').delete().eq('id', row.id);
+    logAction('purge_expired','listing','bulk', `${data.length} listing(s)`);
+    toast(`${data.length} expired listing(s) purged`, 'success');
+    loadRecycleBin();
+  }
+
+  // ══════════════════════════════════
+  // LISTING DETAIL MODAL
+  // ══════════════════════════════════
   function openListingModal(l) {
+    const safe = JSON.stringify(l).replace(/"/g,'&quot;');
     document.getElementById('modal-title').textContent = l.title;
     document.getElementById('modal-body').innerHTML = `
-      <div class="field"><label>Status</label><div class="val"><span class="badge ${l.status}">${l.status}</span></div></div>
+      ${l.is_disabled?`<div class="confirm-warning" style="margin-bottom:14px">${l.recycle_bin ? 'In recycle bin' : 'Deactivated'}${l.disabled_reason?': '+l.disabled_reason:''}</div>`:''}
+      <div class="field"><label>Status</label><div class="val"><span class="badge ${l.status}">${l.status}</span>${(l.is_disabled && !l.recycle_bin)?' <span class="badge expired">Inactive</span>':''}</div></div>
       <div class="field"><label>Category</label><div class="val">${l.category}</div></div>
       <div class="field"><label>Price</label><div class="val">${fmtPrice(l.price)} ${l.price_type==='rent'?'/month':''}</div></div>
       <div class="field"><label>Area</label><div class="val">${l.area}${l.sub_area?' — '+l.sub_area:''}</div></div>
       <div class="field"><label>Bedrooms</label><div class="val">${l.bedrooms==0?'Bedsitter/studio':(l.bedrooms+' bedroom(s)')}</div></div>
       <div class="field"><label>Furnished</label><div class="val">${l.furnished?'Yes':'No'}</div></div>
       <div class="field"><label>Plan</label><div class="val">${l.is_featured?'Featured (KES 2,500)':'Standard (KES 800)'}</div></div>
-      <div class="field"><label>Payment</label><div class="val"><span class="badge ${l.payment_status}">${l.payment_status}</span></div></div>
+      <div class="field"><label>Payment</label><div class="val"><span class="badge ${l.payment_status==='paid'?'paid':'unpaid'}">${l.payment_status||'unpaid'}</span></div></div>
       <div class="field"><label>Listing ID</label><div class="val mono">${l.id}</div></div>
       <div class="field"><label>Posted</label><div class="val">${fmtDate(l.created_at)}</div></div>
       ${l.description?`<div class="field"><label>Description</label><div class="val" style="font-size:13px;color:var(--text-2);line-height:1.6">${l.description}</div></div>`:''}
     `;
     document.getElementById('modal-footer').innerHTML = `
-      ${l.status==='pending'?`<button class="btn-modal approve" onclick="approveListing('${l.id}');closeModal()">Approve</button><button class="btn-modal reject" onclick="rejectListing('${l.id}');closeModal()">Reject</button>`:''}
+      ${l.status==='pending'?`<button class="btn-modal approve" onclick='approveListing(${safe});closeModal()'>Approve</button><button class="btn-modal reject" onclick='rejectListing(${safe});closeModal()'>Reject</button>`:''}
+      ${l.is_disabled
+        ? `<button class="btn-modal approve" onclick='activateListing(${safe});closeModal()'>Activate</button>`
+        : `<button class="btn-modal reject" onclick='deactivateListing(${safe});closeModal()'>Deactivate</button>`}
+      <button class="btn-modal cancel" onclick='openEditListingModal(${safe});closeModal()'>Edit</button>
       <button class="btn-modal cancel" onclick="closeModal()">Close</button>
     `;
     openModal();
   }
 
-  // ── Payments ──
+  // ══════════════════════════════════
+  // EDIT LISTING MODAL
+  // ══════════════════════════════════
+  function openEditListingModal(l) {
+    editingListingId = l.id;
+    document.getElementById('edit-listing-body').innerHTML = `
+      <div class="field"><label>Title</label><input type="text" id="el-title" value="${(l.title||'').replace(/"/g,'&quot;')}"/></div>
+      <div class="field"><label>Description</label><textarea id="el-description" rows="3">${l.description||''}</textarea></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="field"><label>Price (KES)</label><input type="number" id="el-price" value="${l.price||0}"/></div>
+        <div class="field"><label>Sale/Rent</label><select id="el-price_type">
+          <option value="sale" ${l.price_type==='sale'?'selected':''}>For sale</option>
+          <option value="rent" ${l.price_type==='rent'?'selected':''}>To let / rent</option>
+        </select></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+        <div class="field"><label>Bedrooms</label><input type="number" id="el-bedrooms" value="${l.bedrooms||0}"/></div>
+        <div class="field"><label>Bathrooms</label><input type="number" id="el-bathrooms" value="${l.bathrooms||''}"/></div>
+        <div class="field"><label>Size (m²)</label><input type="number" id="el-size_sqm" value="${l.size_sqm||''}"/></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="field"><label>Area</label><input type="text" id="el-area" value="${l.area||''}"/></div>
+        <div class="field"><label>Category</label><select id="el-category">
+          <option value="student" ${l.category==='student'?'selected':''}>Student</option>
+          <option value="standard" ${l.category==='standard'?'selected':''}>Standard</option>
+          <option value="luxury" ${l.category==='luxury'?'selected':''}>Luxury</option>
+        </select></div>
+      </div>
+      <div class="field"><label>Sub-area</label><input type="text" id="el-sub_area" value="${l.sub_area||''}"/></div>
+      <div class="field"><label>Address</label><input type="text" id="el-address" value="${l.address||''}"/></div>
+      <div class="field check-field"><input type="checkbox" id="el-furnished" ${l.furnished?'checked':''}/><label for="el-furnished">Furnished</label></div>
+      <div class="field check-field"><input type="checkbox" id="el-is_featured" ${l.is_featured?'checked':''}/><label for="el-is_featured">Featured</label></div>
+    `;
+    document.getElementById('edit-listing-modal').classList.add('open');
+  }
+  function closeEditListingModal() { document.getElementById('edit-listing-modal').classList.remove('open'); editingListingId = null; }
+  async function saveListingEdit() {
+    const updates = {
+      title: document.getElementById('el-title').value.trim(),
+      description: document.getElementById('el-description').value.trim(),
+      price: parseFloat(document.getElementById('el-price').value)||0,
+      price_type: document.getElementById('el-price_type').value,
+      bedrooms: parseInt(document.getElementById('el-bedrooms').value)||0,
+      bathrooms: parseInt(document.getElementById('el-bathrooms').value)||null,
+      size_sqm: parseFloat(document.getElementById('el-size_sqm').value)||null,
+      area: document.getElementById('el-area').value.trim(),
+      sub_area: document.getElementById('el-sub_area').value.trim()||null,
+      address: document.getElementById('el-address').value.trim()||null,
+      category: document.getElementById('el-category').value,
+      furnished: document.getElementById('el-furnished').checked,
+      is_featured: document.getElementById('el-is_featured').checked,
+    };
+    const { error } = await db.from('listings').update(updates).eq('id', editingListingId);
+    if (error) { toast('Error saving changes', 'error'); return; }
+    logAction('edit_listing','listing', editingListingId, updates.title);
+    toast('Listing updated ✓', 'success');
+    closeEditListingModal();
+    loadOverview(); if (currentView==='listings') loadAllListings();
+  }
+
+  // ══════════════════════════════════
+  // PAYMENTS
+  // ══════════════════════════════════
   async function loadPayments() {
     const tbody = document.getElementById('payments-body');
     tbody.innerHTML = '<tr class="skeleton-row"><td colspan="8"><div class="skel"></div></td></tr>'.repeat(4);
-    const { data, error } = await db.from('payments').select('*, profiles(full_name, phone), listings(title)').order('created_at',{ascending:false}).limit(100);
+    const { data, error } = await db.from('payments').select('*, listings(title, seller_id)').order('created_at',{ascending:false}).limit(100);
 
     const confirmed = (data||[]).filter(p=>p.status==='confirmed').reduce((s,p)=>s+Number(p.amount),0);
-    const pending   = (data||[]).filter(p=>p.status==='pending').reduce((s,p)=>s+Number(p.amount),0);
+    const pending   = (data||[]).filter(p=>p.status==='pending_verification'||p.status==='pending').reduce((s,p)=>s+Number(p.amount),0);
     document.getElementById('rev-total-banner').textContent   = fmtPrice(confirmed);
     document.getElementById('rev-pending-banner').textContent = fmtPrice(pending);
 
     if (error || !data?.length) {
-      tbody.innerHTML = `<tr><td colspan="8"><div class="table-loading"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg><p>No payments yet</p></div></td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="8"><div class="table-loading"><rect></rect><p>No payments yet</p></div></td></tr>`;
       return;
     }
     tbody.innerHTML = data.map(p => `<tr>
-      <td>${p.profiles?.full_name||'—'}<br/><span style="font-size:11px;color:var(--text-3)">${p.profiles?.phone||''}</span></td>
       <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.listings?.title||'—'}</td>
-      <td>${p.type==='listing_fee'?'Listing fee':'Featured upgrade'}</td>
+      <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.listings?.title||'—'}</td>
+      <td style="text-transform:capitalize">${p.method||'—'}</td>
       <td style="font-weight:600">${fmtPrice(p.amount)}</td>
-      <td><span class="val mono">${p.mpesa_ref||'—'}</span></td>
-      <td><span class="badge ${p.status}">${p.status}</span></td>
+      <td><span class="val mono">${p.reference||p.mpesa_ref||'—'}</span></td>
+      <td><span class="badge ${p.status==='confirmed'?'paid':'pending'}">${p.status}</span></td>
       <td>${fmtDate(p.created_at)}</td>
-      <td>${p.status==='pending'?`<button class="action-btn approve" onclick="confirmPayment('${p.id}')">Confirm</button>`:'—'}</td>
+      <td>${(p.status==='pending'||p.status==='pending_verification')?`<button class="action-btn approve" onclick="confirmPayment('${p.id}','${p.listing_id}')">Confirm</button>`:'—'}</td>
     </tr>`).join('');
   }
-
-  async function confirmPayment(id) {
+  async function confirmPayment(id, listingId) {
     const { error } = await db.from('payments').update({ status:'confirmed' }).eq('id', id);
     if (error) { toast('Error confirming payment', 'error'); return; }
+    if (listingId) await db.from('listings').update({ payment_status: 'paid' }).eq('id', listingId);
+    logAction('confirm_payment','payment', id, listingId||'');
     toast('Payment confirmed ✓', 'success');
-    loadPayments();
+    loadPayments(); loadOverview();
   }
 
-  // ── Users ──
+  // ══════════════════════════════════
+  // SELLERS / PROFILES
+  // ══════════════════════════════════
   async function loadUsers() {
     const tbody = document.getElementById('users-body');
-    tbody.innerHTML = '<tr class="skeleton-row"><td colspan="5"><div class="skel"></div></td></tr>'.repeat(4);
+    tbody.innerHTML = '<tr class="skeleton-row"><td colspan="6"><div class="skel"></div></td></tr>'.repeat(4);
     const search = document.getElementById('user-search')?.value.trim()||'';
     let query = db.from('profiles').select('*').order('created_at',{ascending:false});
     if (search) query = query.or(`full_name.ilike.%${search}%,email.ilike.%${search}%`);
     const { data, error } = await query.limit(100);
     if (error || !data?.length) {
-      tbody.innerHTML = `<tr><td colspan="5"><div class="table-loading"><p>No sellers found</p></div></td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="6"><div class="table-loading"><p>No sellers found</p></div></td></tr>`;
       return;
     }
-    // Load listing counts
     const rows = await Promise.all((data||[]).map(async u => {
       const { count } = await db.from('listings').select('*',{count:'exact',head:true}).eq('seller_id',u.id);
       return { ...u, listingCount: count||0 };
     }));
     tbody.innerHTML = rows.map(u => {
       const initials = (u.full_name||'?').split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
+      const safe = JSON.stringify(u).replace(/"/g,'&quot;');
       return `<tr>
         <td><div class="user-cell">
           <div class="user-avatar">${initials}</div>
-          <div><div style="font-weight:500">${u.full_name||'—'}</div><div style="font-size:11px;color:var(--text-3)">${u.email||''}</div></div>
+          <div><div style="font-weight:500">${u.full_name||'—'} ${u.role==='admin'?'<span class="badge active" style="margin-left:6px">admin</span>':''}</div><div style="font-size:11px;color:var(--text-3)">${u.email||''}</div></div>
         </div></td>
         <td>${u.phone||'—'}</td>
         <td>${u.listingCount}</td>
+        <td>${u.is_disabled?'<span class="badge rejected">disabled</span>':'<span class="badge active">active</span>'}</td>
         <td>${fmtDate(u.created_at)}</td>
         <td><div class="action-btns">
-          <button class="action-btn view" onclick="showView('listings');document.getElementById('filter-search').value='${u.full_name||''}';loadAllListings()">View listings</button>
+          <button class="action-btn view" onclick='openProfileModal(${safe})'>Manage</button>
+          <button class="action-btn view" onclick="showView('listings');document.getElementById('filter-search').value=${JSON.stringify(u.full_name||'')};loadAllListings()">Listings</button>
         </div></td>
       </tr>`;
     }).join('');
   }
 
-  // ── Enquiries ──
+  function openProfileModal(u) {
+    editingProfileId = u.id;
+    const safe = JSON.stringify(u).replace(/"/g,'&quot;');
+    document.getElementById('profile-modal-title').textContent = u.full_name || 'Seller profile';
+    document.getElementById('profile-modal-body').innerHTML = `
+      ${u.is_disabled ? `<div class="confirm-warning" style="margin-bottom:14px">Account disabled${u.disabled_reason?': '+u.disabled_reason:''}</div>` : ''}
+      <div class="field"><label>Full name</label><input type="text" id="pf-full_name" value="${(u.full_name||'').replace(/"/g,'&quot;')}"/></div>
+      <div class="field"><label>Phone</label><input type="text" id="pf-phone" value="${u.phone||''}"/></div>
+      <div class="field"><label>Email</label><input type="text" id="pf-email" value="${u.email||''}"/></div>
+      <div class="field"><label>Role</label><select id="pf-role">
+        <option value="seller" ${u.role!=='admin'?'selected':''}>Seller</option>
+        <option value="admin" ${u.role==='admin'?'selected':''}>Admin</option>
+      </select></div>
+      <div class="field"><label>Joined</label><div class="val">${fmtDate(u.created_at)}</div></div>
+      <div class="field"><label>Profile ID</label><div class="val mono">${u.id}</div></div>
+    `;
+    document.getElementById('profile-modal-footer').innerHTML = `
+      <button class="btn-modal cancel" onclick="closeProfileModal()">Cancel</button>
+      ${u.is_disabled
+        ? `<button class="btn-modal approve" onclick='enableProfile(${safe})'>Enable account</button>`
+        : `<button class="btn-modal reject" onclick='disableProfileFlow(${safe})'>Disable account</button>`}
+      <button class="btn-modal reject" onclick='deleteProfileFlow(${safe})'>Delete permanently</button>
+      <button class="btn-modal approve" onclick="saveProfileEdit()">Save changes</button>
+    `;
+    document.getElementById('profile-modal').classList.add('open');
+  }
+  function closeProfileModal() { document.getElementById('profile-modal').classList.remove('open'); editingProfileId = null; }
+
+  async function saveProfileEdit() {
+    const updates = {
+      full_name: document.getElementById('pf-full_name').value.trim(),
+      phone: document.getElementById('pf-phone').value.trim(),
+      email: document.getElementById('pf-email').value.trim(),
+      role: document.getElementById('pf-role').value,
+    };
+    const { error } = await db.from('profiles').update(updates).eq('id', editingProfileId);
+    if (error) { toast('Error saving profile', 'error'); return; }
+    logAction('edit_profile','profile', editingProfileId, updates.full_name);
+    toast('Profile updated ✓', 'success');
+    closeProfileModal();
+    loadUsers();
+  }
+
+  function disableProfileFlow(u) {
+    closeProfileModal();
+    openConfirm({
+      title: 'Disable this seller account?',
+      message: `${u.full_name||'This seller'} will no longer be able to log in or post listings. Their existing listings stay visible unless you separately recycle them.`,
+      requireReason: true,
+      reasonLabel: 'Reason (internal note)',
+      confirmText: 'Disable account',
+      confirmClass: 'reject',
+      onConfirm: (reason) => doDisableProfile(u.id, reason)
+    });
+  }
+  async function doDisableProfile(id, reason) {
+    const { error } = await db.from('profiles').update({ is_disabled:true, disabled_reason: reason }).eq('id', id);
+    if (error) { toast('Error disabling account', 'error'); return; }
+    logAction('disable_profile','profile', id, reason);
+    toast('Account disabled', 'success');
+    loadUsers();
+  }
+  async function enableProfile(u) {
+    const { error } = await db.from('profiles').update({ is_disabled:false, disabled_reason:null }).eq('id', u.id);
+    if (error) { toast('Error enabling account', 'error'); return; }
+    logAction('enable_profile','profile', u.id, '');
+    toast('Account re-enabled ✓', 'success');
+    closeProfileModal(); loadUsers();
+  }
+  function deleteProfileFlow(u) {
+    closeProfileModal();
+    openConfirm({
+      title: 'Permanently delete this seller?',
+      message: `This removes ${u.full_name||'this seller'}'s profile record. Their listings remain but show no seller info. Their login can only be fully removed via a server-side process using Supabase's admin API — this button deletes the profile data only.`,
+      warningText: '⚠ This action cannot be undone from this panel.',
+      confirmText: 'Delete profile',
+      confirmClass: 'reject',
+      onConfirm: () => doDeleteProfile(u.id)
+    });
+  }
+  async function doDeleteProfile(id) {
+    const { data, error } = await db.from('profiles').delete().eq('id', id).select();
+    if (error) { toast('Error deleting profile: ' + error.message, 'error'); return; }
+    if (!data || data.length === 0) {
+      toast('Delete blocked by database permissions (RLS) — see chat for the fix', 'error');
+      console.warn('Delete returned 0 rows for profile', id, '— check that the "Admins can delete profiles" RLS policy exists on the profiles table.');
+      return;
+    }
+    logAction('delete_profile','profile', id, '');
+    toast('Profile deleted', 'success');
+    loadUsers();
+  }
+
+  // ══════════════════════════════════
+  // ENQUIRIES
+  // ══════════════════════════════════
   async function loadEnquiries() {
     const tbody = document.getElementById('enquiries-body');
     tbody.innerHTML = '<tr class="skeleton-row"><td colspan="5"><div class="skel"></div></td></tr>'.repeat(4);
@@ -1050,6 +1540,85 @@
     </tr>`).join('');
   }
 
+  // ══════════════════════════════════
+  // ANALYTICS (site visits)
+  // ══════════════════════════════════
+  async function loadAnalytics() {
+    const { count: total } = await db.from('page_views').select('*',{count:'exact',head:true});
+    document.getElementById('an-total').textContent = total||0;
+
+    const todayStart = new Date(); todayStart.setHours(0,0,0,0);
+    const { count: today } = await db.from('page_views').select('*',{count:'exact',head:true}).gte('created_at', todayStart.toISOString());
+    document.getElementById('an-today').textContent = today||0;
+
+    const { data: recent } = await db.from('page_views').select('*').order('created_at',{ascending:false}).limit(300);
+    const sessions = new Set((recent||[]).map(r=>r.session_id));
+    document.getElementById('an-sessions').textContent = sessions.size;
+
+    const pathCounts = {};
+    (recent||[]).forEach(r => { pathCounts[r.path] = (pathCounts[r.path]||0)+1; });
+    const topPaths = Object.entries(pathCounts).sort((a,b)=>b[1]-a[1]).slice(0,6);
+    document.getElementById('top-pages').innerHTML = topPaths.length
+      ? topPaths.map(([p,c]) => `<div class="quick-row"><span>${p}</span><span>${c}</span></div>`).join('')
+      : '<div class="quick-row"><span>No data yet</span><span>—</span></div>';
+
+    const tbody = document.getElementById('visits-body');
+    if (!recent?.length) {
+      tbody.innerHTML = `<tr><td colspan="4"><div class="table-loading"><p>No visits recorded yet — add the tracking snippet to your public pages</p></div></td></tr>`;
+      return;
+    }
+    tbody.innerHTML = recent.slice(0,50).map(r => `<tr>
+      <td>${r.path}</td>
+      <td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.referrer||'Direct'}</td>
+      <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;color:var(--text-3)">${r.user_agent||''}</td>
+      <td>${new Date(r.created_at).toLocaleString('en-KE')}</td>
+    </tr>`).join('');
+  }
+
+  // ══════════════════════════════════
+  // ACTIVITY LOG
+  // ══════════════════════════════════
+  async function loadActivityLog() {
+    const tbody = document.getElementById('activity-log-body');
+    tbody.innerHTML = '<tr class="skeleton-row"><td colspan="5"><div class="skel"></div></td></tr>'.repeat(4);
+    const { data, error } = await db.from('admin_logs').select('*').order('created_at',{ascending:false}).limit(150);
+    if (error || !data?.length) {
+      tbody.innerHTML = `<tr><td colspan="5"><div class="table-loading"><p>No activity recorded yet</p></div></td></tr>`;
+      return;
+    }
+    tbody.innerHTML = data.map(l => `<tr>
+      <td>${l.admin_name||'—'}</td>
+      <td><span class="badge active" style="text-transform:capitalize">${(l.action||'').replace(/_/g,' ')}</span></td>
+      <td>${l.target_type||'—'}</td>
+      <td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${l.details||'—'}</td>
+      <td>${new Date(l.created_at).toLocaleString('en-KE')}</td>
+    </tr>`).join('');
+  }
+
+  // ══════════════════════════════════
+  // CSV EXPORT
+  // ══════════════════════════════════
+  function exportCSV(rows, filename) {
+    if (!rows.length) { toast('Nothing to export', 'error'); return; }
+    const headers = Object.keys(rows[0]);
+    const csv = [headers.join(',')].concat(
+      rows.map(r => headers.map(h => `"${String(r[h]??'').replace(/"/g,'""')}"`).join(','))
+    ).join('\n');
+    const blob = new Blob([csv], {type:'text/csv'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename; a.click();
+    URL.revokeObjectURL(url);
+  }
+  async function exportListingsCSV() {
+    const { data } = await db.from('listings').select('id,title,area,category,price,status,payment_status,is_featured,created_at');
+    exportCSV(data||[], `nyumbakisumu-listings-${Date.now()}.csv`);
+  }
+  async function exportPaymentsCSV() {
+    const { data } = await db.from('payments').select('id,listing_id,amount,method,reference,status,created_at');
+    exportCSV(data||[], `nyumbakisumu-payments-${Date.now()}.csv`);
+  }
+
   // ── Global search ──
   const globalSearch = debounce((val) => {
     if (!val.trim()) return;
@@ -1063,9 +1632,6 @@
     await db.auth.signOut();
     window.location.href = 'login.html';
   }
-
-  // ── One SQL command to run in Supabase for contact_messages table ──
-  // CREATE TABLE IF NOT EXISTS contact_messages (id uuid default gen_random_uuid() primary key, name text, email text, phone text, subject text, message text, created_at timestamp with time zone default now());
 
   // ── Init ──
   checkAuth().then(() => loadOverview());
