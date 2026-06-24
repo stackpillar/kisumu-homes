@@ -11,322 +11,253 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --green:       #0F6E56;
-      --green-light: #E1F5EE;
-      --green-mid:   #1D9E75;
-      --green-dark:  #085041;
-      --gold:        #BA7517;
-      --gold-light:  #FAEEDA;
-      --red:         #C53030;
-      --red-light:   #FFF5F5;
-      --text:        #1a1a18;
-      --text-2:      #4a4a46;
-      --text-3:      #888780;
-      --border:      #e0ded8;
-      --surface:     #f7f6f2;
-      --white:       #ffffff;
-      --radius:      10px;
-      --radius-lg:   16px;
+      --green:#0F6E56; --green-light:#E1F5EE; --green-mid:#1D9E75; --green-dark:#085041;
+      --gold:#BA7517; --gold-light:#FAEEDA; --red:#C53030; --red-light:#FFF5F5;
+      --text:#1a1a18; --text-2:#4a4a46; --text-3:#888780;
+      --border:#e0ded8; --surface:#f7f6f2; --white:#ffffff;
+      --radius:10px; --radius-lg:16px;
     }
     html { scroll-behavior: smooth; }
-    body { font-family: 'Inter', sans-serif; color: var(--text); background: var(--surface); font-size: 15px; line-height: 1.6; }
-    a { text-decoration: none; color: inherit; }
-    button { font-family: inherit; cursor: pointer; border: none; }
-    input, select, textarea { font-family: inherit; }
+    body { font-family:'Inter',sans-serif; color:var(--text); background:var(--surface); font-size:15px; line-height:1.6; }
+    a { text-decoration:none; color:inherit; }
+    button { font-family:inherit; cursor:pointer; border:none; }
+    input,select,textarea { font-family:inherit; }
 
-    /* ── Navbar ── */
-    nav {
-      position: sticky; top: 0; z-index: 100;
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 0 32px; height: 64px;
-      background: var(--white); border-bottom: 1px solid var(--border);
-    }
-    .logo { display: flex; align-items: center; gap: 10px; font-family: 'Playfair Display', serif; font-size: 20px; color: var(--green-dark); }
-    .logo-icon { width: 34px; height: 34px; background: var(--green); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
-    .logo-icon svg { width: 18px; height: 18px; fill: none; stroke: white; stroke-width: 2; stroke-linecap: round; }
-    .nav-links { display: flex; align-items: center; gap: 8px; }
-    .nav-link { font-size: 14px; color: var(--text-2); padding: 8px 14px; border-radius: var(--radius); transition: background .15s; }
-    .nav-link:hover { background: var(--surface); }
-    .btn-primary { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 500; padding: 9px 18px; border-radius: var(--radius); background: var(--green); color: white; transition: background .15s; }
-    .btn-primary:hover { background: var(--green-dark); }
+    /* Navbar */
+    nav { position:sticky; top:0; z-index:100; display:flex; align-items:center; justify-content:space-between; padding:0 32px; height:64px; background:var(--white); border-bottom:1px solid var(--border); }
+    .logo { display:flex; align-items:center; gap:10px; font-family:'Playfair Display',serif; font-size:20px; color:var(--green-dark); }
+    .logo-icon { width:34px; height:34px; background:var(--green); border-radius:8px; display:flex; align-items:center; justify-content:center; }
+    .logo-icon svg { width:18px; height:18px; fill:none; stroke:white; stroke-width:2; stroke-linecap:round; }
+    .nav-links { display:flex; align-items:center; gap:8px; }
+    .nav-link { font-size:14px; color:var(--text-2); padding:8px 14px; border-radius:var(--radius); transition:background .15s; }
+    .nav-link:hover { background:var(--surface); }
+    .btn-primary { display:inline-flex; align-items:center; gap:6px; font-size:14px; font-weight:500; padding:9px 18px; border-radius:var(--radius); background:var(--green); color:white; transition:background .15s; }
+    .btn-primary:hover { background:var(--green-dark); }
 
-    /* ── Breadcrumb ── */
-    .breadcrumb {
-      padding: 14px 32px; display: flex; align-items: center; gap: 8px;
-      font-size: 13px; color: var(--text-3); background: var(--white);
-      border-bottom: 1px solid var(--border);
-    }
-    .breadcrumb a { color: var(--text-3); transition: color .15s; }
-    .breadcrumb a:hover { color: var(--green); }
-    .breadcrumb svg { width: 14px; height: 14px; stroke: var(--border); fill: none; stroke-width: 2; flex-shrink: 0; }
-    .breadcrumb span { color: var(--text-2); font-weight: 500; }
+    /* Breadcrumb */
+    .breadcrumb { padding:14px 32px; display:flex; align-items:center; gap:8px; font-size:13px; color:var(--text-3); background:var(--white); border-bottom:1px solid var(--border); }
+    .breadcrumb a { color:var(--text-3); transition:color .15s; }
+    .breadcrumb a:hover { color:var(--green); }
+    .breadcrumb svg { width:14px; height:14px; stroke:var(--border); fill:none; stroke-width:2; flex-shrink:0; }
+    .breadcrumb span { color:var(--text-2); font-weight:500; }
 
-    /* ── Page layout ── */
-    .page-wrap { max-width: 1100px; margin: 0 auto; padding: 32px 24px 80px; }
-    .layout { display: grid; grid-template-columns: 1fr 360px; gap: 32px; align-items: start; }
+    /* Page layout */
+    .page-wrap { max-width:1100px; margin:0 auto; padding:32px 24px 80px; }
+    .layout { display:grid; grid-template-columns:1fr 360px; gap:32px; align-items:start; }
 
-    /* ── LEFT COLUMN ── */
+    /* Gallery */
+    .gallery { border-radius:var(--radius-lg); overflow:hidden; background:var(--surface); margin-bottom:24px; position:relative; }
+    .gallery-main { width:100%; aspect-ratio:16/9; position:relative; overflow:hidden; background:var(--surface); display:flex; align-items:center; justify-content:center; }
+    .gallery-main img { width:100%; height:100%; object-fit:cover; transition:opacity .3s; }
+    .gallery-no-photo { display:flex; flex-direction:column; align-items:center; gap:12px; color:var(--text-3); }
+    .gallery-no-photo svg { width:48px; height:48px; stroke:var(--border); fill:none; stroke-width:1.5; }
+    .gallery-arrow { position:absolute; top:50%; transform:translateY(-50%); width:38px; height:38px; border-radius:50%; background:rgba(255,255,255,0.92); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all .15s; z-index:2; }
+    .gallery-arrow:hover { background:white; box-shadow:0 2px 8px rgba(0,0,0,0.12); }
+    .gallery-arrow svg { width:16px; height:16px; stroke:var(--text); fill:none; stroke-width:2.5; }
+    .gallery-arrow.prev { left:12px; }
+    .gallery-arrow.next { right:12px; }
+    .gallery-counter { position:absolute; bottom:12px; right:14px; background:rgba(0,0,0,0.55); color:white; font-size:12px; font-weight:500; padding:3px 10px; border-radius:20px; z-index:2; }
+    .gallery-thumbs { display:flex; gap:8px; padding:10px; overflow-x:auto; background:var(--white); border-top:1px solid var(--border); }
+    .gallery-thumb { width:72px; height:52px; border-radius:6px; overflow:hidden; flex-shrink:0; border:2px solid transparent; cursor:pointer; transition:border-color .15s; }
+    .gallery-thumb.active { border-color:var(--green); }
+    .gallery-thumb img { width:100%; height:100%; object-fit:cover; }
+    .featured-overlay { position:absolute; top:14px; left:14px; z-index:2; background:var(--gold); color:white; font-size:11px; font-weight:700; padding:4px 12px; border-radius:20px; letter-spacing:.04em; display:flex; align-items:center; gap:5px; }
 
-    /* Photo gallery */
-    .gallery { border-radius: var(--radius-lg); overflow: hidden; background: var(--surface); margin-bottom: 24px; position: relative; }
-    .gallery-main {
-      width: 100%; aspect-ratio: 16/9; position: relative; overflow: hidden;
-      background: var(--surface); display: flex; align-items: center; justify-content: center;
-    }
-    .gallery-main img { width: 100%; height: 100%; object-fit: cover; transition: opacity .3s; }
-    .gallery-no-photo { display: flex; flex-direction: column; align-items: center; gap: 12px; color: var(--text-3); }
-    .gallery-no-photo svg { width: 48px; height: 48px; stroke: var(--border); fill: none; stroke-width: 1.5; }
-    .gallery-no-photo p { font-size: 14px; }
-
-    /* Nav arrows */
-    .gallery-arrow {
-      position: absolute; top: 50%; transform: translateY(-50%);
-      width: 38px; height: 38px; border-radius: 50%;
-      background: rgba(255,255,255,0.92); border: 1px solid var(--border);
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer; transition: all .15s; z-index: 2;
-    }
-    .gallery-arrow:hover { background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
-    .gallery-arrow svg { width: 16px; height: 16px; stroke: var(--text); fill: none; stroke-width: 2.5; }
-    .gallery-arrow.prev { left: 12px; }
-    .gallery-arrow.next { right: 12px; }
-    .gallery-counter {
-      position: absolute; bottom: 12px; right: 14px;
-      background: rgba(0,0,0,0.55); color: white; font-size: 12px; font-weight: 500;
-      padding: 3px 10px; border-radius: 20px; z-index: 2;
-    }
-
-    /* Thumbnails */
-    .gallery-thumbs { display: flex; gap: 8px; padding: 10px; overflow-x: auto; background: var(--white); border-top: 1px solid var(--border); }
-    .gallery-thumbs::-webkit-scrollbar { height: 4px; }
-    .gallery-thumbs::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-    .gallery-thumb {
-      width: 72px; height: 52px; border-radius: 6px; overflow: hidden; flex-shrink: 0;
-      border: 2px solid transparent; cursor: pointer; transition: border-color .15s;
-    }
-    .gallery-thumb.active { border-color: var(--green); }
-    .gallery-thumb img { width: 100%; height: 100%; object-fit: cover; }
-
-    /* Featured badge overlay */
-    .featured-overlay {
-      position: absolute; top: 14px; left: 14px; z-index: 2;
-      background: var(--gold); color: white; font-size: 11px; font-weight: 700;
-      padding: 4px 12px; border-radius: 20px; letter-spacing: .04em;
-      display: flex; align-items: center; gap: 5px;
-    }
-    .featured-overlay svg { width: 12px; height: 12px; stroke: white; fill: none; stroke-width: 2; }
-
-    /* Share & save row */
-    .action-row { display: flex; align-items: center; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
-    .action-pill {
-      display: inline-flex; align-items: center; gap: 6px;
-      padding: 7px 14px; border-radius: 20px; border: 1.5px solid var(--border);
-      background: var(--white); font-size: 13px; font-weight: 500; color: var(--text-2);
-      cursor: pointer; transition: all .15s;
-    }
-    .action-pill:hover { border-color: var(--green); color: var(--green); }
-    .action-pill svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; }
-    .action-pill.whatsapp { border-color: #25D366; color: #128C3E; background: #F0FDF5; }
-    .action-pill.whatsapp:hover { background: #25D366; color: white; }
+    /* Action row */
+    .action-row { display:flex; align-items:center; gap:8px; margin-bottom:20px; flex-wrap:wrap; }
+    .action-pill { display:inline-flex; align-items:center; gap:6px; padding:7px 14px; border-radius:20px; border:1.5px solid var(--border); background:var(--white); font-size:13px; font-weight:500; color:var(--text-2); cursor:pointer; transition:all .15s; }
+    .action-pill:hover { border-color:var(--green); color:var(--green); }
+    .action-pill svg { width:14px; height:14px; stroke:currentColor; fill:none; stroke-width:2; }
 
     /* Listing header */
-    .listing-header { margin-bottom: 20px; }
-    .listing-badges { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
-    .badge { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 20px; }
-    .badge.student  { background: var(--green-light); color: var(--green-dark); }
-    .badge.standard { background: var(--surface); color: var(--text-2); border: 1px solid var(--border); }
-    .badge.luxury   { background: var(--gold-light); color: var(--gold); }
-    .badge.sale     { background: var(--green-light); color: var(--green-dark); }
-    .badge.rent     { background: var(--blue-light, #E6F1FB); color: #185FA5; }
-    .listing-title  { font-family: 'Playfair Display', serif; font-size: clamp(22px,3vw,32px); color: var(--text); line-height: 1.2; margin-bottom: 10px; }
-    .listing-location { display: flex; align-items: center; gap: 6px; font-size: 14px; color: var(--text-3); }
-    .listing-location svg { width: 15px; height: 15px; stroke: var(--green); fill: none; stroke-width: 2; flex-shrink: 0; }
+    .listing-header { margin-bottom:20px; }
+    .listing-badges { display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; }
+    .badge { display:inline-flex; align-items:center; gap:4px; font-size:12px; font-weight:600; padding:4px 10px; border-radius:20px; }
+    .badge.student  { background:var(--green-light); color:var(--green-dark); }
+    .badge.standard { background:var(--surface); color:var(--text-2); border:1px solid var(--border); }
+    .badge.luxury   { background:var(--gold-light); color:var(--gold); }
+    .badge.sale     { background:var(--green-light); color:var(--green-dark); }
+    .badge.rent     { background:#E6F1FB; color:#185FA5; }
+    .listing-title  { font-family:'Playfair Display',serif; font-size:clamp(22px,3vw,32px); color:var(--text); line-height:1.2; margin-bottom:10px; }
+    .listing-location { display:flex; align-items:center; gap:6px; font-size:14px; color:var(--text-3); }
+    .listing-location svg { width:15px; height:15px; stroke:var(--green); fill:none; stroke-width:2; flex-shrink:0; }
 
     /* Price block */
-    .price-block {
-      background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-lg);
-      padding: 20px 24px; margin-bottom: 20px;
-      display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
-    }
-    .price-main { font-family: 'Playfair Display', serif; font-size: 34px; font-weight: 700; color: var(--green-dark); }
-    .price-main span { font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 400; color: var(--text-3); }
-    .price-meta { font-size: 13px; color: var(--text-3); margin-top: 4px; }
-    .price-views { display: flex; align-items: center; gap: 5px; font-size: 13px; color: var(--text-3); }
-    .price-views svg { width: 15px; height: 15px; stroke: var(--text-3); fill: none; stroke-width: 2; }
+    .price-block { background:var(--white); border:1px solid var(--border); border-radius:var(--radius-lg); padding:20px 24px; margin-bottom:20px; display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; }
+    .price-main { font-family:'Playfair Display',serif; font-size:34px; font-weight:700; color:var(--green-dark); }
+    .price-main span { font-family:'Inter',sans-serif; font-size:15px; font-weight:400; color:var(--text-3); }
+    .price-meta { font-size:13px; color:var(--text-3); margin-top:4px; }
+    .price-views { display:flex; align-items:center; gap:5px; font-size:13px; color:var(--text-3); }
+    .price-views svg { width:15px; height:15px; stroke:var(--text-3); fill:none; stroke-width:2; }
 
-    /* Specs grid */
-    .specs-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 20px; }
-    .specs-card h3 { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 18px; }
-    .specs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 14px; }
-    .spec-item { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 14px 10px; background: var(--surface); border-radius: var(--radius); }
-    .spec-icon { width: 36px; height: 36px; border-radius: 8px; background: var(--green-light); display: flex; align-items: center; justify-content: center; margin-bottom: 8px; }
-    .spec-icon svg { width: 18px; height: 18px; stroke: var(--green); fill: none; stroke-width: 1.8; stroke-linecap: round; }
-    .spec-val { font-size: 15px; font-weight: 700; color: var(--text); line-height: 1.2; }
-    .spec-lbl { font-size: 11px; color: var(--text-3); margin-top: 3px; }
+    /* Specs */
+    .specs-card { background:var(--white); border:1px solid var(--border); border-radius:var(--radius-lg); padding:24px; margin-bottom:20px; }
+    .specs-card h3 { font-size:15px; font-weight:600; color:var(--text); margin-bottom:18px; }
+    .specs-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(130px,1fr)); gap:14px; }
+    .spec-item { display:flex; flex-direction:column; align-items:center; text-align:center; padding:14px 10px; background:var(--surface); border-radius:var(--radius); }
+    .spec-icon { width:36px; height:36px; border-radius:8px; background:var(--green-light); display:flex; align-items:center; justify-content:center; margin-bottom:8px; }
+    .spec-icon svg { width:18px; height:18px; stroke:var(--green); fill:none; stroke-width:1.8; stroke-linecap:round; }
+    .spec-val { font-size:15px; font-weight:700; color:var(--text); line-height:1.2; }
+    .spec-lbl { font-size:11px; color:var(--text-3); margin-top:3px; }
 
     /* Description */
-    .desc-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 20px; }
-    .desc-card h3 { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 14px; }
-    .desc-text { font-size: 14px; color: var(--text-2); line-height: 1.8; white-space: pre-line; }
-    .desc-text.collapsed { display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; }
-    .read-more { font-size: 13px; color: var(--green); font-weight: 500; margin-top: 10px; cursor: pointer; display: inline-block; }
-    .read-more:hover { text-decoration: underline; }
+    .desc-card { background:var(--white); border:1px solid var(--border); border-radius:var(--radius-lg); padding:24px; margin-bottom:20px; }
+    .desc-card h3 { font-size:15px; font-weight:600; color:var(--text); margin-bottom:14px; }
+    .desc-text { font-size:14px; color:var(--text-2); line-height:1.8; white-space:pre-line; }
+    .desc-text.collapsed { display:-webkit-box; -webkit-line-clamp:5; -webkit-box-orient:vertical; overflow:hidden; }
+    .read-more { font-size:13px; color:var(--green); font-weight:500; margin-top:10px; cursor:pointer; display:inline-block; }
 
-    /* Map placeholder */
-    .map-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 20px; }
-    .map-card-header { padding: 18px 24px 14px; border-bottom: 1px solid var(--border); }
-    .map-card-header h3 { font-size: 15px; font-weight: 600; color: var(--text); }
-    .map-card-header p { font-size: 13px; color: var(--text-3); margin-top: 2px; }
-    .map-placeholder {
-      height: 220px; background: var(--surface);
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      gap: 10px; color: var(--text-3);
-    }
-    .map-placeholder svg { width: 36px; height: 36px; stroke: var(--border); fill: none; stroke-width: 1.5; }
-    .map-placeholder p { font-size: 13px; }
-    .map-placeholder a { font-size: 13px; color: var(--green); font-weight: 500; }
-    .map-placeholder a:hover { text-decoration: underline; }
+    /* Map */
+    .map-card { background:var(--white); border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden; margin-bottom:20px; }
+    .map-card-header { padding:18px 24px 14px; border-bottom:1px solid var(--border); }
+    .map-card-header h3 { font-size:15px; font-weight:600; color:var(--text); }
+    .map-card-header p { font-size:13px; color:var(--text-3); margin-top:2px; }
+    .map-placeholder { height:220px; background:var(--surface); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; color:var(--text-3); }
+    .map-placeholder svg { width:36px; height:36px; stroke:var(--border); fill:none; stroke-width:1.5; }
+    .map-placeholder a { font-size:13px; color:var(--green); font-weight:500; }
 
     /* Similar listings */
-    .similar-section { margin-top: 8px; }
-    .similar-section h3 { font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 16px; }
-    .similar-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px,1fr)); gap: 14px; }
-    .similar-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; cursor: pointer; transition: transform .2s, box-shadow .2s; }
-    .similar-card:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
-    .similar-img { height: 130px; background: var(--surface); overflow: hidden; }
-    .similar-img img { width: 100%; height: 100%; object-fit: cover; }
-    .similar-body { padding: 12px 14px; }
-    .similar-area { font-size: 11px; font-weight: 600; color: var(--green); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 3px; }
-    .similar-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 6px; line-height: 1.3; }
-    .similar-price { font-size: 15px; font-weight: 700; color: var(--green-dark); }
+    .similar-section { margin-top:8px; }
+    .similar-section h3 { font-size:16px; font-weight:600; color:var(--text); margin-bottom:16px; }
+    .similar-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:14px; }
+    .similar-card { background:var(--white); border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden; cursor:pointer; transition:transform .2s,box-shadow .2s; }
+    .similar-card:hover { transform:translateY(-2px); box-shadow:0 4px 16px rgba(0,0,0,0.08); }
+    .similar-img { height:130px; background:var(--surface); overflow:hidden; }
+    .similar-img img { width:100%; height:100%; object-fit:cover; }
+    .similar-body { padding:12px 14px; }
+    .similar-area { font-size:11px; font-weight:600; color:var(--green); text-transform:uppercase; letter-spacing:.06em; margin-bottom:3px; }
+    .similar-title { font-size:13px; font-weight:600; color:var(--text); margin-bottom:6px; line-height:1.3; }
+    .similar-price { font-size:15px; font-weight:700; color:var(--green-dark); }
 
-    /* ── RIGHT COLUMN ── */
+    /* RIGHT: Contact card */
+    .contact-card { background:var(--white); border:1px solid var(--border); border-radius:var(--radius-lg); padding:24px; position:sticky; top:80px; }
+    .contact-card-title { font-size:16px; font-weight:600; color:var(--text); margin-bottom:4px; }
+    .contact-card-sub { font-size:13px; color:var(--text-3); margin-bottom:20px; }
+    .seller-row { display:flex; align-items:center; gap:12px; padding:14px 0; border-top:1px solid var(--border); border-bottom:1px solid var(--border); margin-bottom:20px; }
+    .seller-avatar { width:42px; height:42px; border-radius:50%; background:var(--green-light); display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:700; color:var(--green-dark); flex-shrink:0; }
+    .seller-name { font-size:14px; font-weight:600; color:var(--text); }
+    .seller-since { font-size:12px; color:var(--text-3); }
+    .verified-badge { display:inline-flex; align-items:center; gap:3px; font-size:11px; color:var(--green); font-weight:600; margin-top:3px; }
+    .verified-badge svg { width:12px; height:12px; stroke:var(--green); fill:none; stroke-width:2.5; }
+    .contact-btns { display:flex; flex-direction:column; gap:10px; margin-bottom:20px; }
+    .btn-call { display:flex; align-items:center; justify-content:center; gap:8px; padding:13px; border-radius:var(--radius); font-size:15px; font-weight:600; background:var(--green); color:white; transition:background .15s; }
+    .btn-call:hover { background:var(--green-dark); }
+    .btn-call svg { width:18px; height:18px; stroke:white; fill:none; stroke-width:2; }
+    .btn-whatsapp { display:flex; align-items:center; justify-content:center; gap:8px; padding:13px; border-radius:var(--radius); font-size:15px; font-weight:600; background:#25D366; color:white; transition:background .15s; }
+    .btn-whatsapp:hover { background:#128C3E; }
+    .or-divider { display:flex; align-items:center; gap:10px; font-size:12px; color:var(--text-3); margin-bottom:18px; }
+    .or-divider::before,.or-divider::after { content:''; flex:1; height:1px; background:var(--border); }
 
-    /* Sticky contact card */
-    .contact-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; position: sticky; top: 80px; }
-    .contact-card-title { font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
-    .contact-card-sub { font-size: 13px; color: var(--text-3); margin-bottom: 20px; }
+    /* Enquiry / messaging area */
+    .field { margin-bottom:14px; }
+    .field label { display:block; font-size:12px; font-weight:600; color:var(--text-2); text-transform:uppercase; letter-spacing:.05em; margin-bottom:5px; }
+    .field input,.field textarea { width:100%; padding:10px 14px; border:1.5px solid var(--border); border-radius:var(--radius); font-size:14px; color:var(--text); background:var(--surface); outline:none; transition:border-color .15s,background .15s; }
+    .field input:focus,.field textarea:focus { border-color:var(--green); background:var(--white); }
+    .field input.error,.field textarea.error { border-color:var(--red); }
+    .field textarea { resize:vertical; min-height:80px; line-height:1.6; }
+    .field-error { font-size:11px; color:var(--red); margin-top:4px; display:none; }
+    .field-error.show { display:block; }
+    .btn-enquire { width:100%; padding:13px; background:var(--green); color:white; font-size:15px; font-weight:600; border-radius:var(--radius); transition:background .15s; display:flex; align-items:center; justify-content:center; gap:8px; }
+    .btn-enquire:hover:not(:disabled) { background:var(--green-dark); }
+    .btn-enquire:disabled { opacity:.6; cursor:not-allowed; }
+    .spinner { width:16px; height:16px; border:2px solid rgba(255,255,255,.3); border-top-color:white; border-radius:50%; animation:spin .7s linear infinite; display:none; }
+    .btn-enquire.loading .spinner { display:block; }
+    .btn-enquire.loading .btn-text { display:none; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    .enquiry-note { font-size:11px; color:var(--text-3); text-align:center; margin-top:10px; line-height:1.5; }
 
-    /* Seller info */
-    .seller-row { display: flex; align-items: center; gap: 12px; padding: 14px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); margin-bottom: 20px; }
-    .seller-avatar { width: 42px; height: 42px; border-radius: 50%; background: var(--green-light); display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; color: var(--green-dark); flex-shrink: 0; }
-    .seller-name { font-size: 14px; font-weight: 600; color: var(--text); }
-    .seller-since { font-size: 12px; color: var(--text-3); }
-    .verified-badge { display: inline-flex; align-items: center; gap: 3px; font-size: 11px; color: var(--green); font-weight: 600; margin-top: 3px; }
-    .verified-badge svg { width: 12px; height: 12px; stroke: var(--green); fill: none; stroke-width: 2.5; }
+    /* ── CONVERSATION THREAD (returning buyer) ── */
+    .thread-section { margin-top:0; }
+    .thread-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+    .thread-header h4 { font-size:14px; font-weight:600; color:var(--text); }
+    .thread-header button { font-size:12px; color:var(--text-3); background:none; border:none; cursor:pointer; }
+    .thread-header button:hover { color:var(--green); }
+    .chat-window { border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; margin-bottom:14px; }
+    .chat-messages-box { max-height:280px; overflow-y:auto; padding:14px; background:var(--surface); display:flex; flex-direction:column; gap:8px; }
+    .chat-messages-box::-webkit-scrollbar { width:3px; }
+    .chat-messages-box::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
+    .chat-bubble-row { display:flex; gap:6px; align-items:flex-end; }
+    .chat-bubble-row.seller-row-msg { flex-direction:row-reverse; }
+    .bubble-av { width:26px; height:26px; border-radius:50%; font-size:9px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .bubble-av.buyer-av { background:var(--green-light); color:var(--green-dark); }
+    .bubble-av.seller-av { background:var(--green); color:white; }
+    .chat-bubble { max-width:80%; padding:8px 12px; border-radius:14px; font-size:13px; line-height:1.5; }
+    .chat-bubble.buyer-b { background:var(--white); border:1px solid var(--border); border-bottom-left-radius:4px; }
+    .chat-bubble.seller-b { background:var(--green); color:white; border-bottom-right-radius:4px; }
+    .bubble-time { font-size:10px; color:var(--text-3); margin-top:2px; }
+    .chat-bubble-row.seller-row-msg .bubble-time { text-align:right; }
+    .chat-input-row { display:flex; gap:8px; padding:10px 12px; background:var(--white); border-top:1px solid var(--border); align-items:flex-end; }
+    .chat-input-row textarea { flex:1; resize:none; border:1.5px solid var(--border); border-radius:var(--radius); padding:8px 12px; font-size:13px; outline:none; min-height:38px; max-height:100px; line-height:1.5; background:var(--surface); transition:border-color .15s; }
+    .chat-input-row textarea:focus { border-color:var(--green); background:white; }
+    .chat-send { width:36px; height:36px; border-radius:50%; background:var(--green); color:white; display:flex; align-items:center; justify-content:center; border:none; cursor:pointer; flex-shrink:0; transition:background .15s; }
+    .chat-send:hover { background:var(--green-dark); }
+    .chat-send:disabled { opacity:.5; cursor:not-allowed; }
+    .chat-send svg { width:14px; height:14px; stroke:white; fill:none; stroke-width:2; }
+    .chat-date-sep { text-align:center; font-size:10px; color:var(--text-3); padding:4px 0; }
+    .chat-wa-note { font-size:11px; color:var(--text-3); text-align:center; margin-bottom:10px; display:flex; align-items:center; justify-content:center; gap:4px; }
 
-    /* Call / WhatsApp buttons */
-    .contact-btns { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
-    .btn-call {
-      display: flex; align-items: center; justify-content: center; gap: 8px;
-      padding: 13px; border-radius: var(--radius); font-size: 15px; font-weight: 600;
-      background: var(--green); color: white; transition: background .15s;
-    }
-    .btn-call:hover { background: var(--green-dark); }
-    .btn-call svg { width: 18px; height: 18px; stroke: white; fill: none; stroke-width: 2; }
-    .btn-whatsapp {
-      display: flex; align-items: center; justify-content: center; gap: 8px;
-      padding: 13px; border-radius: var(--radius); font-size: 15px; font-weight: 600;
-      background: #25D366; color: white; transition: background .15s;
-    }
-    .btn-whatsapp:hover { background: #128C3E; }
-    .btn-whatsapp svg { width: 18px; height: 18px; fill: white; }
-
-    /* Divider */
-    .or-divider { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--text-3); margin-bottom: 18px; }
-    .or-divider::before, .or-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
-
-    /* Enquiry form */
-    .field { margin-bottom: 14px; }
-    .field label { display: block; font-size: 12px; font-weight: 600; color: var(--text-2); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 5px; }
-    .field input, .field textarea {
-      width: 100%; padding: 10px 14px; border: 1.5px solid var(--border);
-      border-radius: var(--radius); font-size: 14px; color: var(--text);
-      background: var(--surface); outline: none; transition: border-color .15s, background .15s;
-      font-family: inherit;
-    }
-    .field input:focus, .field textarea:focus { border-color: var(--green); background: var(--white); }
-    .field input.error, .field textarea.error { border-color: var(--red); }
-    .field textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
-    .field-error { font-size: 11px; color: var(--red); margin-top: 4px; display: none; }
-    .field-error.show { display: block; }
-
-    .btn-enquire {
-      width: 100%; padding: 13px; background: var(--green); color: white;
-      font-size: 15px; font-weight: 600; border-radius: var(--radius);
-      transition: background .15s; display: flex; align-items: center; justify-content: center; gap: 8px;
-    }
-    .btn-enquire:hover:not(:disabled) { background: var(--green-dark); }
-    .btn-enquire:disabled { opacity: .6; cursor: not-allowed; }
-    .spinner { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,.3); border-top-color: white; border-radius: 50%; animation: spin .7s linear infinite; display: none; }
-    .btn-enquire.loading .spinner { display: block; }
-    .btn-enquire.loading .btn-text { display: none; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    .enquiry-note { font-size: 11px; color: var(--text-3); text-align: center; margin-top: 10px; line-height: 1.5; }
-
-    /* Enquiry success */
-    .enquiry-success { display: none; text-align: center; padding: 16px 0; }
-    .enquiry-success-icon { width: 52px; height: 52px; background: var(--green-light); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; }
-    .enquiry-success-icon svg { width: 24px; height: 24px; stroke: var(--green); fill: none; stroke-width: 2.5; }
-    .enquiry-success h4 { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
-    .enquiry-success p { font-size: 13px; color: var(--text-3); }
+    /* Not found / disabled states */
+    .not-found { text-align:center; padding:80px 24px; }
+    .not-found svg { width:48px; height:48px; stroke:var(--border); fill:none; stroke-width:1.5; margin:0 auto 16px; display:block; }
+    .not-found h2 { font-size:20px; font-weight:600; color:var(--text); margin-bottom:8px; }
+    .not-found p { font-size:14px; color:var(--text-3); margin-bottom:20px; }
+    .disabled-banner { background:var(--red-light); border:1px solid #feb2b2; border-radius:var(--radius-lg); padding:32px 24px; text-align:center; margin:32px auto; max-width:520px; }
+    .disabled-banner svg { width:40px; height:40px; stroke:var(--red); fill:none; stroke-width:1.5; margin:0 auto 12px; display:block; }
+    .disabled-banner h2 { font-size:18px; font-weight:600; color:var(--red); margin-bottom:8px; }
+    .disabled-banner p { font-size:13px; color:var(--text-2); margin-bottom:6px; line-height:1.7; }
+    .disabled-banner .reason-box { background:white; border:1px solid #feb2b2; border-radius:var(--radius); padding:10px 14px; font-size:13px; color:var(--text-2); margin:12px 0; text-align:left; }
+    .disabled-banner a { color:var(--green); font-weight:500; }
 
     /* Safety tip */
-    .safety-tip {
-      margin-top: 16px; padding: 12px 14px; background: var(--gold-light);
-      border-radius: var(--radius); border: 1px solid #FAC775;
-      font-size: 12px; color: #5C3A00; line-height: 1.6;
-      display: flex; gap: 8px;
+    .safety-tip { margin-top:16px; padding:12px 14px; background:var(--gold-light); border-radius:var(--radius); border:1px solid #FAC775; font-size:12px; color:#5C3A00; line-height:1.6; display:flex; gap:8px; }
+    .safety-tip svg { width:14px; height:14px; stroke:var(--gold); fill:none; stroke-width:2; flex-shrink:0; margin-top:2px; }
+
+    /* Enquiry success */
+    .enquiry-success { display:none; text-align:center; padding:16px 0; }
+    .enquiry-success-icon { width:52px; height:52px; background:var(--green-light); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 12px; }
+    .enquiry-success-icon svg { width:24px; height:24px; stroke:var(--green); fill:none; stroke-width:2.5; }
+    .enquiry-success h4 { font-size:15px; font-weight:600; color:var(--text); margin-bottom:6px; }
+    .enquiry-success p { font-size:13px; color:var(--text-3); margin-bottom:12px; }
+
+    /* Skeleton */
+    .skel { height:14px; background:linear-gradient(90deg,#f0efe9 25%,#e8e7e1 50%,#f0efe9 75%); background-size:200% 100%; animation:shimmer 1.4s infinite; border-radius:4px; }
+    .skel.short { width:55%; }
+    .skel.xshort { width:35%; }
+    .skel-block { background:linear-gradient(90deg,#f0efe9 25%,#e8e7e1 50%,#f0efe9 75%); background-size:200% 100%; animation:shimmer 1.4s infinite; border-radius:var(--radius-lg); }
+    @keyframes shimmer { to { background-position:-200% 0; } }
+
+    /* Footer */
+    footer { background:var(--text); color:rgba(255,255,255,0.6); padding:48px 32px 28px; }
+    .footer-inner { max-width:1100px; margin:0 auto; }
+    .footer-top { display:grid; grid-template-columns:2fr 1fr 1fr 1fr; gap:40px; margin-bottom:40px; }
+    .footer-logo { font-family:'Playfair Display',serif; font-size:20px; color:white; margin-bottom:10px; }
+    .footer-tagline { font-size:13px; line-height:1.7; max-width:240px; }
+    .footer-col h4 { font-size:12px; font-weight:700; color:white; margin-bottom:14px; letter-spacing:.08em; text-transform:uppercase; }
+    .footer-col a { display:block; font-size:13px; color:rgba(255,255,255,0.55); margin-bottom:8px; transition:color .15s; }
+    .footer-col a:hover { color:white; }
+    .footer-bottom { border-top:1px solid rgba(255,255,255,0.1); padding-top:20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; }
+    .footer-bottom p { font-size:12px; }
+
+    @media(max-width:900px) {
+      .layout { grid-template-columns:1fr; }
+      .contact-card { position:static; }
+      nav { padding:0 16px; }
+      .nav-links .nav-link { display:none; }
+      .breadcrumb { padding:12px 16px; }
+      .page-wrap { padding:20px 16px 60px; }
+      footer { padding:40px 16px 24px; }
+      .footer-top { grid-template-columns:1fr 1fr; gap:28px; }
     }
-    .safety-tip svg { width: 14px; height: 14px; stroke: var(--gold); fill: none; stroke-width: 2; flex-shrink: 0; margin-top: 2px; }
-
-    /* ── Not found state ── */
-    .not-found { text-align: center; padding: 80px 24px; }
-    .not-found svg { width: 48px; height: 48px; stroke: var(--border); fill: none; stroke-width: 1.5; margin: 0 auto 16px; display: block; }
-    .not-found h2 { font-size: 20px; font-weight: 600; color: var(--text); margin-bottom: 8px; }
-    .not-found p { font-size: 14px; color: var(--text-3); margin-bottom: 20px; }
-
-    /* ── Skeleton ── */
-    .skel { height: 14px; background: linear-gradient(90deg,#f0efe9 25%,#e8e7e1 50%,#f0efe9 75%); background-size:200% 100%; animation:shimmer 1.4s infinite; border-radius:4px; }
-    .skel.short { width: 55%; }
-    .skel.xshort { width: 35%; }
-    .skel-block { background: linear-gradient(90deg,#f0efe9 25%,#e8e7e1 50%,#f0efe9 75%); background-size:200% 100%; animation:shimmer 1.4s infinite; border-radius: var(--radius-lg); }
-    @keyframes shimmer { to { background-position: -200% 0; } }
-
-    /* ── Footer ── */
-    footer { background: var(--text); color: rgba(255,255,255,0.6); padding: 48px 32px 28px; }
-    .footer-inner { max-width: 1100px; margin: 0 auto; }
-    .footer-top { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; margin-bottom: 40px; }
-    .footer-logo { font-family: 'Playfair Display', serif; font-size: 20px; color: white; margin-bottom: 10px; }
-    .footer-tagline { font-size: 13px; line-height: 1.7; max-width: 240px; }
-    .footer-col h4 { font-size: 12px; font-weight: 700; color: white; margin-bottom: 14px; letter-spacing: .08em; text-transform: uppercase; }
-    .footer-col a { display: block; font-size: 13px; color: rgba(255,255,255,0.55); margin-bottom: 8px; transition: color .15s; }
-    .footer-col a:hover { color: white; }
-    .footer-bottom { border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
-    .footer-bottom p { font-size: 12px; }
-
-    /* ── Responsive ── */
-    @media (max-width: 900px) {
-      .layout { grid-template-columns: 1fr; }
-      .contact-card { position: static; }
-      nav { padding: 0 16px; }
-      .nav-links .nav-link { display: none; }
-      .breadcrumb { padding: 12px 16px; }
-      .page-wrap { padding: 20px 16px 60px; }
-      footer { padding: 40px 16px 24px; }
-      .footer-top { grid-template-columns: 1fr 1fr; gap: 28px; }
-    }
-    @media (max-width: 480px) {
-      .specs-grid { grid-template-columns: repeat(2,1fr); }
-      .footer-top { grid-template-columns: 1fr; }
-      .similar-grid { grid-template-columns: 1fr 1fr; }
+    @media(max-width:480px) {
+      .specs-grid { grid-template-columns:repeat(2,1fr); }
+      .footer-top { grid-template-columns:1fr; }
+      .similar-grid { grid-template-columns:1fr 1fr; }
     }
   </style>
 </head>
 <body>
 
-<!-- ── NAVBAR ── -->
+<!-- NAVBAR -->
 <nav>
   <a href="index.html" class="logo">
     <div class="logo-icon">
@@ -343,7 +274,7 @@
   </div>
 </nav>
 
-<!-- ── BREADCRUMB ── -->
+<!-- BREADCRUMB -->
 <div class="breadcrumb" id="breadcrumb">
   <a href="index.html">Home</a>
   <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
@@ -352,18 +283,33 @@
   <span id="breadcrumb-area">Loading…</span>
 </div>
 
-<!-- ── MAIN ── -->
 <div class="page-wrap">
 
-  <!-- NOT FOUND STATE -->
+  <!-- NOT FOUND -->
   <div class="not-found" id="not-found" style="display:none">
     <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
     <h2>Listing not found</h2>
     <p>This listing may have been removed or the link is incorrect.</p>
-    <a href="listings.html" class="btn-primary" style="display:inline-flex">Browse all listings</a>
+    <a href="listings.html" class="btn-primary" style="display:inline-flex;margin:0 auto">Browse all listings</a>
   </div>
 
-  <!-- SKELETON LOADING -->
+  <!-- DISABLED BY ADMIN -->
+  <div id="disabled-view" style="display:none">
+    <div class="disabled-banner">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+      <h2>This listing is currently unavailable</h2>
+      <p>This listing has been disabled by the administrator and is not publicly visible.</p>
+      <div class="reason-box" id="disabled-reason-box" style="display:none">
+        <strong>Reason:</strong> <span id="disabled-reason-text"></span>
+      </div>
+      <p style="margin-top:8px">For more information, please <a href="contact.html">contact us</a>.</p>
+    </div>
+    <div style="text-align:center;margin-top:16px">
+      <a href="listings.html" class="btn-primary" style="display:inline-flex">Browse other listings</a>
+    </div>
+  </div>
+
+  <!-- SKELETON -->
   <div id="skeleton-wrap">
     <div class="layout">
       <div>
@@ -374,9 +320,7 @@
         <div class="skel-block" style="height:120px;margin-bottom:20px"></div>
         <div class="skel-block" style="height:180px"></div>
       </div>
-      <div>
-        <div class="skel-block" style="height:420px"></div>
-      </div>
+      <div><div class="skel-block" style="height:420px"></div></div>
     </div>
   </div>
 
@@ -384,9 +328,8 @@
   <div id="listing-content" style="display:none">
     <div class="layout">
 
-      <!-- ── LEFT ── -->
+      <!-- LEFT -->
       <div>
-
         <!-- Gallery -->
         <div class="gallery" id="gallery">
           <div class="gallery-main" id="gallery-main">
@@ -412,7 +355,7 @@
 
         <!-- Share row -->
         <div class="action-row">
-          <button class="action-pill" onclick="shareWhatsApp()" id="share-wa">
+          <button class="action-pill" onclick="shareWhatsApp()">
             <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
             Share on WhatsApp
           </button>
@@ -473,7 +416,7 @@
           </div>
         </div>
 
-        <!-- Similar listings -->
+        <!-- Similar -->
         <div class="similar-section">
           <h3>Similar listings in this area</h3>
           <div class="similar-grid" id="similar-grid">
@@ -482,10 +425,9 @@
             <div class="skel-block" style="height:200px"></div>
           </div>
         </div>
-
       </div>
 
-      <!-- ── RIGHT ── -->
+      <!-- RIGHT: contact / messaging -->
       <div>
         <div class="contact-card">
           <div class="contact-card-title">Interested in this property?</div>
@@ -504,22 +446,21 @@
             </div>
           </div>
 
-          <!-- Direct contact buttons -->
+          <!-- Call / WhatsApp -->
           <div class="contact-btns">
             <a class="btn-call" id="btn-call" href="#">
               <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.12 1.2 2 2 0 012.11 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>
               Call seller
             </a>
             <a class="btn-whatsapp" id="btn-whatsapp" href="#" target="_blank" rel="noopener">
-              <!-- WhatsApp icon -->
               <svg viewBox="0 0 24 24" width="18" height="18"><path fill="white" d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
               WhatsApp seller
             </a>
           </div>
 
-          <div class="or-divider">or send an enquiry</div>
+          <div class="or-divider">or send a message</div>
 
-          <!-- Enquiry form -->
+          <!-- ── FIRST-TIME ENQUIRY FORM ── -->
           <div id="enquiry-form">
             <div class="field">
               <label>Your name</label>
@@ -542,18 +483,39 @@
             </div>
             <button class="btn-enquire" id="btn-enquire" onclick="sendEnquiry()">
               <div class="spinner"></div>
-              <span class="btn-text">Send enquiry</span>
+              <span class="btn-text">Send message</span>
             </button>
             <p class="enquiry-note">Your contact details are shared only with the seller of this listing.</p>
           </div>
 
-          <!-- Success state -->
+          <!-- ── SUCCESS then transition to thread ── -->
           <div class="enquiry-success" id="enquiry-success">
             <div class="enquiry-success-icon">
               <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
             </div>
-            <h4>Enquiry sent!</h4>
-            <p>The seller will contact you on your phone soon. You can also call or WhatsApp them directly using the buttons above.</p>
+            <h4>Message sent!</h4>
+            <p>The seller will reply here and may also contact you on your phone. Check back on this page to see their reply.</p>
+            <button onclick="showThread()" style="margin-top:8px;font-size:13px;color:var(--green);background:none;border:none;cursor:pointer;font-weight:500">View conversation →</button>
+          </div>
+
+          <!-- ── RETURNING BUYER: conversation thread ── -->
+          <div id="thread-section" class="thread-section" style="display:none">
+            <div class="thread-header">
+              <h4>Your conversation</h4>
+              <button onclick="clearThread()">Start new enquiry</button>
+            </div>
+            <div class="chat-window">
+              <div class="chat-messages-box" id="chat-messages-box">
+                <div style="text-align:center;font-size:12px;color:var(--text-3);padding:16px">Loading messages…</div>
+              </div>
+              <div class="chat-input-row">
+                <textarea id="chat-follow-input" placeholder="Send a follow-up message…" rows="1" oninput="autoResizeTa(this)" onkeydown="handleFollowKeydown(event)"></textarea>
+                <button class="chat-send" id="chat-follow-send" onclick="sendFollowUp()">
+                  <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                </button>
+              </div>
+            </div>
+            <div class="chat-wa-note" id="chat-wa-note"></div>
           </div>
 
           <!-- Safety tip -->
@@ -565,10 +527,10 @@
       </div>
 
     </div>
-  </div>
+  </div><!-- /#listing-content -->
 </div>
 
-<!-- ── FOOTER ── -->
+<!-- FOOTER -->
 <footer>
   <div class="footer-inner">
     <div class="footer-top">
@@ -606,294 +568,517 @@
 </footer>
 
 <script>
-  const SUPABASE_URL = 'https://vliuuloyfhyxcsuchpss.supabase.co';
-  const SUPABASE_KEY = 'sb_publishable_oIIcecf3wzKMual5K24Z8Q_zmxVfgsx';
-  const { createClient } = supabase;
-  const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+const SUPABASE_URL = 'https://vliuuloyfhyxcsuchpss.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_oIIcecf3wzKMual5K24Z8Q_zmxVfgsx';
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  // ── State ──
-  let listing = null;
-  let photos  = [];
-  let currentPhoto = 0;
+// ── State ──
+let listing     = null;
+let photos      = [];
+let currentPhoto = 0;
+let buyerToken  = null;   // anonymous session ID for this buyer
+let buyerName   = '';
+let buyerPhone  = '';
+let threadMessages = [];  // messages loaded for this buyer's thread
 
-  // ── Get listing ID from URL ──
-  const listingId = new URLSearchParams(window.location.search).get('id');
+const listingId = new URLSearchParams(window.location.search).get('id');
 
-  // ── Load listing ──
-  async function loadListing() {
-    if (!listingId) { showNotFound(); return; }
+// ── Buyer token: persisted per browser ──
+function getBuyerToken() {
+  const key = 'nk_buyer_' + listingId;
+  let t = localStorage.getItem(key);
+  if (!t) return null;
+  return t;
+}
+function setBuyerToken(token) {
+  localStorage.setItem('nk_buyer_' + listingId, token);
+  localStorage.setItem('nk_buyer_name_' + listingId, buyerName);
+  localStorage.setItem('nk_buyer_phone_' + listingId, buyerPhone);
+}
+function getSavedBuyerInfo() {
+  buyerName  = localStorage.getItem('nk_buyer_name_'  + listingId) || '';
+  buyerPhone = localStorage.getItem('nk_buyer_phone_' + listingId) || '';
+}
 
-    const { data, error } = await db
-      .from('listings')
-      .select('*, profiles(full_name, phone, created_at), listing_photos(*)')
-      .eq('id', listingId)
-      .single();
+// ── Load listing ──
+async function loadListing() {
+  if (!listingId) { showNotFound(); return; }
 
-    if (error || !data) { showNotFound(); return; }
-    listing = data;
+  const { data, error } = await db
+    .from('listings')
+    .select('*, profiles(full_name, phone, created_at), listing_photos(*)')
+    .eq('id', listingId)
+    .single();
 
-    // Increment view count
-    db.from('listings').update({ views: (data.views || 0) + 1 }).eq('id', listingId);
+  if (error || !data) { showNotFound(); return; }
+  listing = data;
 
-    renderListing(data);
-    loadSimilar(data.area, data.id, data.category);
+  // ── ADMIN ENFORCEMENT: hide completely if disabled or in recycle bin ──
+  // Only show to the public if status is active AND not disabled AND not in recycle bin
+  if (data.status !== 'active' || data.is_disabled || data.recycle_bin) {
+    showDisabledView(data);
+    return;
   }
 
-  // ── Render ──
-  function renderListing(l) {
-    // Page title & meta
-    document.title = `${l.title} — NyumbaKisumu`;
-    document.querySelector('meta[name="description"]').setAttribute('content', `${l.title} in ${l.area}, Kisumu. ${l.price_type==='rent'?'KES '+Number(l.price).toLocaleString()+'/month rent':'For sale at KES '+Number(l.price).toLocaleString()}. Contact seller directly on NyumbaKisumu.`);
+  // Increment view count
+  db.from('listings').update({ views: (data.views || 0) + 1 }).eq('id', listingId);
 
-    // Breadcrumb
-    document.getElementById('breadcrumb-area').textContent = l.area;
+  renderListing(data);
+  loadSimilar(data.area, data.id);
 
-    // Gallery
-    photos = (l.listing_photos || []).sort((a,b) => a.position - b.position);
-    const cover = photos.find(p=>p.is_cover) || photos[0];
-    if (cover) {
-      const coverIdx = photos.indexOf(cover);
-      currentPhoto = coverIdx >= 0 ? coverIdx : 0;
-    }
-    renderGallery();
+  // Check if returning buyer with existing thread
+  buyerToken = getBuyerToken();
+  if (buyerToken) {
+    getSavedBuyerInfo();
+    // Hide enquiry form, show thread
+    document.getElementById('enquiry-form').style.display = 'none';
+    showThread();
+  } else {
+    // Pre-fill message
+    document.getElementById('enq-message').value = `Hello, I'm interested in "${data.title}". Is it still available?`;
+  }
+}
 
-    // Featured badge
-    if (l.is_featured) document.getElementById('featured-badge').style.display = 'flex';
+// ── Show disabled/recycled/pending banner ──
+function showDisabledView(data) {
+  document.getElementById('skeleton-wrap').style.display = 'none';
+  document.getElementById('breadcrumb-area').textContent = 'Unavailable';
 
-    // Badges
-    const catLabel = l.category.charAt(0).toUpperCase() + l.category.slice(1);
-    document.getElementById('listing-badges').innerHTML = `
-      <span class="badge ${l.category}">${catLabel}</span>
-      <span class="badge ${l.price_type}">${l.price_type === 'sale' ? 'For sale' : 'To let / rent'}</span>
-      ${l.furnished ? '<span class="badge standard">Furnished</span>' : ''}
-    `;
+  // Determine reason to show
+  let reason = data.disabled_reason || null;
 
-    // Title & location
-    document.getElementById('listing-title').textContent = l.title;
-    document.getElementById('listing-loc-text').textContent =
-      `${l.area}${l.sub_area ? ', ' + l.sub_area : ''}${l.address ? ' — ' + l.address : ''}`;
+  // Only show reason box if there's actually a reason
+  if (reason) {
+    document.getElementById('disabled-reason-text').textContent = reason;
+    document.getElementById('disabled-reason-box').style.display = 'block';
+  }
 
-    // Price
-    document.getElementById('listing-price').innerHTML =
-      `KES ${Number(l.price).toLocaleString('en-KE')}${l.price_type === 'rent' ? '<span>/month</span>' : ''}`;
-    document.getElementById('listing-price-meta').textContent =
-      l.price_type === 'rent' ? 'Monthly rent — negotiable' : 'Asking price — negotiable';
-    document.getElementById('listing-views').textContent = `${l.views || 0} views`;
+  document.getElementById('disabled-view').style.display = 'block';
+}
 
-    // Specs
-    const specs = [];
-    if (l.bedrooms !== null) specs.push({ icon: bedIcon, val: l.bedrooms == 0 ? 'Studio' : l.bedrooms, lbl: l.bedrooms == 0 ? 'Bedsitter' : 'Bedrooms' });
-    if (l.bathrooms)  specs.push({ icon: bathIcon, val: l.bathrooms, lbl: 'Bathrooms' });
-    if (l.size_sqm)   specs.push({ icon: sizeIcon, val: l.size_sqm + 'm²', lbl: 'Floor area' });
-    specs.push({ icon: furnIcon, val: l.furnished ? 'Yes' : 'No', lbl: 'Furnished' });
-    specs.push({ icon: typeIcon, val: l.price_type === 'rent' ? 'Rent' : 'Sale', lbl: 'Listing type' });
-    specs.push({ icon: catIcon,  val: catLabel, lbl: 'Category' });
+// ── Not found ──
+function showNotFound() {
+  document.getElementById('skeleton-wrap').style.display = 'none';
+  document.getElementById('not-found').style.display = 'block';
+  document.getElementById('breadcrumb-area').textContent = 'Not found';
+}
 
-    document.getElementById('specs-grid').innerHTML = specs.map(s => `
-      <div class="spec-item">
-        <div class="spec-icon">${s.icon}</div>
-        <div class="spec-val">${s.val}</div>
-        <div class="spec-lbl">${s.lbl}</div>
+// ── Render listing ──
+function renderListing(l) {
+  document.title = `${l.title} — NyumbaKisumu`;
+  document.querySelector('meta[name="description"]').setAttribute('content',
+    `${l.title} in ${l.area}, Kisumu. ${l.price_type==='rent'?'KES '+Number(l.price).toLocaleString()+'/month rent':'For sale at KES '+Number(l.price).toLocaleString()}. Contact seller on NyumbaKisumu.`);
+
+  document.getElementById('breadcrumb-area').textContent = l.area;
+
+  // Gallery
+  photos = (l.listing_photos || []).sort((a,b) => a.position - b.position);
+  const cover = photos.find(p=>p.is_cover) || photos[0];
+  currentPhoto = cover ? Math.max(0, photos.indexOf(cover)) : 0;
+  renderGallery();
+
+  if (l.is_featured) document.getElementById('featured-badge').style.display = 'flex';
+
+  // Badges
+  const catLabel = l.category.charAt(0).toUpperCase() + l.category.slice(1);
+  document.getElementById('listing-badges').innerHTML = `
+    <span class="badge ${l.category}">${catLabel}</span>
+    <span class="badge ${l.price_type}">${l.price_type==='sale'?'For sale':'To let / rent'}</span>
+    ${l.furnished?'<span class="badge standard">Furnished</span>':''}
+  `;
+
+  document.getElementById('listing-title').textContent = l.title;
+  document.getElementById('listing-loc-text').textContent =
+    `${l.area}${l.sub_area?', '+l.sub_area:''}${l.address?' — '+l.address:''}`;
+
+  document.getElementById('listing-price').innerHTML =
+    `KES ${Number(l.price).toLocaleString('en-KE')}${l.price_type==='rent'?'<span>/month</span>':''}`;
+  document.getElementById('listing-price-meta').textContent =
+    l.price_type==='rent'?'Monthly rent — negotiable':'Asking price — negotiable';
+  document.getElementById('listing-views').textContent = `${l.views||0} views`;
+
+  // Specs
+  const specs = [];
+  if (l.bedrooms !== null) specs.push({ icon:bedIcon, val:l.bedrooms==0?'Studio':l.bedrooms, lbl:l.bedrooms==0?'Bedsitter':'Bedrooms' });
+  if (l.bathrooms)  specs.push({ icon:bathIcon, val:l.bathrooms, lbl:'Bathrooms' });
+  if (l.size_sqm)   specs.push({ icon:sizeIcon, val:l.size_sqm+'m²', lbl:'Floor area' });
+  specs.push({ icon:furnIcon, val:l.furnished?'Yes':'No', lbl:'Furnished' });
+  specs.push({ icon:typeIcon, val:l.price_type==='rent'?'Rent':'Sale', lbl:'Listing type' });
+  specs.push({ icon:catIcon,  val:catLabel, lbl:'Category' });
+  document.getElementById('specs-grid').innerHTML = specs.map(s=>`
+    <div class="spec-item">
+      <div class="spec-icon">${s.icon}</div>
+      <div class="spec-val">${s.val}</div>
+      <div class="spec-lbl">${s.lbl}</div>
+    </div>`).join('');
+
+  if (l.description) {
+    document.getElementById('desc-card').style.display = 'block';
+    document.getElementById('desc-text').textContent = l.description;
+  }
+
+  document.getElementById('map-sub').textContent = `${l.area}${l.sub_area?', '+l.sub_area:''}, Kisumu`;
+  document.getElementById('map-area-label').textContent = `${l.area}, Kisumu — exact address shared after enquiry`;
+  document.getElementById('map-link').href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(l.area+', '+(l.sub_area||'')+' Kisumu Kenya')}`;
+
+  // Seller
+  const profile = l.profiles || {};
+  const name = profile.full_name || 'Seller';
+  const initials = name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
+  document.getElementById('seller-avatar').textContent = initials;
+  document.getElementById('seller-name').textContent = name;
+  document.getElementById('seller-since').textContent = profile.created_at
+    ? `Member since ${new Date(profile.created_at).toLocaleDateString('en-KE',{month:'long',year:'numeric'})}`
+    : '';
+
+  const phone = profile.phone || '';
+  const cleanPhone = phone.replace(/\s/g,'');
+  const wa254 = cleanPhone.startsWith('0') ? '254'+cleanPhone.slice(1) : cleanPhone;
+  const waMsg = encodeURIComponent(`Hello, I saw your listing "${l.title}" on NyumbaKisumu and I'm interested. Is it still available?`);
+  document.getElementById('btn-call').href = `tel:${cleanPhone}`;
+  document.getElementById('btn-call').innerHTML = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="white" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.12 1.2 2 2 0 012.11 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg> Call ${phone||'seller'}`;
+  document.getElementById('btn-whatsapp').href = `https://wa.me/${wa254}?text=${waMsg}`;
+
+  document.getElementById('skeleton-wrap').style.display = 'none';
+  document.getElementById('listing-content').style.display = 'block';
+}
+
+// ── Gallery ──
+function renderGallery() {
+  const img = document.getElementById('gallery-img');
+  const noPhoto = document.getElementById('gallery-no-photo');
+  const thumbsWrap = document.getElementById('gallery-thumbs');
+  const counter = document.getElementById('gallery-counter');
+  const prevBtn = document.getElementById('prev-btn');
+  const nextBtn = document.getElementById('next-btn');
+
+  if (!photos.length) { noPhoto.style.display='flex'; img.style.display='none'; return; }
+
+  noPhoto.style.display = 'none';
+  img.style.display = 'block';
+  img.src = photos[currentPhoto].url;
+  img.alt = listing?.title || 'Apartment photo';
+
+  if (photos.length > 1) {
+    counter.style.display = 'block';
+    counter.textContent = `${currentPhoto+1} / ${photos.length}`;
+    prevBtn.style.display = 'flex';
+    nextBtn.style.display = 'flex';
+    thumbsWrap.style.display = 'flex';
+    thumbsWrap.innerHTML = photos.map((p,i) => `
+      <div class="gallery-thumb ${i===currentPhoto?'active':''}" onclick="goPhoto(${i})">
+        <img src="${p.url}" alt="Photo ${i+1}" loading="lazy"/>
       </div>`).join('');
-
-    // Description
-    if (l.description) {
-      document.getElementById('desc-card').style.display = 'block';
-      document.getElementById('desc-text').textContent = l.description;
-    }
-
-    // Map
-    document.getElementById('map-sub').textContent = `${l.area}${l.sub_area ? ', ' + l.sub_area : ''}, Kisumu`;
-    document.getElementById('map-area-label').textContent = `${l.area}, Kisumu — exact address shared after enquiry`;
-    const mapsQuery = encodeURIComponent(`${l.area}, ${l.sub_area || ''} Kisumu Kenya`);
-    document.getElementById('map-link').href = `https://www.google.com/maps/search/?api=1&query=${mapsQuery}`;
-
-    // Seller
-    const profile = l.profiles || {};
-    const name = profile.full_name || 'Seller';
-    const initials = name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
-    document.getElementById('seller-avatar').textContent = initials;
-    document.getElementById('seller-name').textContent = name;
-    document.getElementById('seller-since').textContent = profile.created_at
-      ? `Member since ${new Date(profile.created_at).toLocaleDateString('en-KE',{month:'long',year:'numeric'})}`
-      : '';
-
-    // Contact buttons
-    const phone = profile.phone || '';
-    const cleanPhone = phone.replace(/\s/g,'');
-    const wa254 = cleanPhone.startsWith('0') ? '254' + cleanPhone.slice(1) : cleanPhone;
-    const waMsg = encodeURIComponent(`Hello, I saw your listing "${l.title}" on NyumbaKisumu and I'm interested. Is it still available?`);
-    document.getElementById('btn-call').href = `tel:${cleanPhone}`;
-    document.getElementById('btn-call').textContent = phone ? `Call ${phone}` : 'Call seller';
-    document.getElementById('btn-call').innerHTML = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="white" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.12 1.2 2 2 0 012.11 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg> Call ${phone || 'seller'}`;
-    document.getElementById('btn-whatsapp').href = `https://wa.me/${wa254}?text=${waMsg}`;
-
-    // Share
-    document.getElementById('share-wa').onclick = shareWhatsApp;
-
-    // Pre-fill enquiry message
-    document.getElementById('enq-message').value = `Hello, I'm interested in "${l.title}". Is it still available?`;
-
-    // Show content
-    document.getElementById('skeleton-wrap').style.display = 'none';
-    document.getElementById('listing-content').style.display = 'block';
   }
+}
 
-  // ── Gallery ──
-  function renderGallery() {
-    const img = document.getElementById('gallery-img');
-    const noPhoto = document.getElementById('gallery-no-photo');
-    const thumbsWrap = document.getElementById('gallery-thumbs');
-    const counter = document.getElementById('gallery-counter');
-    const prevBtn = document.getElementById('prev-btn');
-    const nextBtn = document.getElementById('next-btn');
+function changePhoto(dir) { currentPhoto=(currentPhoto+dir+photos.length)%photos.length; renderGallery(); }
+function goPhoto(i) { currentPhoto=i; renderGallery(); }
+document.addEventListener('keydown', e => {
+  if (e.key==='ArrowLeft')  changePhoto(-1);
+  if (e.key==='ArrowRight') changePhoto(1);
+});
 
-    if (!photos.length) {
-      noPhoto.style.display = 'flex'; img.style.display = 'none';
-      return;
-    }
+// ── Description toggle ──
+let descExpanded = false;
+function toggleDesc() {
+  descExpanded = !descExpanded;
+  document.getElementById('desc-text').classList.toggle('collapsed',!descExpanded);
+  document.getElementById('read-more').textContent = descExpanded?'Show less ↑':'Read more ↓';
+}
 
-    noPhoto.style.display = 'none';
-    img.style.display = 'block';
-    img.src = photos[currentPhoto].url;
-    img.alt = listing?.title || 'Apartment photo';
+// ── Similar listings ──
+async function loadSimilar(area, excludeId) {
+  const { data } = await db
+    .from('listings')
+    .select('*, listing_photos(*)')
+    .eq('status','active')
+    .eq('is_disabled', false)
+    .eq('recycle_bin', false)
+    .eq('area', area)
+    .neq('id', excludeId)
+    .limit(3);
 
-    if (photos.length > 1) {
-      counter.style.display = 'block';
-      counter.textContent = `${currentPhoto+1} / ${photos.length}`;
-      prevBtn.style.display = 'flex';
-      nextBtn.style.display = 'flex';
-
-      thumbsWrap.style.display = 'flex';
-      thumbsWrap.innerHTML = photos.map((p,i) => `
-        <div class="gallery-thumb ${i===currentPhoto?'active':''}" onclick="goPhoto(${i})">
-          <img src="${p.url}" alt="Photo ${i+1}" loading="lazy"/>
-        </div>`).join('');
-    }
+  const grid = document.getElementById('similar-grid');
+  if (!data?.length) {
+    grid.innerHTML = '<p style="font-size:13px;color:var(--text-3);grid-column:1/-1">No similar listings in this area yet.</p>';
+    return;
   }
+  grid.innerHTML = data.map(l => {
+    const cover = (l.listing_photos||[]).find(p=>p.is_cover)||(l.listing_photos||[])[0];
+    return `<div class="similar-card" onclick="window.location='listing.html?id=${l.id}'">
+      <div class="similar-img">${cover?`<img src="${cover.url}" alt="${escHtml(l.title)}" loading="lazy"/>`:''}</div>
+      <div class="similar-body">
+        <div class="similar-area">${escHtml(l.area)}</div>
+        <div class="similar-title">${escHtml(l.title)}</div>
+        <div class="similar-price">KES ${Number(l.price).toLocaleString('en-KE')}${l.price_type==='rent'?'<span style="font-size:12px;font-weight:400;color:var(--text-3)">/mo</span>':''}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
 
-  function changePhoto(dir) {
-    currentPhoto = (currentPhoto + dir + photos.length) % photos.length;
-    renderGallery();
-  }
-  function goPhoto(i) { currentPhoto = i; renderGallery(); }
+// ── Send first enquiry ──
+async function sendEnquiry() {
+  const name    = document.getElementById('enq-name').value.trim();
+  const phone   = document.getElementById('enq-phone').value.trim();
+  const email   = document.getElementById('enq-email').value.trim();
+  const message = document.getElementById('enq-message').value.trim();
+  let ok = true;
 
-  // Keyboard nav
-  document.addEventListener('keydown', e => {
-    if (e.key === 'ArrowLeft')  changePhoto(-1);
-    if (e.key === 'ArrowRight') changePhoto(1);
+  ['enq-name','enq-phone','enq-message'].forEach(id => document.getElementById(id).classList.remove('error'));
+  ['err-enq-name','err-enq-phone','err-enq-msg'].forEach(id => document.getElementById(id).classList.remove('show'));
+
+  if (!name)    { document.getElementById('enq-name').classList.add('error'); document.getElementById('err-enq-name').classList.add('show'); ok=false; }
+  if (!phone || phone.replace(/\s/g,'').length < 9) { document.getElementById('enq-phone').classList.add('error'); document.getElementById('err-enq-phone').classList.add('show'); ok=false; }
+  if (!message) { document.getElementById('enq-message').classList.add('error'); document.getElementById('err-enq-msg').classList.add('show'); ok=false; }
+  if (!ok) return;
+
+  const btn = document.getElementById('btn-enquire');
+  btn.disabled = true; btn.classList.add('loading');
+
+  // Generate a unique token for this buyer on this listing
+  const token = (crypto.randomUUID ? crypto.randomUUID() : Date.now()+'-'+Math.random().toString(36).slice(2));
+  buyerToken = token;
+  buyerName  = name;
+  buyerPhone = phone;
+
+  // Save to enquiries table (legacy — keeps admin enquiry view working)
+  await db.from('enquiries').insert({
+    listing_id:  listingId,
+    buyer_name:  name,
+    buyer_phone: phone,
+    buyer_email: email || null,
+    buyer_token: token,
+    message
   });
 
-  // ── Read more ──
-  let descExpanded = false;
-  function toggleDesc() {
-    descExpanded = !descExpanded;
-    const el = document.getElementById('desc-text');
-    const btn = document.getElementById('read-more');
-    el.classList.toggle('collapsed', !descExpanded);
-    btn.textContent = descExpanded ? 'Show less ↑' : 'Read more ↓';
+  // Save to messages table as first message
+  const { error: msgErr } = await db.from('messages').insert({
+    listing_id:  listingId,
+    buyer_token: token,
+    buyer_name:  name,
+    buyer_phone: phone,
+    sender:      'buyer',
+    content:     message
+  });
+
+  btn.disabled = false; btn.classList.remove('loading');
+
+  if (msgErr) {
+    alert('Something went wrong. Please try calling the seller directly.');
+    return;
   }
 
-  // ── Similar listings ──
-  async function loadSimilar(area, excludeId, category) {
-    const { data } = await db
-      .from('listings')
-      .select('*, listing_photos(*)')
-      .eq('status','active')
-      .eq('area', area)
-      .neq('id', excludeId)
-      .limit(3);
+  // Persist token in browser
+  setBuyerToken(token);
 
-    const grid = document.getElementById('similar-grid');
-    if (!data?.length) {
-      grid.innerHTML = '<p style="font-size:13px;color:var(--text-3);grid-column:1/-1">No similar listings in this area yet.</p>';
-      return;
-    }
-    grid.innerHTML = data.map(l => {
-      const cover = (l.listing_photos||[]).find(p=>p.is_cover)||(l.listing_photos||[])[0];
-      return `<div class="similar-card" onclick="window.location='listing.html?id=${l.id}'">
-        <div class="similar-img">${cover?`<img src="${cover.url}" alt="${l.title}" loading="lazy"/>`:'<div style="width:100%;height:100%;background:var(--surface)"></div>'}</div>
-        <div class="similar-body">
-          <div class="similar-area">${l.area}</div>
-          <div class="similar-title">${l.title}</div>
-          <div class="similar-price">KES ${Number(l.price).toLocaleString('en-KE')}${l.price_type==='rent'?'<span style="font-size:12px;font-weight:400;color:var(--text-3)">/mo</span>':''}</div>
+  // Show success
+  document.getElementById('enquiry-form').style.display = 'none';
+  document.getElementById('enquiry-success').style.display = 'block';
+}
+
+// ── Show thread (returning buyer or after first send) ──
+async function showThread() {
+  document.getElementById('enquiry-form').style.display = 'none';
+  document.getElementById('enquiry-success').style.display = 'none';
+  document.getElementById('thread-section').style.display = 'block';
+
+  // WhatsApp note
+  const waNote = document.getElementById('chat-wa-note');
+  if (buyerPhone) {
+    const wa = buyerPhone.replace(/\s/g,'').replace(/^0/,'254');
+    waNote.innerHTML = `<svg viewBox="0 0 24 24" width="12" height="12" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.997 2C6.477 2 2 6.477 2 12c0 1.885.52 3.648 1.425 5.157L2 22l4.955-1.397A9.954 9.954 0 0011.997 22C17.517 22 22 17.523 22 12S17.517 2 11.997 2z"/></svg>
+    Seller replies are saved here and may also reach you via WhatsApp.`;
+  } else {
+    waNote.innerHTML = 'Revisit this page anytime to check for replies from the seller.';
+  }
+
+  await loadThread();
+}
+
+// ── Load thread messages from Supabase ──
+async function loadThread() {
+  if (!buyerToken) return;
+
+  const { data, error } = await db
+    .from('messages')
+    .select('*')
+    .eq('listing_id', listingId)
+    .eq('buyer_token', buyerToken)
+    .order('created_at', { ascending: true });
+
+  threadMessages = data || [];
+  renderThread();
+}
+
+// ── Render thread bubbles ──
+function renderThread() {
+  const box = document.getElementById('chat-messages-box');
+  if (!threadMessages.length) {
+    box.innerHTML = '<div style="text-align:center;font-size:12px;color:var(--text-3);padding:16px">No messages yet</div>';
+    return;
+  }
+
+  const sellerName = listing?.profiles?.full_name || 'Seller';
+  const sellerInit = sellerName.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase() || 'S';
+  const buyerInit  = buyerName.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase() || 'B';
+
+  let lastDate = '';
+  box.innerHTML = threadMessages.map(m => {
+    const isSeller = m.sender === 'seller';
+    const d = new Date(m.created_at);
+    const dateStr = d.toLocaleDateString('en-KE',{weekday:'short',day:'numeric',month:'short'});
+    const timeStr = d.toLocaleTimeString('en-KE',{hour:'2-digit',minute:'2-digit'});
+    const sep = dateStr !== lastDate
+      ? `<div class="chat-date-sep">${dateStr}</div>`
+      : '';
+    lastDate = dateStr;
+    const init = isSeller ? sellerInit : buyerInit;
+    const avCls = isSeller ? 'seller-av' : 'buyer-av';
+    const bubCls = isSeller ? 'seller-b' : 'buyer-b';
+    const rowCls = isSeller ? 'seller-row-msg' : '';
+    return `${sep}
+      <div class="chat-bubble-row ${rowCls}">
+        <div class="bubble-av ${avCls}">${init}</div>
+        <div>
+          <div class="chat-bubble ${bubCls}">${escHtml(m.content||m.message||'')}</div>
+          <div class="bubble-time">${timeStr}${isSeller?' · Seller':''}</div>
         </div>
       </div>`;
-    }).join('');
+  }).join('');
+
+  // Scroll to bottom
+  box.scrollTop = box.scrollHeight;
+}
+
+// ── Send follow-up message ──
+async function sendFollowUp() {
+  const input = document.getElementById('chat-follow-input');
+  const text  = input.value.trim();
+  if (!text || !buyerToken) return;
+
+  const btn = document.getElementById('chat-follow-send');
+  btn.disabled = true;
+
+  const { data, error } = await db.from('messages').insert({
+    listing_id:  listingId,
+    buyer_token: buyerToken,
+    buyer_name:  buyerName,
+    buyer_phone: buyerPhone || null,
+    sender:      'buyer',
+    content:     text
+  }).select().single();
+
+  btn.disabled = false;
+
+  if (error) {
+    alert('Could not send message. Please try again.');
+    return;
   }
 
-  // ── Send enquiry ──
-  async function sendEnquiry() {
-    const name    = document.getElementById('enq-name').value.trim();
-    const phone   = document.getElementById('enq-phone').value.trim();
-    const email   = document.getElementById('enq-email').value.trim();
-    const message = document.getElementById('enq-message').value.trim();
-    let ok = true;
+  threadMessages.push(data || { sender:'buyer', content:text, created_at:new Date().toISOString() });
+  input.value = '';
+  input.style.height = 'auto';
+  renderThread();
+}
 
-    // Clear errors
-    ['enq-name','enq-phone','enq-message'].forEach(id => document.getElementById(id).classList.remove('error'));
-    ['err-enq-name','err-enq-phone','err-enq-msg'].forEach(id => document.getElementById(id).classList.remove('show'));
+// ── Clear thread (start fresh) ──
+function clearThread() {
+  if (!confirm('This will clear your conversation history from this device. The seller will still have the messages. Continue?')) return;
+  localStorage.removeItem('nk_buyer_' + listingId);
+  localStorage.removeItem('nk_buyer_name_' + listingId);
+  localStorage.removeItem('nk_buyer_phone_' + listingId);
+  buyerToken = null; buyerName = ''; buyerPhone = '';
+  document.getElementById('thread-section').style.display = 'none';
+  document.getElementById('enquiry-success').style.display = 'none';
+  document.getElementById('enquiry-form').style.display = 'block';
+  document.getElementById('enq-message').value = `Hello, I'm interested in "${listing?.title}". Is it still available?`;
+}
 
-    if (!name)    { document.getElementById('enq-name').classList.add('error'); document.getElementById('err-enq-name').classList.add('show'); ok=false; }
-    if (!phone || phone.replace(/\s/g,'').length < 9) { document.getElementById('enq-phone').classList.add('error'); document.getElementById('err-enq-phone').classList.add('show'); ok=false; }
-    if (!message) { document.getElementById('enq-message').classList.add('error'); document.getElementById('err-enq-msg').classList.add('show'); ok=false; }
-    if (!ok) return;
+function handleFollowKeydown(e) {
+  if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); sendFollowUp(); }
+}
 
-    const btn = document.getElementById('btn-enquire');
-    btn.disabled = true; btn.classList.add('loading');
+function autoResizeTa(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 100) + 'px';
+}
 
-    const { error } = await db.from('enquiries').insert({
-      listing_id: listingId,
-      buyer_name: name,
-      buyer_phone: phone,
-      buyer_email: email || null,
-      message
-    });
+// ── Share ──
+function shareWhatsApp() {
+  const url   = window.location.href;
+  const title = listing?.title || 'Apartment listing';
+  const price = listing ? `KES ${Number(listing.price).toLocaleString('en-KE')}${listing.price_type==='rent'?'/month':''}` : '';
+  window.open(`https://wa.me/?text=${encodeURIComponent(`🏠 *${title}*\n📍 ${listing?.area||''}, Kisumu\n💰 ${price}\n\nView on NyumbaKisumu: ${url}`)}`, '_blank');
+}
 
-    btn.disabled = false; btn.classList.remove('loading');
+function copyLink() {
+  navigator.clipboard.writeText(window.location.href).then(() => {
+    const btn = event.target.closest('.action-pill');
+    const orig = btn.innerHTML;
+    btn.innerHTML = `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Copied!`;
+    btn.style.borderColor='var(--green)'; btn.style.color='var(--green)';
+    setTimeout(() => { btn.innerHTML=orig; btn.style.borderColor=''; btn.style.color=''; }, 2000);
+  });
+}
 
-    if (error) { alert('Something went wrong. Please try calling the seller directly.'); return; }
+// ── Similar ──
+async function loadSimilar(area, excludeId) {
+  const { data } = await db
+    .from('listings')
+    .select('*, listing_photos(*)')
+    .eq('status','active')
+    .eq('is_disabled', false)
+    .eq('recycle_bin', false)
+    .eq('area', area)
+    .neq('id', excludeId)
+    .limit(3);
 
-    document.getElementById('enquiry-form').style.display = 'none';
-    document.getElementById('enquiry-success').style.display = 'block';
+  const grid = document.getElementById('similar-grid');
+  if (!data?.length) {
+    grid.innerHTML = '<p style="font-size:13px;color:var(--text-3);grid-column:1/-1">No similar listings in this area yet.</p>';
+    return;
   }
+  grid.innerHTML = data.map(l => {
+    const cover = (l.listing_photos||[]).find(p=>p.is_cover)||(l.listing_photos||[])[0];
+    return `<div class="similar-card" onclick="window.location='listing.html?id=${l.id}'">
+      <div class="similar-img">${cover?`<img src="${cover.url}" alt="${escHtml(l.title)}" loading="lazy"/>`:''}</div>
+      <div class="similar-body">
+        <div class="similar-area">${escHtml(l.area)}</div>
+        <div class="similar-title">${escHtml(l.title)}</div>
+        <div class="similar-price">KES ${Number(l.price).toLocaleString('en-KE')}${l.price_type==='rent'?'<span style="font-size:12px;font-weight:400;color:var(--text-3)">/mo</span>':''}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
 
-  // ── Share ──
-  function shareWhatsApp() {
-    const url = window.location.href;
-    const title = listing?.title || 'Apartment listing';
-    const price = listing ? `KES ${Number(listing.price).toLocaleString('en-KE')}${listing.price_type==='rent'?'/month':''}` : '';
-    const msg = encodeURIComponent(`🏠 *${title}*\n📍 ${listing?.area || ''}, Kisumu\n💰 ${price}\n\nView on NyumbaKisumu: ${url}`);
-    window.open(`https://wa.me/?text=${msg}`, '_blank');
+// ── Utils ──
+function escHtml(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── SVG icons ──
+const bedIcon  = `<svg viewBox="0 0 24 24"><path d="M2 4v16M22 4v16M2 12h20M2 8h4a2 2 0 012 2v2H2V8zM16 8h4a2 2 0 012 2v2h-6V8z"/></svg>`;
+const bathIcon = `<svg viewBox="0 0 24 24"><path d="M9 6l1-1a2 2 0 012.83 0l6.17 6.17a1 1 0 010 1.41L17 14M3 20h18M5 20v-4a3 3 0 013-3h1"/></svg>`;
+const sizeIcon = `<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="1"/><path d="M3 9h18M9 21V9"/></svg>`;
+const furnIcon = `<svg viewBox="0 0 24 24"><rect x="2" y="8" width="20" height="10" rx="2"/><path d="M6 8V6a2 2 0 012-2h8a2 2 0 012 2v2"/><line x1="6" y1="14" x2="6" y2="18"/><line x1="18" y1="14" x2="18" y2="18"/></svg>`;
+const typeIcon = `<svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`;
+const catIcon  = `<svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
+
+// ── Page view tracking ──
+(function() {
+  let sid = localStorage.getItem('nk_sid');
+  if (!sid) {
+    sid = (crypto.randomUUID ? crypto.randomUUID() : Date.now()+'-'+Math.random().toString(36).slice(2));
+    localStorage.setItem('nk_sid', sid);
   }
+  db.from('page_views').insert({ path:location.pathname, referrer:document.referrer||null, user_agent:navigator.userAgent, session_id:sid });
+})();
 
-  function copyLink() {
-    navigator.clipboard.writeText(window.location.href).then(() => {
-      const btn = event.target.closest('.action-pill');
-      const orig = btn.innerHTML;
-      btn.innerHTML = `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Copied!`;
-      btn.style.borderColor = 'var(--green)'; btn.style.color = 'var(--green)';
-      setTimeout(() => { btn.innerHTML = orig; btn.style.borderColor=''; btn.style.color=''; }, 2000);
-    });
-  }
-
-  // ── Not found ──
-  function showNotFound() {
-    document.getElementById('skeleton-wrap').style.display = 'none';
-    document.getElementById('not-found').style.display = 'block';
-    document.getElementById('breadcrumb-area').textContent = 'Not found';
-  }
-
-  // ── SVG icons for specs ──
-  const bedIcon  = `<svg viewBox="0 0 24 24"><path d="M2 4v16M22 4v16M2 12h20M2 8h4a2 2 0 012 2v2H2V8zM16 8h4a2 2 0 012 2v2h-6V8z"/></svg>`;
-  const bathIcon = `<svg viewBox="0 0 24 24"><path d="M9 6l1-1a2 2 0 012.83 0l6.17 6.17a1 1 0 010 1.41L17 14M3 20h18M5 20v-4a3 3 0 013-3h1"/></svg>`;
-  const sizeIcon = `<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="1"/><path d="M3 9h18M9 21V9"/></svg>`;
-  const furnIcon = `<svg viewBox="0 0 24 24"><rect x="2" y="8" width="20" height="10" rx="2"/><path d="M6 8V6a2 2 0 012-2h8a2 2 0 012 2v2"/><line x1="6" y1="14" x2="6" y2="18"/><line x1="18" y1="14" x2="18" y2="18"/></svg>`;
-  const typeIcon = `<svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`;
-  const catIcon  = `<svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
-
-  // ── Init ──
-  loadListing();
+// ── Init ──
+loadListing();
 </script>
 </body>
 </html>
