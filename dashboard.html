@@ -13,7 +13,7 @@
       --green:#0F6E56;--green-light:#E1F5EE;--green-mid:#1D9E75;--green-dark:#085041;
       --gold:#BA7517;--gold-light:#FAEEDA;--text:#1a1a18;--text-2:#4a4a46;--text-3:#888780;
       --border:#e0ded8;--surface:#f7f6f2;--white:#ffffff;--red:#c0392b;--red-light:#fdecea;
-      --amber:#d97706;--amber-light:#fef3c7;--sidebar-w:240px;--topbar-h:64px;
+      --amber:#d97706;--amber-light:#fef3c7;--purple:#7c3aed;--sidebar-w:240px;--topbar-h:64px;
       --radius:10px;--radius-lg:16px;--shadow:0 1px 3px rgba(0,0,0,0.07),0 4px 12px rgba(0,0,0,0.05);
       --shadow-lg:0 8px 32px rgba(0,0,0,0.12);
     }
@@ -85,6 +85,12 @@
     .status-paused{background:var(--surface);color:var(--text-3);border:1px solid var(--border)}
     .status-rejected{background:var(--red-light);color:var(--red)}
     .status-expired{background:#f3f4f6;color:#6b7280}
+    .status-disabled{background:var(--red-light);color:var(--red)}
+
+    /* Admin disabled/recycled notice */
+    .disabled-note{font-size:11px;color:var(--red);background:var(--red-light);border-radius:6px;padding:6px 9px;margin-top:6px;line-height:1.5;max-width:300px}
+    .icon-btn.locked{opacity:.45;cursor:not-allowed}
+    .icon-btn.locked:hover{border-color:var(--border);color:var(--text-2);background:white}
 
     /* Toast */
     .toast{position:fixed;bottom:28px;right:28px;z-index:9999;background:var(--text);color:white;padding:12px 18px;border-radius:var(--radius);font-size:13px;font-weight:500;box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:10px;transform:translateY(80px);opacity:0;transition:all .25s;max-width:340px}
@@ -128,12 +134,13 @@
     .switch input:checked + .switch-track::after{transform:translateX(18px)}
 
     /* Stats */
-    .stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}
+    .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:28px}
     .stat-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px 22px;position:relative;overflow:hidden}
     .stat-card::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--green)}
     .stat-card.gold::after{background:var(--gold)}
     .stat-card.amber::after{background:var(--amber)}
     .stat-card.blue::after{background:#2563eb}
+    .stat-card.purple::after{background:var(--purple)}
     .stat-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);margin-bottom:10px}
     .stat-val{font-size:32px;font-weight:700;color:var(--text);line-height:1;margin-bottom:6px}
     .stat-delta{font-size:12px;color:var(--text-3)}
@@ -195,7 +202,7 @@
     .listing-area-text{font-size:11px;color:var(--text-3)}
     .listing-price-text{font-size:13px;font-weight:700;color:var(--green-dark)}
     .listing-price-sub{font-size:11px;color:var(--text-3)}
-    .actions-cell{display:flex;gap:6px;align-items:center}
+    .actions-cell{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
     .icon-btn{width:30px;height:30px;border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;border:1px solid var(--border);background:white;color:var(--text-2)}
     .icon-btn svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2}
     .icon-btn:hover{border-color:var(--green);color:var(--green);background:var(--green-light)}
@@ -253,12 +260,13 @@
     #loading-screen p{font-size:14px;color:rgba(255,255,255,0.6)}
     .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:99}
 
-    @media(max-width:1100px){.stat-grid{grid-template-columns:repeat(2,1fr)}.overview-grid{grid-template-columns:1fr}.settings-grid{grid-template-columns:1fr}}
+    @media(max-width:1100px){.overview-grid{grid-template-columns:1fr}.settings-grid{grid-template-columns:1fr}}
     @media(max-width:900px){.sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}.sidebar-overlay.open{display:block}.topbar{left:0}.main{margin-left:0}.hamburger{display:flex}.listings-table thead{display:none}.listings-table td{display:block;padding:6px 16px}.listings-table td:first-child{padding-top:14px}.listings-table td:last-child{padding-bottom:14px}.listings-table tr{display:block;border-bottom:1px solid var(--border)}}
     @media(max-width:600px){.stat-grid{grid-template-columns:1fr 1fr}.page{padding:16px}.form-grid{grid-template-columns:1fr}.topbar{padding:0 16px}}
     @media(max-width:400px){.stat-grid{grid-template-columns:1fr}}
   </style>
 </head>
+
 <body>
 
 <div id="loading-screen">
@@ -372,8 +380,14 @@
         <div class="stat-card blue">
           <div class="stat-label">Total paid</div>
           <div class="stat-val" id="stat-paid">—</div>
-          <div class="stat-delta" id="stat-paid-delta">listing fees via M-Pesa</div>
+          <div class="stat-delta" id="stat-paid-delta">listing fees</div>
           <div class="stat-icon"><svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div>
+        </div>
+        <div class="stat-card purple">
+          <div class="stat-label">Total views</div>
+          <div class="stat-val" id="stat-views">—</div>
+          <div class="stat-delta" id="stat-views-delta">across all listings</div>
+          <div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div>
         </div>
       </div>
       <div class="overview-grid">
@@ -452,13 +466,13 @@
     <div class="page" id="page-payments">
       <div class="section-head">
         <h2>Payment history</h2>
-        <div style="font-size:13px;color:var(--text-3)">All M-Pesa listing fee transactions</div>
+        <div style="font-size:13px;color:var(--text-3)">All listing fee transactions</div>
       </div>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px" id="payment-summary"></div>
       <div class="card" style="overflow:hidden">
         <table class="payments-table">
           <thead>
-            <tr><th>Date</th><th>Listing</th><th>M-Pesa ref</th><th>Amount</th><th>Status</th><th>Receipt</th></tr>
+            <tr><th>Date</th><th>Listing</th><th>Reference</th><th>Amount</th><th>Status</th><th>Receipt</th></tr>
           </thead>
           <tbody id="payments-tbody">
             <tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-3)">Loading…</td></tr>
@@ -511,7 +525,7 @@
                 <label class="switch"><input type="checkbox" id="notif-expiring" checked/><span class="switch-track"></span></label>
               </div>
               <div class="toggle-row">
-                <div class="toggle-label"><strong>Payment confirmed</strong><span>M-Pesa receipt notifications</span></div>
+                <div class="toggle-label"><strong>Payment confirmed</strong><span>Payment receipt notifications</span></div>
                 <label class="switch"><input type="checkbox" id="notif-payment" checked/><span class="switch-track"></span></label>
               </div>
             </div>
@@ -744,12 +758,36 @@ async function loadAllData() {
   enqBadge.style.display = unread > 0 ? 'inline-block' : 'none';
 }
 
+// ── ADMIN DISABLE / RECYCLE BIN DISPLAY ──
+// Translates the admin's is_disabled / recycle_bin / disabled_reason fields
+// (set from admin.html) into what the seller sees on their own dashboard.
+function getListingStatusDisplay(l) {
+  if (l.recycle_bin) {
+    const daysLeft = l.purge_at ? Math.max(0, Math.ceil((new Date(l.purge_at) - new Date()) / 86400000)) : null;
+    return {
+      label: 'In recycle bin',
+      cls: 'status-disabled',
+      banner: `Disabled by admin${l.disabled_reason ? ': ' + escHtml(l.disabled_reason) : ''}. Contact admin for more information.` +
+              (daysLeft !== null ? ` It will be permanently removed in ${daysLeft} day(s) unless restored.` : '')
+    };
+  }
+  if (l.is_disabled) {
+    return {
+      label: 'Disabled by admin',
+      cls: 'status-disabled',
+      banner: `Disabled by admin${l.disabled_reason ? ': ' + escHtml(l.disabled_reason) : ''}. Contact admin for more information.`
+    };
+  }
+  return { label: statusLabel(l.status), cls: 'status-' + l.status, banner: null };
+}
+
 // ── OVERVIEW ──
 function renderOverview() {
-  const active = allListings.filter(l => l.status === 'active').length;
+  const active = allListings.filter(l => l.status === 'active' && !l.is_disabled).length;
   const unread = allEnquiries.filter(e => !e.read_at).length;
   const confirmedPayments = allPayments.filter(p => p.status === 'confirmed' || p.status === 'paid');
   const totalPaid = confirmedPayments.reduce((s,p) => s + (Number(p.amount)||0), 0);
+  const totalViews = allListings.reduce((s,l) => s + (Number(l.views)||0), 0);
   document.getElementById('stat-active').textContent = active;
   document.getElementById('stat-active-delta').textContent = `of ${allListings.length} total listing${allListings.length!==1?'s':''}`;
   document.getElementById('stat-enquiries').textContent = allEnquiries.length;
@@ -758,6 +796,7 @@ function renderOverview() {
   document.getElementById('stat-new-enq-delta').textContent = unread > 0 ? `${unread} unread — check enquiries` : 'All caught up ✓';
   document.getElementById('stat-paid').textContent = `KES ${totalPaid.toLocaleString('en-KE')}`;
   document.getElementById('stat-paid-delta').textContent = `${confirmedPayments.length} payment${confirmedPayments.length!==1?'s':''}`;
+  document.getElementById('stat-views').textContent = totalViews.toLocaleString('en-KE');
   renderActivityFeed();
   renderChart();
   renderQuickListings();
@@ -767,7 +806,7 @@ function renderActivityFeed() {
   const items = [];
   allEnquiries.slice(0,5).forEach(e => items.push({ type:'enquiry', time:e.created_at, html:`<strong>${escHtml(e.buyer_name||'Someone')}</strong> enquired about <strong>${escHtml(e.listings?.title||'your listing')}</strong>` }));
   allListings.slice(0,3).forEach(l => items.push({ type:'listing', time:l.created_at, html:`You posted <strong>${escHtml(l.title)}</strong> in ${l.area}` }));
-  allPayments.slice(0,3).forEach(p => items.push({ type:'payment', time:p.created_at, html:`Payment of <strong>KES ${Number(p.amount||0).toLocaleString('en-KE')}</strong> received via M-Pesa` }));
+  allPayments.slice(0,3).forEach(p => items.push({ type:'payment', time:p.created_at, html:`Payment of <strong>KES ${Number(p.amount||0).toLocaleString('en-KE')}</strong> recorded` }));
   items.sort((a,b) => new Date(b.time) - new Date(a.time));
   const top = items.slice(0,8);
   const feed = document.getElementById('activity-feed');
@@ -808,11 +847,12 @@ function renderQuickListings() {
   el.innerHTML = allListings.slice(0,5).map(l => {
     const cover = (l.listing_photos||[]).find(p=>p.is_cover)||(l.listing_photos||[])[0];
     const imgHtml = cover ? `<img src="${cover.url}" alt=""/>` : `<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>`;
+    const disp = getListingStatusDisplay(l);
     return `<div class="quick-listing">
       <div class="quick-img">${imgHtml}</div>
       <div style="flex:1;min-width:0">
         <div class="quick-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(l.title)}</div>
-        <div class="quick-meta">${l.area} · ${statusLabel(l.status)}</div>
+        <div class="quick-meta" style="${l.is_disabled?'color:var(--red)':''}">${l.area} · ${disp.label}</div>
       </div>
       <div class="quick-price">KES ${Number(l.price).toLocaleString('en-KE')}${l.price_type==='rent'?'/mo':''}</div>
     </div>`;
@@ -850,16 +890,19 @@ function renderListingsTable() {
     const enqCount = allEnquiries.filter(e => e.listing_id === l.id).length;
     const posted = new Date(l.created_at).toLocaleDateString('en-KE',{day:'numeric',month:'short',year:'numeric'});
     const isPaused = l.status === 'paused';
+    const disp = getListingStatusDisplay(l);
+    const isLocked = !!l.is_disabled;
     return `<tr>
       <td><div class="listing-name-cell">
         <div class="listing-thumb">${imgHtml}</div>
         <div>
           <div class="listing-title-text">${escHtml(l.title)}</div>
           <div class="listing-area-text">${l.area}${l.sub_area?' · '+l.sub_area:''}</div>
+          ${disp.banner ? `<div class="disabled-note">${disp.banner}</div>` : ''}
         </div>
       </div></td>
       <td><div class="listing-price-text">KES ${Number(l.price).toLocaleString('en-KE')}${l.price_type==='rent'?'/mo':''}</div><div class="listing-price-sub">${l.price_type==='rent'?'Monthly rent':'For sale'}</div></td>
-      <td><span class="status status-${l.status}">${statusLabel(l.status)}</span></td>
+      <td><span class="status ${disp.cls}">${disp.label}</span></td>
       <td style="font-size:13px;font-weight:600;color:${enqCount>0?'var(--green-dark)':'var(--text-3)'}">${enqCount}</td>
       <td style="font-size:13px;color:var(--text-3)">${l.views||0}</td>
       <td style="font-size:12px;color:var(--text-3)">${posted}</td>
@@ -867,12 +910,22 @@ function renderListingsTable() {
         <a href="listing.html?id=${l.id}" target="_blank" class="icon-btn" title="View live listing">
           <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
         </a>
+        <div class="icon-btn" data-id="${l.id}" onclick="shareListing('${l.id}')" title="Share listing">
+          <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        </div>
         <div class="icon-btn" data-id="${l.id}" onclick="openEditModal(this.dataset.id)" title="Edit">
           <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
         </div>
-        <div class="icon-btn" data-id="${l.id}" data-status="${l.status}" onclick="togglePause(this.dataset.id,this.dataset.status)" title="${isPaused?'Activate':'Pause'}">
-          ${isPaused?`<svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>`:`<svg viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>`}
-        </div>
+        ${l.status==='expired' ? `<div class="icon-btn" data-id="${l.id}" onclick="renewListing('${l.id}')" title="Renew listing — resubmit for approval">
+          <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
+        </div>` : ''}
+        ${isLocked
+          ? `<div class="icon-btn locked" title="Disabled by admin — contact admin to reactivate">
+              <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+            </div>`
+          : `<div class="icon-btn" data-id="${l.id}" data-status="${l.status}" onclick="togglePause(this.dataset.id,this.dataset.status)" title="${isPaused?'Activate':'Pause'}">
+              ${isPaused?`<svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>`:`<svg viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>`}
+            </div>`}
         <div class="icon-btn danger" data-id="${l.id}" data-title="${escAttr(l.title)}" onclick="openDeleteModal(this.dataset.id,this.dataset.title)" title="Delete">
           <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
         </div>
@@ -886,13 +939,37 @@ function statusLabel(s) {
 }
 
 async function togglePause(id, currentStatus) {
+  const l = allListings.find(l => l.id === id);
+  if (l && l.is_disabled) {
+    showToast('This listing was disabled by the admin. Contact admin for more information.', 'error');
+    return;
+  }
   const newStatus = currentStatus === 'paused' ? 'active' : 'paused';
   const { error } = await db.from('listings').update({ status: newStatus }).eq('id', id);
   if (error) { showToast('Could not update listing','error'); return; }
-  const l = allListings.find(l => l.id === id);
   if (l) l.status = newStatus;
   renderListingsTable(); renderOverview();
   showToast(newStatus==='active'?'Listing is now active':'Listing paused','success');
+}
+
+// Resubmits an expired listing for admin review — sellers can relist without re-creating the whole entry.
+async function renewListing(id) {
+  const { error } = await db.from('listings').update({ status: 'pending' }).eq('id', id);
+  if (error) { showToast('Could not renew: '+error.message, 'error'); return; }
+  const l = allListings.find(l => l.id === id);
+  if (l) l.status = 'pending';
+  renderListingsTable(); renderOverview();
+  showToast('Listing resubmitted — it will go live once approved again', 'success');
+}
+
+// Opens a pre-filled WhatsApp share for the listing's public page.
+function shareListing(id) {
+  const l = allListings.find(l => l.id === id);
+  if (!l) return;
+  const basePath = location.pathname.replace(/dashboard\.html$/, '');
+  const url = `${location.origin}${basePath}listing.html?id=${id}`;
+  const text = `${l.title} — KES ${Number(l.price).toLocaleString('en-KE')}${l.price_type==='rent'?'/mo':''} in ${l.area}\n${url}`;
+  window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
 }
 
 function openEditModal(id) {
@@ -916,6 +993,9 @@ function openEditModal(id) {
     </label>`
   ).join('');
   openModal('modal-edit');
+  if (l.is_disabled) {
+    setTimeout(() => showToast("This listing is disabled by the admin. Saving changes won't make it live again — contact admin once you've fixed the issue.", 'error'), 350);
+  }
 }
 
 async function saveEdit() {
@@ -959,9 +1039,10 @@ async function confirmDelete() {
   btn.disabled = true; btn.innerHTML = '<span class="spinner-sm" style="border-top-color:var(--red)"></span> Deleting…';
   await db.from('listing_photos').delete().eq('listing_id', deleteTargetId);
   await db.from('enquiries').delete().eq('listing_id', deleteTargetId);
-  const { error } = await db.from('listings').delete().eq('id', deleteTargetId);
+  const { data, error } = await db.from('listings').delete().eq('id', deleteTargetId).select();
   btn.disabled = false; btn.innerHTML = 'Delete listing';
   if (error) { showToast('Could not delete: '+error.message,'error'); return; }
+  if (!data || data.length === 0) { showToast('Delete blocked by database permissions (RLS)','error'); return; }
   allListings = allListings.filter(l => l.id !== deleteTargetId);
   allEnquiries = allEnquiries.filter(e => e.listing_id !== deleteTargetId);
   deleteTargetId = null;
@@ -1069,10 +1150,10 @@ function sendReply() {
 function renderPayments() {
   const paid = allPayments.filter(p => p.status==='confirmed'||p.status==='paid');
   const total = paid.reduce((s,p) => s+(Number(p.amount)||0), 0);
-  const pending = allPayments.filter(p => p.status==='pending');
+  const pending = allPayments.filter(p => p.status==='pending'||p.status==='pending_verification');
   document.getElementById('payment-summary').innerHTML = [
     { label:'Total collected', val:`KES ${total.toLocaleString('en-KE')}`, sub:`${paid.length} confirmed payment${paid.length!==1?'s':''}`, color:'var(--green)' },
-    { label:'Pending', val:pending.length, sub:'awaiting M-Pesa confirmation', color:'var(--amber)' },
+    { label:'Pending', val:pending.length, sub:'awaiting confirmation', color:'var(--amber)' },
     { label:'Avg per listing', val:paid.length?`KES ${Math.round(total/paid.length).toLocaleString('en-KE')}`:'—', sub:'listing fee', color:'var(--text-3)' },
   ].map(s => `<div class="card" style="padding:18px 20px">
     <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);margin-bottom:8px">${s.label}</div>
@@ -1085,22 +1166,23 @@ function renderPayments() {
     tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state">
       <svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
       <h3>No payments yet</h3>
-      <p>When you pay the listing fee via M-Pesa, your payment history appears here.</p>
+      <p>When you pay the listing fee, your payment history appears here.</p>
     </div></td></tr>`;
     return;
   }
   tbody.innerHTML = allPayments.map(p => {
     const date = new Date(p.created_at).toLocaleDateString('en-KE',{day:'numeric',month:'short',year:'numeric'});
     const isPaid = p.status==='confirmed'||p.status==='paid';
-    const statusCls = isPaid?'paid':p.status==='pending'?'pending':'failed';
-    const statusTxt = isPaid?'✓ Paid':p.status==='pending'?'⏳ Pending':'✕ Failed';
+    const isPendingState = p.status==='pending'||p.status==='pending_verification';
+    const statusCls = isPaid?'paid':isPendingState?'pending':'failed';
+    const statusTxt = isPaid?'✓ Paid':isPendingState?'⏳ Pending':'✕ Failed';
     return `<tr>
       <td style="color:var(--text-2)">${date}</td>
       <td style="font-weight:500">${escHtml(p.listings?.title||'—')}</td>
-      <td><span class="pay-ref">${p.mpesa_ref||'—'}</span></td>
+      <td><span class="pay-ref">${p.reference||p.mpesa_ref||'—'}</span></td>
       <td style="font-weight:700;color:var(--green-dark)">KES ${Number(p.amount||0).toLocaleString('en-KE')}</td>
       <td><span class="pay-status ${statusCls}">${statusTxt}</span></td>
-      <td>${isPaid?`<button class="btn btn-outline btn-sm" onclick="showToast('Receipt download coming with M-Pesa integration','success')">
+      <td>${isPaid?`<button class="btn btn-outline btn-sm" onclick="showToast('Receipt download coming soon','success')">
         <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Receipt</button>`:'—'}</td>
     </tr>`;
   }).join('');
