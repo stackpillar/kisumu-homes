@@ -377,7 +377,7 @@
   <div class="nav-links">
     <a href="listings.html" class="nav-link">Browse</a>
     <a href="pricing.html" class="nav-link current">Pricing</a>
-    <a href="login.html" class="nav-link">Sign in</a>
+    <a href="login.html" class="nav-link" id="nav-account-link">Sign in</a>
     <a href="post-listing.html" class="btn-nav">
       <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:white;fill:none;stroke-width:2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
       List your apartment
@@ -861,6 +861,34 @@
 
   // Open first FAQ by default
   document.querySelector('.faq-item')?.classList.add('open');
+</script>
+<script>
+(function() {
+  // Swap Sign in → My Account when logged in
+  const SUPABASE_URL = 'https://vliuuloyfhyxcsuchpss.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_oIIcecf3wzKMual5K24Z8Q_zmxVfgsx';
+
+  // Reuse existing client if already on page, otherwise create one
+  const _db = (typeof db !== 'undefined') ? db : supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  _db.auth.getSession().then(({ data: { session } }) => {
+    if (!session) return; // not logged in — leave Sign in button as is
+
+    // Find the Sign in link in the navbar and replace it
+    const navLinks = document.querySelector('.nav-links');
+    if (!navLinks) return;
+
+    const signInLink = [...navLinks.querySelectorAll('a')].find(a =>
+      a.textContent.trim().toLowerCase() === 'sign in'
+    );
+    if (!signInLink) return;
+
+    signInLink.textContent = 'My account';
+    signInLink.href = 'dashboard.html';
+    signInLink.style.fontWeight = '600';
+    signInLink.style.color = 'var(--green)';
+  });
+})();
 </script>
 </body>
 </html>
