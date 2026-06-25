@@ -293,7 +293,7 @@
   <a href="listings.html">Browse</a>
   <a href="how-it-works.html">How it works</a>
   <a href="saved.html">Saved</a>
-  <a href="login.html" id="mobile-account-link">Sign in</a>
+  <a href="login.html" class="mobile-nav-link" id="mobile-account-link">Sign in</a>
   <a href="post-listing.html" class="btn-primary">
     List your apartment
   </a>
@@ -612,6 +612,28 @@
 function toggleMobileMenu() {
   document.getElementById('mobile-nav').classList.toggle('active');
 }
+</script>
+<script>
+(async function() {
+  const { data: { session } } = await db.auth.getSession();
+
+  const desktopLink = document.getElementById('nav-account-link');
+  const mobileLink = document.getElementById('mobile-account-link');
+
+  console.log(mobileLink);
+
+  if (session) {
+    if (desktopLink) {
+      desktopLink.textContent = 'My Account';
+      desktopLink.href = 'dashboard.html';
+    }
+
+    if (mobileLink) {
+      mobileLink.textContent = 'My Account';
+      mobileLink.href = 'dashboard.html';
+    }
+  }
+})();
 </script>
 </body>
 </html>
