@@ -1,380 +1,617 @@
-/**
- * saved-listings.js — NyumbaKisumu
- * Shared save/unsave logic for listing.html, listings.html, index.html
- * Works in two modes:
- *   1. Anonymous — IDs stored in localStorage (key: nk_saved_listings)
- *   2. Signed in — synced to saved_listings table in Supabase
- *
- * HOW TO USE ON ANY PAGE:
- *   1. Make sure supabase-js is loaded first (it already is on all your pages)
- *   2. Add: <script src="saved-listings.js"></script>  just before </body>
- *   3. Call NKSaved.init() once on page load
- *   4. Use NKSaved.buildHeartBtn(listingId) to get a heart button HTML string
- *   5. Use NKSaved.isSaved(id) to check if a listing is saved
- */
-
-(function (global) {
-  'use strict';
-
-  // ── Config ──────────────────────────────────────────────────
-  const SUPABASE_URL = 'https://vliuuloyfhyxcsuchpss.supabase.co';
-  const SUPABASE_KEY = 'sb_publishable_oIIcecf3wzKMual5K24Z8Q_zmxVfgsx';
-  const LOCAL_KEY    = 'nk_saved_listings'; // localStorage key
-
-  // ── Internal state ───────────────────────────────────────────
-  let _db          = null;
-  let _currentUser = null;
-  let _savedIds    = new Set(); // in-memory cache of saved IDs
-  let _ready       = false;
-  let _onChangeCbs = []; // callbacks fired whenever save state changes
-
-  // ── Supabase client ──────────────────────────────────────────
-  function getDb() {
-    if (_db) return _db;
-    if (typeof supabase === 'undefined' || !supabase.createClient) {
-      console.error('[NKSaved] supabase-js not loaded. Load it before saved-listings.js.');
-      return null;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Your Shortlist — NyumbaKisumu</title>
+  <meta name="description" content="Your saved apartment listings on NyumbaKisumu — keep track of properties you're interested in across Kisumu, Maseno, and Luanda."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --green:       #0F6E56;
+      --green-light: #E1F5EE;
+      --green-mid:   #1D9E75;
+      --green-dark:  #085041;
+      --gold:        #BA7517;
+      --gold-light:  #FAEEDA;
+      --red:         #C53030;
+      --red-light:   #FFF5F5;
+      --text:        #1a1a18;
+      --text-2:      #4a4a46;
+      --text-3:      #888780;
+      --border:      #e0ded8;
+      --surface:     #f7f6f2;
+      --white:       #ffffff;
+      --radius:      10px;
+      --radius-lg:   16px;
     }
-    _db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    return _db;
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; color: var(--text); background: var(--surface); font-size: 15px; line-height: 1.6; }
+    a { text-decoration: none; color: inherit; }
+    button { font-family: inherit; cursor: pointer; border: none; }
+
+    /* ── Navbar ── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 32px; height: 64px;
+      background: var(--white); border-bottom: 1px solid var(--border);
+    }
+    .logo { display: flex; align-items: center; gap: 10px; font-family: 'Playfair Display', serif; font-size: 20px; color: var(--green-dark); }
+    .logo-icon { width: 34px; height: 34px; background: var(--green); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+    .logo-icon svg { width: 18px; height: 18px; fill: none; stroke: white; stroke-width: 2; stroke-linecap: round; }
+    .nav-links { display: flex; align-items: center; gap: 8px; }
+    .nav-link { font-size: 14px; color: var(--text-2); padding: 8px 14px; border-radius: var(--radius); transition: background .15s; position: relative; display: flex; align-items: center; gap: 6px; }
+    .nav-link:hover { background: var(--surface); }
+    .nav-link.active { color: var(--green); font-weight: 600; }
+    .nav-link svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 2; }
+    .nav-count { background: var(--green); color: white; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 10px; min-width: 16px; text-align: center; }
+    .btn-primary { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 500; padding: 9px 18px; border-radius: var(--radius); background: var(--green); color: white; transition: background .15s; }
+    .btn-primary:hover { background: var(--green-dark); }
+    .btn-outline { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; padding: 8px 16px; border-radius: var(--radius); border: 1.5px solid var(--border); background: white; color: var(--text-2); transition: all .15s; }
+    .btn-outline:hover { border-color: var(--green); color: var(--green); }
+
+    /* ── Page header ── */
+    .page-header { background: var(--white); border-bottom: 1px solid var(--border); padding: 28px 32px; }
+    .page-header-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+    .page-header h1 { font-family: 'Playfair Display', serif; font-size: 28px; color: var(--text); margin-bottom: 4px; }
+    .page-header p { font-size: 14px; color: var(--text-3); }
+
+    /* ── Sync banner ── */
+    .sync-banner {
+      max-width: 1100px; margin: 20px auto 0; padding: 14px 18px; border-radius: var(--radius-lg);
+      display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap;
+    }
+    .sync-banner.anon { background: var(--gold-light); border: 1px solid #FAC775; }
+    .sync-banner.signed-in { background: var(--green-light); border: 1px solid #9FE1CB; }
+    .sync-banner-text { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text-2); }
+    .sync-banner-text svg { width: 18px; height: 18px; flex-shrink: 0; }
+    .sync-banner.anon svg { stroke: var(--gold); fill: none; stroke-width: 2; }
+    .sync-banner.signed-in svg { stroke: var(--green-dark); fill: none; stroke-width: 2; }
+    .sync-banner strong { color: var(--text); }
+
+    /* ── Main ── */
+    .main-wrap { max-width: 1100px; margin: 0 auto; padding: 28px 32px 80px; }
+    .mobile-menu-btn,
+.mobile-nav {
+  display: none;
+}
+
+.mobile-menu-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.mobile-menu-btn svg {
+  width: 24px;
+  height: 24px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+}
+
+@media (max-width: 768px) {
+
+  .nav-links {
+    display: none;
   }
 
-  // ── localStorage helpers ─────────────────────────────────────
-  function getLocalIds() {
+  .mobile-menu-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .mobile-nav {
+    display: none;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
+    background: white;
+    border-top: 1px solid #eee;
+  }
+
+  .mobile-nav.active {
+    display: flex;
+  }
+
+  .mobile-nav a {
+    text-decoration: none;
+    color: inherit;
+  }
+}
+
+    /* ── Filter row ── */
+    .filter-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; flex-wrap: wrap; gap: 10px; }
+    .result-count { font-size: 14px; color: var(--text-2); }
+    .result-count strong { color: var(--text); font-weight: 600; }
+    .clear-all-btn { font-size: 13px; color: var(--red); background: none; font-weight: 500; }
+    .clear-all-btn:hover { text-decoration: underline; }
+
+    /* ── Listings grid ── */
+    .listings-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+
+    /* Card */
+    .card { background: white; border-radius: var(--radius-lg); border: 1px solid var(--border); overflow: hidden; transition: transform .2s, box-shadow .2s; position: relative; }
+    .card:hover { transform: translateY(-2px); box-shadow: 0 4px 20px rgba(0,0,0,0.09); }
+    .card.unavailable { opacity: .72; }
+    .card-img-link { display: block; }
+    .card-img { height: 180px; background: var(--surface); position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+    .card-img img { width: 100%; height: 100%; object-fit: cover; }
+    .card-img-placeholder { display: flex; flex-direction: column; align-items: center; gap: 6px; color: var(--text-3); }
+    .card-img-placeholder svg { width: 32px; height: 32px; opacity: .3; stroke: currentColor; fill: none; stroke-width: 1.5; }
+    .badge-featured { position: absolute; top: 10px; left: 10px; background: var(--gold); color: white; font-size: 10px; font-weight: 600; padding: 3px 9px; border-radius: 20px; z-index: 2; }
+    .badge-unavailable { position: absolute; inset: 0; background: rgba(20,20,18,0.55); color: white; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; text-align: center; padding: 12px; z-index: 2; }
+
+    .remove-heart-btn {
+      position: absolute; top: 10px; right: 10px; z-index: 3;
+      width: 32px; height: 32px; border-radius: 50%;
+      background: rgba(255,255,255,0.95); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all .15s;
+    }
+    .remove-heart-btn:hover { background: var(--red-light); border-color: var(--red); }
+    .remove-heart-btn svg { width: 16px; height: 16px; fill: var(--red); stroke: var(--red); stroke-width: 1.5; transition: transform .15s; }
+    .remove-heart-btn:hover svg { transform: scale(1.1); }
+    .remove-heart-btn.removing svg { opacity: .3; }
+
+    .card-body { padding: 14px 16px; }
+    .card-top-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
+    .card-area { font-size: 11px; font-weight: 600; color: var(--green); text-transform: uppercase; letter-spacing: .06em; }
+    .card-cat-pill { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 12px; background: var(--surface); color: var(--text-3); border: 1px solid var(--border); white-space: nowrap; }
+    .card-cat-pill.luxury { background: var(--gold-light); color: var(--gold); border-color: var(--gold); }
+    .card-cat-pill.student { background: var(--green-light); color: var(--green-dark); border-color: var(--green-mid); }
+    .card-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 3px; line-height: 1.35; }
+    .card-sub { font-size: 12px; color: var(--text-3); margin-bottom: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .card-price { font-size: 17px; font-weight: 700; color: var(--green-dark); margin-bottom: 10px; }
+    .card-price span { font-size: 12px; font-weight: 400; color: var(--text-3); }
+    .card-meta { display: flex; gap: 12px; font-size: 12px; color: var(--text-2); padding-top: 10px; border-top: 1px solid var(--border); margin-bottom: 12px; }
+    .card-meta-item { display: flex; align-items: center; gap: 4px; }
+    .card-meta-item svg { width: 13px; height: 13px; stroke: var(--text-3); fill: none; stroke-width: 2; }
+    .card-saved-date { font-size: 11px; color: var(--text-3); margin-bottom: 10px; }
+    .card-view-btn { display: block; text-align: center; width: 100%; padding: 9px; border-radius: var(--radius); background: var(--green); color: white; font-size: 13px; font-weight: 600; transition: background .15s; }
+    .card-view-btn:hover { background: var(--green-dark); }
+    .card-view-btn.disabled-btn { background: var(--surface); color: var(--text-3); cursor: not-allowed; }
+
+    /* ── Skeleton ── */
+    .skeleton { background: white; border-radius: var(--radius-lg); overflow: hidden; border: 1px solid var(--border); }
+    .skeleton-img { height: 180px; background: linear-gradient(90deg, #f0efe9 25%, #e8e7e1 50%, #f0efe9 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; }
+    .skeleton-body { padding: 14px 16px; }
+    .skeleton-line { height: 11px; background: linear-gradient(90deg, #f0efe9 25%, #e8e7e1 50%, #f0efe9 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; border-radius: 4px; margin-bottom: 9px; }
+    .skeleton-line.short { width: 55%; }
+    .skeleton-line.xshort { width: 35%; }
+    @keyframes shimmer { to { background-position: -200% 0; } }
+
+    /* ── Empty state ── */
+    .empty-state { text-align: center; padding: 80px 20px; color: var(--text-3); }
+    .empty-state svg { width: 52px; height: 52px; margin: 0 auto 18px; stroke: var(--border); fill: none; stroke-width: 1.5; }
+    .empty-state h3 { font-size: 17px; font-weight: 600; color: var(--text-2); margin-bottom: 8px; }
+    .empty-state p { font-size: 14px; margin-bottom: 22px; max-width: 360px; margin-left: auto; margin-right: auto; }
+
+    /* ── Confirm modal (clear all) ── */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 500; display: none; align-items: center; justify-content: center; padding: 20px; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: var(--white); border-radius: var(--radius-lg); width: 100%; max-width: 380px; padding: 24px; }
+    .modal h3 { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+    .modal p { font-size: 13px; color: var(--text-2); line-height: 1.6; margin-bottom: 18px; }
+    .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+    .btn-danger { background: var(--red-light); color: var(--red); padding: 9px 16px; border-radius: var(--radius); font-size: 13px; font-weight: 600; }
+    .btn-danger:hover { background: var(--red); color: white; }
+
+    /* ── Toast ── */
+    .toast { position: fixed; bottom: 24px; right: 24px; z-index: 999; background: var(--text); color: white; padding: 12px 20px; border-radius: var(--radius); font-size: 13px; transform: translateY(80px); opacity: 0; transition: all .3s; }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.success { background: var(--green-dark); }
+    .toast.error { background: var(--red); }
+
+    /* ── Footer ── */
+    footer { background: var(--text); color: rgba(255,255,255,0.6); padding: 48px 32px 28px; }
+    .footer-inner { max-width: 1100px; margin: 0 auto; }
+    .footer-top { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; margin-bottom: 40px; }
+    .footer-logo { font-family: 'Playfair Display', serif; font-size: 20px; color: white; margin-bottom: 10px; }
+    .footer-tagline { font-size: 13px; line-height: 1.7; max-width: 240px; }
+    .footer-col h4 { font-size: 12px; font-weight: 700; color: white; margin-bottom: 14px; letter-spacing: .08em; text-transform: uppercase; }
+    .footer-col a { display: block; font-size: 13px; color: rgba(255,255,255,0.55); margin-bottom: 8px; transition: color .15s; }
+    .footer-col a:hover { color: white; }
+    .footer-bottom { border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+    .footer-bottom p { font-size: 12px; }
+
+    /* ── Responsive ── */
+    @media (max-width: 900px) {
+      nav { padding: 0 16px; }
+      .nav-links .nav-link span.nav-link-text { display: none; }
+      .page-header { padding: 20px 16px; }
+      .sync-banner { margin: 16px 16px 0; }
+      .main-wrap { padding: 20px 16px 60px; }
+      footer { padding: 40px 16px 24px; }
+      .footer-top { grid-template-columns: 1fr 1fr; gap: 28px; }
+    }
+    @media (max-width: 480px) {
+      .footer-top { grid-template-columns: 1fr; }
+      .page-header-inner { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── NAVBAR ── -->
+<nav>
+  <a href="index.html" class="logo">
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24">
+        <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+        <polyline points="9 22 9 12 15 12 15 22"/>
+      </svg>
+    </div>
+    NyumbaKisumu
+  </a>
+
+  <!-- Desktop navigation -->
+  <div class="nav-links">
+    <a href="index.html" class="nav-link">Home</a>
+    <a href="listings.html" class="nav-link">Browse</a>
+    <a href="how-it-works.html" class="nav-link">How it works</a>
+
+    <a href="saved.html" class="nav-link active">
+      <svg viewBox="0 0 24 24" fill="currentColor" stroke="none">
+        <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
+      </svg>
+      <span class="nav-link-text">Saved</span>
+      <span class="nav-count" id="nav-count-badge" style="display:none">0</span>
+    </a>
+
+    <a href="login.html" class="nav-link" id="nav-account-link">
+      Sign in
+    </a>
+
+    <a href="post-listing.html" class="btn-primary">
+      List your apartment
+    </a>
+  </div>
+
+  <!-- Mobile menu button -->
+  <button
+    class="mobile-menu-btn"
+    onclick="toggleMobileMenu()"
+    aria-label="Open menu"
+  >
+    <svg viewBox="0 0 24 24">
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </button>
+</nav>
+
+<!-- Mobile Navigation -->
+<div class="mobile-nav" id="mobile-nav">
+  <a href="index.html">Home</a>
+  <a href="listings.html">Browse</a>
+  <a href="how-it-works.html">How it works</a>
+  <a href="saved.html">Saved</a>
+  <a href="login.html" id="mobile-account-link">Sign in</a>
+  <a href="post-listing.html" class="btn-primary">
+    List your apartment
+  </a>
+</div>
+
+<!-- ── PAGE HEADER ── -->
+<div class="page-header">
+  <div class="page-header-inner">
+    <div>
+      <h1>Your shortlist</h1>
+      <p>Apartments you've saved to come back to later</p>
+    </div>
+  </div>
+</div>
+
+<!-- ── SYNC BANNER ── -->
+<div class="sync-banner anon" id="sync-banner-anon" style="display:none">
+  <div class="sync-banner-text">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+    <span>Saved listings are stored on this device only. <strong>Sign in or create a free account</strong> to keep your shortlist if you switch phones or browsers.</span>
+  </div>
+  <a href="login.html?next=saved.html" class="btn-outline" style="white-space:nowrap">Sign in to sync</a>
+</div>
+
+<div class="sync-banner signed-in" id="sync-banner-signedin" style="display:none">
+  <div class="sync-banner-text">
+    <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+    <span>Signed in as <strong id="signed-in-email">—</strong> — your shortlist syncs automatically across every device.</span>
+  </div>
+  <button class="btn-outline" onclick="doSignOut()">Sign out</button>
+</div>
+
+<!-- ── MAIN ── -->
+<div class="main-wrap">
+  <div class="filter-row">
+    <span class="result-count" id="result-count">Loading…</span>
+    <button class="clear-all-btn" id="clear-all-btn" style="display:none" onclick="openClearModal()">Clear all saved listings</button>
+  </div>
+
+  <div id="results">
+    <div class="listings-grid" id="listings-grid">
+      <div class="skeleton"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line xshort"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div></div></div>
+      <div class="skeleton"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line xshort"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div></div></div>
+      <div class="skeleton"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line xshort"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── CLEAR ALL CONFIRM MODAL ── -->
+<div class="modal-overlay" id="clear-modal">
+  <div class="modal">
+    <h3>Clear your whole shortlist?</h3>
+    <p>This removes every saved listing. This can't be undone, though you can always save them again later.</p>
+    <div class="modal-actions">
+      <button class="btn-outline" onclick="closeClearModal()">Cancel</button>
+      <button class="btn-danger" onclick="confirmClearAll()">Clear all</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── TOAST ── -->
+<div class="toast" id="toast"></div>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div>
+        <div class="footer-logo">NyumbaKisumu</div>
+        <p class="footer-tagline">Find and list apartments in Kisumu, Maseno, and Luanda — no agents, no commission.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Browse</h4>
+        <a href="listings.html">All listings</a>
+        <a href="listings.html?category=student">Student housing</a>
+        <a href="listings.html?category=standard">Standard</a>
+        <a href="listings.html?category=luxury">Luxury</a>
+      </div>
+      <div class="footer-col">
+        <h4>Areas</h4>
+        <a href="listings.html?area=Milimani">Milimani</a>
+        <a href="listings.html?area=Maseno">Maseno</a>
+        <a href="listings.html?area=Luanda">Luanda</a>
+        <a href="listings.html?area=Kondele">Kondele</a>
+      </div>
+      <div class="footer-col">
+        <h4>Platform</h4>
+        <a href="post-listing.html">List a property</a>
+        <a href="login.html">Seller login</a>
+        <a href="how-it-works.html">How it works</a>
+        <a href="contact.html">Contact us</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 NyumbaKisumu. All rights reserved.</p>
+      <p>Kisumu · Maseno · Luanda · Western Kenya</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const SUPABASE_URL = 'https://vliuuloyfhyxcsuchpss.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_oIIcecf3wzKMual5K24Z8Q_zmxVfgsx';
+  const { createClient } = supabase;
+  const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  // ════════════════════════════════════════════════════════════
+  // SAVED-LISTINGS LOGIC
+  // NOTE: this block is written so it can be lifted verbatim into a
+  // shared saved-listings.js next — listing.html, listings.html, and
+  // index.html will then load that same file instead of duplicating it.
+  // ════════════════════════════════════════════════════════════
+  const SAVED_KEY = 'nk_saved_listings'; // localStorage key: JSON array of listing IDs
+  let currentUser = null;
+  let savedRows = []; // [{ listing_id, created_at, listing: {...} }]
+
+  function getLocalSavedIds() {
     try {
-      const raw = localStorage.getItem(LOCAL_KEY);
+      const raw = localStorage.getItem(SAVED_KEY);
       return raw ? JSON.parse(raw) : [];
     } catch { return []; }
   }
-
-  function setLocalIds(ids) {
-    try {
-      localStorage.setItem(LOCAL_KEY, JSON.stringify([...new Set(ids)]));
-    } catch (e) {
-      console.warn('[NKSaved] localStorage write failed:', e);
-    }
+  function setLocalSavedIds(ids) {
+    localStorage.setItem(SAVED_KEY, JSON.stringify(ids));
+  }
+  function isSavedLocally(id) {
+    return getLocalSavedIds().includes(id);
+  }
+  function removeLocalSaved(id) {
+    setLocalSavedIds(getLocalSavedIds().filter(x => x !== id));
   }
 
-  function addLocalId(id) {
-    const ids = getLocalIds();
-    if (!ids.includes(id)) ids.unshift(id);
-    setLocalIds(ids);
+  // ── Toast ──
+  function showToast(msg, type = '') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = `toast ${type} show`;
+    setTimeout(() => t.className = 'toast', 3000);
   }
 
-  function removeLocalId(id) {
-    setLocalIds(getLocalIds().filter(x => x !== id));
-  }
-
-  // ── Sync local saves to account on sign-in ───────────────────
-  async function syncLocalToAccount(userId) {
-    const localIds = getLocalIds();
-    if (!localIds.length) return;
-    const db = getDb();
-    if (!db) return;
-    // Insert each local save into Supabase (ignore conflicts = duplicates)
-    const rows = localIds.map(id => ({ user_id: userId, listing_id: id }));
-    const { error } = await db.from('saved_listings').upsert(rows, { onConflict: 'user_id,listing_id', ignoreDuplicates: true });
-    if (!error) {
-      // Clear local now that it's in the cloud
-      setLocalIds([]);
-    }
-  }
-
-  // ── Load saved IDs from Supabase ─────────────────────────────
-  async function loadFromAccount() {
-    const db = getDb();
-    if (!db || !_currentUser) return;
-    const { data, error } = await db
-      .from('saved_listings')
-      .select('listing_id')
-      .eq('user_id', _currentUser.id);
-    if (error) {
-      console.error('[NKSaved] loadFromAccount error:', error.message);
-      return;
-    }
-    _savedIds = new Set((data || []).map(r => r.listing_id));
-  }
-
-  // ── Load saved IDs from localStorage ─────────────────────────
-  function loadFromLocal() {
-    _savedIds = new Set(getLocalIds());
-  }
-
-  // ── Init — call once on page load ───────────────────────────
+  // ── Init: check session, then load saved listings from the right source ──
   async function init() {
-    const db = getDb();
-    if (!db) return;
-
     const { data: { session } } = await db.auth.getSession();
-    _currentUser = session?.user || null;
+    currentUser = session?.user || null;
 
-    if (_currentUser) {
-      await syncLocalToAccount(_currentUser.id);
+    if (currentUser) {
+      document.getElementById('sync-banner-signedin').style.display = 'flex';
+      document.getElementById('signed-in-email').textContent = currentUser.email || '';
+      document.getElementById('nav-account-link').textContent = 'My account';
+      document.getElementById('nav-account-link').href = 'dashboard.html';
       await loadFromAccount();
     } else {
-      loadFromLocal();
+      document.getElementById('sync-banner-anon').style.display = 'flex';
+      await loadFromLocalStorage();
     }
-
-    _ready = true;
-    _fireChange();
-
-    // Listen for auth changes (e.g. user signs in on this tab)
-    db.auth.onAuthStateChange(async (event, session) => {
-      const newUser = session?.user || null;
-      const wasSignedIn = !!_currentUser;
-      _currentUser = newUser;
-
-      if (newUser && !wasSignedIn) {
-        // Just signed in — sync local saves, reload from account
-        await syncLocalToAccount(newUser.id);
-        await loadFromAccount();
-        _fireChange();
-      } else if (!newUser && wasSignedIn) {
-        // Signed out — load from local
-        loadFromLocal();
-        _fireChange();
-      }
-    });
+    render();
   }
 
-  // ── Check if a listing is saved ──────────────────────────────
-  function isSaved(listingId) {
-    return _savedIds.has(listingId);
-  }
+  // ── Load from Supabase (signed-in buyer) ──
+  async function loadFromAccount() {
+    const { data, error } = await db
+      .from('saved_listings')
+      .select('listing_id, created_at, listings(*, listing_photos(*))')
+      .eq('user_id', currentUser.id)
+      .order('created_at', { ascending: false });
 
-  // ── Save a listing ───────────────────────────────────────────
-  async function save(listingId) {
-    if (_savedIds.has(listingId)) return; // already saved
-    _savedIds.add(listingId);
-
-    if (_currentUser) {
-      const db = getDb();
-      if (db) {
-        const { error } = await db.from('saved_listings').insert({
-          user_id: _currentUser.id,
-          listing_id: listingId
-        });
-        if (error && error.code !== '23505') { // 23505 = unique violation (already exists)
-          console.error('[NKSaved] save error:', error.message);
-          _savedIds.delete(listingId); // rollback
-          _fireChange();
-          return false;
-        }
-      }
-    } else {
-      addLocalId(listingId);
-    }
-
-    _fireChange();
-    _updateNavBadge();
-    return true;
-  }
-
-  // ── Unsave a listing ─────────────────────────────────────────
-  async function unsave(listingId) {
-    if (!_savedIds.has(listingId)) return;
-    _savedIds.delete(listingId);
-
-    if (_currentUser) {
-      const db = getDb();
-      if (db) {
-        const { error } = await db
-          .from('saved_listings')
-          .delete()
-          .eq('user_id', _currentUser.id)
-          .eq('listing_id', listingId);
-        if (error) {
-          console.error('[NKSaved] unsave error:', error.message);
-          _savedIds.add(listingId); // rollback
-          _fireChange();
-          return false;
-        }
-      }
-    } else {
-      removeLocalId(listingId);
-    }
-
-    _fireChange();
-    _updateNavBadge();
-    return true;
-  }
-
-  // ── Toggle save/unsave ───────────────────────────────────────
-  async function toggle(listingId, btnEl) {
-    if (!_ready) return;
-    const willSave = !_savedIds.has(listingId);
-
-    // Optimistic UI — update button immediately
-    if (btnEl) _applyHeartState(btnEl, willSave);
-
-    let success;
-    if (willSave) {
-      success = await save(listingId);
-      if (success) _showToast('Saved to your shortlist ♥');
-    } else {
-      success = await unsave(listingId);
-      if (success) _showToast('Removed from shortlist');
-    }
-
-    // Rollback button if failed
-    if (!success && btnEl) _applyHeartState(btnEl, !willSave);
-  }
-
-  // ── Get count ────────────────────────────────────────────────
-  function count() {
-    return _savedIds.size;
-  }
-
-  // ── Register onChange callback ───────────────────────────────
-  function onChange(cb) {
-    _onChangeCbs.push(cb);
-    if (_ready) cb(_savedIds); // fire immediately if already ready
-  }
-
-  // ── Build heart button HTML string ───────────────────────────
-  // Pass listingId, and optionally a label for accessibility
-  function buildHeartBtn(listingId, opts = {}) {
-    const saved   = _savedIds.has(listingId);
-    const label   = opts.label || (saved ? 'Remove from shortlist' : 'Save to shortlist');
-    const classes = opts.classes || '';
-    return `<button
-      class="nk-heart-btn ${saved ? 'saved' : ''} ${classes}"
-      data-listing-id="${listingId}"
-      title="${label}"
-      aria-label="${label}"
-      onclick="NKSaved.toggle('${listingId}', this); event.stopPropagation(); event.preventDefault();"
-    >${_heartSVG(saved)}</button>`;
-  }
-
-  // ── Update a heart button in the DOM after toggle ────────────
-  function _applyHeartState(btnEl, saved) {
-    btnEl.classList.toggle('saved', saved);
-    btnEl.title = saved ? 'Remove from shortlist' : 'Save to shortlist';
-    btnEl.innerHTML = _heartSVG(saved);
-  }
-
-  function _heartSVG(filled) {
-    return filled
-      ? `<svg viewBox="0 0 24 24" fill="#C53030" stroke="#C53030" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>`
-      : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>`;
-  }
-
-  // ── Fire all onChange callbacks ──────────────────────────────
-  function _fireChange() {
-    _onChangeCbs.forEach(cb => cb(_savedIds));
-  }
-
-  // ── Update the nav badge (♥ count) if it exists ──────────────
-  function _updateNavBadge() {
-    const badge = document.getElementById('nav-count-badge');
-    if (!badge) return;
-    const n = _savedIds.size;
-    badge.textContent = n;
-    badge.style.display = n > 0 ? 'inline-flex' : 'none';
-  }
-
-  // ── Simple toast (only if no page-level showToast exists) ────
-  function _showToast(msg) {
-    // If the page has its own showToast, use that
-    if (typeof window.showToast === 'function') {
-      window.showToast(msg, 'success');
+    if (error) {
+      console.error('Load saved listings error:', error.message);
+      savedRows = [];
       return;
     }
-    // Otherwise create/reuse a minimal one
-    let t = document.getElementById('nk-saved-toast');
-    if (!t) {
-      t = document.createElement('div');
-      t.id = 'nk-saved-toast';
-      t.style.cssText = `
-        position:fixed;bottom:24px;right:24px;z-index:9999;
-        background:#085041;color:white;padding:12px 18px;
-        border-radius:10px;font-size:13px;font-family:Inter,sans-serif;
-        transform:translateY(60px);opacity:0;transition:all .3s;
-        pointer-events:none;
-      `;
-      document.body.appendChild(t);
+    savedRows = (data || [])
+      .filter(r => r.listings)
+      .map(r => ({ listing_id: r.listing_id, created_at: r.created_at, listing: r.listings }));
+  }
+
+  // ── Load from localStorage (anonymous visitor) ──
+  async function loadFromLocalStorage() {
+    const ids = getLocalSavedIds();
+    if (!ids.length) { savedRows = []; return; }
+
+    const { data, error } = await db
+      .from('listings')
+      .select('*, listing_photos(*)')
+      .in('id', ids);
+
+    if (error) {
+      console.error('Load saved listings error:', error.message);
+      savedRows = [];
+      return;
     }
-    t.textContent = msg;
-    t.style.transform = 'translateY(0)';
-    t.style.opacity   = '1';
-    clearTimeout(t._timer);
-    t._timer = setTimeout(() => {
-      t.style.transform = 'translateY(60px)';
-      t.style.opacity   = '0';
-    }, 2800);
+    // Preserve the order they were saved in (most recently saved first)
+    savedRows = ids
+      .slice().reverse()
+      .map(id => (data || []).find(l => l.id === id))
+      .filter(Boolean)
+      .map(l => ({ listing_id: l.id, created_at: null, listing: l }));
   }
 
-  // ── Inject global CSS for heart buttons ──────────────────────
-  function _injectStyles() {
-    if (document.getElementById('nk-saved-styles')) return;
-    const style = document.createElement('style');
-    style.id = 'nk-saved-styles';
-    style.textContent = `
-      .nk-heart-btn {
-        background: rgba(255,255,255,0.93);
-        border: 1px solid #e0ded8;
-        border-radius: 50%;
-        width: 34px; height: 34px;
-        display: flex; align-items: center; justify-content: center;
-        cursor: pointer;
-        transition: background .15s, border-color .15s, transform .15s;
-        flex-shrink: 0;
-        font-family: inherit;
-      }
-      .nk-heart-btn svg {
-        width: 16px; height: 16px;
-        stroke: #888780;
-        transition: fill .15s, stroke .15s, transform .2s;
-        pointer-events: none;
-      }
-      .nk-heart-btn:hover {
-        background: #FFF5F5;
-        border-color: #C53030;
-        transform: scale(1.08);
-      }
-      .nk-heart-btn:hover svg { stroke: #C53030; }
-      .nk-heart-btn.saved {
-        background: #FFF5F5;
-        border-color: #C53030;
-      }
-      .nk-heart-btn.saved svg { fill: #C53030; stroke: #C53030; }
-      .nk-heart-btn.saved:hover { transform: scale(1.12); }
-
-      /* Card overlay position helper */
-      .nk-heart-overlay {
-        position: absolute;
-        top: 10px; right: 10px;
-        z-index: 3;
-      }
-    `;
-    document.head.appendChild(style);
+  // ── Remove a saved listing (works in both modes) ──
+  async function removeSaved(listingId, btnEl) {
+    if (btnEl) btnEl.classList.add('removing');
+    if (currentUser) {
+      const { error } = await db.from('saved_listings').delete().eq('user_id', currentUser.id).eq('listing_id', listingId);
+      if (error) { showToast('Could not remove — please try again', 'error'); if (btnEl) btnEl.classList.remove('removing'); return; }
+    } else {
+      removeLocalSaved(listingId);
+    }
+    savedRows = savedRows.filter(r => r.listing_id !== listingId);
+    render();
+    showToast('Removed from shortlist', 'success');
   }
 
-  // ── Auto-refresh all heart buttons already in the DOM ────────
-  function refreshAllButtons() {
-    document.querySelectorAll('.nk-heart-btn[data-listing-id]').forEach(btn => {
-      const id = btn.dataset.listingId;
-      _applyHeartState(btn, _savedIds.has(id));
-    });
-    _updateNavBadge();
+  // ── Clear all ──
+  function openClearModal() { document.getElementById('clear-modal').classList.add('open'); }
+  function closeClearModal() { document.getElementById('clear-modal').classList.remove('open'); }
+
+  async function confirmClearAll() {
+    closeClearModal();
+    if (currentUser) {
+      const { error } = await db.from('saved_listings').delete().eq('user_id', currentUser.id);
+      if (error) { showToast('Could not clear shortlist', 'error'); return; }
+    } else {
+      setLocalSavedIds([]);
+    }
+    savedRows = [];
+    render();
+    showToast('Shortlist cleared', 'success');
   }
 
-  // ── Expose public API ─────────────────────────────────────────
-  global.NKSaved = {
-    init,
-    isSaved,
-    save,
-    unsave,
-    toggle,
-    count,
-    onChange,
-    buildHeartBtn,
-    refreshAllButtons,
-    getUser: () => _currentUser,
-    getSavedIds: () => new Set(_savedIds),
-  };
+  async function doSignOut() {
+    await db.auth.signOut();
+    window.location.reload();
+  }
 
-  // Inject styles immediately (before DOM is interactive)
-  _injectStyles();
+  // ════════════════════════════════════════════════════════════
+  // RENDERING
+  // ════════════════════════════════════════════════════════════
+  function formatPrice(price, type) {
+    const p = Number(price).toLocaleString('en-KE');
+    return type === 'rent' ? `KES ${p}<span>/mo</span>` : `KES ${p}`;
+  }
 
-})(window);
+  function buildCard(row) {
+    const l = row.listing;
+    const photos = l.listing_photos || [];
+    const cover = photos.find(p => p.is_cover) || photos[0];
+    const imgHtml = cover
+      ? `<img src="${cover.url}" alt="${l.title}" loading="lazy" decoding="async"/>`
+      : `<div class="card-img-placeholder"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg><span style="font-size:11px">No photo</span></div>`;
+
+    const unavailable = l.is_disabled || l.status !== 'active';
+    const savedDate = row.created_at
+      ? `Saved ${new Date(row.created_at).toLocaleDateString('en-KE',{day:'numeric',month:'short',year:'numeric'})}`
+      : 'Saved on this device';
+
+    return `
+      <div class="card ${unavailable ? 'unavailable' : ''}" data-id="${l.id}">
+        <a class="card-img-link" href="${unavailable ? 'javascript:void(0)' : `listing.html?id=${l.id}`}">
+          <div class="card-img">
+            ${imgHtml}
+            ${l.is_featured && !unavailable ? '<span class="badge-featured">Featured</span>' : ''}
+            ${unavailable ? `<div class="badge-unavailable">${l.is_disabled ? (l.disabled_reason ? 'Disabled by admin' : 'No longer available') : 'No longer available'}</div>` : ''}
+          </div>
+        </a>
+        <button class="remove-heart-btn" title="Remove from shortlist" onclick="removeSaved('${l.id}', this)">
+          <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+        </button>
+        <div class="card-body">
+          <div class="card-top-row">
+            <div class="card-area">${l.area}${l.sub_area ? ' · ' + l.sub_area : ''}</div>
+            <span class="card-cat-pill ${l.category}">${l.category}</span>
+          </div>
+          <div class="card-title">${l.title}</div>
+          <div class="card-sub">${l.address || 'Kisumu, Kenya'}</div>
+          <div class="card-price">${formatPrice(l.price, l.price_type)}</div>
+          <div class="card-meta">
+            ${l.bedrooms !== null ? `<div class="card-meta-item"><svg viewBox="0 0 24 24"><path d="M2 4v16M22 4v16M2 12h20M2 8h4a2 2 0 012 2v2H2V8zM16 8h4a2 2 0 012 2v2h-6V8z"/></svg>${l.bedrooms === 0 ? 'Studio' : l.bedrooms + ' bed'}</div>` : ''}
+            ${l.bathrooms ? `<div class="card-meta-item"><svg viewBox="0 0 24 24"><path d="M9 6l1-1a2 2 0 012.83 0l6.17 6.17a1 1 0 010 1.41L17 14M3 20h18M5 20v-4a3 3 0 013-3h1"/></svg>${l.bathrooms} bath</div>` : ''}
+            ${l.size_sqm ? `<div class="card-meta-item"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="1"/></svg>${l.size_sqm}m²</div>` : ''}
+          </div>
+          <div class="card-saved-date">${savedDate}</div>
+          ${unavailable
+            ? `<span class="card-view-btn disabled-btn">No longer available</span>`
+            : `<a class="card-view-btn" href="listing.html?id=${l.id}">View listing</a>`}
+        </div>
+      </div>`;
+  }
+
+  function render() {
+    const grid = document.getElementById('listings-grid');
+    const count = savedRows.length;
+    document.getElementById('result-count').innerHTML = `<strong>${count}</strong> listing${count !== 1 ? 's' : ''} saved`;
+    document.getElementById('clear-all-btn').style.display = count ? 'inline' : 'none';
+
+    const badge = document.getElementById('nav-count-badge');
+    badge.textContent = count;
+    badge.style.display = count ? 'inline-flex' : 'none';
+
+    if (!count) {
+      grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
+        <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+        <h3>No saved listings yet</h3>
+        <p>Tap the heart icon on any listing to save it here and come back to it later.</p>
+        <a href="listings.html" class="btn-primary" style="display:inline-flex">Browse listings</a>
+      </div>`;
+      return;
+    }
+    grid.innerHTML = savedRows.map(buildCard).join('');
+  }
+
+  // ── Init ──
+  init();
+</script>
+<script>
+function toggleMobileMenu() {
+  document.getElementById('mobile-nav').classList.toggle('active');
+}
+</script>
+</body>
+</html>
