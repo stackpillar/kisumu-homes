@@ -216,7 +216,7 @@
     <a href="index.html" class="nav-link">Home</a>
     <a href="listings.html" class="nav-link">Browse</a>
     <a href="how-it-works.html" class="nav-link">How it works</a>
-    <a href="login.html" class="nav-link">Sign in</a>
+    <a href="login.html" class="nav-link" id="nav-account-link">Sign in</a>
     <a href="post-listing.html" class="btn-primary">List your apartment</a>
   </div>
 </nav>
@@ -552,6 +552,34 @@
   document.addEventListener('keydown', e => {
     if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') sendMessage();
   });
+</script>
+<script>
+(function() {
+  // Swap Sign in → My Account when logged in
+  const SUPABASE_URL = 'https://vliuuloyfhyxcsuchpss.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_oIIcecf3wzKMual5K24Z8Q_zmxVfgsx';
+
+  // Reuse existing client if already on page, otherwise create one
+  const _db = (typeof db !== 'undefined') ? db : supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  _db.auth.getSession().then(({ data: { session } }) => {
+    if (!session) return; // not logged in — leave Sign in button as is
+
+    // Find the Sign in link in the navbar and replace it
+    const navLinks = document.querySelector('.nav-links');
+    if (!navLinks) return;
+
+    const signInLink = [...navLinks.querySelectorAll('a')].find(a =>
+      a.textContent.trim().toLowerCase() === 'sign in'
+    );
+    if (!signInLink) return;
+
+    signInLink.textContent = 'My account';
+    signInLink.href = 'dashboard.html';
+    signInLink.style.fontWeight = '600';
+    signInLink.style.color = 'var(--green)';
+  });
+})();
 </script>
 </body>
 </html>
