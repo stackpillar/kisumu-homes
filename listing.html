@@ -270,6 +270,11 @@
     <a href="listings.html" class="nav-link">Browse</a>
     <a href="how-it-works.html" class="nav-link">How it works</a>
     <a href="login.html" class="nav-link">Sign in</a>
+    <a href="saved.html" class="nav-link">
+  <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+  Saved
+  <span class="nav-count" id="nav-count-badge" style="display:none">0</span>
+</a>
     <a href="post-listing.html" class="btn-primary">List your apartment</a>
   </div>
 </nav>
@@ -1079,6 +1084,39 @@ const catIcon  = `<svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9
 
 // ── Init ──
 loadListing();
+</script>
+<script src="saved-listings.js"></script>
+<script>
+  NKSaved.init().then(() => {
+    // After listing loads, inject the heart button
+    const listingId = new URLSearchParams(location.search).get('id');
+    if (!listingId) return;
+    const btn = document.createElement('div');
+    btn.style.cssText = 'position:absolute;top:14px;right:14px;z-index:3';
+    btn.innerHTML = NKSaved.buildHeartBtn(listingId);
+    document.querySelector('.gallery-main')?.appendChild(btn);
+  });
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  (function () {
+    const SUPABASE_URL = 'https://vliuuloyfhyxcsuchpss.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_oIIcecf3wzKMual5K24Z8Q_zmxVfgsx';
+    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    let sid = localStorage.getItem('nk_sid');
+    if (!sid) {
+      sid = (crypto.randomUUID ? crypto.randomUUID() : Date.now() + '-' + Math.random().toString(36).slice(2));
+      localStorage.setItem('nk_sid', sid);
+    }
+
+    sb.from('page_views').insert({
+      path: location.pathname,
+      referrer: document.referrer || null,
+      user_agent: navigator.userAgent,
+      session_id: sid
+    });
+  })();
 </script>
 </body>
 </html>
