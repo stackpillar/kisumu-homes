@@ -306,6 +306,11 @@
     <a href="pricing.html" class="nav-link">Pricing</a>
     <a href="contact.html" class="nav-link">Contact</a>
     <a href="login.html" class="nav-link">Sign in</a>
+    <a href="saved.html" class="nav-link">
+  <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+  Saved
+  <span class="nav-count" id="nav-count-badge" style="display:none">0</span>
+</a>
     <a href="post-listing.html" class="btn btn-primary">List your apartment</a>
   </div>
   <!-- Mobile menu button -->
@@ -321,6 +326,11 @@
   <a href="pricing.html">Pricing</a>
   <a href="contact.html">Contact</a>
   <a href="login.html">Sign in</a>
+  <a href="saved.html" class="nav-link">
+  <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+  Saved
+  <span class="nav-count" id="nav-count-badge" style="display:none">0</span>
+</a>
   <a href="post-listing.html" class="btn btn-primary">List your apartment</a>
 </div>
 
@@ -607,10 +617,11 @@
     return `
       <div class="card" onclick="window.location='listing.html?id=${listing.id}'">
         <div class="card-img">
-          ${imgHtml}
-          ${listing.is_featured ? '<span class="badge-featured">Featured</span>' : ''}
-          ${listing.category === 'student' ? '<span class="badge-student">Student</span>' : ''}
-        </div>
+        ${imgHtml}
+        ${listing.is_featured ? '<span class="badge-featured">Featured</span>' : ''}
+        <div class="nk-heart-overlay">${NKSaved.buildHeartBtn(listing.id)}</div>
+        ${listing.category === 'student' ? '<span class="badge-student">Student</span>' : ''}
+      </div>
         <div class="card-body">
           <div class="card-area">${listing.area}${listing.sub_area ? ' · ' + listing.sub_area : ''}</div>
           <div class="card-title">${listing.title}</div>
@@ -717,6 +728,29 @@
   loadFeatured();
   loadLatest(null);
   loadCounts();
+</script>
+<script src="saved-listings.js"></script>
+<script>NKSaved.init();</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  (function () {
+    const SUPABASE_URL = 'https://vliuuloyfhyxcsuchpss.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_oIIcecf3wzKMual5K24Z8Q_zmxVfgsx';
+    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    let sid = localStorage.getItem('nk_sid');
+    if (!sid) {
+      sid = (crypto.randomUUID ? crypto.randomUUID() : Date.now() + '-' + Math.random().toString(36).slice(2));
+      localStorage.setItem('nk_sid', sid);
+    }
+
+    sb.from('page_views').insert({
+      path: location.pathname,
+      referrer: document.referrer || null,
+      user_agent: navigator.userAgent,
+      session_id: sid
+    });
+  })();
 </script>
 </body>
 </html>
