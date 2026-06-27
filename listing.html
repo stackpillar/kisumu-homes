@@ -23,7 +23,7 @@
     button { font-family:inherit; cursor:pointer; border:none; }
     input,select,textarea { font-family:inherit; }
 
-    /* Navbar */
+    /* ── Navbar ── */
     nav { position:sticky; top:0; z-index:100; display:flex; align-items:center; justify-content:space-between; padding:0 32px; height:64px; background:var(--white); border-bottom:1px solid var(--border); }
     .logo { display:flex; align-items:center; gap:10px; font-family:'Playfair Display',serif; font-size:20px; color:var(--green-dark); }
     .logo-icon { width:34px; height:34px; background:var(--green); border-radius:8px; display:flex; align-items:center; justify-content:center; }
@@ -34,40 +34,28 @@
     .btn-primary { display:inline-flex; align-items:center; gap:6px; font-size:14px; font-weight:500; padding:9px 18px; border-radius:var(--radius); background:var(--green); color:white; transition:background .15s; }
     .btn-primary:hover { background:var(--green-dark); }
 
-    /* Mobile menu */
-    .mobile-menu-btn {
-      display: none; background: none; border: none; cursor: pointer;
-      padding: 6px; border-radius: 6px;
-    }
-    .mobile-menu-btn svg { width: 22px; height: 22px; stroke: var(--text); fill: none; stroke-width: 2; display: block; }
-    .mobile-nav {
-      display: none; position: fixed; top: 64px; left: 0; right: 0;
-      background: var(--white); border-bottom: 1px solid var(--border);
-      padding: 16px; z-index: 99; flex-direction: column; gap: 4px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
-    }
-    .mobile-nav.open { display: flex; }
-    .mobile-nav a { font-size: 15px; color: var(--text-2); padding: 10px 14px; border-radius: var(--radius); }
-    .mobile-nav a:hover { background: var(--surface); }
-    .mobile-nav .btn-primary { text-align: center; justify-content: center; margin-top: 8px; }
+    /* ── Mobile menu ── */
+    .mobile-menu-btn { display:none; background:none; border:none; cursor:pointer; padding:6px; border-radius:6px; }
+    .mobile-menu-btn svg { width:22px; height:22px; stroke:var(--text); fill:none; stroke-width:2; display:block; }
+    .mobile-nav { display:none; position:fixed; top:64px; left:0; right:0; background:var(--white); border-bottom:1px solid var(--border); padding:16px; z-index:99; flex-direction:column; gap:4px; box-shadow:0 8px 24px rgba(0,0,0,0.1); }
+    .mobile-nav.open { display:flex; }
+    .mobile-nav a { font-size:15px; color:var(--text-2); padding:10px 14px; border-radius:var(--radius); }
+    .mobile-nav a:hover { background:var(--surface); }
+    .mobile-nav .btn-primary { text-align:center; justify-content:center; margin-top:8px; }
+    @media (max-width:768px) { .nav-links { display:none; } .mobile-menu-btn { display:flex; } }
 
-    @media (max-width: 768px) {
-      .nav-links { display: none; }
-      .mobile-menu-btn { display: flex; }
-    }
-
-    /* Breadcrumb */
+    /* ── Breadcrumb ── */
     .breadcrumb { padding:14px 32px; display:flex; align-items:center; gap:8px; font-size:13px; color:var(--text-3); background:var(--white); border-bottom:1px solid var(--border); }
     .breadcrumb a { color:var(--text-3); transition:color .15s; }
     .breadcrumb a:hover { color:var(--green); }
     .breadcrumb svg { width:14px; height:14px; stroke:var(--border); fill:none; stroke-width:2; flex-shrink:0; }
     .breadcrumb span { color:var(--text-2); font-weight:500; }
 
-    /* Page layout */
+    /* ── Page layout ── */
     .page-wrap { max-width:1100px; margin:0 auto; padding:32px 24px 80px; }
     .layout { display:grid; grid-template-columns:1fr 360px; gap:32px; align-items:start; }
 
-    /* Gallery */
+    /* ── Gallery ── */
     .gallery { border-radius:var(--radius-lg); overflow:hidden; background:var(--surface); margin-bottom:24px; position:relative; }
     .gallery-main { width:100%; aspect-ratio:16/9; position:relative; overflow:hidden; background:var(--surface); display:flex; align-items:center; justify-content:center; }
     .gallery-main img { width:100%; height:100%; object-fit:cover; transition:opacity .3s; }
@@ -85,13 +73,13 @@
     .gallery-thumb img { width:100%; height:100%; object-fit:cover; }
     .featured-overlay { position:absolute; top:14px; left:14px; z-index:2; background:var(--gold); color:white; font-size:11px; font-weight:700; padding:4px 12px; border-radius:20px; letter-spacing:.04em; display:flex; align-items:center; gap:5px; }
 
-    /* Action row */
+    /* ── Action row ── */
     .action-row { display:flex; align-items:center; gap:8px; margin-bottom:20px; flex-wrap:wrap; }
     .action-pill { display:inline-flex; align-items:center; gap:6px; padding:7px 14px; border-radius:20px; border:1.5px solid var(--border); background:var(--white); font-size:13px; font-weight:500; color:var(--text-2); cursor:pointer; transition:all .15s; }
     .action-pill:hover { border-color:var(--green); color:var(--green); }
     .action-pill svg { width:14px; height:14px; stroke:currentColor; fill:none; stroke-width:2; }
 
-    /* Listing header */
+    /* ── Listing header ── */
     .listing-header { margin-bottom:20px; }
     .listing-badges { display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; }
     .badge { display:inline-flex; align-items:center; gap:4px; font-size:12px; font-weight:600; padding:4px 10px; border-radius:20px; }
@@ -104,7 +92,7 @@
     .listing-location { display:flex; align-items:center; gap:6px; font-size:14px; color:var(--text-3); }
     .listing-location svg { width:15px; height:15px; stroke:var(--green); fill:none; stroke-width:2; flex-shrink:0; }
 
-    /* Price block */
+    /* ── Price block ── */
     .price-block { background:var(--white); border:1px solid var(--border); border-radius:var(--radius-lg); padding:20px 24px; margin-bottom:20px; display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; }
     .price-main { font-family:'Playfair Display',serif; font-size:34px; font-weight:700; color:var(--green-dark); }
     .price-main span { font-family:'Inter',sans-serif; font-size:15px; font-weight:400; color:var(--text-3); }
@@ -112,7 +100,7 @@
     .price-views { display:flex; align-items:center; gap:5px; font-size:13px; color:var(--text-3); }
     .price-views svg { width:15px; height:15px; stroke:var(--text-3); fill:none; stroke-width:2; }
 
-    /* Specs */
+    /* ── Specs ── */
     .specs-card { background:var(--white); border:1px solid var(--border); border-radius:var(--radius-lg); padding:24px; margin-bottom:20px; }
     .specs-card h3 { font-size:15px; font-weight:600; color:var(--text); margin-bottom:18px; }
     .specs-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(130px,1fr)); gap:14px; }
@@ -122,14 +110,14 @@
     .spec-val { font-size:15px; font-weight:700; color:var(--text); line-height:1.2; }
     .spec-lbl { font-size:11px; color:var(--text-3); margin-top:3px; }
 
-    /* Description */
+    /* ── Description ── */
     .desc-card { background:var(--white); border:1px solid var(--border); border-radius:var(--radius-lg); padding:24px; margin-bottom:20px; }
     .desc-card h3 { font-size:15px; font-weight:600; color:var(--text); margin-bottom:14px; }
     .desc-text { font-size:14px; color:var(--text-2); line-height:1.8; white-space:pre-line; }
     .desc-text.collapsed { display:-webkit-box; -webkit-line-clamp:5; -webkit-box-orient:vertical; overflow:hidden; }
     .read-more { font-size:13px; color:var(--green); font-weight:500; margin-top:10px; cursor:pointer; display:inline-block; }
 
-    /* Map */
+    /* ── Map ── */
     .map-card { background:var(--white); border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden; margin-bottom:20px; }
     .map-card-header { padding:18px 24px 14px; border-bottom:1px solid var(--border); }
     .map-card-header h3 { font-size:15px; font-weight:600; color:var(--text); }
@@ -138,7 +126,7 @@
     .map-placeholder svg { width:36px; height:36px; stroke:var(--border); fill:none; stroke-width:1.5; }
     .map-placeholder a { font-size:13px; color:var(--green); font-weight:500; }
 
-    /* Similar listings */
+    /* ── Similar listings ── */
     .similar-section { margin-top:8px; }
     .similar-section h3 { font-size:16px; font-weight:600; color:var(--text); margin-bottom:16px; }
     .similar-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:14px; }
@@ -151,7 +139,7 @@
     .similar-title { font-size:13px; font-weight:600; color:var(--text); margin-bottom:6px; line-height:1.3; }
     .similar-price { font-size:15px; font-weight:700; color:var(--green-dark); }
 
-    /* RIGHT: Contact card */
+    /* ── Contact card (right rail) ── */
     .contact-card { background:var(--white); border:1px solid var(--border); border-radius:var(--radius-lg); padding:24px; position:sticky; top:80px; }
     .contact-card-title { font-size:16px; font-weight:600; color:var(--text); margin-bottom:4px; }
     .contact-card-sub { font-size:13px; color:var(--text-3); margin-bottom:20px; }
@@ -170,7 +158,7 @@
     .or-divider { display:flex; align-items:center; gap:10px; font-size:12px; color:var(--text-3); margin-bottom:18px; }
     .or-divider::before,.or-divider::after { content:''; flex:1; height:1px; background:var(--border); }
 
-    /* Enquiry / messaging area */
+    /* ── Enquiry form ── */
     .field { margin-bottom:14px; }
     .field label { display:block; font-size:12px; font-weight:600; color:var(--text-2); text-transform:uppercase; letter-spacing:.05em; margin-bottom:5px; }
     .field input,.field textarea { width:100%; padding:10px 14px; border:1.5px solid var(--border); border-radius:var(--radius); font-size:14px; color:var(--text); background:var(--surface); outline:none; transition:border-color .15s,background .15s; }
@@ -188,7 +176,7 @@
     @keyframes spin { to { transform:rotate(360deg); } }
     .enquiry-note { font-size:11px; color:var(--text-3); text-align:center; margin-top:10px; line-height:1.5; }
 
-    /* ── CONVERSATION THREAD (returning buyer) ── */
+    /* ── Conversation thread ── */
     .thread-section { margin-top:0; }
     .thread-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
     .thread-header h4 { font-size:14px; font-weight:600; color:var(--text); }
@@ -218,37 +206,86 @@
     .chat-date-sep { text-align:center; font-size:10px; color:var(--text-3); padding:4px 0; }
     .chat-wa-note { font-size:11px; color:var(--text-3); text-align:center; margin-bottom:10px; display:flex; align-items:center; justify-content:center; gap:4px; }
 
-    /* Not found / disabled states */
+    /* ── Not found ── */
     .not-found { text-align:center; padding:80px 24px; }
     .not-found svg { width:48px; height:48px; stroke:var(--border); fill:none; stroke-width:1.5; margin:0 auto 16px; display:block; }
     .not-found h2 { font-size:20px; font-weight:600; color:var(--text); margin-bottom:8px; }
     .not-found p { font-size:14px; color:var(--text-3); margin-bottom:20px; }
-    .disabled-banner { background:var(--red-light); border:1px solid #feb2b2; border-radius:var(--radius-lg); padding:32px 24px; text-align:center; margin:32px auto; max-width:520px; }
-    .disabled-banner svg { width:40px; height:40px; stroke:var(--red); fill:none; stroke-width:1.5; margin:0 auto 12px; display:block; }
-    .disabled-banner h2 { font-size:18px; font-weight:600; color:var(--red); margin-bottom:8px; }
-    .disabled-banner p { font-size:13px; color:var(--text-2); margin-bottom:6px; line-height:1.7; }
-    .disabled-banner .reason-box { background:white; border:1px solid #feb2b2; border-radius:var(--radius); padding:10px 14px; font-size:13px; color:var(--text-2); margin:12px 0; text-align:left; }
-    .disabled-banner a { color:var(--green); font-weight:500; }
 
-    /* Safety tip */
-    .safety-tip { margin-top:16px; padding:12px 14px; background:var(--gold-light); border-radius:var(--radius); border:1px solid #FAC775; font-size:12px; color:#5C3A00; line-height:1.6; display:flex; gap:8px; }
-    .safety-tip svg { width:14px; height:14px; stroke:var(--gold); fill:none; stroke-width:2; flex-shrink:0; margin-top:2px; }
+    /* ══════════════════════════════════════════════════
+       SELLER-PRIVATE DISABLED NOTICE
+       Only shown to the owner of a disabled listing.
+       Buyers and guests see the generic "not found" view.
+    ══════════════════════════════════════════════════ */
+    .seller-disabled-wrap { max-width:620px; margin:48px auto; }
+    .seller-disabled-banner {
+      background:var(--red-light); border:1.5px solid #feb2b2;
+      border-radius:var(--radius-lg); padding:32px 28px;
+    }
+    .seller-disabled-banner-inner { display:flex; gap:20px; align-items:flex-start; }
+    .seller-disabled-icon {
+      width:52px; height:52px; border-radius:50%; background:#FED7D7;
+      display:flex; align-items:center; justify-content:center; flex-shrink:0;
+    }
+    .seller-disabled-icon svg { width:26px; height:26px; stroke:var(--red); fill:none; stroke-width:2; }
+    .seller-disabled-content h2 { font-size:18px; font-weight:700; color:var(--red); margin-bottom:6px; }
+    .seller-disabled-content p { font-size:13px; color:var(--text-2); line-height:1.7; margin-bottom:10px; }
+    .seller-disabled-reason {
+      background:white; border:1px solid #feb2b2; border-radius:var(--radius);
+      padding:12px 16px; font-size:13px; color:var(--text-2);
+      margin:12px 0; line-height:1.6;
+    }
+    .seller-disabled-reason strong { color:var(--red); display:block; font-size:11px; text-transform:uppercase; letter-spacing:.06em; margin-bottom:4px; }
+    .seller-disabled-notice {
+      background:#FFF5F5; border:1px solid #FEB2B2; border-radius:var(--radius);
+      padding:10px 14px; font-size:12px; color:#742A2A;
+      display:flex; gap:8px; align-items:flex-start; margin-top:12px; line-height:1.6;
+    }
+    .seller-disabled-notice svg { width:14px; height:14px; stroke:#C53030; fill:none; stroke-width:2; flex-shrink:0; margin-top:1px; }
+    .seller-disabled-actions { display:flex; gap:10px; margin-top:20px; flex-wrap:wrap; }
+    .seller-disabled-actions a, .seller-disabled-actions button {
+      padding:9px 18px; border-radius:var(--radius); font-size:13px; font-weight:600;
+      cursor:pointer; transition:all .15s; text-decoration:none; display:inline-flex; align-items:center; gap:6px;
+    }
+    .btn-contact-admin { background:var(--green); color:white; border:none; }
+    .btn-contact-admin:hover { background:var(--green-dark); }
+    .btn-browse-more { background:white; color:var(--text-2); border:1.5px solid var(--border); }
+    .btn-browse-more:hover { border-color:var(--green); color:var(--green); }
 
-    /* Enquiry success */
+    /* Recycle-bin variant */
+    .seller-recycle-banner {
+      background:#FFFBEB; border:1.5px solid #F6E05E;
+      border-radius:var(--radius-lg); padding:32px 28px; margin-top:16px;
+    }
+    .seller-recycle-banner h3 { font-size:14px; font-weight:600; color:#744210; margin-bottom:6px; }
+    .seller-recycle-banner p { font-size:13px; color:var(--text-2); line-height:1.7; }
+    .countdown-pill {
+      display:inline-flex; align-items:center; gap:6px;
+      background:#FEF3C7; border:1px solid #F6E05E; border-radius:20px;
+      font-size:12px; font-weight:700; color:#92400E;
+      padding:4px 12px; margin-top:8px;
+    }
+    .countdown-pill svg { width:13px; height:13px; stroke:currentColor; fill:none; stroke-width:2; }
+
+    /* ── Enquiry success ── */
     .enquiry-success { display:none; text-align:center; padding:16px 0; }
     .enquiry-success-icon { width:52px; height:52px; background:var(--green-light); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 12px; }
     .enquiry-success-icon svg { width:24px; height:24px; stroke:var(--green); fill:none; stroke-width:2.5; }
     .enquiry-success h4 { font-size:15px; font-weight:600; color:var(--text); margin-bottom:6px; }
     .enquiry-success p { font-size:13px; color:var(--text-3); margin-bottom:12px; }
 
-    /* Skeleton */
+    /* ── Safety tip ── */
+    .safety-tip { margin-top:16px; padding:12px 14px; background:var(--gold-light); border-radius:var(--radius); border:1px solid #FAC775; font-size:12px; color:#5C3A00; line-height:1.6; display:flex; gap:8px; }
+    .safety-tip svg { width:14px; height:14px; stroke:var(--gold); fill:none; stroke-width:2; flex-shrink:0; margin-top:2px; }
+
+    /* ── Skeleton ── */
     .skel { height:14px; background:linear-gradient(90deg,#f0efe9 25%,#e8e7e1 50%,#f0efe9 75%); background-size:200% 100%; animation:shimmer 1.4s infinite; border-radius:4px; }
     .skel.short { width:55%; }
     .skel.xshort { width:35%; }
     .skel-block { background:linear-gradient(90deg,#f0efe9 25%,#e8e7e1 50%,#f0efe9 75%); background-size:200% 100%; animation:shimmer 1.4s infinite; border-radius:var(--radius-lg); }
     @keyframes shimmer { to { background-position:-200% 0; } }
 
-    /* Footer */
+    /* ── Footer ── */
     footer { background:var(--text); color:rgba(255,255,255,0.6); padding:48px 32px 28px; }
     .footer-inner { max-width:1100px; margin:0 auto; }
     .footer-top { display:grid; grid-template-columns:2fr 1fr 1fr 1fr; gap:40px; margin-bottom:40px; }
@@ -264,11 +301,11 @@
       .layout { grid-template-columns:1fr; }
       .contact-card { position:static; }
       nav { padding:0 16px; }
-      .nav-links .nav-link { display:none; }
       .breadcrumb { padding:12px 16px; }
       .page-wrap { padding:20px 16px 60px; }
       footer { padding:40px 16px 24px; }
       .footer-top { grid-template-columns:1fr 1fr; gap:28px; }
+      .seller-disabled-banner-inner { flex-direction:column; }
     }
     @media(max-width:480px) {
       .specs-grid { grid-template-columns:repeat(2,1fr); }
@@ -311,14 +348,11 @@
   <a href="pricing.html">Pricing</a>
   <a href="contact.html">Contact</a>
   <a href="login.html" id="mobile-account-link">Sign in</a>
-  <a href="saved.html">
-    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
-    Saved
-  </a>
+  <a href="saved.html">Saved</a>
   <a href="post-listing.html" class="btn btn-primary">List your apartment</a>
 </div>
 
-<!-- BREADCRUMB -->
+<!-- ── BREADCRUMB ── -->
 <div class="breadcrumb" id="breadcrumb">
   <a href="index.html">Home</a>
   <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
@@ -329,7 +363,7 @@
 
 <div class="page-wrap">
 
-  <!-- NOT FOUND -->
+  <!-- ══ NOT FOUND (public fallback — also shown to buyers for disabled listings) ══ -->
   <div class="not-found" id="not-found" style="display:none">
     <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
     <h2>Listing not found</h2>
@@ -337,23 +371,57 @@
     <a href="listings.html" class="btn-primary" style="display:inline-flex;margin:0 auto">Browse all listings</a>
   </div>
 
-  <!-- DISABLED BY ADMIN -->
-  <div id="disabled-view" style="display:none">
-    <div class="disabled-banner">
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
-      <h2>This listing is currently unavailable</h2>
-      <p>This listing has been disabled by the administrator and is not publicly visible.</p>
-      <div class="reason-box" id="disabled-reason-box" style="display:none">
-        <strong>Reason:</strong> <span id="disabled-reason-text"></span>
+  <!-- ══ SELLER-PRIVATE DISABLED VIEW ══
+       Shown ONLY to the listing owner when their listing has been
+       disabled, recycled, or is pending/rejected by the admin.
+       Buyers and guests never see this — they get the not-found view above.
+  ══ -->
+  <div id="seller-disabled-view" style="display:none">
+    <div class="seller-disabled-wrap">
+      <div class="seller-disabled-banner">
+        <div class="seller-disabled-banner-inner">
+          <div class="seller-disabled-icon">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+          </div>
+          <div class="seller-disabled-content">
+            <h2 id="seller-disabled-heading">Your listing has been deactivated</h2>
+            <p id="seller-disabled-intro">This listing is currently hidden from the public site. Only you and the admin can see this message — buyers will see a generic "not found" page.</p>
+
+            <div class="seller-disabled-reason" id="seller-disabled-reason-box" style="display:none">
+              <strong>Reason provided by admin</strong>
+              <span id="seller-disabled-reason-text"></span>
+            </div>
+
+            <div class="seller-disabled-notice">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              <span>This information is private between you and the NyumbaKisumu admin team. No buyer or visitor can see it.</span>
+            </div>
+
+            <div class="seller-disabled-actions">
+              <a href="contact.html" class="btn-contact-admin">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="white" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                Contact admin
+              </a>
+              <a href="dashboard.html" class="btn-browse-more">My dashboard</a>
+              <a href="listings.html" class="btn-browse-more">Browse listings</a>
+            </div>
+          </div>
+        </div>
       </div>
-      <p style="margin-top:8px">For more information, please <a href="contact.html">contact us</a>.</p>
-    </div>
-    <div style="text-align:center;margin-top:16px">
-      <a href="listings.html" class="btn-primary" style="display:inline-flex">Browse other listings</a>
+
+      <!-- Extra recycle-bin countdown card (shown only when in recycle bin) -->
+      <div class="seller-recycle-banner" id="seller-recycle-extra" style="display:none">
+        <h3>⚠ Scheduled for permanent deletion</h3>
+        <p>This listing has been moved to the recycle bin by an admin. It will be permanently and irrecoverably deleted after the grace period unless the admin restores it. Contact the support team immediately if you believe this is a mistake.</p>
+        <div class="countdown-pill" id="seller-recycle-countdown">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <span id="seller-recycle-days">…</span>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- SKELETON -->
+  <!-- ══ SKELETON ══ -->
   <div id="skeleton-wrap">
     <div class="layout">
       <div>
@@ -368,11 +436,11 @@
     </div>
   </div>
 
-  <!-- LISTING CONTENT -->
+  <!-- ══ LISTING CONTENT (public — only shown when listing is genuinely active) ══ -->
   <div id="listing-content" style="display:none">
     <div class="layout">
 
-      <!-- LEFT -->
+      <!-- LEFT column -->
       <div>
         <!-- Gallery -->
         <div class="gallery" id="gallery">
@@ -397,7 +465,7 @@
           <div class="gallery-thumbs" id="gallery-thumbs" style="display:none"></div>
         </div>
 
-        <!-- Share row -->
+        <!-- Action pills -->
         <div class="action-row">
           <button class="action-pill" onclick="shareWhatsApp()">
             <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
@@ -413,7 +481,7 @@
           </button>
         </div>
 
-        <!-- Title & price -->
+        <!-- Title & location -->
         <div class="listing-header">
           <div class="listing-badges" id="listing-badges"></div>
           <h1 class="listing-title" id="listing-title"></h1>
@@ -423,6 +491,7 @@
           </div>
         </div>
 
+        <!-- Price -->
         <div class="price-block">
           <div>
             <div class="price-main" id="listing-price"></div>
@@ -460,7 +529,7 @@
           </div>
         </div>
 
-        <!-- Similar -->
+        <!-- Similar listings -->
         <div class="similar-section">
           <h3>Similar listings in this area</h3>
           <div class="similar-grid" id="similar-grid">
@@ -504,7 +573,7 @@
 
           <div class="or-divider">or send a message</div>
 
-          <!-- ── FIRST-TIME ENQUIRY FORM ── -->
+          <!-- First-time enquiry form -->
           <div id="enquiry-form">
             <div class="field">
               <label>Your name</label>
@@ -532,7 +601,7 @@
             <p class="enquiry-note">Your contact details are shared only with the seller of this listing.</p>
           </div>
 
-          <!-- ── SUCCESS then transition to thread ── -->
+          <!-- Success then transition to thread -->
           <div class="enquiry-success" id="enquiry-success">
             <div class="enquiry-success-icon">
               <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
@@ -542,7 +611,7 @@
             <button onclick="showThread()" style="margin-top:8px;font-size:13px;color:var(--green);background:none;border:none;cursor:pointer;font-weight:500">View conversation →</button>
           </div>
 
-          <!-- ── RETURNING BUYER: conversation thread ── -->
+          <!-- Returning buyer: conversation thread -->
           <div id="thread-section" class="thread-section" style="display:none">
             <div class="thread-header">
               <h4>Your conversation</h4>
@@ -612,43 +681,46 @@
 </footer>
 
 <script>
+/* ══════════════════════════════════════════════════════════════
+   CORE CONFIG
+══════════════════════════════════════════════════════════════ */
 const SUPABASE_URL = 'https://vliuuloyfhyxcsuchpss.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_oIIcecf3wzKMual5K24Z8Q_zmxVfgsx';
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// ── State ──
-let listing     = null;
-let photos      = [];
-let currentPhoto = 0;
-let buyerToken  = null;   // anonymous session ID for this buyer
-let buyerName   = '';
-let buyerPhone  = '';
-let threadMessages = [];  // messages loaded for this buyer's thread
-
 const listingId = new URLSearchParams(window.location.search).get('id');
 
-// ── Buyer token: persisted per browser ──
-function getBuyerToken() {
-  const key = 'nk_buyer_' + listingId;
-  let t = localStorage.getItem(key);
-  if (!t) return null;
-  return t;
-}
-function setBuyerToken(token) {
-  localStorage.setItem('nk_buyer_' + listingId, token);
-  localStorage.setItem('nk_buyer_name_' + listingId, buyerName);
-  localStorage.setItem('nk_buyer_phone_' + listingId, buyerPhone);
-}
-function getSavedBuyerInfo() {
-  buyerName  = localStorage.getItem('nk_buyer_name_'  + listingId) || '';
-  buyerPhone = localStorage.getItem('nk_buyer_phone_' + listingId) || '';
-}
+/* ── State ── */
+let listing      = null;
+let photos       = [];
+let currentPhoto = 0;
+let buyerToken   = null;
+let buyerName    = '';
+let buyerPhone   = '';
+let threadMessages = [];
 
-// ── Load listing ──
+/* ── Buyer token (persisted per browser per listing) ── */
+function getBuyerToken()   { return localStorage.getItem('nk_buyer_' + listingId); }
+function setBuyerToken(t)  { localStorage.setItem('nk_buyer_' + listingId, t); localStorage.setItem('nk_buyer_name_' + listingId, buyerName); localStorage.setItem('nk_buyer_phone_' + listingId, buyerPhone); }
+function getSavedBuyerInfo(){ buyerName = localStorage.getItem('nk_buyer_name_' + listingId)||''; buyerPhone = localStorage.getItem('nk_buyer_phone_' + listingId)||''; }
+
+/* ══════════════════════════════════════════════════════════════
+   MAIN LOADER
+   Decision tree:
+     1. No listing found  → generic not-found (public)
+     2. Active & not disabled & not recycle bin
+          → show full public listing
+     3. Disabled / recycled / pending / rejected
+          a. Viewer is the listing owner OR an admin
+             → show seller-private notice with reason
+          b. Any other visitor (buyer / guest / different seller)
+             → generic not-found (hides the listing entirely)
+══════════════════════════════════════════════════════════════ */
 async function loadListing() {
   if (!listingId) { showNotFound(); return; }
 
+  /* Fetch listing + seller profile + photos */
   const { data, error } = await db
     .from('listings')
     .select('*, profiles(full_name, phone, created_at), listing_photos(*)')
@@ -658,61 +730,134 @@ async function loadListing() {
   if (error || !data) { showNotFound(); return; }
   listing = data;
 
-  // ── ADMIN ENFORCEMENT: hide completely if disabled or in recycle bin ──
-  // Only show to the public if status is active AND not disabled AND not in recycle bin
-  if (data.status !== 'active' || data.is_disabled || data.recycle_bin) {
-    showDisabledView(data);
+  /* ─ Check whether this listing is publicly visible ─ */
+  const isFullyActive = (data.status === 'active') && !data.is_disabled && !data.recycle_bin;
+
+  if (isFullyActive) {
+    /* ✅  Normal public listing */
+    trackView(data);
+    renderListing(data);
+    loadSimilar(data.area, data.id);
+    handleBuyerThread(data);
     return;
   }
 
-// One view per device per listing
-const viewedKey = 'nk_viewed_' + listingId;
-if (!localStorage.getItem(viewedKey)) {
-  db.from('listings').update({ views: (data.views || 0) + 1 }).eq('id', listingId);
-  localStorage.setItem(viewedKey, '1');
-}
+  /* ⚠️  Listing is in some disabled state — check who is viewing */
+  const { data: { session } } = await db.auth.getSession();
+  const viewerUserId = session?.user?.id || null;
 
-  renderListing(data);
-  loadSimilar(data.area, data.id);
+  let isOwner = false;
+  let isAdmin  = false;
 
-  // Check if returning buyer with existing thread
-  buyerToken = getBuyerToken();
-  if (buyerToken) {
-    getSavedBuyerInfo();
-    // Hide enquiry form, show thread
-    document.getElementById('enquiry-form').style.display = 'none';
-    showThread();
+  if (viewerUserId) {
+    isOwner = (data.seller_id === viewerUserId);
+    if (!isOwner) {
+      /* Check if viewer is an admin */
+      const { data: profile } = await db
+        .from('profiles')
+        .select('role')
+        .eq('id', viewerUserId)
+        .single();
+      isAdmin = (profile?.role === 'admin');
+    }
+  }
+
+  if (isOwner || isAdmin) {
+    /* Show private seller notice — with reason and recycle-bin countdown */
+    showSellerDisabledView(data);
   } else {
-    // Pre-fill message
-    document.getElementById('enq-message').value = `Hello, I'm interested in "${data.title}". Is it still available?`;
+    /* Buyer / guest / unrelated seller — completely hidden */
+    showNotFound();
   }
 }
 
-// ── Show disabled/recycled/pending banner ──
-function showDisabledView(data) {
-  document.getElementById('skeleton-wrap').style.display = 'none';
-  document.getElementById('breadcrumb-area').textContent = 'Unavailable';
-
-  // Determine reason to show
-  let reason = data.disabled_reason || null;
-
-  // Only show reason box if there's actually a reason
-  if (reason) {
-    document.getElementById('disabled-reason-text').textContent = reason;
-    document.getElementById('disabled-reason-box').style.display = 'block';
-  }
-
-  document.getElementById('disabled-view').style.display = 'block';
-}
-
-// ── Not found ──
+/* ══════════════════════════════════════════════════════════════
+   VIEWS
+══════════════════════════════════════════════════════════════ */
 function showNotFound() {
   document.getElementById('skeleton-wrap').style.display = 'none';
   document.getElementById('not-found').style.display = 'block';
   document.getElementById('breadcrumb-area').textContent = 'Not found';
 }
 
-// ── Render listing ──
+function showSellerDisabledView(data) {
+  document.getElementById('skeleton-wrap').style.display = 'none';
+  document.getElementById('breadcrumb-area').textContent = escHtml(data.title || 'Your listing');
+
+  /* Heading + intro text varies by state */
+  const isRecycleBin = !!data.recycle_bin;
+  const isPending    = data.status === 'pending';
+  const isRejected   = data.status === 'rejected';
+
+  let heading = 'Your listing has been deactivated';
+  let intro   = 'This listing is currently hidden from the public site. Only you and the admin team can see this notice — visitors will see a generic "not found" page.';
+
+  if (isRecycleBin) {
+    heading = 'Your listing is in the recycle bin';
+    intro   = 'An admin has moved this listing to the recycle bin. It is hidden from the public and will be permanently deleted after the grace period. Contact support immediately if this is a mistake.';
+  } else if (isPending) {
+    heading = 'Your listing is pending review';
+    intro   = 'Your listing is under review by our admin team. It will be visible to the public once approved. This usually takes up to 2 hours after payment is confirmed.';
+  } else if (isRejected) {
+    heading = 'Your listing was rejected';
+    intro   = 'Your listing was rejected by the admin team. Please review the reason below, make any necessary changes, and resubmit via your dashboard.';
+  }
+
+  document.getElementById('seller-disabled-heading').textContent = heading;
+  document.getElementById('seller-disabled-intro').textContent   = intro;
+
+  /* Reason box */
+  const reason = data.disabled_reason || null;
+  if (reason) {
+    document.getElementById('seller-disabled-reason-text').textContent = reason;
+    document.getElementById('seller-disabled-reason-box').style.display = 'block';
+  }
+
+  /* Recycle-bin countdown */
+  if (isRecycleBin && data.purge_at) {
+    const daysLeft = Math.max(0, Math.ceil((new Date(data.purge_at) - new Date()) / 86400000));
+    document.getElementById('seller-recycle-days').textContent =
+      daysLeft > 0 ? `Permanent deletion in ${daysLeft} day${daysLeft !== 1 ? 's' : ''}` : 'Deletion imminent — contact admin now';
+    document.getElementById('seller-recycle-extra').style.display = 'block';
+  }
+
+  /* Icon change for pending/rejected */
+  if (isPending) {
+    document.querySelector('.seller-disabled-icon svg').innerHTML =
+      '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>';
+    document.querySelector('.seller-disabled-icon').style.background = '#FEF3C7';
+    document.querySelector('.seller-disabled-icon svg').style.stroke  = '#D97706';
+  } else if (isRejected) {
+    document.querySelector('.seller-disabled-icon svg').innerHTML =
+      '<circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>';
+  }
+
+  document.getElementById('seller-disabled-view').style.display = 'block';
+}
+
+/* ══════════════════════════════════════════════════════════════
+   RENDER PUBLIC LISTING
+══════════════════════════════════════════════════════════════ */
+function trackView(data) {
+  const viewedKey = 'nk_viewed_' + listingId;
+  if (!localStorage.getItem(viewedKey)) {
+    db.from('listings').update({ views: (data.views || 0) + 1 }).eq('id', listingId);
+    localStorage.setItem(viewedKey, '1');
+  }
+}
+
+function handleBuyerThread(data) {
+  buyerToken = getBuyerToken();
+  if (buyerToken) {
+    getSavedBuyerInfo();
+    document.getElementById('enquiry-form').style.display = 'none';
+    showThread();
+  } else {
+    document.getElementById('enq-message').value =
+      `Hello, I'm interested in "${data.title}". Is it still available?`;
+  }
+}
+
 function renderListing(l) {
   document.title = `${l.title} — NyumbaKisumu`;
   document.querySelector('meta[name="description"]').setAttribute('content',
@@ -720,7 +865,7 @@ function renderListing(l) {
 
   document.getElementById('breadcrumb-area').textContent = l.area;
 
-  // Gallery
+  /* Gallery */
   photos = (l.listing_photos || []).sort((a,b) => a.position - b.position);
   const cover = photos.find(p=>p.is_cover) || photos[0];
   currentPhoto = cover ? Math.max(0, photos.indexOf(cover)) : 0;
@@ -728,7 +873,7 @@ function renderListing(l) {
 
   if (l.is_featured) document.getElementById('featured-badge').style.display = 'flex';
 
-  // Badges
+  /* Badges */
   const catLabel = l.category.charAt(0).toUpperCase() + l.category.slice(1);
   document.getElementById('listing-badges').innerHTML = `
     <span class="badge ${l.category}">${catLabel}</span>
@@ -746,7 +891,7 @@ function renderListing(l) {
     l.price_type==='rent'?'Monthly rent — negotiable':'Asking price — negotiable';
   document.getElementById('listing-views').textContent = `${l.views||0} views`;
 
-  // Specs
+  /* Specs */
   const specs = [];
   if (l.bedrooms !== null) specs.push({ icon:bedIcon, val:l.bedrooms==0?'Studio':l.bedrooms, lbl:l.bedrooms==0?'Bedsitter':'Bedrooms' });
   if (l.bathrooms)  specs.push({ icon:bathIcon, val:l.bathrooms, lbl:'Bathrooms' });
@@ -768,9 +913,10 @@ function renderListing(l) {
 
   document.getElementById('map-sub').textContent = `${l.area}${l.sub_area?', '+l.sub_area:''}, Kisumu`;
   document.getElementById('map-area-label').textContent = `${l.area}, Kisumu — exact address shared after enquiry`;
-  document.getElementById('map-link').href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(l.area+', '+(l.sub_area||'')+' Kisumu Kenya')}`;
+  document.getElementById('map-link').href =
+    `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(l.area+', '+(l.sub_area||'')+' Kisumu Kenya')}`;
 
-  // Seller
+  /* Seller card */
   const profile = l.profiles || {};
   const name = profile.full_name || 'Seller';
   const initials = name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
@@ -780,26 +926,29 @@ function renderListing(l) {
     ? `Member since ${new Date(profile.created_at).toLocaleDateString('en-KE',{month:'long',year:'numeric'})}`
     : '';
 
-  const phone = profile.phone || '';
+  const phone    = profile.phone || '';
   const cleanPhone = phone.replace(/\s/g,'');
-  const wa254 = cleanPhone.startsWith('0') ? '254'+cleanPhone.slice(1) : cleanPhone;
-  const waMsg = encodeURIComponent(`Hello, I saw your listing "${l.title}" on NyumbaKisumu and I'm interested. Is it still available?`);
+  const wa254    = cleanPhone.startsWith('0') ? '254'+cleanPhone.slice(1) : cleanPhone;
+  const waMsg    = encodeURIComponent(`Hello, I saw your listing "${l.title}" on NyumbaKisumu and I'm interested. Is it still available?`);
   document.getElementById('btn-call').href = `tel:${cleanPhone}`;
-  document.getElementById('btn-call').innerHTML = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="white" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.12 1.2 2 2 0 012.11 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg> Call ${phone||'seller'}`;
+  document.getElementById('btn-call').innerHTML =
+    `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="white" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.12 1.2 2 2 0 012.11 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg> Call ${phone||'seller'}`;
   document.getElementById('btn-whatsapp').href = `https://wa.me/${wa254}?text=${waMsg}`;
 
   document.getElementById('skeleton-wrap').style.display = 'none';
   document.getElementById('listing-content').style.display = 'block';
 }
 
-// ── Gallery ──
+/* ══════════════════════════════════════════════════════════════
+   GALLERY
+══════════════════════════════════════════════════════════════ */
 function renderGallery() {
-  const img = document.getElementById('gallery-img');
-  const noPhoto = document.getElementById('gallery-no-photo');
-  const thumbsWrap = document.getElementById('gallery-thumbs');
-  const counter = document.getElementById('gallery-counter');
-  const prevBtn = document.getElementById('prev-btn');
-  const nextBtn = document.getElementById('next-btn');
+  const img      = document.getElementById('gallery-img');
+  const noPhoto  = document.getElementById('gallery-no-photo');
+  const thumbWrap= document.getElementById('gallery-thumbs');
+  const counter  = document.getElementById('gallery-counter');
+  const prevBtn  = document.getElementById('prev-btn');
+  const nextBtn  = document.getElementById('next-btn');
 
   if (!photos.length) { noPhoto.style.display='flex'; img.style.display='none'; return; }
 
@@ -810,11 +959,11 @@ function renderGallery() {
 
   if (photos.length > 1) {
     counter.style.display = 'block';
-    counter.textContent = `${currentPhoto+1} / ${photos.length}`;
+    counter.textContent   = `${currentPhoto+1} / ${photos.length}`;
     prevBtn.style.display = 'flex';
     nextBtn.style.display = 'flex';
-    thumbsWrap.style.display = 'flex';
-    thumbsWrap.innerHTML = photos.map((p,i) => `
+    thumbWrap.style.display = 'flex';
+    thumbWrap.innerHTML = photos.map((p,i) => `
       <div class="gallery-thumb ${i===currentPhoto?'active':''}" onclick="goPhoto(${i})">
         <img src="${p.url}" alt="Photo ${i+1}" loading="lazy"/>
       </div>`).join('');
@@ -828,20 +977,23 @@ document.addEventListener('keydown', e => {
   if (e.key==='ArrowRight') changePhoto(1);
 });
 
-// ── Description toggle ──
+/* ── Description toggle ── */
 let descExpanded = false;
 function toggleDesc() {
   descExpanded = !descExpanded;
-  document.getElementById('desc-text').classList.toggle('collapsed',!descExpanded);
-  document.getElementById('read-more').textContent = descExpanded?'Show less ↑':'Read more ↓';
+  document.getElementById('desc-text').classList.toggle('collapsed', !descExpanded);
+  document.getElementById('read-more').textContent = descExpanded ? 'Show less ↑' : 'Read more ↓';
 }
 
-// ── Similar listings ──
+/* ══════════════════════════════════════════════════════════════
+   SIMILAR LISTINGS
+   Only fetches listings that are public (active, not disabled, not recycled)
+══════════════════════════════════════════════════════════════ */
 async function loadSimilar(area, excludeId) {
   const { data } = await db
     .from('listings')
     .select('*, listing_photos(*)')
-    .eq('status','active')
+    .eq('status', 'active')
     .eq('is_disabled', false)
     .eq('recycle_bin', false)
     .eq('area', area)
@@ -866,7 +1018,9 @@ async function loadSimilar(area, excludeId) {
   }).join('');
 }
 
-// ── Send first enquiry ──
+/* ══════════════════════════════════════════════════════════════
+   ENQUIRY / MESSAGING
+══════════════════════════════════════════════════════════════ */
 async function sendEnquiry() {
   const name    = document.getElementById('enq-name').value.trim();
   const phone   = document.getElementById('enq-phone').value.trim();
@@ -877,62 +1031,41 @@ async function sendEnquiry() {
   ['enq-name','enq-phone','enq-message'].forEach(id => document.getElementById(id).classList.remove('error'));
   ['err-enq-name','err-enq-phone','err-enq-msg'].forEach(id => document.getElementById(id).classList.remove('show'));
 
-  if (!name)    { document.getElementById('enq-name').classList.add('error'); document.getElementById('err-enq-name').classList.add('show'); ok=false; }
+  if (!name)    { document.getElementById('enq-name').classList.add('error');    document.getElementById('err-enq-name').classList.add('show');  ok=false; }
   if (!phone || phone.replace(/\s/g,'').length < 9) { document.getElementById('enq-phone').classList.add('error'); document.getElementById('err-enq-phone').classList.add('show'); ok=false; }
-  if (!message) { document.getElementById('enq-message').classList.add('error'); document.getElementById('err-enq-msg').classList.add('show'); ok=false; }
+  if (!message) { document.getElementById('enq-message').classList.add('error'); document.getElementById('err-enq-msg').classList.add('show');   ok=false; }
   if (!ok) return;
 
   const btn = document.getElementById('btn-enquire');
   btn.disabled = true; btn.classList.add('loading');
 
-  // Generate a unique token for this buyer on this listing
   const token = (crypto.randomUUID ? crypto.randomUUID() : Date.now()+'-'+Math.random().toString(36).slice(2));
-  buyerToken = token;
-  buyerName  = name;
-  buyerPhone = phone;
+  buyerToken = token; buyerName = name; buyerPhone = phone;
 
-  // Save to enquiries table (legacy — keeps admin enquiry view working)
   await db.from('enquiries').insert({
-    listing_id:  listingId,
-    buyer_name:  name,
-    buyer_phone: phone,
-    buyer_email: email || null,
-    buyer_token: token,
-    message
+    listing_id: listingId, buyer_name: name, buyer_phone: phone,
+    buyer_email: email||null, buyer_token: token, message
   });
 
-  // Save to messages table as first message
   const { error: msgErr } = await db.from('messages').insert({
-    listing_id:  listingId,
-    buyer_token: token,
-    buyer_name:  name,
-    buyer_phone: phone,
-    sender:      'buyer',
-    content:     message
+    listing_id: listingId, buyer_token: token, buyer_name: name,
+    buyer_phone: phone, sender: 'buyer', content: message
   });
 
   btn.disabled = false; btn.classList.remove('loading');
 
-  if (msgErr) {
-    alert('Something went wrong. Please try calling the seller directly.');
-    return;
-  }
+  if (msgErr) { alert('Something went wrong. Please try calling the seller directly.'); return; }
 
-  // Persist token in browser
   setBuyerToken(token);
-
-  // Show success
-  document.getElementById('enquiry-form').style.display = 'none';
+  document.getElementById('enquiry-form').style.display   = 'none';
   document.getElementById('enquiry-success').style.display = 'block';
 }
 
-// ── Show thread (returning buyer or after first send) ──
 async function showThread() {
-  document.getElementById('enquiry-form').style.display = 'none';
+  document.getElementById('enquiry-form').style.display    = 'none';
   document.getElementById('enquiry-success').style.display = 'none';
-  document.getElementById('thread-section').style.display = 'block';
+  document.getElementById('thread-section').style.display  = 'block';
 
-  // WhatsApp note
   const waNote = document.getElementById('chat-wa-note');
   if (buyerPhone) {
     const wa = buyerPhone.replace(/\s/g,'').replace(/^0/,'254');
@@ -945,46 +1078,38 @@ async function showThread() {
   await loadThread();
 }
 
-// ── Load thread messages from Supabase ──
 async function loadThread() {
   if (!buyerToken) return;
-
-  const { data, error } = await db
+  const { data } = await db
     .from('messages')
     .select('*')
     .eq('listing_id', listingId)
     .eq('buyer_token', buyerToken)
     .order('created_at', { ascending: true });
-
   threadMessages = data || [];
   renderThread();
 }
 
-// ── Render thread bubbles ──
 function renderThread() {
   const box = document.getElementById('chat-messages-box');
   if (!threadMessages.length) {
     box.innerHTML = '<div style="text-align:center;font-size:12px;color:var(--text-3);padding:16px">No messages yet</div>';
     return;
   }
-
-  const sellerName = listing?.profiles?.full_name || 'Seller';
-  const sellerInit = sellerName.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase() || 'S';
-  const buyerInit  = buyerName.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase() || 'B';
-
+  const sellerName  = listing?.profiles?.full_name || 'Seller';
+  const sellerInit  = sellerName.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase() || 'S';
+  const buyerInit   = buyerName.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase() || 'B';
   let lastDate = '';
   box.innerHTML = threadMessages.map(m => {
     const isSeller = m.sender === 'seller';
     const d = new Date(m.created_at);
     const dateStr = d.toLocaleDateString('en-KE',{weekday:'short',day:'numeric',month:'short'});
     const timeStr = d.toLocaleTimeString('en-KE',{hour:'2-digit',minute:'2-digit'});
-    const sep = dateStr !== lastDate
-      ? `<div class="chat-date-sep">${dateStr}</div>`
-      : '';
+    const sep = dateStr !== lastDate ? `<div class="chat-date-sep">${dateStr}</div>` : '';
     lastDate = dateStr;
-    const init = isSeller ? sellerInit : buyerInit;
-    const avCls = isSeller ? 'seller-av' : 'buyer-av';
-    const bubCls = isSeller ? 'seller-b' : 'buyer-b';
+    const init   = isSeller ? sellerInit : buyerInit;
+    const avCls  = isSeller ? 'seller-av' : 'buyer-av';
+    const bubCls = isSeller ? 'seller-b'  : 'buyer-b';
     const rowCls = isSeller ? 'seller-row-msg' : '';
     return `${sep}
       <div class="chat-bubble-row ${rowCls}">
@@ -995,65 +1120,43 @@ function renderThread() {
         </div>
       </div>`;
   }).join('');
-
-  // Scroll to bottom
   box.scrollTop = box.scrollHeight;
 }
 
-// ── Send follow-up message ──
 async function sendFollowUp() {
   const input = document.getElementById('chat-follow-input');
   const text  = input.value.trim();
   if (!text || !buyerToken) return;
-
   const btn = document.getElementById('chat-follow-send');
   btn.disabled = true;
-
   const { data, error } = await db.from('messages').insert({
-    listing_id:  listingId,
-    buyer_token: buyerToken,
-    buyer_name:  buyerName,
-    buyer_phone: buyerPhone || null,
-    sender:      'buyer',
-    content:     text
+    listing_id: listingId, buyer_token: buyerToken,
+    buyer_name: buyerName, buyer_phone: buyerPhone||null,
+    sender: 'buyer', content: text
   }).select().single();
-
   btn.disabled = false;
-
-  if (error) {
-    alert('Could not send message. Please try again.');
-    return;
-  }
-
+  if (error) { alert('Could not send message. Please try again.'); return; }
   threadMessages.push(data || { sender:'buyer', content:text, created_at:new Date().toISOString() });
-  input.value = '';
-  input.style.height = 'auto';
+  input.value = ''; input.style.height = 'auto';
   renderThread();
 }
 
-// ── Clear thread (start fresh) ──
 function clearThread() {
   if (!confirm('This will clear your conversation history from this device. The seller will still have the messages. Continue?')) return;
   localStorage.removeItem('nk_buyer_' + listingId);
   localStorage.removeItem('nk_buyer_name_' + listingId);
   localStorage.removeItem('nk_buyer_phone_' + listingId);
   buyerToken = null; buyerName = ''; buyerPhone = '';
-  document.getElementById('thread-section').style.display = 'none';
+  document.getElementById('thread-section').style.display  = 'none';
   document.getElementById('enquiry-success').style.display = 'none';
-  document.getElementById('enquiry-form').style.display = 'block';
+  document.getElementById('enquiry-form').style.display    = 'block';
   document.getElementById('enq-message').value = `Hello, I'm interested in "${listing?.title}". Is it still available?`;
 }
 
-function handleFollowKeydown(e) {
-  if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); sendFollowUp(); }
-}
+function handleFollowKeydown(e) { if (e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendFollowUp(); } }
+function autoResizeTa(el) { el.style.height='auto'; el.style.height=Math.min(el.scrollHeight,100)+'px'; }
 
-function autoResizeTa(el) {
-  el.style.height = 'auto';
-  el.style.height = Math.min(el.scrollHeight, 100) + 'px';
-}
-
-// ── Share ──
+/* ── Share ── */
 function shareWhatsApp() {
   const url   = window.location.href;
   const title = listing?.title || 'Apartment listing';
@@ -1071,43 +1174,13 @@ function copyLink() {
   });
 }
 
-// ── Similar ──
-async function loadSimilar(area, excludeId) {
-  const { data } = await db
-    .from('listings')
-    .select('*, listing_photos(*)')
-    .eq('status','active')
-    .eq('is_disabled', false)
-    .eq('recycle_bin', false)
-    .eq('area', area)
-    .neq('id', excludeId)
-    .limit(3);
-
-  const grid = document.getElementById('similar-grid');
-  if (!data?.length) {
-    grid.innerHTML = '<p style="font-size:13px;color:var(--text-3);grid-column:1/-1">No similar listings in this area yet.</p>';
-    return;
-  }
-  grid.innerHTML = data.map(l => {
-    const cover = (l.listing_photos||[]).find(p=>p.is_cover)||(l.listing_photos||[])[0];
-    return `<div class="similar-card" onclick="window.location='listing.html?id=${l.id}'">
-      <div class="similar-img">${cover?`<img src="${cover.url}" alt="${escHtml(l.title)}" loading="lazy"/>`:''}</div>
-      <div class="similar-body">
-        <div class="similar-area">${escHtml(l.area)}</div>
-        <div class="similar-title">${escHtml(l.title)}</div>
-        <div class="similar-price">KES ${Number(l.price).toLocaleString('en-KE')}${l.price_type==='rent'?'<span style="font-size:12px;font-weight:400;color:var(--text-3)">/mo</span>':''}</div>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-// ── Utils ──
+/* ── Utils ── */
 function escHtml(str) {
   if (!str) return '';
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-// ── SVG icons ──
+/* ── SVG icons ── */
 const bedIcon  = `<svg viewBox="0 0 24 24"><path d="M2 4v16M22 4v16M2 12h20M2 8h4a2 2 0 012 2v2H2V8zM16 8h4a2 2 0 012 2v2h-6V8z"/></svg>`;
 const bathIcon = `<svg viewBox="0 0 24 24"><path d="M9 6l1-1a2 2 0 012.83 0l6.17 6.17a1 1 0 010 1.41L17 14M3 20h18M5 20v-4a3 3 0 013-3h1"/></svg>`;
 const sizeIcon = `<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="1"/><path d="M3 9h18M9 21V9"/></svg>`;
@@ -1115,605 +1188,54 @@ const furnIcon = `<svg viewBox="0 0 24 24"><rect x="2" y="8" width="20" height="
 const typeIcon = `<svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`;
 const catIcon  = `<svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
 
-// ── Page view tracking ──
+/* ── Page view tracking ── */
 (function() {
   let sid = localStorage.getItem('nk_sid');
-  if (!sid) {
-    sid = (crypto.randomUUID ? crypto.randomUUID() : Date.now()+'-'+Math.random().toString(36).slice(2));
-    localStorage.setItem('nk_sid', sid);
-  }
+  if (!sid) { sid=(crypto.randomUUID?crypto.randomUUID():Date.now()+'-'+Math.random().toString(36).slice(2)); localStorage.setItem('nk_sid',sid); }
   db.from('page_views').insert({ path:location.pathname, referrer:document.referrer||null, user_agent:navigator.userAgent, session_id:sid });
 })();
 
-// ── Init ──
+/* ── Mobile menu ── */
+function toggleMobileMenu() { document.getElementById('mobile-nav').classList.toggle('open'); }
+document.addEventListener('click', e => {
+  const nav = document.getElementById('mobile-nav');
+  const btn = document.querySelector('.mobile-menu-btn');
+  if (nav && nav.classList.contains('open') && !nav.contains(e.target) && !btn.contains(e.target)) nav.classList.remove('open');
+});
+
+/* ── Nav: Sign in → My Account when logged in ── */
+(async function () {
+  const _sb = (typeof db !== 'undefined') ? db : supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  const { data: { session } } = await _sb.auth.getSession();
+  if (!session) return;
+  const desktopLink = document.getElementById('nav-account-link');
+  const mobileLink  = document.getElementById('mobile-account-link');
+  if (desktopLink) { desktopLink.textContent = 'My Account'; desktopLink.href = 'dashboard.html'; desktopLink.style.fontWeight='600'; desktopLink.style.color='var(--green)'; }
+  if (mobileLink)  { mobileLink.textContent  = 'My Account'; mobileLink.href  = 'dashboard.html'; }
+})();
+
+/* ── Boot ── */
 loadListing();
 </script>
+
+<!-- Saved listings heart button -->
 <script src="saved-listings.js"></script>
 <script>
   NKSaved.init().then(() => {
-    // After listing loads, inject the heart button
-    const listingId = new URLSearchParams(location.search).get('id');
-    if (!listingId) return;
+    const lid = new URLSearchParams(location.search).get('id');
+    if (!lid) return;
     const btn = document.createElement('div');
     btn.style.cssText = 'position:absolute;top:14px;right:14px;z-index:3';
-    btn.innerHTML = NKSaved.buildHeartBtn(listingId);
+    btn.innerHTML = NKSaved.buildHeartBtn(lid);
     document.querySelector('.gallery-main')?.appendChild(btn);
   });
 </script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-  (function () {
-    const SUPABASE_URL = 'https://vliuuloyfhyxcsuchpss.supabase.co';
-    const SUPABASE_KEY = 'sb_publishable_oIIcecf3wzKMual5K24Z8Q_zmxVfgsx';
-    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    let sid = localStorage.getItem('nk_sid');
-    if (!sid) {
-      sid = (crypto.randomUUID ? crypto.randomUUID() : Date.now() + '-' + Math.random().toString(36).slice(2));
-      localStorage.setItem('nk_sid', sid);
-    }
+<!-- ══════════════════════════════════════════════════════
+     Live Chat Widget (NyumbaKisumu)
+     Copy from your master widget snippet into this block.
+═══════════════════════════════════════════════════════ -->
+<!-- [paste your nk-chat widget block here — unchanged] -->
 
-    sb.from('page_views').insert({
-      path: location.pathname,
-      referrer: document.referrer || null,
-      user_agent: navigator.userAgent,
-      session_id: sid
-    });
-  })();
-</script>
-<!--
-  ═══════════════════════════════════════════════════════
-  NyumbaKisumu Live Chat Widget
-  Drop this entire block just before </body> on every
-  public page: index.html, listings.html, listing.html, etc.
-  Requires @supabase/supabase-js already loaded on the page.
-  If not, add this line BEFORE this snippet:
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  ═══════════════════════════════════════════════════════
--->
-
-<style>
-/* ── Widget shell ── */
-#nk-chat-btn {
-  position: fixed; bottom: 24px; right: 24px; z-index: 1000;
-  width: 52px; height: 52px; border-radius: 50%;
-  background: #0F6E56; border: none; cursor: pointer;
-  box-shadow: 0 4px 16px rgba(15,110,86,0.35);
-  display: flex; align-items: center; justify-content: center;
-  transition: transform .2s, background .2s;
-}
-#nk-chat-btn:hover { background: #085041; transform: scale(1.07); }
-#nk-chat-btn svg { width: 24px; height: 24px; stroke: white; fill: none; stroke-width: 2; stroke-linecap: round; }
-#nk-chat-btn .nk-badge {
-  position: absolute; top: -2px; right: -2px;
-  width: 18px; height: 18px; border-radius: 50%;
-  background: #BA7517; color: white; font-size: 10px; font-weight: 700;
-  display: none; align-items: center; justify-content: center;
-  font-family: 'Inter', sans-serif; border: 2px solid white;
-}
-
-/* ── Panel ── */
-#nk-chat-panel {
-  position: fixed; bottom: 88px; right: 24px; z-index: 1000;
-  width: 340px; max-height: 520px;
-  background: #ffffff; border: 1px solid #e0ded8;
-  border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.14);
-  display: none; flex-direction: column;
-  font-family: 'Inter', sans-serif; font-size: 14px; overflow: hidden;
-  animation: nkSlideUp .2s ease;
-}
-@keyframes nkSlideUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
-#nk-chat-panel.open { display: flex; }
-
-/* Header */
-.nk-head {
-  background: #0F6E56; padding: 14px 16px;
-  display: flex; align-items: center; justify-content: space-between;
-  flex-shrink: 0;
-}
-.nk-head-left { display: flex; align-items: center; gap: 10px; }
-.nk-head-avatar {
-  width: 36px; height: 36px; border-radius: 50%;
-  background: #1D9E75; display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
-}
-.nk-head-avatar svg { width: 18px; height: 18px; stroke: white; fill: none; stroke-width: 2; }
-.nk-head-title { font-size: 14px; font-weight: 600; color: white; }
-.nk-head-sub { font-size: 11px; color: rgba(255,255,255,0.65); margin-top: 1px; }
-.nk-head-close {
-  background: none; border: none; cursor: pointer;
-  color: rgba(255,255,255,0.7); font-size: 20px; line-height: 1;
-  padding: 2px 4px; transition: color .15s;
-}
-.nk-head-close:hover { color: white; }
-
-/* Messages area */
-.nk-msgs {
-  flex: 1; overflow-y: auto; padding: 16px 14px 8px;
-  display: flex; flex-direction: column; gap: 10px;
-  scroll-behavior: smooth;
-}
-.nk-msgs::-webkit-scrollbar { width: 4px; }
-.nk-msgs::-webkit-scrollbar-thumb { background: #e0ded8; border-radius: 2px; }
-
-/* Greeting */
-.nk-greeting {
-  background: #f7f6f2; border-radius: 12px 12px 12px 2px;
-  padding: 12px 14px; font-size: 13px; color: #4a4a46; line-height: 1.6;
-  max-width: 90%;
-}
-.nk-greeting strong { color: #1a1a18; display: block; margin-bottom: 4px; font-size: 14px; }
-
-/* Quick replies */
-.nk-quick-replies { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
-.nk-qr {
-  font-size: 12px; font-weight: 500; padding: 5px 11px;
-  border-radius: 20px; border: 1.5px solid #0F6E56; color: #0F6E56;
-  background: white; cursor: pointer; transition: all .15s; font-family: inherit;
-}
-.nk-qr:hover { background: #0F6E56; color: white; }
-
-/* Bubbles */
-.nk-bubble-wrap { display: flex; flex-direction: column; }
-.nk-bubble-wrap.visitor { align-items: flex-end; }
-.nk-bubble-wrap.admin  { align-items: flex-start; }
-.nk-bubble {
-  max-width: 82%; padding: 9px 13px;
-  font-size: 13px; line-height: 1.55; word-break: break-word;
-}
-.nk-bubble.visitor {
-  background: #0F6E56; color: white;
-  border-radius: 14px 14px 2px 14px;
-}
-.nk-bubble.admin {
-  background: #f7f6f2; color: #1a1a18;
-  border-radius: 14px 14px 14px 2px; border: 1px solid #e0ded8;
-}
-.nk-bubble-time { font-size: 10px; color: #888780; margin-top: 3px; padding: 0 2px; }
-
-/* Typing indicator */
-.nk-typing { display: none; align-items: flex-start; gap: 6px; }
-.nk-typing.show { display: flex; }
-.nk-typing-bubble {
-  background: #f7f6f2; border: 1px solid #e0ded8;
-  border-radius: 14px 14px 14px 2px; padding: 10px 14px;
-  display: flex; gap: 4px; align-items: center;
-}
-.nk-typing-dot {
-  width: 6px; height: 6px; border-radius: 50%; background: #888780;
-  animation: nkDot 1.2s infinite;
-}
-.nk-typing-dot:nth-child(2) { animation-delay: .2s; }
-.nk-typing-dot:nth-child(3) { animation-delay: .4s; }
-@keyframes nkDot { 0%,80%,100%{transform:scale(.7);opacity:.4} 40%{transform:scale(1);opacity:1} }
-
-/* Input bar */
-.nk-input-bar {
-  padding: 10px 12px; border-top: 1px solid #e0ded8;
-  display: flex; align-items: flex-end; gap: 8px; flex-shrink: 0;
-}
-#nk-input {
-  flex: 1; border: 1.5px solid #e0ded8; border-radius: 20px;
-  padding: 9px 14px; font-size: 13px; font-family: inherit;
-  color: #1a1a18; background: #f7f6f2; outline: none; resize: none;
-  max-height: 100px; overflow-y: auto; line-height: 1.5;
-  transition: border-color .15s;
-}
-#nk-input:focus { border-color: #0F6E56; background: white; }
-#nk-send {
-  width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
-  background: #0F6E56; border: none; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  transition: background .15s; align-self: flex-end;
-}
-#nk-send:hover { background: #085041; }
-#nk-send svg { width: 16px; height: 16px; stroke: white; fill: none; stroke-width: 2.5; }
-#nk-send:disabled { opacity: .5; cursor: not-allowed; }
-
-/* Resolved banner */
-.nk-resolved {
-  display: none; text-align: center; padding: 10px 14px;
-  font-size: 12px; color: #888780; border-top: 1px solid #e0ded8;
-  background: #f7f6f2; flex-shrink: 0;
-}
-.nk-resolved.show { display: block; }
-
-@media (max-width: 400px) {
-  #nk-chat-panel { width: calc(100vw - 16px); right: 8px; bottom: 80px; }
-}
-</style>
-
-<!-- Toggle button -->
-<button id="nk-chat-btn" onclick="nkToggle()" aria-label="Open chat support">
-  <svg id="nk-icon-chat" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-  <svg id="nk-icon-close" viewBox="0 0 24 24" style="display:none"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-  <span class="nk-badge" id="nk-visitor-badge"></span>
-</button>
-
-<!-- Chat panel -->
-<div id="nk-chat-panel">
-  <div class="nk-head">
-    <div class="nk-head-left">
-      <div class="nk-head-avatar">
-        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-      </div>
-      <div>
-        <div class="nk-head-title">NyumbaKisumu</div>
-        <div class="nk-head-sub" id="nk-status-line">We usually reply within a few minutes</div>
-      </div>
-    </div>
-    <button class="nk-head-close" onclick="nkToggle()" aria-label="Close chat">✕</button>
-  </div>
-
-  <div class="nk-msgs" id="nk-msgs">
-    <!-- Greeting injected by JS -->
-  </div>
-
-  <div class="nk-resolved" id="nk-resolved-banner">
-    ✓ This conversation has been resolved. Start a new message below to reopen it.
-  </div>
-
-  <div class="nk-input-bar">
-    <textarea id="nk-input" rows="1" placeholder="Type a message…" oninput="nkAutoResize(this)" onkeydown="nkKeyDown(event)"></textarea>
-    <button id="nk-send" onclick="nkSend()" aria-label="Send message" disabled>
-      <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-    </button>
-  </div>
-</div>
-
-<script>
-(function () {
-  const NK_URL = 'https://vliuuloyfhyxcsuchpss.supabase.co';
-  const NK_KEY = 'sb_publishable_oIIcecf3wzKMual5K24Z8Q_zmxVfgsx';
-
-  // Re-use existing db client if available, otherwise create one
-  const nkDb = (typeof supabase !== 'undefined' && typeof db !== 'undefined')
-    ? db
-    : supabase.createClient(NK_URL, NK_KEY);
-
-  let nkSessionId = null;
-  let nkOpen = false;
-  let nkChannel = null;
-  let nkMessages = [];
-  let nkNewFromAdmin = 0;
-
-  const QUICK_REPLIES = [
-    'How do I list my apartment?',
-    'Is listing free?',
-    'What areas do you cover?',
-  ];
-
-  // ── Session key (persisted in localStorage) ──
-  function getOrCreateKey() {
-    let key = localStorage.getItem('nk_chat_key');
-    if (!key) {
-      key = 'nk_' + Date.now() + '_' + Math.random().toString(36).slice(2, 9);
-      localStorage.setItem('nk_chat_key', key);
-    }
-    return key;
-  }
-
-  // ── Init ──
-  async function nkInit() {
-    const key = getOrCreateKey();
-
-    // Try to find existing session
-    const { data: existing } = await nkDb
-      .from('chat_sessions')
-      .select('*')
-      .eq('session_key', key)
-      .single();
-
-    if (existing) {
-      nkSessionId = existing.id;
-      await loadMessages();
-    } else {
-      // Create new session lazily (on first message send)
-      renderGreeting();
-    }
-
-    subscribeRealtime();
-  }
-
-  async function ensureSession() {
-    if (nkSessionId) return;
-    const key = getOrCreateKey();
-    const { data } = await nkDb.from('chat_sessions').insert({
-      session_key: key,
-      page: window.location.pathname,
-    }).select().single();
-    if (data) nkSessionId = data.id;
-  }
-
-  // ── Load existing messages ──
-  async function loadMessages() {
-    const { data } = await nkDb
-      .from('chat_messages')
-      .select('*')
-      .eq('session_id', nkSessionId)
-      .order('created_at', { ascending: true });
-
-    nkMessages = data || [];
-    renderMessages();
-  }
-
-  // ── Render greeting (first time) ──
-  function renderGreeting() {
-    const msgsEl = document.getElementById('nk-msgs');
-    msgsEl.innerHTML = `
-      <div class="nk-greeting">
-        <strong>👋 Hi there!</strong>
-        Have a question about finding or listing an apartment in Kisumu? We're here to help — send us a message and we'll get back to you shortly.
-      </div>
-      <div class="nk-quick-replies" id="nk-qr-wrap">
-        ${QUICK_REPLIES.map(q => `<button class="nk-qr" onclick="nkQuickReply(this,'${q.replace(/'/g,"\\'")}')">
-          ${q}
-        </button>`).join('')}
-      </div>`;
-  }
-
-  // ── Render all messages ──
-  function renderMessages() {
-    const msgsEl = document.getElementById('nk-msgs');
-    if (!nkMessages.length) { renderGreeting(); return; }
-
-    msgsEl.innerHTML = nkMessages.map(m => bubbleHtml(m)).join('');
-    appendTypingIndicator();
-    scrollBottom();
-  }
-
-  function bubbleHtml(m) {
-    const time = new Date(m.created_at).toLocaleTimeString('en-KE', { hour: '2-digit', minute: '2-digit' });
-    return `<div class="nk-bubble-wrap ${m.sender}">
-      <div class="nk-bubble ${m.sender}">${escHtml(m.body)}</div>
-      <div class="nk-bubble-time">${time}</div>
-    </div>`;
-  }
-
-  function appendTypingIndicator() {
-    const msgsEl = document.getElementById('nk-msgs');
-    msgsEl.insertAdjacentHTML('beforeend', `
-      <div class="nk-typing" id="nk-typing">
-        <div class="nk-typing-bubble">
-          <div class="nk-typing-dot"></div>
-          <div class="nk-typing-dot"></div>
-          <div class="nk-typing-dot"></div>
-        </div>
-      </div>`);
-  }
-
-  function appendBubble(m) {
-    const typing = document.getElementById('nk-typing');
-    const html = bubbleHtml(m);
-    if (typing) {
-      typing.insertAdjacentHTML('beforebegin', html);
-    } else {
-      document.getElementById('nk-msgs').insertAdjacentHTML('beforeend', html);
-    }
-    scrollBottom();
-  }
-
-  function scrollBottom() {
-    const el = document.getElementById('nk-msgs');
-    if (el) el.scrollTop = el.scrollHeight;
-  }
-
-  // ── Realtime subscription ──
-  function subscribeRealtime() {
-    if (nkChannel) nkChannel.unsubscribe();
-    nkChannel = nkDb
-      .channel('nk-chat-visitor')
-      .on('postgres_changes', {
-        event: 'INSERT',
-        schema: 'public',
-        table: 'chat_messages',
-        filter: nkSessionId ? `session_id=eq.${nkSessionId}` : undefined,
-      }, (payload) => {
-        const msg = payload.new;
-        // Only process messages for our session
-        if (msg.session_id !== nkSessionId) return;
-        // Don't double-add messages we sent ourselves
-        if (nkMessages.find(m => m.id === msg.id)) return;
-        nkMessages.push(msg);
-        appendBubble(msg);
-
-        if (msg.sender === 'admin') {
-          updateStatusLine('Admin is online');
-          if (!nkOpen) {
-            nkNewFromAdmin++;
-            showVisitorBadge(nkNewFromAdmin);
-          }
-        }
-      })
-      .on('postgres_changes', {
-        event: 'UPDATE',
-        schema: 'public',
-        table: 'chat_sessions',
-        filter: nkSessionId ? `id=eq.${nkSessionId}` : undefined,
-      }, (payload) => {
-        if (payload.new.is_resolved) {
-          document.getElementById('nk-resolved-banner').classList.add('show');
-          updateStatusLine('Conversation resolved');
-        }
-      })
-      .subscribe();
-  }
-
-  // ── Send message ──
-  async function nkSend() {
-    const input = document.getElementById('nk-input');
-    const body = input.value.trim();
-    if (!body) return;
-
-    input.value = '';
-    nkAutoResize(input);
-    document.getElementById('nk-send').disabled = true;
-
-    // Remove quick replies once user sends
-    const qr = document.getElementById('nk-qr-wrap');
-    if (qr) qr.remove();
-
-    await ensureSession();
-
-    const { data: msg } = await nkDb.from('chat_messages').insert({
-      session_id: nkSessionId,
-      sender: 'visitor',
-      body,
-    }).select().single();
-
-    if (msg) {
-      nkMessages.push(msg);
-      appendBubble(msg);
-      // Re-subscribe now that we have a session ID (if first message)
-      subscribeRealtime();
-    }
-
-    // Update session last_msg_at + increment admin unread
-    await nkDb.from('chat_sessions').update({
-      last_msg_at: new Date().toISOString(),
-      unread_admin: (await getUnreadCount()) + 1,
-    }).eq('id', nkSessionId);
-
-    document.getElementById('nk-send').disabled = false;
-    input.focus();
-  }
-
-  async function getUnreadCount() {
-    const { data } = await nkDb
-      .from('chat_sessions')
-      .select('unread_admin')
-      .eq('id', nkSessionId)
-      .single();
-    return data?.unread_admin || 0;
-  }
-
-  function nkQuickReply(btn, text) {
-    document.getElementById('nk-input').value = text;
-    document.getElementById('nk-send').disabled = false;
-    nkSend();
-  }
-
-  // ── Toggle panel ──
-  function nkToggle() {
-    nkOpen = !nkOpen;
-    const panel = document.getElementById('nk-chat-panel');
-    const iconChat  = document.getElementById('nk-icon-chat');
-    const iconClose = document.getElementById('nk-icon-close');
-
-    panel.classList.toggle('open', nkOpen);
-    iconChat.style.display  = nkOpen ? 'none' : 'block';
-    iconClose.style.display = nkOpen ? 'block' : 'none';
-
-    if (nkOpen) {
-      nkNewFromAdmin = 0;
-      showVisitorBadge(0);
-      scrollBottom();
-      document.getElementById('nk-input').focus();
-    }
-  }
-
-  function showVisitorBadge(n) {
-    const badge = document.getElementById('nk-visitor-badge');
-    badge.style.display = n > 0 ? 'flex' : 'none';
-    badge.textContent = n;
-  }
-
-  function updateStatusLine(text) {
-    document.getElementById('nk-status-line').textContent = text;
-  }
-
-  // ── Input helpers ──
-  function nkAutoResize(el) {
-    el.style.height = 'auto';
-    el.style.height = Math.min(el.scrollHeight, 100) + 'px';
-    document.getElementById('nk-send').disabled = !el.value.trim();
-  }
-
-  function nkKeyDown(e) {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      nkSend();
-    }
-  }
-
-  function escHtml(str) {
-    return String(str || '')
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/\n/g, '<br>');
-  }
-
-  // Expose globals for onclick handlers
-  window.nkToggle      = nkToggle;
-  window.nkSend        = nkSend;
-  window.nkAutoResize  = nkAutoResize;
-  window.nkKeyDown     = nkKeyDown;
-  window.nkQuickReply  = nkQuickReply;
-
-  // Boot
-  nkInit();
-})();
-</script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-  (function () {
-    const SUPABASE_URL = 'https://vliuuloyfhyxcsuchpss.supabase.co';
-    const SUPABASE_KEY = 'sb_publishable_oIIcecf3wzKMual5K24Z8Q_zmxVfgsx';
-    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-    let sid = localStorage.getItem('nk_sid');
-    if (!sid) {
-      sid = (crypto.randomUUID ? crypto.randomUUID() : Date.now() + '-' + Math.random().toString(36).slice(2));
-      localStorage.setItem('nk_sid', sid);
-    }
-
-    sb.from('page_views').insert({
-      path: location.pathname,
-      referrer: document.referrer || null,
-      user_agent: navigator.userAgent,
-      session_id: sid
-    });
-  })();
-</script>
-<script>
-  // ── Mobile menu toggle ──
-  function toggleMobileMenu() {
-    document.getElementById('mobile-nav').classList.toggle('open');
-  }
-  document.addEventListener('click', e => {
-    const nav = document.getElementById('mobile-nav');
-    const btn = document.querySelector('.mobile-menu-btn');
-    if (nav && nav.classList.contains('open') && !nav.contains(e.target) && !btn.contains(e.target)) {
-      nav.classList.remove('open');
-    }
-  });
-
-  // ── Sign in → My Account when logged in ──
-  (async function () {
-    // Reuse existing db client or create one
-    const _sb = (typeof db !== 'undefined') ? db : supabase.createClient(
-      'https://vliuuloyfhyxcsuchpss.supabase.co',
-      'sb_publishable_oIIcecf3wzKMual5K24Z8Q_zmxVfgsx'
-    );
-    const { data: { session } } = await _sb.auth.getSession();
-    if (!session) return;
-
-    const desktopLink = document.getElementById('nav-account-link');
-    const mobileLink  = document.getElementById('mobile-account-link');
-
-    if (desktopLink) {
-      desktopLink.textContent = 'My Account';
-      desktopLink.href = 'dashboard.html';
-      desktopLink.style.fontWeight = '600';
-      desktopLink.style.color = 'var(--green)';
-    }
-    if (mobileLink) {
-      mobileLink.textContent = 'My Account';
-      mobileLink.href = 'dashboard.html';
-    }
-  })();
-</script>
 </body>
 </html>
