@@ -468,7 +468,7 @@
     });
   });
 </script>
-  <!--
+<!--
   ═══════════════════════════════════════════════════════
   NyumbaKisumu Live Chat Widget
   Drop this entire block just before </body> on every
@@ -962,6 +962,27 @@
   // Boot
   nkInit();
 })();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  (function () {
+    const SUPABASE_URL = 'https://vliuuloyfhyxcsuchpss.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_oIIcecf3wzKMual5K24Z8Q_zmxVfgsx';
+    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    let sid = localStorage.getItem('nk_sid');
+    if (!sid) {
+      sid = (crypto.randomUUID ? crypto.randomUUID() : Date.now() + '-' + Math.random().toString(36).slice(2));
+      localStorage.setItem('nk_sid', sid);
+    }
+
+    sb.from('page_views').insert({
+      path: location.pathname,
+      referrer: document.referrer || null,
+      user_agent: navigator.userAgent,
+      session_id: sid
+    });
+  })();
 </script>
 </body>
 </html>
