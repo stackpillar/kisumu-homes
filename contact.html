@@ -50,6 +50,28 @@
     .btn-primary { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 500; padding: 9px 18px; border-radius: var(--radius); background: var(--green); color: white; transition: background .15s; }
     .btn-primary:hover { background: var(--green-dark); }
 
+    /* Mobile menu */
+    .mobile-menu-btn {
+      display: none; background: none; border: none; cursor: pointer;
+      padding: 6px; border-radius: 6px;
+    }
+    .mobile-menu-btn svg { width: 22px; height: 22px; stroke: var(--text); fill: none; stroke-width: 2; display: block; }
+    .mobile-nav {
+      display: none; position: fixed; top: 64px; left: 0; right: 0;
+      background: var(--white); border-bottom: 1px solid var(--border);
+      padding: 16px; z-index: 99; flex-direction: column; gap: 4px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+    }
+    .mobile-nav.open { display: flex; }
+    .mobile-nav a { font-size: 15px; color: var(--text-2); padding: 10px 14px; border-radius: var(--radius); }
+    .mobile-nav a:hover { background: var(--surface); }
+    .mobile-nav .btn-primary { text-align: center; justify-content: center; margin-top: 8px; }
+
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .mobile-menu-btn { display: flex; }
+    }
+
     /* ── Hero ── */
     .hero {
       background: var(--green-dark); padding: 56px 32px 64px; text-align: center; position: relative; overflow: hidden;
@@ -213,13 +235,35 @@
     NyumbaKisumu
   </a>
   <div class="nav-links">
-    <a href="index.html" class="nav-link">Home</a>
     <a href="listings.html" class="nav-link">Browse</a>
     <a href="how-it-works.html" class="nav-link">How it works</a>
+    <a href="pricing.html" class="nav-link">Pricing</a>
+    <a href="contact.html" class="nav-link">Contact</a>
     <a href="login.html" class="nav-link" id="nav-account-link">Sign in</a>
-    <a href="post-listing.html" class="btn-primary">List your apartment</a>
+    <a href="saved.html" class="nav-link">
+      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+      Saved
+    </a>
+    <a href="post-listing.html" class="btn btn-primary">List your apartment</a>
   </div>
+  <button class="mobile-menu-btn" onclick="toggleMobileMenu()" aria-label="Open menu">
+    <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  </button>
 </nav>
+
+<!-- ── MOBILE NAV ── -->
+<div class="mobile-nav" id="mobile-nav">
+  <a href="listings.html">Browse listings</a>
+  <a href="how-it-works.html">How it works</a>
+  <a href="pricing.html">Pricing</a>
+  <a href="contact.html">Contact</a>
+  <a href="login.html" id="mobile-account-link">Sign in</a>
+  <a href="saved.html">
+    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+    Saved
+  </a>
+  <a href="post-listing.html" class="btn btn-primary">List your apartment</a>
+</div>
 
 <!-- ── HERO ── -->
 <section class="hero">
@@ -580,6 +624,65 @@
     signInLink.style.color = 'var(--green)';
   });
 })();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  (function () {
+    const SUPABASE_URL = 'https://vliuuloyfhyxcsuchpss.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_oIIcecf3wzKMual5K24Z8Q_zmxVfgsx';
+    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    let sid = localStorage.getItem('nk_sid');
+    if (!sid) {
+      sid = (crypto.randomUUID ? crypto.randomUUID() : Date.now() + '-' + Math.random().toString(36).slice(2));
+      localStorage.setItem('nk_sid', sid);
+    }
+
+    sb.from('page_views').insert({
+      path: location.pathname,
+      referrer: document.referrer || null,
+      user_agent: navigator.userAgent,
+      session_id: sid
+    });
+  })();
+</script>
+<script>
+  // ── Mobile menu toggle ──
+  function toggleMobileMenu() {
+    document.getElementById('mobile-nav').classList.toggle('open');
+  }
+  document.addEventListener('click', e => {
+    const nav = document.getElementById('mobile-nav');
+    const btn = document.querySelector('.mobile-menu-btn');
+    if (nav && nav.classList.contains('open') && !nav.contains(e.target) && !btn.contains(e.target)) {
+      nav.classList.remove('open');
+    }
+  });
+
+  // ── Sign in → My Account when logged in ──
+  (async function () {
+    // Reuse existing db client or create one
+    const _sb = (typeof db !== 'undefined') ? db : supabase.createClient(
+      'https://vliuuloyfhyxcsuchpss.supabase.co',
+      'sb_publishable_oIIcecf3wzKMual5K24Z8Q_zmxVfgsx'
+    );
+    const { data: { session } } = await _sb.auth.getSession();
+    if (!session) return;
+
+    const desktopLink = document.getElementById('nav-account-link');
+    const mobileLink  = document.getElementById('mobile-account-link');
+
+    if (desktopLink) {
+      desktopLink.textContent = 'My Account';
+      desktopLink.href = 'dashboard.html';
+      desktopLink.style.fontWeight = '600';
+      desktopLink.style.color = 'var(--green)';
+    }
+    if (mobileLink) {
+      mobileLink.textContent = 'My Account';
+      mobileLink.href = 'dashboard.html';
+    }
+  })();
 </script>
 </body>
 </html>
