@@ -1694,5 +1694,552 @@ function escAttr(str) {
 
 init();
 </script>
+<!-- ══════════════════════════════════════════
+     SUPPORT CHAT WIDGET
+     Paste this entire block just before </body>
+     in dashboard.html
+══════════════════════════════════════════ -->
+
+<style>
+  /* ── Floating button ── */
+  .support-fab {
+    position: fixed; bottom: 28px; right: 28px; z-index: 8000;
+    display: flex; align-items: center; gap: 10px;
+    background: var(--white); border-radius: 40px;
+    padding: 10px 18px 10px 10px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.14), 0 1px 6px rgba(0,0,0,0.08);
+    cursor: pointer; border: 1.5px solid var(--border);
+    transition: box-shadow .2s, transform .2s;
+    user-select: none;
+  }
+  .support-fab:hover { box-shadow: 0 6px 32px rgba(0,0,0,0.18); transform: translateY(-2px); }
+  .support-fab-avatar {
+    width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0; overflow: hidden;
+    background: var(--green); display: flex; align-items: center; justify-content: center;
+    position: relative;
+  }
+  .support-fab-avatar svg { width: 22px; height: 22px; stroke: white; fill: none; stroke-width: 2; }
+  /* Online pulse dot */
+  .support-fab-avatar::after {
+    content: ''; position: absolute; bottom: 1px; right: 1px;
+    width: 10px; height: 10px; border-radius: 50%;
+    background: #22c55e; border: 2px solid white;
+  }
+  .support-fab-text { display: flex; flex-direction: column; gap: 1px; }
+  .support-fab-status { font-size: 10px; font-weight: 600; color: #22c55e; letter-spacing: .04em; text-transform: uppercase; }
+  .support-fab-status.blink { animation: statusBlink 1s ease-in-out 3; }
+  @keyframes statusBlink { 0%,100%{opacity:1} 50%{opacity:0} }
+  .support-fab-label { font-size: 13px; font-weight: 600; color: var(--text); }
+
+  /* ── Chat popup ── */
+  .support-popup {
+    position: fixed; bottom: 90px; right: 28px; z-index: 8000;
+    width: 340px; background: var(--white);
+    border-radius: var(--radius-lg); border: 1px solid var(--border);
+    box-shadow: 0 8px 40px rgba(0,0,0,0.16);
+    display: none; flex-direction: column; overflow: hidden;
+    animation: popupIn .22s ease;
+    max-height: calc(100vh - 120px);
+  }
+  .support-popup.open { display: flex; }
+  @keyframes popupIn { from { opacity:0; transform:translateY(14px) scale(.97); } to { opacity:1; transform:translateY(0) scale(1); } }
+
+  /* Popup header */
+  .support-popup-head {
+    background: var(--green-dark); padding: 18px 18px 20px;
+    display: flex; align-items: flex-start; gap: 12px; flex-shrink: 0;
+  }
+  .support-popup-head-avatar {
+    width: 44px; height: 44px; border-radius: 50%; background: rgba(255,255,255,0.15);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    position: relative;
+  }
+  .support-popup-head-avatar svg { width: 24px; height: 24px; stroke: white; fill: none; stroke-width: 2; }
+  .support-popup-head-avatar::after {
+    content: ''; position: absolute; bottom: 2px; right: 2px;
+    width: 10px; height: 10px; border-radius: 50%;
+    background: #22c55e; border: 2px solid var(--green-dark);
+    animation: pulseDot 2s ease-in-out infinite;
+  }
+  @keyframes pulseDot { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.2);opacity:.7} }
+  .support-popup-head-info { flex: 1; }
+  .support-popup-head-name { font-size: 15px; font-weight: 700; color: white; margin-bottom: 2px; }
+  .support-popup-head-tag { font-size: 11px; color: rgba(255,255,255,0.7); display: flex; align-items: center; gap: 5px; }
+  .support-popup-head-tag span { width: 6px; height: 6px; border-radius: 50%; background: #22c55e; display: inline-block; }
+  .support-popup-close {
+    background: none; border: none; color: rgba(255,255,255,0.7); cursor: pointer;
+    font-size: 20px; line-height: 1; padding: 0; transition: color .15s;
+  }
+  .support-popup-close:hover { color: white; }
+
+  /* Chat messages area */
+  .support-messages {
+    flex: 1; overflow-y: auto; padding: 16px;
+    display: flex; flex-direction: column; gap: 10px;
+    max-height: 280px; min-height: 160px;
+    background: var(--surface);
+  }
+  .support-messages::-webkit-scrollbar { width: 4px; }
+  .support-messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  .support-msg { display: flex; gap: 8px; align-items: flex-end; }
+  .support-msg.admin { flex-direction: row; }
+  .support-msg.seller { flex-direction: row-reverse; }
+  .support-msg-avatar {
+    width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 700; margin-bottom: 2px;
+  }
+  .support-msg.admin .support-msg-avatar { background: var(--green); color: white; }
+  .support-msg.seller .support-msg-avatar { background: var(--surface); color: var(--text-2); border: 1px solid var(--border); }
+  .support-msg-bubble {
+    max-width: 75%; padding: 9px 13px; border-radius: 16px;
+    font-size: 13px; line-height: 1.5;
+  }
+  .support-msg.admin .support-msg-bubble {
+    background: var(--white); color: var(--text);
+    border: 1px solid var(--border); border-bottom-left-radius: 4px;
+  }
+  .support-msg.seller .support-msg-bubble {
+    background: var(--green); color: white; border-bottom-right-radius: 4px;
+  }
+  .support-msg-time { font-size: 10px; color: var(--text-3); margin-top: 3px; text-align: right; }
+  .support-msg.admin .support-msg-time { text-align: left; }
+
+  /* Typing indicator */
+  .support-typing { display: flex; gap: 4px; padding: 10px 14px; background: var(--white); border: 1px solid var(--border); border-radius: 16px; border-bottom-left-radius: 4px; width: fit-content; }
+  .support-typing span { width: 6px; height: 6px; border-radius: 50%; background: var(--text-3); animation: typingBounce .9s infinite; }
+  .support-typing span:nth-child(2) { animation-delay: .15s; }
+  .support-typing span:nth-child(3) { animation-delay: .3s; }
+  @keyframes typingBounce { 0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-5px)} }
+
+  /* Input area */
+  .support-input-wrap {
+    border-top: 1px solid var(--border); padding: 12px 14px;
+    display: flex; gap: 8px; align-items: flex-end; flex-shrink: 0; background: var(--white);
+  }
+  .support-input-wrap textarea {
+    flex: 1; border: 1.5px solid var(--border); border-radius: 20px;
+    padding: 9px 14px; font-size: 13px; font-family: inherit; resize: none;
+    outline: none; min-height: 38px; max-height: 100px; line-height: 1.5;
+    color: var(--text); background: var(--surface); transition: border-color .15s;
+  }
+  .support-input-wrap textarea:focus { border-color: var(--green); background: white; }
+  .support-input-wrap textarea::placeholder { color: var(--text-3); }
+  .support-send-btn {
+    width: 36px; height: 36px; border-radius: 50%; background: var(--green);
+    border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; transition: background .15s;
+  }
+  .support-send-btn:hover { background: var(--green-dark); }
+  .support-send-btn:disabled { opacity: .5; cursor: not-allowed; }
+  .support-send-btn svg { width: 15px; height: 15px; stroke: white; fill: none; stroke-width: 2; }
+
+  /* Footer note */
+  .support-popup-footer {
+    padding: 8px 14px; font-size: 11px; color: var(--text-3);
+    text-align: center; border-top: 1px solid var(--border);
+    background: var(--white); flex-shrink: 0;
+  }
+</style>
+
+<!-- FAB button -->
+<div class="support-fab" id="support-fab" onclick="toggleSupportChat()">
+  <div class="support-fab-avatar">
+    <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+  </div>
+  <div class="support-fab-text">
+    <span class="support-fab-status" id="support-fab-status">We are online 24/7</span>
+    <span class="support-fab-label">Let's Chat</span>
+  </div>
+</div>
+
+<!-- Chat popup -->
+<div class="support-popup" id="support-popup">
+
+  <!-- Header -->
+  <div class="support-popup-head">
+    <div class="support-popup-head-avatar">
+      <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+    </div>
+    <div class="support-popup-head-info">
+      <div class="support-popup-head-name">NyumbaKisumu Support</div>
+      <div class="support-popup-head-tag">
+        <span></span> Online · Contact the support team
+      </div>
+    </div>
+    <button class="support-popup-close" onclick="toggleSupportChat()">×</button>
+  </div>
+
+  <!-- Messages -->
+  <div class="support-messages" id="support-messages">
+    <!-- Welcome message from admin -->
+    <div class="support-msg admin" id="support-welcome-msg" style="display:none">
+      <div class="support-msg-avatar">NK</div>
+      <div>
+        <div class="support-msg-bubble">
+          👋 Hi <strong id="support-seller-name">there</strong>! Welcome to NyumbaKisumu support.<br/><br/>
+          How can we help you today? You can ask about your listings, payments, or anything else.
+        </div>
+        <div class="support-msg-time">Support team · just now</div>
+      </div>
+    </div>
+    <!-- Typing indicator shown briefly on open -->
+    <div class="support-msg admin" id="support-typing-row" style="display:none">
+      <div class="support-msg-avatar">NK</div>
+      <div class="support-typing"><span></span><span></span><span></span></div>
+    </div>
+    <!-- Dynamic messages injected here -->
+    <div id="support-dynamic-msgs"></div>
+  </div>
+
+  <!-- Input -->
+  <div class="support-input-wrap">
+    <textarea
+      id="support-input"
+      placeholder="Type your message…"
+      rows="1"
+      onkeydown="handleSupportKeydown(event)"
+      oninput="autoResizeSupportInput(this)"
+    ></textarea>
+    <button class="support-send-btn" onclick="sendSupportMessage()" title="Send">
+      <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+    </button>
+  </div>
+
+  <!-- Footer -->
+  <div class="support-popup-footer">
+    Powered by NyumbaKisumu &nbsp;·&nbsp;
+    <a href="contact.html" target="_blank" style="color:var(--green);text-decoration:none">Contact us</a>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════
+// SUPPORT CHAT WIDGET — connected to admin-chat.html
+// ════════════════════════════════════════
+let supportOpen       = false;
+let supportMsgs       = [];
+let supportSellerName = 'there';
+let supportInitialized = false;
+let supportSessionId  = null;   // chat_sessions row id
+let supportChannel    = null;   // realtime subscription
+
+// Reuse the dashboard's db client
+const supportDb = (typeof db !== 'undefined') ? db : supabase.createClient(
+  'https://vliuuloyfhyxcsuchpss.supabase.co',
+  'sb_publishable_oIIcecf3wzKMual5K24Z8Q_zmxVfgsx'
+);
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Grab seller name from sidebar once dashboard loads it
+  const observer = new MutationObserver(() => {
+    const name = document.getElementById('sidebar-name')?.textContent;
+    if (name && name !== 'Loading…') {
+      supportSellerName = name.split(' ')[0] || 'there';
+      document.getElementById('support-seller-name').textContent = supportSellerName;
+      observer.disconnect();
+      initSupportSession(); // create/restore session now we have a name
+    }
+  });
+  observer.observe(document.getElementById('sidebar-name') || document.body,
+    { childList: true, subtree: true, characterData: true });
+
+  // Blink status label
+  const statusEl = document.getElementById('support-fab-status');
+  statusEl.classList.add('blink');
+  setTimeout(() => {
+    statusEl.textContent = "Let's Chat";
+    statusEl.style.color = 'var(--green)';
+  }, 3200);
+});
+
+// ── Create or restore a chat session for this seller ──
+async function initSupportSession() {
+  // Use a stable key tied to the logged-in user
+  const userId = currentUser?.id || 'anon';
+  const sessionKey = 'seller_support_' + userId;
+
+  // Check for existing open session
+  const { data: existing } = await supportDb
+    .from('chat_sessions')
+    .select('*')
+    .eq('session_key', sessionKey)
+    .eq('is_resolved', false)
+    .single();
+
+  if (existing) {
+    supportSessionId = existing.id;
+    await loadSupportHistory();
+  } else {
+    // Create new session
+    const { data: created } = await supportDb
+      .from('chat_sessions')
+      .insert({
+        session_key:   sessionKey,
+        session_type:  'seller',
+        visitor_name:  supportSellerName,
+        page:          'dashboard.html',
+        last_msg_at:   new Date().toISOString(),
+      })
+      .select()
+      .single();
+
+    if (created) supportSessionId = created.id;
+  }
+
+  // Subscribe to admin replies in real time
+  subscribeToAdminReplies();
+}
+
+// ── Load existing message history ──
+async function loadSupportHistory() {
+  if (!supportSessionId) return;
+  const { data } = await supportDb
+    .from('chat_messages')
+    .select('*')
+    .eq('session_id', supportSessionId)
+    .order('created_at', { ascending: true });
+
+  if (!data?.length) return;
+
+  const dynEl = document.getElementById('support-dynamic-msgs');
+  const sellerInitials = supportSellerName.slice(0, 2).toUpperCase();
+  dynEl.innerHTML = '';
+
+  // Show welcome message first
+  document.getElementById('support-welcome-msg').style.display = 'flex';
+
+  data.forEach(m => {
+    const time = new Date(m.created_at).toLocaleTimeString('en-KE', { hour: '2-digit', minute: '2-digit' });
+    if (m.sender === 'visitor' || m.sender === 'seller') {
+      dynEl.innerHTML += `
+        <div class="support-msg seller">
+          <div class="support-msg-avatar">${sellerInitials}</div>
+          <div>
+            <div class="support-msg-bubble">${escSupportHtml(m.body)}</div>
+            <div class="support-msg-time">${time}</div>
+          </div>
+        </div>`;
+    } else {
+      dynEl.innerHTML += `
+        <div class="support-msg admin">
+          <div class="support-msg-avatar">NK</div>
+          <div>
+            <div class="support-msg-bubble">${m.body}</div>
+            <div class="support-msg-time">Support team · ${time}</div>
+          </div>
+        </div>`;
+    }
+  });
+  scrollSupportToBottom();
+}
+
+// ── Subscribe to incoming admin replies ──
+function subscribeToAdminReplies() {
+  if (!supportSessionId) return;
+  if (supportChannel) supportChannel.unsubscribe();
+
+  supportChannel = supportDb
+    .channel('seller-support-' + supportSessionId)
+    .on('postgres_changes', {
+      event:  'INSERT',
+      schema: 'public',
+      table:  'chat_messages',
+      filter: `session_id=eq.${supportSessionId}`,
+    }, (payload) => {
+      const msg = payload.new;
+      if (msg.sender !== 'admin') return; // we already show seller msgs optimistically
+
+      const time = new Date(msg.created_at).toLocaleTimeString('en-KE', { hour: '2-digit', minute: '2-digit' });
+      const dynEl = document.getElementById('support-dynamic-msgs');
+      dynEl.innerHTML += `
+        <div class="support-msg admin">
+          <div class="support-msg-avatar">NK</div>
+          <div>
+            <div class="support-msg-bubble">${msg.body}</div>
+            <div class="support-msg-time">Support team · ${time}</div>
+          </div>
+        </div>`;
+      scrollSupportToBottom();
+
+      // Open the popup if it's closed so seller notices the reply
+      if (!supportOpen) {
+        document.getElementById('support-fab-status').textContent = '1 new reply!';
+        document.getElementById('support-fab-status').style.color = 'var(--red)';
+      }
+    })
+    .subscribe();
+}
+
+function toggleSupportChat() {
+  supportOpen = !supportOpen;
+  const popup = document.getElementById('support-popup');
+  if (supportOpen) {
+    popup.classList.add('open');
+    // Reset unread indicator
+    document.getElementById('support-fab-status').textContent = 'We are online 24/7';
+    document.getElementById('support-fab-status').style.color = '#22c55e';
+
+    if (!supportInitialized) {
+      supportInitialized = true;
+      document.getElementById('support-typing-row').style.display = 'flex';
+      setTimeout(() => {
+        document.getElementById('support-typing-row').style.display = 'none';
+        document.getElementById('support-welcome-msg').style.display = 'flex';
+        scrollSupportToBottom();
+      }, 1200);
+    }
+    setTimeout(() => document.getElementById('support-input').focus(), 200);
+  } else {
+    popup.classList.remove('open');
+  }
+}
+
+async function sendSupportMessage() {
+  const input = document.getElementById('support-input');
+  const text  = input.value.trim();
+  if (!text) return;
+
+  const now = new Date().toLocaleTimeString('en-KE', { hour: '2-digit', minute: '2-digit' });
+  const sellerInitials = supportSellerName.slice(0, 2).toUpperCase();
+  supportMsgs.push({ sender: 'seller', text, time: now });
+
+  // Show in UI immediately (optimistic)
+  const dynEl = document.getElementById('support-dynamic-msgs');
+  dynEl.innerHTML += `
+    <div class="support-msg seller">
+      <div class="support-msg-avatar">${sellerInitials}</div>
+      <div>
+        <div class="support-msg-bubble">${escSupportHtml(text)}</div>
+        <div class="support-msg-time">${now}</div>
+      </div>
+    </div>`;
+
+  input.value = '';
+  input.style.height = 'auto';
+  scrollSupportToBottom();
+
+  // Ensure session exists then save to Supabase
+  await initSupportSession();
+  if (supportSessionId) {
+    await supportDb.from('chat_messages').insert({
+      session_id: supportSessionId,
+      sender:     'visitor',   // 'visitor' = the non-admin side
+      body:       text,
+    });
+    // Update last_msg_at and admin unread count
+    const { data: sess } = await supportDb
+      .from('chat_sessions')
+      .select('unread_admin')
+      .eq('id', supportSessionId)
+      .single();
+    await supportDb.from('chat_sessions').update({
+      last_msg_at:  new Date().toISOString(),
+      unread_admin: (sess?.unread_admin || 0) + 1,
+    }).eq('id', supportSessionId);
+  }
+
+  // Show bot auto-reply after short delay
+  setTimeout(() => showSupportAutoReply(text), 1400);
+}
+
+async function showSupportAutoReply(originalText) {
+  const dynEl = document.getElementById('support-dynamic-msgs');
+  const typingId = 'st-' + Date.now();
+  dynEl.innerHTML += `<div class="support-msg admin" id="${typingId}">
+    <div class="support-msg-avatar">NK</div>
+    <div class="support-typing"><span></span><span></span><span></span></div>
+  </div>`;
+  scrollSupportToBottom();
+
+  setTimeout(async () => {
+    const typingEl = document.getElementById(typingId);
+    if (typingEl) typingEl.remove();
+
+    const { reply, isHandoff } = getSupportAutoReply(originalText);
+    const now = new Date().toLocaleTimeString('en-KE', { hour: '2-digit', minute: '2-digit' });
+
+    dynEl.innerHTML += `
+      <div class="support-msg admin">
+        <div class="support-msg-avatar">NK</div>
+        <div>
+          <div class="support-msg-bubble">${reply}</div>
+          <div class="support-msg-time">Support team · ${now}</div>
+        </div>
+      </div>`;
+    scrollSupportToBottom();
+
+    // Save the bot reply to Supabase so admin can see the full conversation
+    if (supportSessionId) {
+      await supportDb.from('chat_messages').insert({
+        session_id: supportSessionId,
+        sender:     'admin',
+        body:       reply.replace(/<[^>]+>/g, ''), // strip HTML for storage
+      });
+
+      // If it's a handoff message, flag the session so admin knows to take over
+      if (isHandoff) {
+        await supportDb.from('chat_sessions').update({
+          unread_admin: 999, // spike the count so it sorts to top for admin
+        }).eq('id', supportSessionId);
+      }
+    }
+  }, 1600);
+}
+
+// Returns { reply, isHandoff }
+function getSupportAutoReply(text) {
+  const t = (text || '').toLowerCase();
+
+  if (t.includes('payment') || t.includes('mpesa') || t.includes('pay')) {
+    return { reply: `For payment issues, send your M-Pesa transaction code to <strong>hello@nyumbakisumu.co.ke</strong> and we'll activate your listing within 30 minutes. ✅`, isHandoff: false };
+  }
+  if (t.includes('listing') && (t.includes('not show') || t.includes('pending') || t.includes('approv'))) {
+    return { reply: `Listings are reviewed within 2 hours of payment. If yours has been waiting longer, share your listing ID and we'll check it immediately. 🏠`, isHandoff: false };
+  }
+  if (t.includes('delete') || t.includes('remov') || t.includes('disable')) {
+    return { reply: `If your listing was disabled, the reason is shown on your dashboard. Share your listing ID and we'll look into it right away. 📋`, isHandoff: false };
+  }
+  if (t.includes('photo') || t.includes('image') || t.includes('blur')) {
+    return { reply: `For best quality, upload photos directly from your device without compression. Still blurry? Re-upload and let us know your listing ID!`, isHandoff: false };
+  }
+  if (t.includes('price') || t.includes('cost') || t.includes('fee') || t.includes('upgrade')) {
+    return { reply: `Listing fees: <br/>• Standard: <strong>KES 800</strong> (60 days)<br/>• Featured: <strong>KES 2,500</strong> (90 days, top placement)<br/>No commission on sales. 💚`, isHandoff: false };
+  }
+  if (t.includes('hello') || t.includes('hi') || t.includes('hey')) {
+    return { reply: `Hello ${supportSellerName}! 👋 What can we help you with today?`, isHandoff: false };
+  }
+  if (t.includes('thank')) {
+    return { reply: `You're very welcome, ${supportSellerName}! 😊 Happy selling!`, isHandoff: false };
+  }
+
+  // ── DEFAULT: Handoff to admin ──
+  return {
+    reply: `Thanks for reaching out, ${supportSellerName}! 🙋 I've flagged your message for our team — a real person will reply here shortly. For urgent help, WhatsApp or email <strong>hello@nyumbakisumu.co.ke</strong>. 📩`,
+    isHandoff: true
+  };
+}
+
+function handleSupportKeydown(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendSupportMessage(); }
+}
+
+function autoResizeSupportInput(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 100) + 'px';
+}
+
+function scrollSupportToBottom() {
+  const el = document.getElementById('support-messages');
+  if (el) el.scrollTop = el.scrollHeight;
+}
+
+function escSupportHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+</script>
 </body>
 </html>
