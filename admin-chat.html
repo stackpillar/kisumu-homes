@@ -445,7 +445,6 @@
   const { createClient } = supabase;
   const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  // ── State ──
   let allSessions = [];
   let activeSessionId = null;
   let activeMessages = [];
@@ -453,6 +452,23 @@
   let searchQuery = '';
   let realtimeChannel = null;
   let sessionChannel = null;
+
+  // ── Detect if a session is admin→seller type ──
+  function isSellerSession(session) {
+    return session && (session.session_key || '').startsWith('admin_to_seller_');
+  }
+
+  // ── Human-readable label for the "other" side of a conversation ──
+  function otherPartyLabel(session) {
+    if (isSellerSession(session)) return session.visitor_name || 'Seller';
+    return session.visitor_name || visitorLabel(session.session_key);
+  }
+
+  // ── Sender label inside a message bubble ──
+  function senderLabel(msg, session) {
+    if (msg.sender === 'admin') return 'You (Admin)';
+    return isSellerSession(session) ? 'Seller' : 'Visitor';
+  }
 
   // ── Toast ──
   function showToast(msg, type = '') {
@@ -465,15 +481,9 @@
   // ── Auth check ──
   async function checkAuth() {
     const { data: { user } } = await db.auth.getUser();
-    if (!user) {
-      window.location.href = 'admin-login.html';
-      return null;
-    }
-    // Get profile name
+    if (!user) { window.location.href = 'login.html'; return null; }
     const { data: profile } = await db.from('profiles').select('full_name, role').eq('id', user.id).single();
-    if (profile) {
-      document.getElementById('admin-name-tag').textContent = profile.full_name || user.email;
-    }
+    if (profile) document.getElementById('admin-name-tag').textContent = profile.full_name || user.email;
     return user;
   }
 
@@ -494,9 +504,11 @@
   function renderSessionList() {
     const list = document.getElementById('conv-list');
     let filtered = allSessions.filter(s => {
-      if (currentFilter === 'unread') return s.unread_admin > 0;
-      if (currentFilter === 'open') return !s.is_resolved;
+      if (currentFilter === 'unread')   return s.unread_admin > 0;
+      if (currentFilter === 'open')     return !s.is_resolved;
       if (currentFilter === 'resolved') return s.is_resolved;
+      if (currentFilter === 'sellers')  return isSellerSession(s);
+      if (currentFilter === 'visitors') return !isSellerSession(s);
       return true;
     });
 
@@ -521,8 +533,10 @@
     list.innerHTML = filtered.map(s => {
       const isActive = s.id === activeSessionId;
       const time = s.last_msg_at ? timeAgo(s.last_msg_at) : '';
-      const page = s.page ? s.page.replace('/','').replace('.html','') || 'home' : 'unknown';
-      const name = s.visitor_name || visitorLabel(s.session_key);
+      const isSeller = isSellerSession(s);
+      // Page tag: for seller sessions show "seller" label, for visitors show the page they came from
+      const pageTag = isSeller ? '👤 Seller' : (s.page || 'unknown').replace('/','').replace('.html','') || 'home';
+      const name = otherPartyLabel(s);
       return `<div class="conv-item ${isActive ? 'active' : ''} ${s.unread_admin > 0 ? 'unread' : ''}"
         onclick="selectSession('${s.id}')" id="conv-item-${s.id}">
         <div class="conv-item-top">
@@ -533,12 +547,11 @@
         <div class="conv-item-meta">
           ${s.unread_admin > 0 ? `<span class="conv-unread-dot"></span><span style="font-size:11px;font-weight:600;color:var(--red)">${s.unread_admin} new</span>` : ''}
           ${s.is_resolved ? '<span class="conv-resolved-tag">Resolved</span>' : ''}
-          <span class="conv-page-tag">${escHtml(page)}</span>
+          <span class="conv-page-tag" style="${isSeller ? 'color:var(--blue,#185FA5);border-color:var(--blue,#185FA5);background:#E6F1FB' : ''}">${escHtml(pageTag)}</span>
         </div>
       </div>`;
     }).join('');
 
-    // Load last message previews
     filtered.forEach(s => loadPreview(s.id));
   }
 
@@ -553,25 +566,19 @@
 
     const el = document.getElementById(`preview-${sessionId}`);
     if (el && data) {
-      const prefix = data.sender === 'admin' ? 'You: ' : '';
-      el.textContent = prefix + data.body;
+      el.textContent = (data.sender === 'admin' ? 'You: ' : '') + data.body;
     } else if (el) {
-      el.textContent = 'No messages yet';
+      el.textContent = 'No messages yet — send the first message';
     }
   }
 
   // ── Select a session ──
   async function selectSession(sessionId) {
     activeSessionId = sessionId;
-
-    // Mark as read
     await db.from('chat_sessions').update({ unread_admin: 0 }).eq('id', sessionId);
-
-    // Update local state
     const sess = allSessions.find(s => s.id === sessionId);
     if (sess) sess.unread_admin = 0;
 
-    // Update UI
     renderSessionList();
     showActiveView(sess);
     await loadMessages(sessionId);
@@ -579,7 +586,6 @@
     updateInfoSidebar(sess);
     updateGlobalBadges();
 
-    // Mobile: show main
     document.getElementById('conv-sidebar').classList.remove('mobile-open');
   }
 
@@ -590,12 +596,16 @@
     av.style.flexDirection = 'column';
     av.style.height = '100%';
 
-    const name = session.visitor_name || visitorLabel(session.session_key);
+    const name = otherPartyLabel(session);
     document.getElementById('active-name').textContent = name;
 
-    const startDate = session.created_at ? new Date(session.created_at).toLocaleDateString('en-KE', { day:'numeric', month:'short', year:'numeric' }) : '';
-    const msgCount = ''; // will fill after load
-    document.getElementById('active-meta').textContent = `Started ${startDate} · ${session.page || 'unknown page'}`;
+    const isSeller = isSellerSession(session);
+    const startDate = session.created_at
+      ? new Date(session.created_at).toLocaleDateString('en-KE', { day:'numeric', month:'short', year:'numeric' })
+      : '';
+    document.getElementById('active-meta').textContent = isSeller
+      ? `Admin → Seller conversation · Started ${startDate}`
+      : `Visitor on ${(session.page || 'unknown page').replace('.html','')} · Started ${startDate}`;
 
     renderHeaderActions(session);
     renderReplyBar(session);
@@ -603,19 +613,24 @@
 
   function renderHeaderActions(session) {
     const actions = document.getElementById('header-actions');
-    if (session.is_resolved) {
-      actions.innerHTML = `<button class="hdr-btn reopen" onclick="reopenSession('${session.id}')">↺ Reopen</button>
-        <button class="hdr-btn danger" onclick="deleteSession('${session.id}')">🗑 Delete</button>`;
-    } else {
-      actions.innerHTML = `<button class="hdr-btn resolve" onclick="resolveSession('${session.id}')">✓ Resolve</button>
-        <button class="hdr-btn danger" onclick="deleteSession('${session.id}')">🗑 Delete</button>`;
-    }
+    const resolveBtn = session.is_resolved
+      ? `<button class="hdr-btn reopen" onclick="reopenSession('${session.id}')">↺ Reopen</button>`
+      : `<button class="hdr-btn resolve" onclick="resolveSession('${session.id}')">✓ Resolve</button>`;
+    actions.innerHTML = `${resolveBtn}
+      <button class="hdr-btn danger" onclick="deleteSession('${session.id}')">🗑 Delete</button>`;
   }
 
   function renderReplyBar(session) {
     const resolved = document.getElementById('resolved-notice');
-    const inner = document.getElementById('reply-bar-inner');
-    const input = document.getElementById('reply-input');
+    const inner    = document.getElementById('reply-bar-inner');
+    const input    = document.getElementById('reply-input');
+    const isSeller = isSellerSession(session);
+
+    // Update placeholder to match conversation type
+    input.placeholder = isSeller
+      ? 'Type your message to the seller…'
+      : 'Type your reply to the visitor…';
+
     if (session.is_resolved) {
       resolved.style.display = 'block';
       inner.style.display = 'none';
@@ -627,10 +642,9 @@
     }
   }
 
-  // ── Load messages for active session ──
+  // ── Load messages ──
   async function loadMessages(sessionId) {
     document.getElementById('conv-messages').innerHTML = '<div class="spinner"></div>';
-
     const { data, error } = await db
       .from('chat_messages')
       .select('*')
@@ -641,7 +655,6 @@
     activeMessages = data || [];
     renderMessages();
 
-    // Mark visitor messages as read
     const unreadIds = activeMessages.filter(m => m.sender === 'visitor' && !m.read_at).map(m => m.id);
     if (unreadIds.length) {
       await db.from('chat_messages').update({ read_at: new Date().toISOString() }).in('id', unreadIds);
@@ -650,8 +663,15 @@
 
   function renderMessages() {
     const container = document.getElementById('conv-messages');
+    const session = allSessions.find(s => s.id === activeSessionId);
+
     if (!activeMessages.length) {
-      container.innerHTML = `<div style="text-align:center;color:var(--text-3);font-size:13px;padding:40px">No messages yet. Visitor hasn't sent anything.</div>`;
+      const isSeller = isSellerSession(session);
+      container.innerHTML = `<div style="text-align:center;color:var(--text-3);font-size:13px;padding:40px">
+        ${isSeller
+          ? 'No messages yet — type below to start the conversation with this seller.'
+          : "No messages yet. Waiting for the visitor to send something."}
+      </div>`;
       return;
     }
 
@@ -665,9 +685,9 @@
         lastDate = dateStr;
       }
       const time = d.toLocaleTimeString('en-KE', { hour:'2-digit', minute:'2-digit' });
-      const senderLabel = m.sender === 'admin' ? 'You (Admin)' : 'Visitor';
+      const label = senderLabel(m, session);
       html += `<div class="msg-wrap ${m.sender}" id="msg-${m.id}">
-        <div class="msg-sender-label">${senderLabel}</div>
+        <div class="msg-sender-label">${label}</div>
         <div class="msg-bubble ${m.sender}">${escHtml(m.body)}</div>
         <div class="msg-time">${time}${m.sender === 'admin' && m.read_at ? ' · Read' : ''}</div>
       </div>`;
@@ -684,60 +704,44 @@
 
   function appendMessage(m) {
     const container = document.getElementById('conv-messages');
+    const session = allSessions.find(s => s.id === activeSessionId);
     const d = new Date(m.created_at);
     const time = d.toLocaleTimeString('en-KE', { hour:'2-digit', minute:'2-digit' });
-    const senderLabel = m.sender === 'admin' ? 'You (Admin)' : 'Visitor';
+    const label = senderLabel(m, session);
     container.insertAdjacentHTML('beforeend', `
       <div class="msg-wrap ${m.sender}" id="msg-${m.id}">
-        <div class="msg-sender-label">${senderLabel}</div>
+        <div class="msg-sender-label">${label}</div>
         <div class="msg-bubble ${m.sender}">${escHtml(m.body)}</div>
         <div class="msg-time">${time}</div>
       </div>`);
     scrollToBottom();
   }
 
-  // ── Realtime subscription ──
+  // ── Realtime ──
   function subscribeMessages(sessionId) {
     if (realtimeChannel) realtimeChannel.unsubscribe();
-
     realtimeChannel = db.channel(`admin-chat-${sessionId}`)
       .on('postgres_changes', {
-        event: 'INSERT',
-        schema: 'public',
-        table: 'chat_messages',
+        event: 'INSERT', schema: 'public', table: 'chat_messages',
         filter: `session_id=eq.${sessionId}`,
       }, (payload) => {
         const msg = payload.new;
         if (activeMessages.find(m => m.id === msg.id)) return;
         activeMessages.push(msg);
         appendMessage(msg);
-
         if (msg.sender === 'visitor') {
           showToast('New message from visitor', 'success');
-          // Mark read immediately since we're looking at it
           db.from('chat_messages').update({ read_at: new Date().toISOString() }).eq('id', msg.id);
         }
       })
       .subscribe();
 
-    // Also subscribe to all sessions for sidebar updates
     if (!sessionChannel) {
       sessionChannel = db.channel('admin-all-sessions')
-        .on('postgres_changes', {
-          event: '*',
-          schema: 'public',
-          table: 'chat_sessions',
-        }, () => {
-          loadSessions(); // refresh list silently
-        })
-        .on('postgres_changes', {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'chat_messages',
-        }, (payload) => {
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'chat_sessions' }, () => loadSessions())
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages' }, (payload) => {
           const msg = payload.new;
           if (msg.session_id !== activeSessionId && msg.sender === 'visitor') {
-            // Update unread in local state
             const sess = allSessions.find(s => s.id === msg.session_id);
             if (sess) {
               sess.unread_admin = (sess.unread_admin || 0) + 1;
@@ -769,19 +773,13 @@
       body,
     }).select().single();
 
-    if (error) {
-      showToast('Failed to send. Try again.', 'error');
-      btn.disabled = false;
-      return;
-    }
+    if (error) { showToast('Failed to send. Try again.', 'error'); btn.disabled = false; return; }
 
     activeMessages.push(msg);
     appendMessage(msg);
 
-    // Update session last_msg_at
     await db.from('chat_sessions').update({ last_msg_at: new Date().toISOString() }).eq('id', activeSessionId);
 
-    // Update local sessions list
     const sess = allSessions.find(s => s.id === activeSessionId);
     if (sess) sess.last_msg_at = new Date().toISOString();
     allSessions.sort((a,b) => new Date(b.last_msg_at) - new Date(a.last_msg_at));
@@ -791,44 +789,33 @@
     input.focus();
   }
 
-  // ── Resolve session ──
+  // ── Resolve / Reopen / Delete ──
   async function resolveSession(id) {
     const { error } = await db.from('chat_sessions').update({ is_resolved: true }).eq('id', id);
     if (error) { showToast('Error resolving', 'error'); return; }
-
     const sess = allSessions.find(s => s.id === id);
     if (sess) sess.is_resolved = true;
     renderSessionList();
-    if (id === activeSessionId) {
-      renderHeaderActions(sess);
-      renderReplyBar(sess);
-    }
+    if (id === activeSessionId) { renderHeaderActions(sess); renderReplyBar(sess); }
     updateInfoSidebar(sess);
     showToast('Conversation resolved ✓', 'success');
   }
 
-  // ── Reopen session ──
   async function reopenSession(id) {
     const { error } = await db.from('chat_sessions').update({ is_resolved: false }).eq('id', id);
     if (error) { showToast('Error reopening', 'error'); return; }
-
     const sess = allSessions.find(s => s.id === id);
     if (sess) sess.is_resolved = false;
     renderSessionList();
-    if (id === activeSessionId) {
-      renderHeaderActions(sess);
-      renderReplyBar(sess);
-    }
+    if (id === activeSessionId) { renderHeaderActions(sess); renderReplyBar(sess); }
     updateInfoSidebar(sess);
     showToast('Conversation reopened', 'success');
   }
 
-  // ── Delete session ──
   async function deleteSession(id) {
     if (!confirm('Delete this entire conversation? This cannot be undone.')) return;
     const { error } = await db.from('chat_sessions').delete().eq('id', id);
     if (error) { showToast('Error deleting', 'error'); return; }
-
     allSessions = allSessions.filter(s => s.id !== id);
     renderSessionList();
     if (id === activeSessionId) {
@@ -842,18 +829,22 @@
   // ── Info sidebar ──
   function updateInfoSidebar(session) {
     if (!session) return;
-    const name = session.visitor_name || visitorLabel(session.session_key);
-    const created = session.created_at ? new Date(session.created_at).toLocaleDateString('en-KE', { day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '—';
+    const name     = otherPartyLabel(session);
+    const isSeller = isSellerSession(session);
+    const created  = session.created_at
+      ? new Date(session.created_at).toLocaleString('en-KE', { day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' })
+      : '—';
     const lastMsg = session.last_msg_at ? timeAgo(session.last_msg_at) : '—';
-    const page = session.page || '—';
 
     document.getElementById('visitor-info-content').innerHTML = `
       <div class="info-row">
-        <span class="info-label">Visitor ID</span>
-        <span class="info-value" style="font-size:11px;font-family:monospace;color:var(--text-3)">${session.session_key.slice(0,20)}…</span>
+        <span class="info-label">Type</span>
+        <span class="info-value" style="color:${isSeller ? 'var(--blue,#185FA5)' : 'var(--green)'}">
+          ${isSeller ? '👤 Seller conversation' : '🌐 Visitor conversation'}
+        </span>
       </div>
       <div class="info-row">
-        <span class="info-label">Name</span>
+        <span class="info-label">${isSeller ? 'Seller name' : 'Name / ID'}</span>
         <span class="info-value">${escHtml(name)}</span>
       </div>
       <div class="info-row">
@@ -865,8 +856,8 @@
         <span class="info-value">${lastMsg}</span>
       </div>
       <div class="info-row">
-        <span class="info-label">From page</span>
-        <span class="info-value">${escHtml(page)}</span>
+        <span class="info-label">${isSeller ? 'Initiated from' : 'From page'}</span>
+        <span class="info-value">${escHtml(session.page || '—')}</span>
       </div>
       <div class="info-row">
         <span class="info-label">Status</span>
@@ -875,12 +866,11 @@
         </span>
       </div>`;
 
-    // Action buttons in right sidebar
     document.getElementById('action-buttons').innerHTML = session.is_resolved
       ? `<button class="template-btn" style="border-color:var(--gold);color:var(--gold)" onclick="reopenSession('${session.id}')">↺ Reopen conversation</button>
-         <button class="template-btn" style="border-color:var(--red);color:var(--red)" onclick="deleteSession('${session.id}')">🗑 Delete conversation</button>`
+         <button class="template-btn" style="border-color:var(--red);color:var(--red)"   onclick="deleteSession('${session.id}')">🗑 Delete conversation</button>`
       : `<button class="template-btn" style="border-color:var(--green);color:var(--green)" onclick="resolveSession('${session.id}')">✓ Mark as resolved</button>
-         <button class="template-btn" style="border-color:var(--red);color:var(--red)" onclick="deleteSession('${session.id}')">🗑 Delete conversation</button>`;
+         <button class="template-btn" style="border-color:var(--red);color:var(--red)"     onclick="deleteSession('${session.id}')">🗑 Delete conversation</button>`;
   }
 
   // ── Global badges ──
@@ -890,9 +880,8 @@
     badge.textContent = totalUnread || '';
     badge.className = `topnav-badge ${totalUnread > 0 ? 'show' : ''}`;
 
-    // Tab badges
     const unreadCount = allSessions.filter(s => s.unread_admin > 0).length;
-    const allBadge = document.getElementById('badge-all');
+    const allBadge    = document.getElementById('badge-all');
     const unreadBadge = document.getElementById('badge-unread');
     if (totalUnread > 0) {
       allBadge.style.display = 'inline-flex'; allBadge.textContent = totalUnread;
@@ -902,8 +891,9 @@
       unreadBadge.style.display = 'none';
     }
 
-    // Page title
-    document.title = totalUnread > 0 ? `(${totalUnread}) Live Chat — NyumbaKisumu Admin` : 'Live Chat — NyumbaKisumu Admin';
+    document.title = totalUnread > 0
+      ? `(${totalUnread}) Live Chat — NyumbaKisumu Admin`
+      : 'Live Chat — NyumbaKisumu Admin';
   }
 
   // ── Filter / search ──
@@ -919,7 +909,6 @@
     renderSessionList();
   }
 
-  // ── Quick reply template ──
   function insertTemplate(btn) {
     const input = document.getElementById('reply-input');
     input.value = btn.textContent.trim();
@@ -928,7 +917,6 @@
     document.getElementById('reply-send').disabled = false;
   }
 
-  // ── Mobile ──
   function closeMobileConv() {
     document.getElementById('conv-sidebar').classList.add('mobile-open');
     document.getElementById('active-view').style.display = 'none';
@@ -936,7 +924,6 @@
     activeSessionId = null;
   }
 
-  // ── Input helpers ──
   function autoResize(el) {
     el.style.height = 'auto';
     el.style.height = Math.min(el.scrollHeight, 120) + 'px';
@@ -947,15 +934,11 @@
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendReply(); }
   }
 
-  // ── Helpers ──
   function visitorLabel(key) {
     if (!key) return 'Visitor';
     const parts = key.split('_');
     const ts = parseInt(parts[1]);
-    if (!isNaN(ts)) {
-      const d = new Date(ts);
-      return `Visitor · ${d.toLocaleDateString('en-KE', { day:'numeric', month:'short' })}`;
-    }
+    if (!isNaN(ts)) return `Visitor · ${new Date(ts).toLocaleDateString('en-KE', { day:'numeric', month:'short' })}`;
     return `Visitor #${key.slice(-5)}`;
   }
 
@@ -977,7 +960,6 @@
       .replace(/"/g,'&quot;').replace(/\n/g,'<br>');
   }
 
-  // Expose for onclick
   window.setFilter = setFilter;
   window.filterConversations = filterConversations;
   window.selectSession = selectSession;
@@ -990,21 +972,32 @@
   window.replyKeyDown = replyKeyDown;
   window.closeMobileConv = closeMobileConv;
 
-  // ── Boot ──
+  // ── Boot: load sessions then auto-select if ?session= is in URL ──
   async function init() {
-    // Skip auth for now if admin-login doesn't exist yet
-    // await checkAuth();
     await loadSessions();
 
-    // Subscribe to new sessions being created
+    // Auto-select session from URL param (set by admin.html Message button)
+    const urlParams = new URLSearchParams(window.location.search);
+    const preselect = urlParams.get('session');
+    if (preselect) {
+      // Wait a tick for the session list to render, then select
+      setTimeout(() => selectSession(preselect), 100);
+    }
+
+    // Also add Sellers / Visitors filter tabs — update the HTML tabs
+    const tabBar = document.querySelector('.conv-tabs');
+    if (tabBar && !document.getElementById('tab-sellers')) {
+      tabBar.insertAdjacentHTML('beforeend', `
+        <button class="conv-tab" id="tab-sellers"  onclick="setFilter('sellers',this)">Sellers</button>
+        <button class="conv-tab" id="tab-visitors" onclick="setFilter('visitors',this)">Visitors</button>`);
+    }
+
     sessionChannel = db.channel('admin-all-sessions')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_sessions' }, () => {
         loadSessions();
         showToast('New visitor started a conversation!', 'success');
       })
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'chat_sessions' }, () => {
-        loadSessions();
-      })
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'chat_sessions' }, () => loadSessions())
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages' }, (payload) => {
         const msg = payload.new;
         if (msg.session_id !== activeSessionId && msg.sender === 'visitor') {
@@ -1020,11 +1013,31 @@
       })
       .subscribe();
 
-    // Refresh every 30s as backup
     setInterval(loadSessions, 30000);
   }
 
   init();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  (function () {
+    const SUPABASE_URL = 'https://vliuuloyfhyxcsuchpss.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_oIIcecf3wzKMual5K24Z8Q_zmxVfgsx';
+    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    let sid = localStorage.getItem('nk_sid');
+    if (!sid) {
+      sid = (crypto.randomUUID ? crypto.randomUUID() : Date.now() + '-' + Math.random().toString(36).slice(2));
+      localStorage.setItem('nk_sid', sid);
+    }
+
+    sb.from('page_views').insert({
+      path: location.pathname,
+      referrer: document.referrer || null,
+      user_agent: navigator.userAgent,
+      session_id: sid
+    });
+  })();
 </script>
 </body>
 </html>
