@@ -23,7 +23,7 @@
     button { font-family:inherit; cursor:pointer; border:none; }
     input,select,textarea { font-family:inherit; }
 
-    /* ── Navbar ── */
+    /* Navbar */
     nav { position:sticky; top:0; z-index:100; display:flex; align-items:center; justify-content:space-between; padding:0 32px; height:64px; background:var(--white); border-bottom:1px solid var(--border); }
     .logo { display:flex; align-items:center; gap:10px; font-family:'Playfair Display',serif; font-size:20px; color:var(--green-dark); }
     .logo-icon { width:34px; height:34px; background:var(--green); border-radius:8px; display:flex; align-items:center; justify-content:center; }
@@ -34,7 +34,7 @@
     .btn-primary { display:inline-flex; align-items:center; gap:6px; font-size:14px; font-weight:500; padding:9px 18px; border-radius:var(--radius); background:var(--green); color:white; transition:background .15s; }
     .btn-primary:hover { background:var(--green-dark); }
 
-    /* ── Mobile menu ── */
+    /* Mobile menu */
     .mobile-menu-btn { display:none; background:none; border:none; cursor:pointer; padding:6px; border-radius:6px; }
     .mobile-menu-btn svg { width:22px; height:22px; stroke:var(--text); fill:none; stroke-width:2; display:block; }
     .mobile-nav { display:none; position:fixed; top:64px; left:0; right:0; background:var(--white); border-bottom:1px solid var(--border); padding:16px; z-index:99; flex-direction:column; gap:4px; box-shadow:0 8px 24px rgba(0,0,0,0.1); }
@@ -44,21 +44,39 @@
     .mobile-nav .btn-primary { text-align:center; justify-content:center; margin-top:8px; }
     @media (max-width:768px) { .nav-links { display:none; } .mobile-menu-btn { display:flex; } }
 
-    /* ── Breadcrumb ── */
+    /* Breadcrumb */
     .breadcrumb { padding:14px 32px; display:flex; align-items:center; gap:8px; font-size:13px; color:var(--text-3); background:var(--white); border-bottom:1px solid var(--border); }
     .breadcrumb a { color:var(--text-3); transition:color .15s; }
     .breadcrumb a:hover { color:var(--green); }
     .breadcrumb svg { width:14px; height:14px; stroke:var(--border); fill:none; stroke-width:2; flex-shrink:0; }
     .breadcrumb span { color:var(--text-2); font-weight:500; }
 
-    /* ── Page layout ── */
+    /* Page layout */
     .page-wrap { max-width:1100px; margin:0 auto; padding:32px 24px 80px; }
     .layout { display:grid; grid-template-columns:1fr 360px; gap:32px; align-items:start; }
 
-    /* ── Gallery ── */
-    .gallery { border-radius:var(--radius-lg); overflow:hidden; background:var(--surface); margin-bottom:24px; position:relative; }
-    .gallery-main { width:100%; aspect-ratio:16/9; position:relative; overflow:hidden; background:var(--surface); display:flex; align-items:center; justify-content:center; }
-    .gallery-main img { width:100%; height:100%; object-fit:cover; transition:opacity .3s; }
+    /* ══════════════════════════════════════
+       GALLERY — Full quality image display
+       object-fit:contain ensures the image
+       is never cropped or stretched, preserving
+       the original aspect ratio and sharpness.
+    ══════════════════════════════════════ */
+    .gallery { border-radius:var(--radius-lg); overflow:hidden; background:#111; margin-bottom:24px; position:relative; }
+    .gallery-main {
+      width:100%; aspect-ratio:16/9; position:relative; overflow:hidden;
+      background:#111; display:flex; align-items:center; justify-content:center;
+    }
+    /* KEY FIX: object-fit:contain keeps full image quality with no cropping.
+       image-rendering:high-quality tells the browser to use best downscaling algorithm. */
+    .gallery-main img {
+      width:100%; height:100%;
+      object-fit:contain;           /* shows full image, no cropping */
+      object-position:center;
+      image-rendering:high-quality; /* best quality scaling */
+      -webkit-image-rendering:high-quality;
+      transition:opacity .3s;
+      background:#111;
+    }
     .gallery-no-photo { display:flex; flex-direction:column; align-items:center; gap:12px; color:var(--text-3); }
     .gallery-no-photo svg { width:48px; height:48px; stroke:var(--border); fill:none; stroke-width:1.5; }
     .gallery-arrow { position:absolute; top:50%; transform:translateY(-50%); width:38px; height:38px; border-radius:50%; background:rgba(255,255,255,0.92); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all .15s; z-index:2; }
@@ -70,16 +88,17 @@
     .gallery-thumbs { display:flex; gap:8px; padding:10px; overflow-x:auto; background:var(--white); border-top:1px solid var(--border); }
     .gallery-thumb { width:72px; height:52px; border-radius:6px; overflow:hidden; flex-shrink:0; border:2px solid transparent; cursor:pointer; transition:border-color .15s; }
     .gallery-thumb.active { border-color:var(--green); }
+    /* Thumbnails use cover since they're small previews */
     .gallery-thumb img { width:100%; height:100%; object-fit:cover; }
     .featured-overlay { position:absolute; top:14px; left:14px; z-index:2; background:var(--gold); color:white; font-size:11px; font-weight:700; padding:4px 12px; border-radius:20px; letter-spacing:.04em; display:flex; align-items:center; gap:5px; }
 
-    /* ── Action row ── */
+    /* Action row */
     .action-row { display:flex; align-items:center; gap:8px; margin-bottom:20px; flex-wrap:wrap; }
     .action-pill { display:inline-flex; align-items:center; gap:6px; padding:7px 14px; border-radius:20px; border:1.5px solid var(--border); background:var(--white); font-size:13px; font-weight:500; color:var(--text-2); cursor:pointer; transition:all .15s; }
     .action-pill:hover { border-color:var(--green); color:var(--green); }
     .action-pill svg { width:14px; height:14px; stroke:currentColor; fill:none; stroke-width:2; }
 
-    /* ── Listing header ── */
+    /* Listing header */
     .listing-header { margin-bottom:20px; }
     .listing-badges { display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; }
     .badge { display:inline-flex; align-items:center; gap:4px; font-size:12px; font-weight:600; padding:4px 10px; border-radius:20px; }
@@ -92,7 +111,7 @@
     .listing-location { display:flex; align-items:center; gap:6px; font-size:14px; color:var(--text-3); }
     .listing-location svg { width:15px; height:15px; stroke:var(--green); fill:none; stroke-width:2; flex-shrink:0; }
 
-    /* ── Price block ── */
+    /* Price block */
     .price-block { background:var(--white); border:1px solid var(--border); border-radius:var(--radius-lg); padding:20px 24px; margin-bottom:20px; display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; }
     .price-main { font-family:'Playfair Display',serif; font-size:34px; font-weight:700; color:var(--green-dark); }
     .price-main span { font-family:'Inter',sans-serif; font-size:15px; font-weight:400; color:var(--text-3); }
@@ -100,7 +119,7 @@
     .price-views { display:flex; align-items:center; gap:5px; font-size:13px; color:var(--text-3); }
     .price-views svg { width:15px; height:15px; stroke:var(--text-3); fill:none; stroke-width:2; }
 
-    /* ── Specs ── */
+    /* Specs */
     .specs-card { background:var(--white); border:1px solid var(--border); border-radius:var(--radius-lg); padding:24px; margin-bottom:20px; }
     .specs-card h3 { font-size:15px; font-weight:600; color:var(--text); margin-bottom:18px; }
     .specs-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(130px,1fr)); gap:14px; }
@@ -110,23 +129,33 @@
     .spec-val { font-size:15px; font-weight:700; color:var(--text); line-height:1.2; }
     .spec-lbl { font-size:11px; color:var(--text-3); margin-top:3px; }
 
-    /* ── Description ── */
+    /* Description */
     .desc-card { background:var(--white); border:1px solid var(--border); border-radius:var(--radius-lg); padding:24px; margin-bottom:20px; }
     .desc-card h3 { font-size:15px; font-weight:600; color:var(--text); margin-bottom:14px; }
     .desc-text { font-size:14px; color:var(--text-2); line-height:1.8; white-space:pre-line; }
     .desc-text.collapsed { display:-webkit-box; -webkit-line-clamp:5; -webkit-box-orient:vertical; overflow:hidden; }
     .read-more { font-size:13px; color:var(--green); font-weight:500; margin-top:10px; cursor:pointer; display:inline-block; }
 
-    /* ── Map ── */
+    /* ══════════════════════════════════════
+       MAP CARD — Live Google Maps embed
+    ══════════════════════════════════════ */
     .map-card { background:var(--white); border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden; margin-bottom:20px; }
-    .map-card-header { padding:18px 24px 14px; border-bottom:1px solid var(--border); }
+    .map-card-header { padding:16px 20px 12px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
     .map-card-header h3 { font-size:15px; font-weight:600; color:var(--text); }
-    .map-card-header p { font-size:13px; color:var(--text-3); margin-top:2px; }
-    .map-placeholder { height:220px; background:var(--surface); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; color:var(--text-3); }
-    .map-placeholder svg { width:36px; height:36px; stroke:var(--border); fill:none; stroke-width:1.5; }
-    .map-placeholder a { font-size:13px; color:var(--green); font-weight:500; }
+    .map-card-header p { font-size:12px; color:var(--text-3); margin-top:2px; }
+    .map-card-header a { font-size:12px; color:var(--green); font-weight:500; white-space:nowrap; display:flex; align-items:center; gap:4px; }
+    .map-card-header a svg { width:13px; height:13px; stroke:var(--green); fill:none; stroke-width:2; }
+    /* The live map iframe */
+    .map-iframe-wrap { position:relative; width:100%; height:300px; background:var(--surface); }
+    .map-iframe-wrap iframe { position:absolute; top:0; left:0; width:100%; height:100%; border:none; }
+    /* Fallback shown while iframe loads */
+    .map-loading { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; color:var(--text-3); z-index:1; pointer-events:none; }
+    .map-loading.hidden { display:none; }
+    .map-loading svg { width:32px; height:32px; stroke:var(--border); fill:none; stroke-width:1.5; }
+    .map-privacy-note { padding:8px 16px; font-size:11px; color:var(--text-3); background:var(--surface); border-top:1px solid var(--border); display:flex; align-items:center; gap:6px; }
+    .map-privacy-note svg { width:12px; height:12px; stroke:var(--text-3); fill:none; stroke-width:2; flex-shrink:0; }
 
-    /* ── Similar listings ── */
+    /* Similar listings */
     .similar-section { margin-top:8px; }
     .similar-section h3 { font-size:16px; font-weight:600; color:var(--text); margin-bottom:16px; }
     .similar-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:14px; }
@@ -139,7 +168,7 @@
     .similar-title { font-size:13px; font-weight:600; color:var(--text); margin-bottom:6px; line-height:1.3; }
     .similar-price { font-size:15px; font-weight:700; color:var(--green-dark); }
 
-    /* ── Contact card (right rail) ── */
+    /* Contact card */
     .contact-card { background:var(--white); border:1px solid var(--border); border-radius:var(--radius-lg); padding:24px; position:sticky; top:80px; }
     .contact-card-title { font-size:16px; font-weight:600; color:var(--text); margin-bottom:4px; }
     .contact-card-sub { font-size:13px; color:var(--text-3); margin-bottom:20px; }
@@ -152,13 +181,12 @@
     .contact-btns { display:flex; flex-direction:column; gap:10px; margin-bottom:20px; }
     .btn-call { display:flex; align-items:center; justify-content:center; gap:8px; padding:13px; border-radius:var(--radius); font-size:15px; font-weight:600; background:var(--green); color:white; transition:background .15s; }
     .btn-call:hover { background:var(--green-dark); }
-    .btn-call svg { width:18px; height:18px; stroke:white; fill:none; stroke-width:2; }
     .btn-whatsapp { display:flex; align-items:center; justify-content:center; gap:8px; padding:13px; border-radius:var(--radius); font-size:15px; font-weight:600; background:#25D366; color:white; transition:background .15s; }
     .btn-whatsapp:hover { background:#128C3E; }
     .or-divider { display:flex; align-items:center; gap:10px; font-size:12px; color:var(--text-3); margin-bottom:18px; }
     .or-divider::before,.or-divider::after { content:''; flex:1; height:1px; background:var(--border); }
 
-    /* ── Enquiry form ── */
+    /* Enquiry form */
     .field { margin-bottom:14px; }
     .field label { display:block; font-size:12px; font-weight:600; color:var(--text-2); text-transform:uppercase; letter-spacing:.05em; margin-bottom:5px; }
     .field input,.field textarea { width:100%; padding:10px 14px; border:1.5px solid var(--border); border-radius:var(--radius); font-size:14px; color:var(--text); background:var(--surface); outline:none; transition:border-color .15s,background .15s; }
@@ -176,7 +204,7 @@
     @keyframes spin { to { transform:rotate(360deg); } }
     .enquiry-note { font-size:11px; color:var(--text-3); text-align:center; margin-top:10px; line-height:1.5; }
 
-    /* ── Conversation thread ── */
+    /* Thread */
     .thread-section { margin-top:0; }
     .thread-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
     .thread-header h4 { font-size:14px; font-weight:600; color:var(--text); }
@@ -206,86 +234,62 @@
     .chat-date-sep { text-align:center; font-size:10px; color:var(--text-3); padding:4px 0; }
     .chat-wa-note { font-size:11px; color:var(--text-3); text-align:center; margin-bottom:10px; display:flex; align-items:center; justify-content:center; gap:4px; }
 
-    /* ── Not found ── */
+    /* Not found */
     .not-found { text-align:center; padding:80px 24px; }
     .not-found svg { width:48px; height:48px; stroke:var(--border); fill:none; stroke-width:1.5; margin:0 auto 16px; display:block; }
     .not-found h2 { font-size:20px; font-weight:600; color:var(--text); margin-bottom:8px; }
     .not-found p { font-size:14px; color:var(--text-3); margin-bottom:20px; }
 
-    /* ══════════════════════════════════════════════════
-       SELLER-PRIVATE DISABLED NOTICE
-       Only shown to the owner of a disabled listing.
-       Buyers and guests see the generic "not found" view.
-    ══════════════════════════════════════════════════ */
+    /* Seller disabled view */
     .seller-disabled-wrap { max-width:620px; margin:48px auto; }
-    .seller-disabled-banner {
-      background:var(--red-light); border:1.5px solid #feb2b2;
-      border-radius:var(--radius-lg); padding:32px 28px;
-    }
+    .seller-disabled-banner { background:var(--red-light); border:1.5px solid #feb2b2; border-radius:var(--radius-lg); padding:32px 28px; }
     .seller-disabled-banner-inner { display:flex; gap:20px; align-items:flex-start; }
-    .seller-disabled-icon {
-      width:52px; height:52px; border-radius:50%; background:#FED7D7;
-      display:flex; align-items:center; justify-content:center; flex-shrink:0;
-    }
+    .seller-disabled-icon { width:52px; height:52px; border-radius:50%; background:#FED7D7; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
     .seller-disabled-icon svg { width:26px; height:26px; stroke:var(--red); fill:none; stroke-width:2; }
     .seller-disabled-content h2 { font-size:18px; font-weight:700; color:var(--red); margin-bottom:6px; }
     .seller-disabled-content p { font-size:13px; color:var(--text-2); line-height:1.7; margin-bottom:10px; }
-    .seller-disabled-reason {
-      background:white; border:1px solid #feb2b2; border-radius:var(--radius);
-      padding:12px 16px; font-size:13px; color:var(--text-2);
-      margin:12px 0; line-height:1.6;
-    }
+    .seller-disabled-reason { background:white; border:1px solid #feb2b2; border-radius:var(--radius); padding:12px 16px; font-size:13px; color:var(--text-2); margin:12px 0; line-height:1.6; }
     .seller-disabled-reason strong { color:var(--red); display:block; font-size:11px; text-transform:uppercase; letter-spacing:.06em; margin-bottom:4px; }
-    .seller-disabled-notice {
-      background:#FFF5F5; border:1px solid #FEB2B2; border-radius:var(--radius);
-      padding:10px 14px; font-size:12px; color:#742A2A;
-      display:flex; gap:8px; align-items:flex-start; margin-top:12px; line-height:1.6;
-    }
+    .seller-disabled-notice { background:#FFF5F5; border:1px solid #FEB2B2; border-radius:var(--radius); padding:10px 14px; font-size:12px; color:#742A2A; display:flex; gap:8px; align-items:flex-start; margin-top:12px; line-height:1.6; }
     .seller-disabled-notice svg { width:14px; height:14px; stroke:#C53030; fill:none; stroke-width:2; flex-shrink:0; margin-top:1px; }
     .seller-disabled-actions { display:flex; gap:10px; margin-top:20px; flex-wrap:wrap; }
-    .seller-disabled-actions a, .seller-disabled-actions button {
-      padding:9px 18px; border-radius:var(--radius); font-size:13px; font-weight:600;
-      cursor:pointer; transition:all .15s; text-decoration:none; display:inline-flex; align-items:center; gap:6px;
-    }
+    .seller-disabled-actions a, .seller-disabled-actions button { padding:9px 18px; border-radius:var(--radius); font-size:13px; font-weight:600; cursor:pointer; transition:all .15s; text-decoration:none; display:inline-flex; align-items:center; gap:6px; }
     .btn-contact-admin { background:var(--green); color:white; border:none; }
     .btn-contact-admin:hover { background:var(--green-dark); }
     .btn-browse-more { background:white; color:var(--text-2); border:1.5px solid var(--border); }
     .btn-browse-more:hover { border-color:var(--green); color:var(--green); }
-
-    /* Recycle-bin variant */
-    .seller-recycle-banner {
-      background:#FFFBEB; border:1.5px solid #F6E05E;
-      border-radius:var(--radius-lg); padding:32px 28px; margin-top:16px;
-    }
+    .seller-recycle-banner { background:#FFFBEB; border:1.5px solid #F6E05E; border-radius:var(--radius-lg); padding:32px 28px; margin-top:16px; }
     .seller-recycle-banner h3 { font-size:14px; font-weight:600; color:#744210; margin-bottom:6px; }
     .seller-recycle-banner p { font-size:13px; color:var(--text-2); line-height:1.7; }
-    .countdown-pill {
-      display:inline-flex; align-items:center; gap:6px;
-      background:#FEF3C7; border:1px solid #F6E05E; border-radius:20px;
-      font-size:12px; font-weight:700; color:#92400E;
-      padding:4px 12px; margin-top:8px;
-    }
+    .countdown-pill { display:inline-flex; align-items:center; gap:6px; background:#FEF3C7; border:1px solid #F6E05E; border-radius:20px; font-size:12px; font-weight:700; color:#92400E; padding:4px 12px; margin-top:8px; }
     .countdown-pill svg { width:13px; height:13px; stroke:currentColor; fill:none; stroke-width:2; }
 
-    /* ── Enquiry success ── */
+    /* Enquiry success */
     .enquiry-success { display:none; text-align:center; padding:16px 0; }
     .enquiry-success-icon { width:52px; height:52px; background:var(--green-light); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 12px; }
     .enquiry-success-icon svg { width:24px; height:24px; stroke:var(--green); fill:none; stroke-width:2.5; }
     .enquiry-success h4 { font-size:15px; font-weight:600; color:var(--text); margin-bottom:6px; }
     .enquiry-success p { font-size:13px; color:var(--text-3); margin-bottom:12px; }
 
-    /* ── Safety tip ── */
+    /* Safety tip */
     .safety-tip { margin-top:16px; padding:12px 14px; background:var(--gold-light); border-radius:var(--radius); border:1px solid #FAC775; font-size:12px; color:#5C3A00; line-height:1.6; display:flex; gap:8px; }
     .safety-tip svg { width:14px; height:14px; stroke:var(--gold); fill:none; stroke-width:2; flex-shrink:0; margin-top:2px; }
 
-    /* ── Skeleton ── */
+    /* ══════════════════════════════════════
+       VIEWS BADGE — Live counter
+    ══════════════════════════════════════ */
+    .views-loading { opacity:.4; }
+    @keyframes views-pulse { 0%,100%{opacity:.4} 50%{opacity:1} }
+    .views-loading { animation: views-pulse .8s ease-in-out infinite; }
+
+    /* Skeleton */
     .skel { height:14px; background:linear-gradient(90deg,#f0efe9 25%,#e8e7e1 50%,#f0efe9 75%); background-size:200% 100%; animation:shimmer 1.4s infinite; border-radius:4px; }
     .skel.short { width:55%; }
     .skel.xshort { width:35%; }
     .skel-block { background:linear-gradient(90deg,#f0efe9 25%,#e8e7e1 50%,#f0efe9 75%); background-size:200% 100%; animation:shimmer 1.4s infinite; border-radius:var(--radius-lg); }
     @keyframes shimmer { to { background-position:-200% 0; } }
 
-    /* ── Footer ── */
+    /* Footer */
     footer { background:var(--text); color:rgba(255,255,255,0.6); padding:48px 32px 28px; }
     .footer-inner { max-width:1100px; margin:0 auto; }
     .footer-top { display:grid; grid-template-columns:2fr 1fr 1fr 1fr; gap:40px; margin-bottom:40px; }
@@ -306,6 +310,7 @@
       footer { padding:40px 16px 24px; }
       .footer-top { grid-template-columns:1fr 1fr; gap:28px; }
       .seller-disabled-banner-inner { flex-direction:column; }
+      .map-iframe-wrap { height:220px; }
     }
     @media(max-width:480px) {
       .specs-grid { grid-template-columns:repeat(2,1fr); }
@@ -316,7 +321,7 @@
 </head>
 <body>
 
-<!-- ── NAVBAR ── -->
+<!-- NAVBAR -->
 <nav>
   <a href="index.html" class="logo">
     <div class="logo-icon">
@@ -334,14 +339,13 @@
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
       Saved
     </a>
-    <a href="post-listing.html" class="btn btn-primary">List your apartment</a>
+    <a href="post-listing.html" class="btn-primary">List your apartment</a>
   </div>
   <button class="mobile-menu-btn" onclick="toggleMobileMenu()" aria-label="Open menu">
     <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
   </button>
 </nav>
 
-<!-- ── MOBILE NAV ── -->
 <div class="mobile-nav" id="mobile-nav">
   <a href="listings.html">Browse listings</a>
   <a href="how-it-works.html">How it works</a>
@@ -349,10 +353,9 @@
   <a href="contact.html">Contact</a>
   <a href="login.html" id="mobile-account-link">Sign in</a>
   <a href="saved.html">Saved</a>
-  <a href="post-listing.html" class="btn btn-primary">List your apartment</a>
+  <a href="post-listing.html" class="btn-primary">List your apartment</a>
 </div>
 
-<!-- ── BREADCRUMB ── -->
 <div class="breadcrumb" id="breadcrumb">
   <a href="index.html">Home</a>
   <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
@@ -363,7 +366,7 @@
 
 <div class="page-wrap">
 
-  <!-- ══ NOT FOUND (public fallback — also shown to buyers for disabled listings) ══ -->
+  <!-- NOT FOUND -->
   <div class="not-found" id="not-found" style="display:none">
     <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
     <h2>Listing not found</h2>
@@ -371,11 +374,7 @@
     <a href="listings.html" class="btn-primary" style="display:inline-flex;margin:0 auto">Browse all listings</a>
   </div>
 
-  <!-- ══ SELLER-PRIVATE DISABLED VIEW ══
-       Shown ONLY to the listing owner when their listing has been
-       disabled, recycled, or is pending/rejected by the admin.
-       Buyers and guests never see this — they get the not-found view above.
-  ══ -->
+  <!-- SELLER-PRIVATE DISABLED VIEW -->
   <div id="seller-disabled-view" style="display:none">
     <div class="seller-disabled-wrap">
       <div class="seller-disabled-banner">
@@ -385,18 +384,15 @@
           </div>
           <div class="seller-disabled-content">
             <h2 id="seller-disabled-heading">Your listing has been deactivated</h2>
-            <p id="seller-disabled-intro">This listing is currently hidden from the public site. Only you and the admin can see this message — buyers will see a generic "not found" page.</p>
-
+            <p id="seller-disabled-intro">This listing is currently hidden from the public site. Only you and the admin team can see this notice — visitors will see a generic "not found" page.</p>
             <div class="seller-disabled-reason" id="seller-disabled-reason-box" style="display:none">
               <strong>Reason provided by admin</strong>
               <span id="seller-disabled-reason-text"></span>
             </div>
-
             <div class="seller-disabled-notice">
               <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
               <span>This information is private between you and the NyumbaKisumu admin team. No buyer or visitor can see it.</span>
             </div>
-
             <div class="seller-disabled-actions">
               <a href="contact.html" class="btn-contact-admin">
                 <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="white" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
@@ -408,11 +404,9 @@
           </div>
         </div>
       </div>
-
-      <!-- Extra recycle-bin countdown card (shown only when in recycle bin) -->
       <div class="seller-recycle-banner" id="seller-recycle-extra" style="display:none">
         <h3>⚠ Scheduled for permanent deletion</h3>
-        <p>This listing has been moved to the recycle bin by an admin. It will be permanently and irrecoverably deleted after the grace period unless the admin restores it. Contact the support team immediately if you believe this is a mistake.</p>
+        <p>This listing has been moved to the recycle bin by an admin. It will be permanently deleted after the grace period unless the admin restores it. Contact the support team immediately if this is a mistake.</p>
         <div class="countdown-pill" id="seller-recycle-countdown">
           <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
           <span id="seller-recycle-days">…</span>
@@ -421,7 +415,7 @@
     </div>
   </div>
 
-  <!-- ══ SKELETON ══ -->
+  <!-- SKELETON -->
   <div id="skeleton-wrap">
     <div class="layout">
       <div>
@@ -430,17 +424,17 @@
         <div class="skel" style="margin-bottom:8px;height:28px"></div>
         <div class="skel xshort" style="margin-bottom:24px"></div>
         <div class="skel-block" style="height:120px;margin-bottom:20px"></div>
-        <div class="skel-block" style="height:180px"></div>
+        <div class="skel-block" style="height:300px"></div>
       </div>
       <div><div class="skel-block" style="height:420px"></div></div>
     </div>
   </div>
 
-  <!-- ══ LISTING CONTENT (public — only shown when listing is genuinely active) ══ -->
+  <!-- LISTING CONTENT -->
   <div id="listing-content" style="display:none">
     <div class="layout">
 
-      <!-- LEFT column -->
+      <!-- LEFT -->
       <div>
         <!-- Gallery -->
         <div class="gallery" id="gallery">
@@ -485,7 +479,7 @@
         <div class="listing-header">
           <div class="listing-badges" id="listing-badges"></div>
           <h1 class="listing-title" id="listing-title"></h1>
-          <div class="listing-location" id="listing-location">
+          <div class="listing-location">
             <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
             <span id="listing-loc-text"></span>
           </div>
@@ -499,7 +493,7 @@
           </div>
           <div class="price-views">
             <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-            <span id="listing-views">— views</span>
+            <span id="listing-views" class="views-loading">— views</span>
           </div>
         </div>
 
@@ -516,16 +510,34 @@
           <span class="read-more" id="read-more" onclick="toggleDesc()">Read more ↓</span>
         </div>
 
-        <!-- Map -->
+        <!-- ══════════════════════════════════════
+             LIVE MAP — Google Maps embed
+             Renders the real area on a map using
+             the Google Maps embed API (no key needed
+             for the basic embed URL).
+        ══════════════════════════════════════ -->
         <div class="map-card">
           <div class="map-card-header">
-            <h3>Location</h3>
-            <p id="map-sub">Kisumu, Kenya</p>
+            <div>
+              <h3>Location</h3>
+              <p id="map-sub">Kisumu, Kenya</p>
+            </div>
+            <a id="map-open-link" href="#" target="_blank" rel="noopener">
+              <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              Open in Google Maps
+            </a>
           </div>
-          <div class="map-placeholder">
-            <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-            <p id="map-area-label">Area shown after enquiry</p>
-            <a id="map-link" href="#" target="_blank" rel="noopener">Open in Google Maps →</a>
+          <div class="map-iframe-wrap">
+            <div class="map-loading" id="map-loading">
+              <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              <span style="font-size:13px">Loading map…</span>
+            </div>
+            <!-- iframe injected by JS after listing loads -->
+            <div id="map-iframe-container"></div>
+          </div>
+          <div class="map-privacy-note">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            Exact address is shared with buyers only after they send an enquiry, for seller privacy.
           </div>
         </div>
 
@@ -540,13 +552,12 @@
         </div>
       </div>
 
-      <!-- RIGHT: contact / messaging -->
+      <!-- RIGHT -->
       <div>
         <div class="contact-card">
           <div class="contact-card-title">Interested in this property?</div>
           <div class="contact-card-sub">Contact the seller directly — no agents, no commission.</div>
 
-          <!-- Seller info -->
           <div class="seller-row">
             <div class="seller-avatar" id="seller-avatar">?</div>
             <div>
@@ -559,7 +570,6 @@
             </div>
           </div>
 
-          <!-- Call / WhatsApp -->
           <div class="contact-btns">
             <a class="btn-call" id="btn-call" href="#">
               <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.12 1.2 2 2 0 012.11 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>
@@ -573,7 +583,7 @@
 
           <div class="or-divider">or send a message</div>
 
-          <!-- First-time enquiry form -->
+          <!-- Enquiry form -->
           <div id="enquiry-form">
             <div class="field">
               <label>Your name</label>
@@ -601,7 +611,7 @@
             <p class="enquiry-note">Your contact details are shared only with the seller of this listing.</p>
           </div>
 
-          <!-- Success then transition to thread -->
+          <!-- Success -->
           <div class="enquiry-success" id="enquiry-success">
             <div class="enquiry-success-icon">
               <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
@@ -611,7 +621,7 @@
             <button onclick="showThread()" style="margin-top:8px;font-size:13px;color:var(--green);background:none;border:none;cursor:pointer;font-weight:500">View conversation →</button>
           </div>
 
-          <!-- Returning buyer: conversation thread -->
+          <!-- Thread -->
           <div id="thread-section" class="thread-section" style="display:none">
             <div class="thread-header">
               <h4>Your conversation</h4>
@@ -640,7 +650,7 @@
       </div>
 
     </div>
-  </div><!-- /#listing-content -->
+  </div>
 </div>
 
 <!-- FOOTER -->
@@ -681,9 +691,9 @@
 </footer>
 
 <script>
-/* ══════════════════════════════════════════════════════════════
-   CORE CONFIG
-══════════════════════════════════════════════════════════════ */
+/* ════════════════════════════════════════════════════
+   CONFIG
+════════════════════════════════════════════════════ */
 const SUPABASE_URL = 'https://vliuuloyfhyxcsuchpss.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_oIIcecf3wzKMual5K24Z8Q_zmxVfgsx';
 const { createClient } = supabase;
@@ -691,7 +701,6 @@ const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const listingId = new URLSearchParams(window.location.search).get('id');
 
-/* ── State ── */
 let listing      = null;
 let photos       = [];
 let currentPhoto = 0;
@@ -700,27 +709,17 @@ let buyerName    = '';
 let buyerPhone   = '';
 let threadMessages = [];
 
-/* ── Buyer token (persisted per browser per listing) ── */
-function getBuyerToken()   { return localStorage.getItem('nk_buyer_' + listingId); }
-function setBuyerToken(t)  { localStorage.setItem('nk_buyer_' + listingId, t); localStorage.setItem('nk_buyer_name_' + listingId, buyerName); localStorage.setItem('nk_buyer_phone_' + listingId, buyerPhone); }
+/* ── Buyer token ── */
+function getBuyerToken()    { return localStorage.getItem('nk_buyer_' + listingId); }
+function setBuyerToken(t)   { localStorage.setItem('nk_buyer_' + listingId, t); localStorage.setItem('nk_buyer_name_' + listingId, buyerName); localStorage.setItem('nk_buyer_phone_' + listingId, buyerPhone); }
 function getSavedBuyerInfo(){ buyerName = localStorage.getItem('nk_buyer_name_' + listingId)||''; buyerPhone = localStorage.getItem('nk_buyer_phone_' + listingId)||''; }
 
-/* ══════════════════════════════════════════════════════════════
+/* ════════════════════════════════════════════════════
    MAIN LOADER
-   Decision tree:
-     1. No listing found  → generic not-found (public)
-     2. Active & not disabled & not recycle bin
-          → show full public listing
-     3. Disabled / recycled / pending / rejected
-          a. Viewer is the listing owner OR an admin
-             → show seller-private notice with reason
-          b. Any other visitor (buyer / guest / different seller)
-             → generic not-found (hides the listing entirely)
-══════════════════════════════════════════════════════════════ */
+════════════════════════════════════════════════════ */
 async function loadListing() {
   if (!listingId) { showNotFound(); return; }
 
-  /* Fetch listing + seller profile + photos */
   const { data, error } = await db
     .from('listings')
     .select('*, profiles(full_name, phone, created_at), listing_photos(*)')
@@ -730,50 +729,90 @@ async function loadListing() {
   if (error || !data) { showNotFound(); return; }
   listing = data;
 
-  /* ─ Check whether this listing is publicly visible ─ */
   const isFullyActive = (data.status === 'active') && !data.is_disabled && !data.recycle_bin;
 
   if (isFullyActive) {
-    /* ✅  Normal public listing */
-    trackView(data);
+    trackView(data);   // ← handles one-per-device atomically
     renderListing(data);
+    renderLiveMap(data);
     loadSimilar(data.area, data.id);
     handleBuyerThread(data);
     return;
   }
 
-  /* ⚠️  Listing is in some disabled state — check who is viewing */
+  /* Disabled/recycled/pending — check if seller or admin */
   const { data: { session } } = await db.auth.getSession();
   const viewerUserId = session?.user?.id || null;
-
-  let isOwner = false;
-  let isAdmin  = false;
+  let isOwner = false, isAdmin = false;
 
   if (viewerUserId) {
     isOwner = (data.seller_id === viewerUserId);
     if (!isOwner) {
-      /* Check if viewer is an admin */
-      const { data: profile } = await db
-        .from('profiles')
-        .select('role')
-        .eq('id', viewerUserId)
-        .single();
+      const { data: profile } = await db.from('profiles').select('role').eq('id', viewerUserId).single();
       isAdmin = (profile?.role === 'admin');
     }
   }
 
-  if (isOwner || isAdmin) {
-    /* Show private seller notice — with reason and recycle-bin countdown */
-    showSellerDisabledView(data);
+  if (isOwner || isAdmin) showSellerDisabledView(data);
+  else showNotFound();
+}
+
+/* ════════════════════════════════════════════════════
+   VIEWS — One per device per listing, atomic increment
+   ════════════════════════════════════════════════════
+   HOW IT WORKS:
+   1. We check localStorage for the key 'nk_viewed_<id>'.
+   2. If NOT present → this device hasn't counted yet:
+        a. Set the key immediately (prevents double-fire
+           if user has two tabs open at the same time).
+        b. Call the Supabase RPC which atomically does
+           UPDATE listings SET views = views + 1 WHERE id = ?
+           and returns the new value.
+        c. Display the returned (fresh) count.
+   3. If key IS present → already counted, just show
+      the current value from the fetched listing data.
+   This means repeated visits, refreshes, or multiple
+   tabs on the same device never double-count.
+════════════════════════════════════════════════════ */
+async function trackView(data) {
+  const viewedKey = 'nk_viewed_' + listingId;
+  const alreadyCounted = !!localStorage.getItem(viewedKey);
+
+  if (!alreadyCounted) {
+    /* Mark immediately to block any race (second tab, double load) */
+    localStorage.setItem(viewedKey, '1');
+
+    /* Atomic server-side increment via RPC */
+    const { data: newCount, error } = await db.rpc('increment_listing_views', {
+      listing_id: listingId
+    });
+
+    if (!error && newCount !== null) {
+      /* Show the fresh server count */
+      updateViewsDisplay(newCount);
+    } else {
+      /* RPC not available yet — fall back to client-side increment */
+      const fallbackCount = (data.views || 0) + 1;
+      await db.from('listings').update({ views: fallbackCount }).eq('id', listingId);
+      updateViewsDisplay(fallbackCount);
+    }
   } else {
-    /* Buyer / guest / unrelated seller — completely hidden */
-    showNotFound();
+    /* Already counted — just display stored value */
+    updateViewsDisplay(data.views || 0);
   }
 }
 
-/* ══════════════════════════════════════════════════════════════
-   VIEWS
-══════════════════════════════════════════════════════════════ */
+function updateViewsDisplay(count) {
+  const el = document.getElementById('listing-views');
+  if (el) {
+    el.textContent = `${Number(count).toLocaleString('en-KE')} view${count !== 1 ? 's' : ''}`;
+    el.classList.remove('views-loading');
+  }
+}
+
+/* ════════════════════════════════════════════════════
+   DISABLED VIEW
+════════════════════════════════════════════════════ */
 function showNotFound() {
   document.getElementById('skeleton-wrap').style.display = 'none';
   document.getElementById('not-found').style.display = 'block';
@@ -784,7 +823,6 @@ function showSellerDisabledView(data) {
   document.getElementById('skeleton-wrap').style.display = 'none';
   document.getElementById('breadcrumb-area').textContent = escHtml(data.title || 'Your listing');
 
-  /* Heading + intro text varies by state */
   const isRecycleBin = !!data.recycle_bin;
   const isPending    = data.status === 'pending';
   const isRejected   = data.status === 'rejected';
@@ -794,26 +832,24 @@ function showSellerDisabledView(data) {
 
   if (isRecycleBin) {
     heading = 'Your listing is in the recycle bin';
-    intro   = 'An admin has moved this listing to the recycle bin. It is hidden from the public and will be permanently deleted after the grace period. Contact support immediately if this is a mistake.';
+    intro   = 'An admin has moved this listing to the recycle bin. It is hidden from the public and will be permanently deleted after the grace period.';
   } else if (isPending) {
     heading = 'Your listing is pending review';
-    intro   = 'Your listing is under review by our admin team. It will be visible to the public once approved. This usually takes up to 2 hours after payment is confirmed.';
+    intro   = 'Your listing is under review by our admin team. It will be visible to the public once approved — usually within a few hours.';
   } else if (isRejected) {
     heading = 'Your listing was rejected';
-    intro   = 'Your listing was rejected by the admin team. Please review the reason below, make any necessary changes, and resubmit via your dashboard.';
+    intro   = 'Your listing was rejected by the admin team. Please review the reason below and resubmit via your dashboard.';
   }
 
   document.getElementById('seller-disabled-heading').textContent = heading;
   document.getElementById('seller-disabled-intro').textContent   = intro;
 
-  /* Reason box */
   const reason = data.disabled_reason || null;
   if (reason) {
     document.getElementById('seller-disabled-reason-text').textContent = reason;
     document.getElementById('seller-disabled-reason-box').style.display = 'block';
   }
 
-  /* Recycle-bin countdown */
   if (isRecycleBin && data.purge_at) {
     const daysLeft = Math.max(0, Math.ceil((new Date(data.purge_at) - new Date()) / 86400000));
     document.getElementById('seller-recycle-days').textContent =
@@ -821,31 +857,12 @@ function showSellerDisabledView(data) {
     document.getElementById('seller-recycle-extra').style.display = 'block';
   }
 
-  /* Icon change for pending/rejected */
-  if (isPending) {
-    document.querySelector('.seller-disabled-icon svg').innerHTML =
-      '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>';
-    document.querySelector('.seller-disabled-icon').style.background = '#FEF3C7';
-    document.querySelector('.seller-disabled-icon svg').style.stroke  = '#D97706';
-  } else if (isRejected) {
-    document.querySelector('.seller-disabled-icon svg').innerHTML =
-      '<circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>';
-  }
-
   document.getElementById('seller-disabled-view').style.display = 'block';
 }
 
-/* ══════════════════════════════════════════════════════════════
-   RENDER PUBLIC LISTING
-══════════════════════════════════════════════════════════════ */
-function trackView(data) {
-  const viewedKey = 'nk_viewed_' + listingId;
-  if (!localStorage.getItem(viewedKey)) {
-    db.from('listings').update({ views: (data.views || 0) + 1 }).eq('id', listingId);
-    localStorage.setItem(viewedKey, '1');
-  }
-}
-
+/* ════════════════════════════════════════════════════
+   RENDER LISTING
+════════════════════════════════════════════════════ */
 function handleBuyerThread(data) {
   buyerToken = getBuyerToken();
   if (buyerToken) {
@@ -865,7 +882,6 @@ function renderListing(l) {
 
   document.getElementById('breadcrumb-area').textContent = l.area;
 
-  /* Gallery */
   photos = (l.listing_photos || []).sort((a,b) => a.position - b.position);
   const cover = photos.find(p=>p.is_cover) || photos[0];
   currentPhoto = cover ? Math.max(0, photos.indexOf(cover)) : 0;
@@ -873,7 +889,6 @@ function renderListing(l) {
 
   if (l.is_featured) document.getElementById('featured-badge').style.display = 'flex';
 
-  /* Badges */
   const catLabel = l.category.charAt(0).toUpperCase() + l.category.slice(1);
   document.getElementById('listing-badges').innerHTML = `
     <span class="badge ${l.category}">${catLabel}</span>
@@ -889,9 +904,9 @@ function renderListing(l) {
     `KES ${Number(l.price).toLocaleString('en-KE')}${l.price_type==='rent'?'<span>/month</span>':''}`;
   document.getElementById('listing-price-meta').textContent =
     l.price_type==='rent'?'Monthly rent — negotiable':'Asking price — negotiable';
+  /* Views shown as loading until trackView() resolves */
   document.getElementById('listing-views').textContent = `${l.views||0} views`;
 
-  /* Specs */
   const specs = [];
   if (l.bedrooms !== null) specs.push({ icon:bedIcon, val:l.bedrooms==0?'Studio':l.bedrooms, lbl:l.bedrooms==0?'Bedsitter':'Bedrooms' });
   if (l.bathrooms)  specs.push({ icon:bathIcon, val:l.bathrooms, lbl:'Bathrooms' });
@@ -910,11 +925,6 @@ function renderListing(l) {
     document.getElementById('desc-card').style.display = 'block';
     document.getElementById('desc-text').textContent = l.description;
   }
-
-  document.getElementById('map-sub').textContent = `${l.area}${l.sub_area?', '+l.sub_area:''}, Kisumu`;
-  document.getElementById('map-area-label').textContent = `${l.area}, Kisumu — exact address shared after enquiry`;
-  document.getElementById('map-link').href =
-    `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(l.area+', '+(l.sub_area||'')+' Kisumu Kenya')}`;
 
   /* Seller card */
   const profile = l.profiles || {};
@@ -939,9 +949,54 @@ function renderListing(l) {
   document.getElementById('listing-content').style.display = 'block';
 }
 
-/* ══════════════════════════════════════════════════════════════
+/* ════════════════════════════════════════════════════
+   LIVE MAP — Google Maps embed
+   Uses the free embed URL (no API key required).
+   Builds a search query from area + sub_area + address
+   so the map centres on the right neighbourhood.
+════════════════════════════════════════════════════ */
+function renderLiveMap(l) {
+  /* Build human-readable location query */
+  const parts = [l.area];
+  if (l.sub_area) parts.push(l.sub_area);
+  parts.push('Kisumu', 'Kenya');
+  const query = parts.join(', ');
+
+  /* Update header text and "Open in Maps" link */
+  document.getElementById('map-sub').textContent = query;
+  const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+  document.getElementById('map-open-link').href = mapsUrl;
+
+  /* Build the embed iframe.
+     The embed URL https://maps.google.com/maps?q=...&output=embed
+     works without an API key for basic map display. */
+  const embedUrl = `https://maps.google.com/maps?q=${encodeURIComponent(query)}&z=15&output=embed&hl=en`;
+
+  const iframe = document.createElement('iframe');
+  iframe.src = embedUrl;
+  iframe.width = '100%';
+  iframe.height = '100%';
+  iframe.style.border = 'none';
+  iframe.style.position = 'absolute';
+  iframe.style.top = '0';
+  iframe.style.left = '0';
+  iframe.loading = 'lazy';
+  iframe.referrerpolicy = 'no-referrer-when-downgrade';
+  iframe.title = `Map showing ${query}`;
+  iframe.allow = 'fullscreen';
+
+  /* Hide the loading placeholder once the iframe fires load */
+  iframe.addEventListener('load', () => {
+    const loader = document.getElementById('map-loading');
+    if (loader) loader.classList.add('hidden');
+  });
+
+  document.getElementById('map-iframe-container').appendChild(iframe);
+}
+
+/* ════════════════════════════════════════════════════
    GALLERY
-══════════════════════════════════════════════════════════════ */
+════════════════════════════════════════════════════ */
 function renderGallery() {
   const img      = document.getElementById('gallery-img');
   const noPhoto  = document.getElementById('gallery-no-photo');
@@ -977,7 +1032,6 @@ document.addEventListener('keydown', e => {
   if (e.key==='ArrowRight') changePhoto(1);
 });
 
-/* ── Description toggle ── */
 let descExpanded = false;
 function toggleDesc() {
   descExpanded = !descExpanded;
@@ -985,10 +1039,9 @@ function toggleDesc() {
   document.getElementById('read-more').textContent = descExpanded ? 'Show less ↑' : 'Read more ↓';
 }
 
-/* ══════════════════════════════════════════════════════════════
+/* ════════════════════════════════════════════════════
    SIMILAR LISTINGS
-   Only fetches listings that are public (active, not disabled, not recycled)
-══════════════════════════════════════════════════════════════ */
+════════════════════════════════════════════════════ */
 async function loadSimilar(area, excludeId) {
   const { data } = await db
     .from('listings')
@@ -1018,9 +1071,9 @@ async function loadSimilar(area, excludeId) {
   }).join('');
 }
 
-/* ══════════════════════════════════════════════════════════════
+/* ════════════════════════════════════════════════════
    ENQUIRY / MESSAGING
-══════════════════════════════════════════════════════════════ */
+════════════════════════════════════════════════════ */
 async function sendEnquiry() {
   const name    = document.getElementById('enq-name').value.trim();
   const phone   = document.getElementById('enq-phone').value.trim();
@@ -1053,7 +1106,6 @@ async function sendEnquiry() {
   });
 
   btn.disabled = false; btn.classList.remove('loading');
-
   if (msgErr) { alert('Something went wrong. Please try calling the seller directly.'); return; }
 
   setBuyerToken(token);
@@ -1068,13 +1120,11 @@ async function showThread() {
 
   const waNote = document.getElementById('chat-wa-note');
   if (buyerPhone) {
-    const wa = buyerPhone.replace(/\s/g,'').replace(/^0/,'254');
     waNote.innerHTML = `<svg viewBox="0 0 24 24" width="12" height="12" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.997 2C6.477 2 2 6.477 2 12c0 1.885.52 3.648 1.425 5.157L2 22l4.955-1.397A9.954 9.954 0 0011.997 22C17.517 22 22 17.523 22 12S17.517 2 11.997 2z"/></svg>
     Seller replies are saved here and may also reach you via WhatsApp.`;
   } else {
     waNote.innerHTML = 'Revisit this page anytime to check for replies from the seller.';
   }
-
   await loadThread();
 }
 
@@ -1096,9 +1146,9 @@ function renderThread() {
     box.innerHTML = '<div style="text-align:center;font-size:12px;color:var(--text-3);padding:16px">No messages yet</div>';
     return;
   }
-  const sellerName  = listing?.profiles?.full_name || 'Seller';
-  const sellerInit  = sellerName.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase() || 'S';
-  const buyerInit   = buyerName.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase() || 'B';
+  const sellerName = listing?.profiles?.full_name || 'Seller';
+  const sellerInit = sellerName.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase() || 'S';
+  const buyerInit  = buyerName.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase() || 'B';
   let lastDate = '';
   box.innerHTML = threadMessages.map(m => {
     const isSeller = m.sender === 'seller';
@@ -1156,7 +1206,7 @@ function clearThread() {
 function handleFollowKeydown(e) { if (e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendFollowUp(); } }
 function autoResizeTa(el) { el.style.height='auto'; el.style.height=Math.min(el.scrollHeight,100)+'px'; }
 
-/* ── Share ── */
+/* Share */
 function shareWhatsApp() {
   const url   = window.location.href;
   const title = listing?.title || 'Apartment listing';
@@ -1174,13 +1224,13 @@ function copyLink() {
   });
 }
 
-/* ── Utils ── */
+/* Utils */
 function escHtml(str) {
   if (!str) return '';
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-/* ── SVG icons ── */
+/* SVG icons */
 const bedIcon  = `<svg viewBox="0 0 24 24"><path d="M2 4v16M22 4v16M2 12h20M2 8h4a2 2 0 012 2v2H2V8zM16 8h4a2 2 0 012 2v2h-6V8z"/></svg>`;
 const bathIcon = `<svg viewBox="0 0 24 24"><path d="M9 6l1-1a2 2 0 012.83 0l6.17 6.17a1 1 0 010 1.41L17 14M3 20h18M5 20v-4a3 3 0 013-3h1"/></svg>`;
 const sizeIcon = `<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="1"/><path d="M3 9h18M9 21V9"/></svg>`;
@@ -1188,14 +1238,14 @@ const furnIcon = `<svg viewBox="0 0 24 24"><rect x="2" y="8" width="20" height="
 const typeIcon = `<svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`;
 const catIcon  = `<svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
 
-/* ── Page view tracking ── */
+/* Page view tracking */
 (function() {
   let sid = localStorage.getItem('nk_sid');
   if (!sid) { sid=(crypto.randomUUID?crypto.randomUUID():Date.now()+'-'+Math.random().toString(36).slice(2)); localStorage.setItem('nk_sid',sid); }
   db.from('page_views').insert({ path:location.pathname, referrer:document.referrer||null, user_agent:navigator.userAgent, session_id:sid });
 })();
 
-/* ── Mobile menu ── */
+/* Mobile menu */
 function toggleMobileMenu() { document.getElementById('mobile-nav').classList.toggle('open'); }
 document.addEventListener('click', e => {
   const nav = document.getElementById('mobile-nav');
@@ -1203,18 +1253,17 @@ document.addEventListener('click', e => {
   if (nav && nav.classList.contains('open') && !nav.contains(e.target) && !btn.contains(e.target)) nav.classList.remove('open');
 });
 
-/* ── Nav: Sign in → My Account when logged in ── */
+/* Nav: Sign in → My Account when logged in */
 (async function () {
-  const _sb = (typeof db !== 'undefined') ? db : supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-  const { data: { session } } = await _sb.auth.getSession();
+  const { data: { session } } = await db.auth.getSession();
   if (!session) return;
-  const desktopLink = document.getElementById('nav-account-link');
-  const mobileLink  = document.getElementById('mobile-account-link');
-  if (desktopLink) { desktopLink.textContent = 'My Account'; desktopLink.href = 'dashboard.html'; desktopLink.style.fontWeight='600'; desktopLink.style.color='var(--green)'; }
-  if (mobileLink)  { mobileLink.textContent  = 'My Account'; mobileLink.href  = 'dashboard.html'; }
+  const d = document.getElementById('nav-account-link');
+  const m = document.getElementById('mobile-account-link');
+  if (d) { d.textContent='My Account'; d.href='dashboard.html'; d.style.fontWeight='600'; d.style.color='var(--green)'; }
+  if (m) { m.textContent='My Account'; m.href='dashboard.html'; }
 })();
 
-/* ── Boot ── */
+/* Boot */
 loadListing();
 </script>
 
@@ -1231,11 +1280,7 @@ loadListing();
   });
 </script>
 
-<!-- ══════════════════════════════════════════════════════
-     Live Chat Widget (NyumbaKisumu)
-     Copy from your master widget snippet into this block.
-═══════════════════════════════════════════════════════ -->
-<!-- [paste your nk-chat widget block here — unchanged] -->
+<!-- Live Chat Widget — paste your nk-chat widget block here -->
 
 </body>
 </html>
