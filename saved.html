@@ -43,16 +43,33 @@
     .logo { display: flex; align-items: center; gap: 10px; font-family: 'Playfair Display', serif; font-size: 20px; color: var(--green-dark); }
     .logo-icon { width: 34px; height: 34px; background: var(--green); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
     .logo-icon svg { width: 18px; height: 18px; fill: none; stroke: white; stroke-width: 2; stroke-linecap: round; }
-    .nav-links { display: flex; align-items: center; gap: 8px; }
-    .nav-link { font-size: 14px; color: var(--text-2); padding: 8px 14px; border-radius: var(--radius); transition: background .15s; position: relative; display: flex; align-items: center; gap: 6px; }
-    .nav-link:hover { background: var(--surface); }
-    .nav-link.active { color: var(--green); font-weight: 600; }
+    .nav-links { display: flex; align-items: center; gap: 6px; }
+    .nav-link { font-size: 14px; color: var(--text-2); padding: 8px 14px; border-radius: var(--radius); transition: background .15s; white-space: nowrap; display: flex; align-items: center; gap: 6px; }
+    .nav-link:hover { background: var(--surface); color: var(--text); }
     .nav-link svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 2; }
     .nav-count { background: var(--green); color: white; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 10px; min-width: 16px; text-align: center; }
-    .btn-primary { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 500; padding: 9px 18px; border-radius: var(--radius); background: var(--green); color: white; transition: background .15s; }
+    .btn { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 500; padding: 9px 18px; border-radius: var(--radius); transition: all .15s; }
+    .btn-primary { background: var(--green); color: white; }
     .btn-primary:hover { background: var(--green-dark); }
     .btn-outline { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; padding: 8px 16px; border-radius: var(--radius); border: 1.5px solid var(--border); background: white; color: var(--text-2); transition: all .15s; }
     .btn-outline:hover { border-color: var(--green); color: var(--green); }
+
+    /* ── Mobile menu ── */
+    .mobile-menu-btn {
+      display: none; background: none; border: none; cursor: pointer;
+      padding: 6px; border-radius: 6px;
+    }
+    .mobile-menu-btn svg { width: 22px; height: 22px; stroke: var(--text); fill: none; stroke-width: 2; display: block; }
+    .mobile-nav {
+      display: none; position: fixed; top: 64px; left: 0; right: 0;
+      background: var(--white); border-bottom: 1px solid var(--border);
+      padding: 16px; z-index: 99; flex-direction: column; gap: 4px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+    }
+    .mobile-nav.open { display: flex; }
+    .mobile-nav a { font-size: 15px; color: var(--text-2); padding: 10px 14px; border-radius: var(--radius); }
+    .mobile-nav a:hover { background: var(--surface); }
+    .mobile-nav .btn-primary { text-align: center; justify-content: center; margin-top: 8px; }
 
     /* ── Page header ── */
     .page-header { background: var(--white); border-bottom: 1px solid var(--border); padding: 28px 32px; }
@@ -75,55 +92,6 @@
 
     /* ── Main ── */
     .main-wrap { max-width: 1100px; margin: 0 auto; padding: 28px 32px 80px; }
-    .mobile-menu-btn,
-.mobile-nav {
-  display: none;
-}
-
-.mobile-menu-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-}
-
-.mobile-menu-btn svg {
-  width: 24px;
-  height: 24px;
-  stroke: currentColor;
-  fill: none;
-  stroke-width: 2;
-}
-
-@media (max-width: 768px) {
-
-  .nav-links {
-    display: none;
-  }
-
-  .mobile-menu-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .mobile-nav {
-    display: none;
-    flex-direction: column;
-    gap: 1rem;
-    padding: 1rem;
-    background: white;
-    border-top: 1px solid #eee;
-  }
-
-  .mobile-nav.active {
-    display: flex;
-  }
-
-  .mobile-nav a {
-    text-decoration: none;
-    color: inherit;
-  }
-}
 
     /* ── Filter row ── */
     .filter-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; flex-wrap: wrap; gap: 10px; }
@@ -222,13 +190,16 @@
 
     /* ── Responsive ── */
     @media (max-width: 900px) {
-      nav { padding: 0 16px; }
-      .nav-links .nav-link span.nav-link-text { display: none; }
       .page-header { padding: 20px 16px; }
       .sync-banner { margin: 16px 16px 0; }
       .main-wrap { padding: 20px 16px 60px; }
       footer { padding: 40px 16px 24px; }
       .footer-top { grid-template-columns: 1fr 1fr; gap: 28px; }
+    }
+    @media (max-width: 768px) {
+      nav { padding: 0 16px; }
+      .nav-links { display: none; }
+      .mobile-menu-btn { display: flex; }
     }
     @media (max-width: 480px) {
       .footer-top { grid-template-columns: 1fr; }
@@ -249,54 +220,36 @@
     </div>
     NyumbaKisumu
   </a>
-
-  <!-- Desktop navigation -->
   <div class="nav-links">
-    <a href="index.html" class="nav-link">Home</a>
     <a href="listings.html" class="nav-link">Browse</a>
     <a href="how-it-works.html" class="nav-link">How it works</a>
-
-    <a href="saved.html" class="nav-link active">
-      <svg viewBox="0 0 24 24" fill="currentColor" stroke="none">
-        <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
-      </svg>
-      <span class="nav-link-text">Saved</span>
+    <a href="pricing.html" class="nav-link">Pricing</a>
+    <a href="contact.html" class="nav-link">Contact</a>
+    <a href="login.html" class="nav-link" id="nav-account-link">Sign in</a>
+    <a href="saved.html" class="nav-link" style="color:var(--green);font-weight:500">
+      <svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+      Saved
       <span class="nav-count" id="nav-count-badge" style="display:none">0</span>
     </a>
-
-    <a href="login.html" class="nav-link" id="nav-account-link">
-      Sign in
-    </a>
-
-    <a href="post-listing.html" class="btn-primary">
-      List your apartment
-    </a>
+    <a href="post-listing.html" class="btn btn-primary">List your apartment</a>
   </div>
-
-  <!-- Mobile menu button -->
-  <button
-    class="mobile-menu-btn"
-    onclick="toggleMobileMenu()"
-    aria-label="Open menu"
-  >
-    <svg viewBox="0 0 24 24">
-      <line x1="3" y1="6" x2="21" y2="6"></line>
-      <line x1="3" y1="12" x2="21" y2="12"></line>
-      <line x1="3" y1="18" x2="21" y2="18"></line>
-    </svg>
+  <button class="mobile-menu-btn" onclick="toggleMobileMenu()" aria-label="Open menu">
+    <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
   </button>
 </nav>
 
-<!-- Mobile Navigation -->
+<!-- ── MOBILE NAV ── -->
 <div class="mobile-nav" id="mobile-nav">
-  <a href="index.html">Home</a>
-  <a href="listings.html">Browse</a>
+  <a href="listings.html">Browse listings</a>
   <a href="how-it-works.html">How it works</a>
-  <a href="saved.html">Saved</a>
-  <a href="login.html" class="mobile-nav-link" id="mobile-account-link">Sign in</a>
-  <a href="post-listing.html" class="btn-primary">
-    List your apartment
+  <a href="pricing.html">Pricing</a>
+  <a href="contact.html">Contact</a>
+  <a href="login.html" id="mobile-account-link">Sign in</a>
+  <a href="saved.html">
+    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+    Saved
   </a>
+  <a href="post-listing.html" class="btn btn-primary">List your apartment</a>
 </div>
 
 <!-- ── PAGE HEADER ── -->
@@ -400,31 +353,15 @@
   const { createClient } = supabase;
   const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  // ════════════════════════════════════════════════════════════
-  // SAVED-LISTINGS LOGIC
-  // NOTE: this block is written so it can be lifted verbatim into a
-  // shared saved-listings.js next — listing.html, listings.html, and
-  // index.html will then load that same file instead of duplicating it.
-  // ════════════════════════════════════════════════════════════
-  const SAVED_KEY = 'nk_saved_listings'; // localStorage key: JSON array of listing IDs
+  const SAVED_KEY = 'nk_saved_listings';
   let currentUser = null;
-  let savedRows = []; // [{ listing_id, created_at, listing: {...} }]
+  let savedRows = [];
 
   function getLocalSavedIds() {
-    try {
-      const raw = localStorage.getItem(SAVED_KEY);
-      return raw ? JSON.parse(raw) : [];
-    } catch { return []; }
+    try { const raw = localStorage.getItem(SAVED_KEY); return raw ? JSON.parse(raw) : []; } catch { return []; }
   }
-  function setLocalSavedIds(ids) {
-    localStorage.setItem(SAVED_KEY, JSON.stringify(ids));
-  }
-  function isSavedLocally(id) {
-    return getLocalSavedIds().includes(id);
-  }
-  function removeLocalSaved(id) {
-    setLocalSavedIds(getLocalSavedIds().filter(x => x !== id));
-  }
+  function setLocalSavedIds(ids) { localStorage.setItem(SAVED_KEY, JSON.stringify(ids)); }
+  function removeLocalSaved(id) { setLocalSavedIds(getLocalSavedIds().filter(x => x !== id)); }
 
   // ── Toast ──
   function showToast(msg, type = '') {
@@ -434,16 +371,34 @@
     setTimeout(() => t.className = 'toast', 3000);
   }
 
-  // ── Init: check session, then load saved listings from the right source ──
+  // ── Mobile nav toggle ──
+  function toggleMobileMenu() {
+    document.getElementById('mobile-nav').classList.toggle('open');
+  }
+  document.addEventListener('click', e => {
+    const nav = document.getElementById('mobile-nav');
+    const btn = document.querySelector('.mobile-menu-btn');
+    if (nav && nav.classList.contains('open') && !nav.contains(e.target) && !btn.contains(e.target)) {
+      nav.classList.remove('open');
+    }
+  });
+
+  // ── Init ──
   async function init() {
     const { data: { session } } = await db.auth.getSession();
     currentUser = session?.user || null;
 
+    // Update nav account link
+    const desktopLink = document.getElementById('nav-account-link');
+    const mobileLink  = document.getElementById('mobile-account-link');
+    if (currentUser) {
+      if (desktopLink) { desktopLink.textContent = 'My Account'; desktopLink.href = 'dashboard.html'; desktopLink.style.fontWeight = '600'; desktopLink.style.color = 'var(--green)'; }
+      if (mobileLink)  { mobileLink.textContent = 'My Account'; mobileLink.href = 'dashboard.html'; }
+    }
+
     if (currentUser) {
       document.getElementById('sync-banner-signedin').style.display = 'flex';
       document.getElementById('signed-in-email').textContent = currentUser.email || '';
-      document.getElementById('nav-account-link').textContent = 'My account';
-      document.getElementById('nav-account-link').href = 'dashboard.html';
       await loadFromAccount();
     } else {
       document.getElementById('sync-banner-anon').style.display = 'flex';
@@ -459,41 +414,20 @@
       .select('listing_id, created_at, listings(*, listing_photos(*))')
       .eq('user_id', currentUser.id)
       .order('created_at', { ascending: false });
-
-    if (error) {
-      console.error('Load saved listings error:', error.message);
-      savedRows = [];
-      return;
-    }
-    savedRows = (data || [])
-      .filter(r => r.listings)
-      .map(r => ({ listing_id: r.listing_id, created_at: r.created_at, listing: r.listings }));
+    if (error) { console.error('Load saved listings error:', error.message); savedRows = []; return; }
+    savedRows = (data || []).filter(r => r.listings).map(r => ({ listing_id: r.listing_id, created_at: r.created_at, listing: r.listings }));
   }
 
   // ── Load from localStorage (anonymous visitor) ──
   async function loadFromLocalStorage() {
     const ids = getLocalSavedIds();
     if (!ids.length) { savedRows = []; return; }
-
-    const { data, error } = await db
-      .from('listings')
-      .select('*, listing_photos(*)')
-      .in('id', ids);
-
-    if (error) {
-      console.error('Load saved listings error:', error.message);
-      savedRows = [];
-      return;
-    }
-    // Preserve the order they were saved in (most recently saved first)
-    savedRows = ids
-      .slice().reverse()
-      .map(id => (data || []).find(l => l.id === id))
-      .filter(Boolean)
-      .map(l => ({ listing_id: l.id, created_at: null, listing: l }));
+    const { data, error } = await db.from('listings').select('*, listing_photos(*)').in('id', ids);
+    if (error) { console.error('Load saved listings error:', error.message); savedRows = []; return; }
+    savedRows = ids.slice().reverse().map(id => (data || []).find(l => l.id === id)).filter(Boolean).map(l => ({ listing_id: l.id, created_at: null, listing: l }));
   }
 
-  // ── Remove a saved listing (works in both modes) ──
+  // ── Remove a saved listing ──
   async function removeSaved(listingId, btnEl) {
     if (btnEl) btnEl.classList.add('removing');
     if (currentUser) {
@@ -508,7 +442,7 @@
   }
 
   // ── Clear all ──
-  function openClearModal() { document.getElementById('clear-modal').classList.add('open'); }
+  function openClearModal()  { document.getElementById('clear-modal').classList.add('open'); }
   function closeClearModal() { document.getElementById('clear-modal').classList.remove('open'); }
 
   async function confirmClearAll() {
@@ -529,9 +463,7 @@
     window.location.reload();
   }
 
-  // ════════════════════════════════════════════════════════════
-  // RENDERING
-  // ════════════════════════════════════════════════════════════
+  // ── Render ──
   function formatPrice(price, type) {
     const p = Number(price).toLocaleString('en-KE');
     return type === 'rent' ? `KES ${p}<span>/mo</span>` : `KES ${p}`;
@@ -544,12 +476,10 @@
     const imgHtml = cover
       ? `<img src="${cover.url}" alt="${l.title}" loading="lazy" decoding="async"/>`
       : `<div class="card-img-placeholder"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg><span style="font-size:11px">No photo</span></div>`;
-
     const unavailable = l.is_disabled || l.status !== 'active';
     const savedDate = row.created_at
       ? `Saved ${new Date(row.created_at).toLocaleDateString('en-KE',{day:'numeric',month:'short',year:'numeric'})}`
       : 'Saved on this device';
-
     return `
       <div class="card ${unavailable ? 'unavailable' : ''}" data-id="${l.id}">
         <a class="card-img-link" href="${unavailable ? 'javascript:void(0)' : `listing.html?id=${l.id}`}">
@@ -588,66 +518,43 @@
     const count = savedRows.length;
     document.getElementById('result-count').innerHTML = `<strong>${count}</strong> listing${count !== 1 ? 's' : ''} saved`;
     document.getElementById('clear-all-btn').style.display = count ? 'inline' : 'none';
-
     const badge = document.getElementById('nav-count-badge');
     badge.textContent = count;
     badge.style.display = count ? 'inline-flex' : 'none';
-
     if (!count) {
       grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
         <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
         <h3>No saved listings yet</h3>
         <p>Tap the heart icon on any listing to save it here and come back to it later.</p>
-        <a href="listings.html" class="btn-primary" style="display:inline-flex">Browse listings</a>
+        <a href="listings.html" class="btn btn-primary" style="display:inline-flex">Browse listings</a>
       </div>`;
       return;
     }
     grid.innerHTML = savedRows.map(buildCard).join('');
   }
 
-  // ── Init ──
+  // ── Boot ──
   init();
 </script>
+
+<!-- ── PAGE VIEW TRACKER ── -->
 <script>
-function toggleMobileMenu() {
-  document.getElementById('mobile-nav').classList.toggle('active');
-}
-</script>
-<script>
-(async function() {
-  const { data: { session } } = await db.auth.getSession();
-
-  const desktopLink = document.getElementById('nav-account-link');
-  const mobileLink = document.getElementById('mobile-account-link');
-
-  console.log(mobileLink);
-
-  if (session) {
-    if (desktopLink) {
-      desktopLink.textContent = 'My Account';
-      desktopLink.href = 'dashboard.html';
+  (function () {
+    const sb = supabase.createClient(
+      'https://vliuuloyfhyxcsuchpss.supabase.co',
+      'sb_publishable_oIIcecf3wzKMual5K24Z8Q_zmxVfgsx'
+    );
+    let sid = localStorage.getItem('nk_sid');
+    if (!sid) {
+      sid = (crypto.randomUUID ? crypto.randomUUID() : Date.now() + '-' + Math.random().toString(36).slice(2));
+      localStorage.setItem('nk_sid', sid);
     }
-
-    if (mobileLink) {
-      mobileLink.textContent = 'My Account';
-      mobileLink.href = 'dashboard.html';
-    }
-  }
-})();
+    sb.from('page_views').insert({ path: location.pathname, referrer: document.referrer || null, user_agent: navigator.userAgent, session_id: sid });
+  })();
 </script>
-<!--
-  ═══════════════════════════════════════════════════════
-  NyumbaKisumu Live Chat Widget
-  Drop this entire block just before </body> on every
-  public page: index.html, listings.html, listing.html, etc.
-  Requires @supabase/supabase-js already loaded on the page.
-  If not, add this line BEFORE this snippet:
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  ═══════════════════════════════════════════════════════
--->
 
+<!-- ── LIVE CHAT WIDGET ── -->
 <style>
-/* ── Widget shell ── */
 #nk-chat-btn {
   position: fixed; bottom: 24px; right: 24px; z-index: 1000;
   width: 52px; height: 52px; border-radius: 50%;
@@ -658,153 +565,58 @@ function toggleMobileMenu() {
 }
 #nk-chat-btn:hover { background: #085041; transform: scale(1.07); }
 #nk-chat-btn svg { width: 24px; height: 24px; stroke: white; fill: none; stroke-width: 2; stroke-linecap: round; }
-#nk-chat-btn .nk-badge {
-  position: absolute; top: -2px; right: -2px;
-  width: 18px; height: 18px; border-radius: 50%;
-  background: #BA7517; color: white; font-size: 10px; font-weight: 700;
-  display: none; align-items: center; justify-content: center;
-  font-family: 'Inter', sans-serif; border: 2px solid white;
-}
-
-/* ── Panel ── */
-#nk-chat-panel {
-  position: fixed; bottom: 88px; right: 24px; z-index: 1000;
-  width: 340px; max-height: 520px;
-  background: #ffffff; border: 1px solid #e0ded8;
-  border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.14);
-  display: none; flex-direction: column;
-  font-family: 'Inter', sans-serif; font-size: 14px; overflow: hidden;
-  animation: nkSlideUp .2s ease;
-}
+#nk-chat-btn .nk-badge { position: absolute; top: -2px; right: -2px; width: 18px; height: 18px; border-radius: 50%; background: #BA7517; color: white; font-size: 10px; font-weight: 700; display: none; align-items: center; justify-content: center; font-family: 'Inter', sans-serif; border: 2px solid white; }
+#nk-chat-panel { position: fixed; bottom: 88px; right: 24px; z-index: 1000; width: 340px; max-height: 520px; background: #ffffff; border: 1px solid #e0ded8; border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.14); display: none; flex-direction: column; font-family: 'Inter', sans-serif; font-size: 14px; overflow: hidden; animation: nkSlideUp .2s ease; }
 @keyframes nkSlideUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
 #nk-chat-panel.open { display: flex; }
-
-/* Header */
-.nk-head {
-  background: #0F6E56; padding: 14px 16px;
-  display: flex; align-items: center; justify-content: space-between;
-  flex-shrink: 0;
-}
+.nk-head { background: #0F6E56; padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
 .nk-head-left { display: flex; align-items: center; gap: 10px; }
-.nk-head-avatar {
-  width: 36px; height: 36px; border-radius: 50%;
-  background: #1D9E75; display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
-}
+.nk-head-avatar { width: 36px; height: 36px; border-radius: 50%; background: #1D9E75; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .nk-head-avatar svg { width: 18px; height: 18px; stroke: white; fill: none; stroke-width: 2; }
 .nk-head-title { font-size: 14px; font-weight: 600; color: white; }
 .nk-head-sub { font-size: 11px; color: rgba(255,255,255,0.65); margin-top: 1px; }
-.nk-head-close {
-  background: none; border: none; cursor: pointer;
-  color: rgba(255,255,255,0.7); font-size: 20px; line-height: 1;
-  padding: 2px 4px; transition: color .15s;
-}
+.nk-head-close { background: none; border: none; cursor: pointer; color: rgba(255,255,255,0.7); font-size: 20px; line-height: 1; padding: 2px 4px; transition: color .15s; }
 .nk-head-close:hover { color: white; }
-
-/* Messages area */
-.nk-msgs {
-  flex: 1; overflow-y: auto; padding: 16px 14px 8px;
-  display: flex; flex-direction: column; gap: 10px;
-  scroll-behavior: smooth;
-}
+.nk-msgs { flex: 1; overflow-y: auto; padding: 16px 14px 8px; display: flex; flex-direction: column; gap: 10px; scroll-behavior: smooth; }
 .nk-msgs::-webkit-scrollbar { width: 4px; }
 .nk-msgs::-webkit-scrollbar-thumb { background: #e0ded8; border-radius: 2px; }
-
-/* Greeting */
-.nk-greeting {
-  background: #f7f6f2; border-radius: 12px 12px 12px 2px;
-  padding: 12px 14px; font-size: 13px; color: #4a4a46; line-height: 1.6;
-  max-width: 90%;
-}
+.nk-greeting { background: #f7f6f2; border-radius: 12px 12px 12px 2px; padding: 12px 14px; font-size: 13px; color: #4a4a46; line-height: 1.6; max-width: 90%; }
 .nk-greeting strong { color: #1a1a18; display: block; margin-bottom: 4px; font-size: 14px; }
-
-/* Quick replies */
 .nk-quick-replies { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
-.nk-qr {
-  font-size: 12px; font-weight: 500; padding: 5px 11px;
-  border-radius: 20px; border: 1.5px solid #0F6E56; color: #0F6E56;
-  background: white; cursor: pointer; transition: all .15s; font-family: inherit;
-}
+.nk-qr { font-size: 12px; font-weight: 500; padding: 5px 11px; border-radius: 20px; border: 1.5px solid #0F6E56; color: #0F6E56; background: white; cursor: pointer; transition: all .15s; font-family: inherit; }
 .nk-qr:hover { background: #0F6E56; color: white; }
-
-/* Bubbles */
 .nk-bubble-wrap { display: flex; flex-direction: column; }
 .nk-bubble-wrap.visitor { align-items: flex-end; }
-.nk-bubble-wrap.admin  { align-items: flex-start; }
-.nk-bubble {
-  max-width: 82%; padding: 9px 13px;
-  font-size: 13px; line-height: 1.55; word-break: break-word;
-}
-.nk-bubble.visitor {
-  background: #0F6E56; color: white;
-  border-radius: 14px 14px 2px 14px;
-}
-.nk-bubble.admin {
-  background: #f7f6f2; color: #1a1a18;
-  border-radius: 14px 14px 14px 2px; border: 1px solid #e0ded8;
-}
+.nk-bubble-wrap.admin { align-items: flex-start; }
+.nk-bubble { max-width: 82%; padding: 9px 13px; font-size: 13px; line-height: 1.55; word-break: break-word; }
+.nk-bubble.visitor { background: #0F6E56; color: white; border-radius: 14px 14px 2px 14px; }
+.nk-bubble.admin { background: #f7f6f2; color: #1a1a18; border-radius: 14px 14px 14px 2px; border: 1px solid #e0ded8; }
 .nk-bubble-time { font-size: 10px; color: #888780; margin-top: 3px; padding: 0 2px; }
-
-/* Typing indicator */
 .nk-typing { display: none; align-items: flex-start; gap: 6px; }
 .nk-typing.show { display: flex; }
-.nk-typing-bubble {
-  background: #f7f6f2; border: 1px solid #e0ded8;
-  border-radius: 14px 14px 14px 2px; padding: 10px 14px;
-  display: flex; gap: 4px; align-items: center;
-}
-.nk-typing-dot {
-  width: 6px; height: 6px; border-radius: 50%; background: #888780;
-  animation: nkDot 1.2s infinite;
-}
+.nk-typing-bubble { background: #f7f6f2; border: 1px solid #e0ded8; border-radius: 14px 14px 14px 2px; padding: 10px 14px; display: flex; gap: 4px; align-items: center; }
+.nk-typing-dot { width: 6px; height: 6px; border-radius: 50%; background: #888780; animation: nkDot 1.2s infinite; }
 .nk-typing-dot:nth-child(2) { animation-delay: .2s; }
 .nk-typing-dot:nth-child(3) { animation-delay: .4s; }
 @keyframes nkDot { 0%,80%,100%{transform:scale(.7);opacity:.4} 40%{transform:scale(1);opacity:1} }
-
-/* Input bar */
-.nk-input-bar {
-  padding: 10px 12px; border-top: 1px solid #e0ded8;
-  display: flex; align-items: flex-end; gap: 8px; flex-shrink: 0;
-}
-#nk-input {
-  flex: 1; border: 1.5px solid #e0ded8; border-radius: 20px;
-  padding: 9px 14px; font-size: 13px; font-family: inherit;
-  color: #1a1a18; background: #f7f6f2; outline: none; resize: none;
-  max-height: 100px; overflow-y: auto; line-height: 1.5;
-  transition: border-color .15s;
-}
+.nk-input-bar { padding: 10px 12px; border-top: 1px solid #e0ded8; display: flex; align-items: flex-end; gap: 8px; flex-shrink: 0; }
+#nk-input { flex: 1; border: 1.5px solid #e0ded8; border-radius: 20px; padding: 9px 14px; font-size: 13px; font-family: inherit; color: #1a1a18; background: #f7f6f2; outline: none; resize: none; max-height: 100px; overflow-y: auto; line-height: 1.5; transition: border-color .15s; }
 #nk-input:focus { border-color: #0F6E56; background: white; }
-#nk-send {
-  width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
-  background: #0F6E56; border: none; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  transition: background .15s; align-self: flex-end;
-}
+#nk-send { width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0; background: #0F6E56; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background .15s; align-self: flex-end; }
 #nk-send:hover { background: #085041; }
 #nk-send svg { width: 16px; height: 16px; stroke: white; fill: none; stroke-width: 2.5; }
 #nk-send:disabled { opacity: .5; cursor: not-allowed; }
-
-/* Resolved banner */
-.nk-resolved {
-  display: none; text-align: center; padding: 10px 14px;
-  font-size: 12px; color: #888780; border-top: 1px solid #e0ded8;
-  background: #f7f6f2; flex-shrink: 0;
-}
+.nk-resolved { display: none; text-align: center; padding: 10px 14px; font-size: 12px; color: #888780; border-top: 1px solid #e0ded8; background: #f7f6f2; flex-shrink: 0; }
 .nk-resolved.show { display: block; }
-
-@media (max-width: 400px) {
-  #nk-chat-panel { width: calc(100vw - 16px); right: 8px; bottom: 80px; }
-}
+@media (max-width: 400px) { #nk-chat-panel { width: calc(100vw - 16px); right: 8px; bottom: 80px; } }
 </style>
 
-<!-- Toggle button -->
 <button id="nk-chat-btn" onclick="nkToggle()" aria-label="Open chat support">
   <svg id="nk-icon-chat" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
   <svg id="nk-icon-close" viewBox="0 0 24 24" style="display:none"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
   <span class="nk-badge" id="nk-visitor-badge"></span>
 </button>
 
-<!-- Chat panel -->
 <div id="nk-chat-panel">
   <div class="nk-head">
     <div class="nk-head-left">
@@ -818,15 +630,8 @@ function toggleMobileMenu() {
     </div>
     <button class="nk-head-close" onclick="nkToggle()" aria-label="Close chat">✕</button>
   </div>
-
-  <div class="nk-msgs" id="nk-msgs">
-    <!-- Greeting injected by JS -->
-  </div>
-
-  <div class="nk-resolved" id="nk-resolved-banner">
-    ✓ This conversation has been resolved. Start a new message below to reopen it.
-  </div>
-
+  <div class="nk-msgs" id="nk-msgs"></div>
+  <div class="nk-resolved" id="nk-resolved-banner">✓ This conversation has been resolved. Start a new message below to reopen it.</div>
   <div class="nk-input-bar">
     <textarea id="nk-input" rows="1" placeholder="Type a message…" oninput="nkAutoResize(this)" onkeydown="nkKeyDown(event)"></textarea>
     <button id="nk-send" onclick="nkSend()" aria-label="Send message" disabled>
@@ -839,98 +644,48 @@ function toggleMobileMenu() {
 (function () {
   const NK_URL = 'https://vliuuloyfhyxcsuchpss.supabase.co';
   const NK_KEY = 'sb_publishable_oIIcecf3wzKMual5K24Z8Q_zmxVfgsx';
+  const nkDb = (typeof supabase !== 'undefined' && typeof db !== 'undefined') ? db : supabase.createClient(NK_URL, NK_KEY);
 
-  // Re-use existing db client if available, otherwise create one
-  const nkDb = (typeof supabase !== 'undefined' && typeof db !== 'undefined')
-    ? db
-    : supabase.createClient(NK_URL, NK_KEY);
+  let nkSessionId = null, nkOpen = false, nkChannel = null, nkMessages = [], nkNewFromAdmin = 0;
+  const QUICK_REPLIES = ['How do I list my apartment?', 'Is listing free?', 'What areas do you cover?'];
 
-  let nkSessionId = null;
-  let nkOpen = false;
-  let nkChannel = null;
-  let nkMessages = [];
-  let nkNewFromAdmin = 0;
-
-  const QUICK_REPLIES = [
-    'How do I list my apartment?',
-    'Is listing free?',
-    'What areas do you cover?',
-  ];
-
-  // ── Session key (persisted in localStorage) ──
   function getOrCreateKey() {
     let key = localStorage.getItem('nk_chat_key');
-    if (!key) {
-      key = 'nk_' + Date.now() + '_' + Math.random().toString(36).slice(2, 9);
-      localStorage.setItem('nk_chat_key', key);
-    }
+    if (!key) { key = 'nk_' + Date.now() + '_' + Math.random().toString(36).slice(2, 9); localStorage.setItem('nk_chat_key', key); }
     return key;
   }
 
-  // ── Init ──
   async function nkInit() {
     const key = getOrCreateKey();
-
-    // Try to find existing session
-    const { data: existing } = await nkDb
-      .from('chat_sessions')
-      .select('*')
-      .eq('session_key', key)
-      .single();
-
-    if (existing) {
-      nkSessionId = existing.id;
-      await loadMessages();
-    } else {
-      // Create new session lazily (on first message send)
-      renderGreeting();
-    }
-
+    const { data: existing } = await nkDb.from('chat_sessions').select('*').eq('session_key', key).single();
+    if (existing) { nkSessionId = existing.id; await loadMessages(); } else { renderGreeting(); }
     subscribeRealtime();
   }
 
   async function ensureSession() {
     if (nkSessionId) return;
     const key = getOrCreateKey();
-    const { data } = await nkDb.from('chat_sessions').insert({
-      session_key: key,
-      page: window.location.pathname,
-    }).select().single();
+    const { data } = await nkDb.from('chat_sessions').insert({ session_key: key, page: window.location.pathname }).select().single();
     if (data) nkSessionId = data.id;
   }
 
-  // ── Load existing messages ──
   async function loadMessages() {
-    const { data } = await nkDb
-      .from('chat_messages')
-      .select('*')
-      .eq('session_id', nkSessionId)
-      .order('created_at', { ascending: true });
-
+    const { data } = await nkDb.from('chat_messages').select('*').eq('session_id', nkSessionId).order('created_at', { ascending: true });
     nkMessages = data || [];
     renderMessages();
   }
 
-  // ── Render greeting (first time) ──
   function renderGreeting() {
-    const msgsEl = document.getElementById('nk-msgs');
-    msgsEl.innerHTML = `
-      <div class="nk-greeting">
-        <strong>👋 Hi there!</strong>
-        Have a question about finding or listing an apartment in Kisumu? We're here to help — send us a message and we'll get back to you shortly.
-      </div>
+    document.getElementById('nk-msgs').innerHTML = `
+      <div class="nk-greeting"><strong>👋 Hi there!</strong>Have a question about finding or listing an apartment in Kisumu? We're here to help.</div>
       <div class="nk-quick-replies" id="nk-qr-wrap">
-        ${QUICK_REPLIES.map(q => `<button class="nk-qr" onclick="nkQuickReply(this,'${q.replace(/'/g,"\\'")}')">
-          ${q}
-        </button>`).join('')}
+        ${QUICK_REPLIES.map(q => `<button class="nk-qr" onclick="nkQuickReply(this,'${q.replace(/'/g,"\\'")}'">${q}</button>`).join('')}
       </div>`;
   }
 
-  // ── Render all messages ──
   function renderMessages() {
     const msgsEl = document.getElementById('nk-msgs');
     if (!nkMessages.length) { renderGreeting(); return; }
-
     msgsEl.innerHTML = nkMessages.map(m => bubbleHtml(m)).join('');
     appendTypingIndicator();
     scrollBottom();
@@ -938,218 +693,79 @@ function toggleMobileMenu() {
 
   function bubbleHtml(m) {
     const time = new Date(m.created_at).toLocaleTimeString('en-KE', { hour: '2-digit', minute: '2-digit' });
-    return `<div class="nk-bubble-wrap ${m.sender}">
-      <div class="nk-bubble ${m.sender}">${escHtml(m.body)}</div>
-      <div class="nk-bubble-time">${time}</div>
-    </div>`;
+    return `<div class="nk-bubble-wrap ${m.sender}"><div class="nk-bubble ${m.sender}">${escHtml(m.body)}</div><div class="nk-bubble-time">${time}</div></div>`;
   }
 
   function appendTypingIndicator() {
-    const msgsEl = document.getElementById('nk-msgs');
-    msgsEl.insertAdjacentHTML('beforeend', `
-      <div class="nk-typing" id="nk-typing">
-        <div class="nk-typing-bubble">
-          <div class="nk-typing-dot"></div>
-          <div class="nk-typing-dot"></div>
-          <div class="nk-typing-dot"></div>
-        </div>
-      </div>`);
+    document.getElementById('nk-msgs').insertAdjacentHTML('beforeend', `<div class="nk-typing" id="nk-typing"><div class="nk-typing-bubble"><div class="nk-typing-dot"></div><div class="nk-typing-dot"></div><div class="nk-typing-dot"></div></div></div>`);
   }
 
   function appendBubble(m) {
     const typing = document.getElementById('nk-typing');
     const html = bubbleHtml(m);
-    if (typing) {
-      typing.insertAdjacentHTML('beforebegin', html);
-    } else {
-      document.getElementById('nk-msgs').insertAdjacentHTML('beforeend', html);
-    }
+    if (typing) typing.insertAdjacentHTML('beforebegin', html);
+    else document.getElementById('nk-msgs').insertAdjacentHTML('beforeend', html);
     scrollBottom();
   }
 
-  function scrollBottom() {
-    const el = document.getElementById('nk-msgs');
-    if (el) el.scrollTop = el.scrollHeight;
-  }
+  function scrollBottom() { const el = document.getElementById('nk-msgs'); if (el) el.scrollTop = el.scrollHeight; }
 
-  // ── Realtime subscription ──
   function subscribeRealtime() {
     if (nkChannel) nkChannel.unsubscribe();
-    nkChannel = nkDb
-      .channel('nk-chat-visitor')
-      .on('postgres_changes', {
-        event: 'INSERT',
-        schema: 'public',
-        table: 'chat_messages',
-        filter: nkSessionId ? `session_id=eq.${nkSessionId}` : undefined,
-      }, (payload) => {
+    nkChannel = nkDb.channel('nk-chat-visitor')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages', filter: nkSessionId ? `session_id=eq.${nkSessionId}` : undefined }, (payload) => {
         const msg = payload.new;
-        // Only process messages for our session
         if (msg.session_id !== nkSessionId) return;
-        // Don't double-add messages we sent ourselves
         if (nkMessages.find(m => m.id === msg.id)) return;
-        nkMessages.push(msg);
-        appendBubble(msg);
-
-        if (msg.sender === 'admin') {
-          updateStatusLine('Admin is online');
-          if (!nkOpen) {
-            nkNewFromAdmin++;
-            showVisitorBadge(nkNewFromAdmin);
-          }
-        }
+        nkMessages.push(msg); appendBubble(msg);
+        if (msg.sender === 'admin') { updateStatusLine('Admin is online'); if (!nkOpen) { nkNewFromAdmin++; showVisitorBadge(nkNewFromAdmin); } }
       })
-      .on('postgres_changes', {
-        event: 'UPDATE',
-        schema: 'public',
-        table: 'chat_sessions',
-        filter: nkSessionId ? `id=eq.${nkSessionId}` : undefined,
-      }, (payload) => {
-        if (payload.new.is_resolved) {
-          document.getElementById('nk-resolved-banner').classList.add('show');
-          updateStatusLine('Conversation resolved');
-        }
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'chat_sessions', filter: nkSessionId ? `id=eq.${nkSessionId}` : undefined }, (payload) => {
+        if (payload.new.is_resolved) { document.getElementById('nk-resolved-banner').classList.add('show'); updateStatusLine('Conversation resolved'); }
       })
       .subscribe();
   }
 
-  // ── Send message ──
   async function nkSend() {
     const input = document.getElementById('nk-input');
     const body = input.value.trim();
     if (!body) return;
-
-    input.value = '';
-    nkAutoResize(input);
+    input.value = ''; nkAutoResize(input);
     document.getElementById('nk-send').disabled = true;
-
-    // Remove quick replies once user sends
-    const qr = document.getElementById('nk-qr-wrap');
-    if (qr) qr.remove();
-
+    const qr = document.getElementById('nk-qr-wrap'); if (qr) qr.remove();
     await ensureSession();
-
-    const { data: msg } = await nkDb.from('chat_messages').insert({
-      session_id: nkSessionId,
-      sender: 'visitor',
-      body,
-    }).select().single();
-
-    if (msg) {
-      nkMessages.push(msg);
-      appendBubble(msg);
-      // Re-subscribe now that we have a session ID (if first message)
-      subscribeRealtime();
-    }
-
-    // Update session last_msg_at + increment admin unread
-    await nkDb.from('chat_sessions').update({
-      last_msg_at: new Date().toISOString(),
-      unread_admin: (await getUnreadCount()) + 1,
-    }).eq('id', nkSessionId);
-
+    const { data: msg } = await nkDb.from('chat_messages').insert({ session_id: nkSessionId, sender: 'visitor', body }).select().single();
+    if (msg) { nkMessages.push(msg); appendBubble(msg); subscribeRealtime(); }
+    await nkDb.from('chat_sessions').update({ last_msg_at: new Date().toISOString(), unread_admin: (await getUnreadCount()) + 1 }).eq('id', nkSessionId);
     document.getElementById('nk-send').disabled = false;
     input.focus();
   }
 
   async function getUnreadCount() {
-    const { data } = await nkDb
-      .from('chat_sessions')
-      .select('unread_admin')
-      .eq('id', nkSessionId)
-      .single();
+    const { data } = await nkDb.from('chat_sessions').select('unread_admin').eq('id', nkSessionId).single();
     return data?.unread_admin || 0;
   }
 
-  function nkQuickReply(btn, text) {
-    document.getElementById('nk-input').value = text;
-    document.getElementById('nk-send').disabled = false;
-    nkSend();
-  }
+  function nkQuickReply(btn, text) { document.getElementById('nk-input').value = text; document.getElementById('nk-send').disabled = false; nkSend(); }
 
-  // ── Toggle panel ──
   function nkToggle() {
     nkOpen = !nkOpen;
-    const panel = document.getElementById('nk-chat-panel');
-    const iconChat  = document.getElementById('nk-icon-chat');
-    const iconClose = document.getElementById('nk-icon-close');
-
-    panel.classList.toggle('open', nkOpen);
-    iconChat.style.display  = nkOpen ? 'none' : 'block';
-    iconClose.style.display = nkOpen ? 'block' : 'none';
-
-    if (nkOpen) {
-      nkNewFromAdmin = 0;
-      showVisitorBadge(0);
-      scrollBottom();
-      document.getElementById('nk-input').focus();
-    }
+    document.getElementById('nk-chat-panel').classList.toggle('open', nkOpen);
+    document.getElementById('nk-icon-chat').style.display  = nkOpen ? 'none' : 'block';
+    document.getElementById('nk-icon-close').style.display = nkOpen ? 'block' : 'none';
+    if (nkOpen) { nkNewFromAdmin = 0; showVisitorBadge(0); scrollBottom(); document.getElementById('nk-input').focus(); }
   }
 
-  function showVisitorBadge(n) {
-    const badge = document.getElementById('nk-visitor-badge');
-    badge.style.display = n > 0 ? 'flex' : 'none';
-    badge.textContent = n;
-  }
+  function showVisitorBadge(n) { const b = document.getElementById('nk-visitor-badge'); b.style.display = n > 0 ? 'flex' : 'none'; b.textContent = n; }
+  function updateStatusLine(text) { document.getElementById('nk-status-line').textContent = text; }
+  function nkAutoResize(el) { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 100) + 'px'; document.getElementById('nk-send').disabled = !el.value.trim(); }
+  function nkKeyDown(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); nkSend(); } }
+  function escHtml(str) { return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/\n/g,'<br>'); }
 
-  function updateStatusLine(text) {
-    document.getElementById('nk-status-line').textContent = text;
-  }
-
-  // ── Input helpers ──
-  function nkAutoResize(el) {
-    el.style.height = 'auto';
-    el.style.height = Math.min(el.scrollHeight, 100) + 'px';
-    document.getElementById('nk-send').disabled = !el.value.trim();
-  }
-
-  function nkKeyDown(e) {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      nkSend();
-    }
-  }
-
-  function escHtml(str) {
-    return String(str || '')
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/\n/g, '<br>');
-  }
-
-  // Expose globals for onclick handlers
-  window.nkToggle      = nkToggle;
-  window.nkSend        = nkSend;
-  window.nkAutoResize  = nkAutoResize;
-  window.nkKeyDown     = nkKeyDown;
-  window.nkQuickReply  = nkQuickReply;
-
-  // Boot
+  window.nkToggle = nkToggle; window.nkSend = nkSend; window.nkAutoResize = nkAutoResize; window.nkKeyDown = nkKeyDown; window.nkQuickReply = nkQuickReply;
   nkInit();
 })();
 </script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-  (function () {
-    const SUPABASE_URL = 'https://vliuuloyfhyxcsuchpss.supabase.co';
-    const SUPABASE_KEY = 'sb_publishable_oIIcecf3wzKMual5K24Z8Q_zmxVfgsx';
-    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    let sid = localStorage.getItem('nk_sid');
-    if (!sid) {
-      sid = (crypto.randomUUID ? crypto.randomUUID() : Date.now() + '-' + Math.random().toString(36).slice(2));
-      localStorage.setItem('nk_sid', sid);
-    }
-
-    sb.from('page_views').insert({
-      path: location.pathname,
-      referrer: document.referrer || null,
-      user_agent: navigator.userAgent,
-      session_id: sid
-    });
-  })();
-</script>
 </body>
 </html>
