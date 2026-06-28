@@ -10,454 +10,471 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --green:       #0F6E56;
-      --green-light: #E1F5EE;
-      --green-mid:   #1D9E75;
-      --green-dark:  #085041;
-      --gold:        #BA7517;
-      --gold-light:  #FAEEDA;
-      --red:         #C53030;
-      --red-light:   #FFF5F5;
-      --blue:        #185FA5;
-      --blue-light:  #E6F1FB;
-      --text:        #1a1a18;
-      --text-2:      #4a4a46;
-      --text-3:      #888780;
-      --border:      #e0ded8;
-      --surface:     #f7f6f2;
-      --white:       #ffffff;
-      --radius:      10px;
-      --radius-lg:   16px;
-      --topnav-h:    56px;
+      --green:#0F6E56; --green-light:#E1F5EE; --green-mid:#1D9E75; --green-dark:#085041;
+      --gold:#BA7517; --gold-light:#FAEEDA; --red:#C53030; --red-light:#FFF5F5;
+      --blue:#185FA5; --blue-light:#E6F1FB;
+      --text:#1a1a18; --text-2:#4a4a46; --text-3:#888780;
+      --border:#e0ded8; --surface:#f7f6f2; --white:#ffffff;
+      --radius:10px; --radius-lg:16px; --topnav-h:56px;
     }
-
-    /* ── CRITICAL: use dvh so mobile browser chrome is accounted for ── */
-    html { height: 100%; }
+    html { height:100%; }
     body {
-      font-family: 'Inter', sans-serif; color: var(--text);
-      background: var(--surface); font-size: 14px; line-height: 1.5;
-      height: 100%; height: 100dvh;
-      overflow: hidden; /* keep this only on body, not html */
+      font-family:'Inter',sans-serif; color:var(--text);
+      background:var(--surface); font-size:14px; line-height:1.5;
+      height:100%; height:100dvh; overflow:hidden;
     }
 
-    /* ── TOP NAV ── */
+    /* TOP NAV */
     .topnav {
-      position: fixed; top: 0; left: 0; right: 0; height: var(--topnav-h); z-index: 300;
-      background: var(--white); border-bottom: 1px solid var(--border);
-      display: flex; align-items: center; gap: 12px; padding: 0 16px;
+      position:fixed; top:0; left:0; right:0; height:var(--topnav-h); z-index:300;
+      background:var(--white); border-bottom:1px solid var(--border);
+      display:flex; align-items:center; gap:12px; padding:0 16px;
     }
     .topnav-logo {
-      display: flex; align-items: center; gap: 8px;
-      font-family: 'Playfair Display', serif; font-size: 16px; color: var(--green-dark);
-      text-decoration: none; flex-shrink: 0;
+      display:flex; align-items:center; gap:8px;
+      font-family:'Playfair Display',serif; font-size:16px; color:var(--green-dark);
+      text-decoration:none; flex-shrink:0;
     }
     .topnav-logo-icon {
-      width: 30px; height: 30px; background: var(--green); border-radius: 7px;
-      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+      width:30px; height:30px; background:var(--green); border-radius:7px;
+      display:flex; align-items:center; justify-content:center; flex-shrink:0;
     }
-    .topnav-logo-icon svg { width: 15px; height: 15px; fill: none; stroke: white; stroke-width: 2; stroke-linecap: round; }
-    .topnav-logo-text { display: none; } /* hidden on mobile, shown on desktop */
-    .topnav-divider { width: 1px; height: 24px; background: var(--border); display: none; }
-    .topnav-title { font-size: 14px; font-weight: 600; color: var(--text); }
-    .topnav-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+    .topnav-logo-icon svg { width:15px; height:15px; fill:none; stroke:white; stroke-width:2; stroke-linecap:round; }
+    .topnav-title { font-size:14px; font-weight:600; color:var(--text); }
+    .topnav-right { margin-left:auto; display:flex; align-items:center; gap:10px; }
     .topnav-badge {
-      background: var(--red); color: white; font-size: 11px; font-weight: 700;
-      padding: 2px 7px; border-radius: 20px; display: none;
+      background:var(--red); color:white; font-size:11px; font-weight:700;
+      padding:2px 7px; border-radius:20px; display:none;
     }
-    .topnav-badge.show { display: inline-block; }
-    .topnav-admin { font-size: 12px; color: var(--text-2); display: none; }
+    .topnav-badge.show { display:inline-block; }
+    .topnav-admin { font-size:12px; color:var(--text-2); }
     .topnav-back {
-      font-size: 13px; color: var(--green); font-weight: 500;
-      text-decoration: none; white-space: nowrap; padding: 6px 0; min-height: 44px;
-      display: flex; align-items: center;
+      font-size:13px; color:var(--green); font-weight:500;
+      text-decoration:none; white-space:nowrap;
+      display:flex; align-items:center; min-height:44px;
     }
-    .topnav-back:hover { text-decoration: underline; }
+    .topnav-back:hover { text-decoration:underline; }
 
-    /* ── MAIN LAYOUT ── */
+    /* MAIN LAYOUT */
     .chat-layout {
-      position: fixed;
-      top: var(--topnav-h); left: 0; right: 0; bottom: 0;
-      bottom: env(safe-area-inset-bottom, 0);
-      display: flex; overflow: hidden;
+      position:fixed; top:var(--topnav-h); left:0; right:0; bottom:0;
+      bottom:env(safe-area-inset-bottom,0);
+      display:flex; overflow:hidden;
     }
 
-    /* ════════════════════════════════════
-       LEFT SIDEBAR — Conversation list
-       Desktop: fixed 280px column
-       Mobile:  full-screen overlay panel
-    ════════════════════════════════════ */
+    /* ══════════════════════════════════════════════════
+       LEFT SIDEBAR
+       MOBILE FIX EXPLAINED:
+       The sidebar itself is the overlay on mobile — it slides
+       in from the left at z-index 251. The backdrop sits at
+       z-index 250 BEHIND it.
+
+       The critical fix: we set pointer-events:none on the
+       backdrop always, and only enable it when the sidebar
+       is open. The sidebar itself always has pointer-events:auto.
+       This means taps on conv-items ALWAYS reach them directly —
+       the backdrop can never intercept a tap that landed inside
+       the sidebar's bounds.
+    ══════════════════════════════════════════════════ */
     .conv-sidebar {
-      width: 280px; flex-shrink: 0;
-      background: var(--white); border-right: 1px solid var(--border);
-      display: flex; flex-direction: column; overflow: hidden;
-      transition: transform .25s ease;
+      width:280px; flex-shrink:0;
+      background:var(--white); border-right:1px solid var(--border);
+      display:flex; flex-direction:column; overflow:hidden;
+      /* Always interactable — never let pointer-events be overridden */
+      pointer-events:auto;
     }
     .conv-sidebar-head {
-      padding: 12px 14px 10px; border-bottom: 1px solid var(--border); flex-shrink: 0;
+      padding:12px 14px 10px; border-bottom:1px solid var(--border); flex-shrink:0;
     }
     .conv-sidebar-head-row {
-      display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;
+      display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;
     }
-    .conv-sidebar-head h2 { font-size: 14px; font-weight: 700; color: var(--text); }
+    .conv-sidebar-head h2 { font-size:14px; font-weight:700; color:var(--text); }
     .sidebar-close-btn {
-      display: none; /* shown on mobile */
-      background: none; border: none; cursor: pointer; padding: 6px;
-      color: var(--text-3); min-width: 36px; min-height: 36px;
-      align-items: center; justify-content: center; border-radius: 8px;
+      display:none;
+      background:none; border:none; cursor:pointer; padding:6px;
+      color:var(--text-3); min-width:44px; min-height:44px;
+      align-items:center; justify-content:center; border-radius:8px;
     }
-    .sidebar-close-btn:active { background: var(--surface); }
-    .sidebar-close-btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; }
+    .sidebar-close-btn svg { width:18px; height:18px; stroke:currentColor; fill:none; stroke-width:2; }
 
-    .conv-search { position: relative; }
+    .conv-search { position:relative; }
     .conv-search input {
-      width: 100%; padding: 8px 12px 8px 32px;
-      border: 1.5px solid var(--border); border-radius: var(--radius);
-      font-size: 13px; font-family: inherit;
-      background: var(--surface); color: var(--text); outline: none;
-      transition: border-color .15s; min-height: 40px;
+      width:100%; padding:8px 12px 8px 32px;
+      border:1.5px solid var(--border); border-radius:var(--radius);
+      font-size:13px; font-family:inherit;
+      background:var(--surface); color:var(--text); outline:none;
+      transition:border-color .15s; min-height:40px;
     }
-    .conv-search input:focus { border-color: var(--green); background: white; }
+    .conv-search input:focus { border-color:var(--green); background:white; }
     .conv-search svg {
-      position: absolute; left: 9px; top: 50%; transform: translateY(-50%);
-      width: 14px; height: 14px; stroke: var(--text-3); fill: none; stroke-width: 2; pointer-events: none;
+      position:absolute; left:9px; top:50%; transform:translateY(-50%);
+      width:14px; height:14px; stroke:var(--text-3); fill:none; stroke-width:2; pointer-events:none;
     }
 
     /* Filter tabs */
     .conv-tabs {
-      display: flex; border-bottom: 1px solid var(--border); flex-shrink: 0;
-      overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none;
+      display:flex; border-bottom:1px solid var(--border); flex-shrink:0;
+      overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none;
     }
-    .conv-tabs::-webkit-scrollbar { display: none; }
+    .conv-tabs::-webkit-scrollbar { display:none; }
     .conv-tab {
-      flex-shrink: 0; padding: 10px 12px; text-align: center; font-size: 12px; font-weight: 500;
-      color: var(--text-3); cursor: pointer; transition: all .15s;
-      border-bottom: 2px solid transparent; min-height: 44px;
-      background: none; border-top: none; border-left: none; border-right: none; font-family: inherit;
-      display: flex; align-items: center; justify-content: center; gap: 4px;
+      flex-shrink:0; padding:10px 12px; font-size:12px; font-weight:500;
+      color:var(--text-3); cursor:pointer; transition:all .15s;
+      border-bottom:2px solid transparent; min-height:44px;
+      background:none; border-top:none; border-left:none; border-right:none;
+      font-family:inherit; display:flex; align-items:center; gap:4px;
     }
-    .conv-tab.active { color: var(--green); border-bottom-color: var(--green); }
+    .conv-tab.active { color:var(--green); border-bottom-color:var(--green); }
     .conv-tab-badge {
-      display: inline-flex; align-items: center; justify-content: center;
-      min-width: 16px; height: 16px; border-radius: 10px; font-size: 10px; font-weight: 700;
-      background: var(--red); color: white; padding: 0 4px;
+      display:inline-flex; align-items:center; justify-content:center;
+      min-width:16px; height:16px; border-radius:10px;
+      font-size:10px; font-weight:700; background:var(--red); color:white; padding:0 4px;
     }
 
     /* Conversation list */
-    .conv-list { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
-    .conv-list::-webkit-scrollbar { width: 4px; }
-    .conv-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+    .conv-list { flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+    .conv-list::-webkit-scrollbar { width:4px; }
+    .conv-list::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
 
+    /* ══════════════════════════════════
+       CONV ITEM — the key fix for mobile taps.
+
+       We use a plain <div> with onclick. No touch-action
+       overrides, no pointer-events:none, no event.stopPropagation
+       in parent layers that could swallow the tap.
+
+       The item itself has a generous min-height (72px) so
+       fingers can land reliably on small screens.
+    ══════════════════════════════════ */
     .conv-item {
-      padding: 12px 14px; cursor: pointer; transition: background .12s;
-      border-bottom: 1px solid var(--border); position: relative;
-      min-height: 72px; /* comfortable touch target */
+      padding:12px 14px; cursor:pointer; transition:background .12s;
+      border-bottom:1px solid var(--border); position:relative;
+      min-height:72px;
+      -webkit-tap-highlight-color:rgba(15,110,86,0.12);
+      touch-action:manipulation;
+      user-select:none;
     }
-    .conv-item:hover  { background: var(--surface); }
-    .conv-item.active { background: var(--green-light); }
-    .conv-item.unread .conv-item-preview { font-weight: 600; color: var(--text); }
-    .conv-item-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 3px; }
-    .conv-item-name { font-size: 13px; font-weight: 600; color: var(--text); }
-    .conv-item-time { font-size: 11px; color: var(--text-3); flex-shrink: 0; margin-left: 8px; }
-    .conv-item-preview {
-      font-size: 12px; color: var(--text-3);
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    }
-    .conv-item-meta { display: flex; align-items: center; gap: 5px; margin-top: 5px; flex-wrap: wrap; }
-    .conv-unread-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--red); flex-shrink: 0; }
+    .conv-item:active { background:var(--green-light); }
+    .conv-item:hover  { background:var(--surface); }
+    .conv-item.active { background:var(--green-light); }
+    .conv-item.unread .conv-item-preview { font-weight:600; color:var(--text); }
+    .conv-item-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:3px; pointer-events:none; }
+    .conv-item-name { font-size:13px; font-weight:600; color:var(--text); }
+    .conv-item-time { font-size:11px; color:var(--text-3); flex-shrink:0; margin-left:8px; }
+    .conv-item-preview { font-size:12px; color:var(--text-3); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; pointer-events:none; }
+    .conv-item-meta { display:flex; align-items:center; gap:5px; margin-top:5px; flex-wrap:wrap; pointer-events:none; }
+    .conv-unread-dot { width:8px; height:8px; border-radius:50%; background:var(--red); flex-shrink:0; }
     .conv-resolved-tag {
-      font-size: 10px; font-weight: 600; color: var(--green-dark); background: var(--green-light);
-      padding: 1px 6px; border-radius: 10px;
+      font-size:10px; font-weight:600; color:var(--green-dark); background:var(--green-light);
+      padding:1px 6px; border-radius:10px;
     }
     .conv-page-tag {
-      font-size: 10px; color: var(--text-3); background: var(--surface);
-      padding: 1px 6px; border-radius: 10px; border: 1px solid var(--border);
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px;
+      font-size:10px; color:var(--text-3); background:var(--surface);
+      padding:1px 6px; border-radius:10px; border:1px solid var(--border);
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:120px;
     }
-    .conv-empty { padding: 40px 20px; text-align: center; color: var(--text-3); font-size: 13px; }
-    .conv-empty svg { width: 36px; height: 36px; stroke: var(--border); fill: none; stroke-width: 1.5; margin: 0 auto 10px; display: block; }
+    .conv-empty { padding:40px 20px; text-align:center; color:var(--text-3); font-size:13px; }
+    .conv-empty svg { width:36px; height:36px; stroke:var(--border); fill:none; stroke-width:1.5; margin:0 auto 10px; display:block; }
 
-    /* ════════════════════════════════════
-       CENTER — Active conversation
-    ════════════════════════════════════ */
-    .conv-main {
-      flex: 1; display: flex; flex-direction: column; min-width: 0; overflow: hidden;
-    }
+    /* CENTER */
+    .conv-main { flex:1; display:flex; flex-direction:column; min-width:0; overflow:hidden; }
 
-    /* Mobile list button (hamburger to open sidebar) */
     .mobile-list-btn {
-      display: none;
-      align-items: center; gap: 6px;
-      background: none; border: 1.5px solid var(--border); border-radius: 8px;
-      cursor: pointer; font-size: 13px; color: var(--text-2); font-family: inherit;
-      padding: 6px 10px; min-height: 36px; flex-shrink: 0;
+      display:none; align-items:center; gap:6px;
+      background:none; border:1.5px solid var(--border); border-radius:8px;
+      cursor:pointer; font-size:13px; color:var(--text-2); font-family:inherit;
+      padding:6px 10px; min-height:36px; flex-shrink:0;
     }
-    .mobile-list-btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; flex-shrink: 0; }
-    .mobile-list-unread {
-      width: 8px; height: 8px; border-radius: 50%; background: var(--red); display: none;
-    }
+    .mobile-list-btn svg { width:16px; height:16px; stroke:currentColor; fill:none; stroke-width:2; flex-shrink:0; }
+    .mobile-list-unread { width:8px; height:8px; border-radius:50%; background:var(--red); display:none; }
 
-    /* Conversation header */
     .conv-header {
-      padding: 10px 14px; border-bottom: 1px solid var(--border);
-      background: var(--white); flex-shrink: 0;
-      display: flex; align-items: center; justify-content: space-between; gap: 10px;
-      flex-wrap: wrap;
+      padding:10px 14px; border-bottom:1px solid var(--border);
+      background:var(--white); flex-shrink:0;
+      display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;
     }
-    .conv-header-left { display: flex; align-items: center; gap: 8px; min-width: 0; }
-    .conv-header-info { min-width: 0; }
-    .conv-header-name { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
-    .conv-header-meta { font-size: 11px; color: var(--text-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 240px; }
-    .conv-header-actions { display: flex; gap: 8px; flex-shrink: 0; flex-wrap: wrap; }
+    .conv-header-left { display:flex; align-items:center; gap:8px; min-width:0; }
+    .conv-header-info { min-width:0; }
+    .conv-header-name {
+      font-size:14px; font-weight:700; color:var(--text); margin-bottom:1px;
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:200px;
+    }
+    .conv-header-meta {
+      font-size:11px; color:var(--text-3);
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:240px;
+    }
+    /* Typing status line in header */
+    .conv-header-typing {
+      font-size:11px; color:var(--green); font-style:italic;
+      display:none; align-items:center; gap:5px; margin-top:2px;
+    }
+    .conv-header-typing.show { display:flex; }
+    .typing-dots { display:inline-flex; gap:3px; align-items:center; }
+    .typing-dots span {
+      width:4px; height:4px; border-radius:50%; background:var(--green);
+      animation:typingPop .9s infinite;
+    }
+    .typing-dots span:nth-child(2) { animation-delay:.15s; }
+    .typing-dots span:nth-child(3) { animation-delay:.30s; }
+    @keyframes typingPop {
+      0%,80%,100% { transform:translateY(0); opacity:.4; }
+      40%          { transform:translateY(-3px); opacity:1; }
+    }
+
+    .conv-header-actions { display:flex; gap:8px; flex-shrink:0; flex-wrap:wrap; }
     .hdr-btn {
-      padding: 7px 12px; border-radius: var(--radius); font-size: 12px; font-weight: 600;
-      cursor: pointer; transition: all .15s; font-family: inherit; border: 1.5px solid var(--border);
-      background: white; color: var(--text-2); display: flex; align-items: center; gap: 5px;
-      min-height: 36px; white-space: nowrap;
+      padding:7px 12px; border-radius:var(--radius); font-size:12px; font-weight:600;
+      cursor:pointer; transition:all .15s; font-family:inherit; border:1.5px solid var(--border);
+      background:white; color:var(--text-2); display:flex; align-items:center; gap:5px;
+      min-height:36px; white-space:nowrap;
     }
-    .hdr-btn:hover   { border-color: var(--text-2); color: var(--text); }
-    .hdr-btn.resolve { border-color: var(--green); color: var(--green); }
-    .hdr-btn.resolve:hover { background: var(--green); color: white; }
-    .hdr-btn.reopen  { border-color: var(--gold); color: var(--gold); }
-    .hdr-btn.reopen:hover  { background: var(--gold); color: white; }
-    .hdr-btn.danger  { border-color: var(--red); color: var(--red); }
-    .hdr-btn.danger:hover  { background: var(--red); color: white; }
+    .hdr-btn:hover   { border-color:var(--text-2); color:var(--text); }
+    .hdr-btn.resolve { border-color:var(--green); color:var(--green); }
+    .hdr-btn.resolve:hover { background:var(--green); color:white; }
+    .hdr-btn.reopen  { border-color:var(--gold); color:var(--gold); }
+    .hdr-btn.reopen:hover  { background:var(--gold); color:white; }
+    .hdr-btn.danger  { border-color:var(--red); color:var(--red); }
+    .hdr-btn.danger:hover  { background:var(--red); color:white; }
 
-    /* Messages */
+    /* ── MESSAGES ── */
     .conv-messages {
-      flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;
-      padding: 16px; display: flex; flex-direction: column; gap: 12px;
-      scroll-behavior: smooth;
+      flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch;
+      padding:16px; display:flex; flex-direction:column; gap:12px;
+      scroll-behavior:smooth;
     }
-    .conv-messages::-webkit-scrollbar { width: 5px; }
-    .conv-messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    .conv-messages::-webkit-scrollbar { width:5px; }
+    .conv-messages::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
 
-    .msg-wrap { display: flex; flex-direction: column; }
-    .msg-wrap.visitor { align-items: flex-start; }
-    .msg-wrap.admin   { align-items: flex-end; }
-
+    .msg-wrap { display:flex; flex-direction:column; }
+    .msg-wrap.visitor { align-items:flex-start; }
+    .msg-wrap.admin   { align-items:flex-end; }
     .msg-bubble {
-      max-width: min(72%, 340px); padding: 10px 14px; font-size: 13.5px; line-height: 1.6;
-      word-break: break-word;
+      max-width:min(72%,340px); padding:10px 14px; font-size:13.5px; line-height:1.6; word-break:break-word;
     }
     .msg-bubble.visitor {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: 14px 14px 14px 2px; color: var(--text);
+      background:var(--surface); border:1px solid var(--border);
+      border-radius:14px 14px 14px 2px; color:var(--text);
     }
-    .msg-bubble.admin {
-      background: var(--green); color: white;
-      border-radius: 14px 14px 2px 14px;
-    }
-    .msg-time { font-size: 11px; color: var(--text-3); margin-top: 3px; padding: 0 2px; }
-    .msg-sender-label { font-size: 11px; font-weight: 600; color: var(--text-3); margin-bottom: 3px; padding: 0 2px; }
-
+    .msg-bubble.admin { background:var(--green); color:white; border-radius:14px 14px 2px 14px; }
+    .msg-time { font-size:11px; color:var(--text-3); margin-top:3px; padding:0 2px; }
+    .msg-sender-label { font-size:11px; font-weight:600; color:var(--text-3); margin-bottom:3px; padding:0 2px; }
     .msg-date-divider {
-      text-align: center; font-size: 11px; color: var(--text-3); margin: 6px 0;
-      display: flex; align-items: center; gap: 10px;
+      text-align:center; font-size:11px; color:var(--text-3); margin:6px 0;
+      display:flex; align-items:center; gap:10px;
     }
-    .msg-date-divider::before, .msg-date-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+    .msg-date-divider::before,.msg-date-divider::after { content:''; flex:1; height:1px; background:var(--border); }
 
-    /* Empty state */
+    /* Typing indicator bubble (inside message area) */
+    .typing-bubble-row {
+      display:flex; align-items:flex-end; gap:6px;
+    }
+    .typing-bubble {
+      background:var(--surface); border:1px solid var(--border);
+      border-radius:14px 14px 14px 2px;
+      padding:10px 14px; display:flex; align-items:center; gap:4px;
+    }
+    .typing-bubble span {
+      width:6px; height:6px; border-radius:50%; background:var(--text-3);
+      animation:typingPop .9s infinite;
+    }
+    .typing-bubble span:nth-child(2) { animation-delay:.15s; }
+    .typing-bubble span:nth-child(3) { animation-delay:.30s; }
+    .typing-name { font-size:11px; color:var(--text-3); margin-top:4px; }
+
     .conv-empty-state {
-      flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
-      color: var(--text-3); text-align: center; padding: 32px;
+      flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
+      color:var(--text-3); text-align:center; padding:32px;
     }
-    .conv-empty-state svg { width: 48px; height: 48px; stroke: var(--border); fill: none; stroke-width: 1.5; margin-bottom: 14px; }
-    .conv-empty-state h3 { font-size: 15px; font-weight: 600; color: var(--text-2); margin-bottom: 6px; }
-    .conv-empty-state p { font-size: 13px; max-width: 260px; }
+    .conv-empty-state svg { width:48px; height:48px; stroke:var(--border); fill:none; stroke-width:1.5; margin-bottom:14px; }
+    .conv-empty-state h3 { font-size:15px; font-weight:600; color:var(--text-2); margin-bottom:6px; }
+    .conv-empty-state p { font-size:13px; max-width:260px; }
 
-    /* Reply bar */
+    /* ── REPLY BAR ── */
     .reply-bar {
-      padding: 10px 14px;
-      padding-bottom: max(10px, env(safe-area-inset-bottom));
-      border-top: 1px solid var(--border); background: var(--white); flex-shrink: 0;
+      padding:10px 14px;
+      padding-bottom:max(10px,env(safe-area-inset-bottom));
+      border-top:1px solid var(--border); background:var(--white); flex-shrink:0;
     }
-    .reply-bar-inner { display: flex; align-items: flex-end; gap: 8px; }
+    .reply-bar-inner { display:flex; align-items:flex-end; gap:8px; }
     .reply-bar textarea {
-      flex: 1; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: var(--radius-lg);
-      font-size: 14px; font-family: inherit; color: var(--text); background: var(--surface);
-      outline: none; resize: none; min-height: 44px; max-height: 120px; line-height: 1.5;
-      transition: border-color .15s; -webkit-appearance: none; appearance: none;
+      flex:1; padding:10px 14px; border:1.5px solid var(--border); border-radius:var(--radius-lg);
+      font-size:14px; font-family:inherit; color:var(--text); background:var(--surface);
+      outline:none; resize:none; min-height:44px; max-height:120px; line-height:1.5;
+      transition:border-color .15s; -webkit-appearance:none;
     }
-    .reply-bar textarea:focus { border-color: var(--green); background: white; }
-    .reply-bar textarea:disabled { opacity: .5; cursor: not-allowed; }
+    .reply-bar textarea:focus { border-color:var(--green); background:white; }
+    .reply-bar textarea:disabled { opacity:.5; cursor:not-allowed; }
     .reply-send-btn {
-      width: 44px; height: 44px; border-radius: 50%; background: var(--green);
-      border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
-      transition: background .15s; flex-shrink: 0;
+      width:44px; height:44px; border-radius:50%; background:var(--green);
+      border:none; cursor:pointer; display:flex; align-items:center; justify-content:center;
+      transition:background .15s; flex-shrink:0;
     }
-    .reply-send-btn:hover    { background: var(--green-dark); }
-    .reply-send-btn:disabled { opacity: .5; cursor: not-allowed; }
-    .reply-send-btn svg { width: 16px; height: 16px; stroke: white; fill: none; stroke-width: 2.5; }
-
-    .reply-quick { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+    .reply-send-btn:hover    { background:var(--green-dark); }
+    .reply-send-btn:disabled { opacity:.5; cursor:not-allowed; }
+    .reply-send-btn svg { width:16px; height:16px; stroke:white; fill:none; stroke-width:2.5; }
+    .reply-quick { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:8px; }
     .reply-quick button {
-      font-size: 11px; padding: 5px 10px; border-radius: 20px; min-height: 30px;
-      border: 1.5px solid var(--border); background: white; color: var(--text-2);
-      cursor: pointer; font-family: inherit; transition: all .15s;
+      font-size:11px; padding:5px 10px; border-radius:20px; min-height:30px;
+      border:1.5px solid var(--border); background:white; color:var(--text-2);
+      cursor:pointer; font-family:inherit; transition:all .15s;
     }
-    .reply-quick button:hover { border-color: var(--green); color: var(--green); }
+    .reply-quick button:hover { border-color:var(--green); color:var(--green); }
     .reply-resolved-notice {
-      text-align: center; padding: 10px 14px; font-size: 13px; color: var(--text-3);
-      background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); display: none;
+      text-align:center; padding:10px 14px; font-size:13px; color:var(--text-3);
+      background:var(--surface); border-radius:var(--radius); border:1px solid var(--border); display:none;
     }
 
-    /* ════════════════════════════════════
-       RIGHT SIDEBAR — Visitor info
-       Hidden on mobile (accessible via sheet)
-    ════════════════════════════════════ */
+    /* RIGHT SIDEBAR */
     .info-sidebar {
-      width: 220px; flex-shrink: 0; background: var(--white);
-      border-left: 1px solid var(--border); overflow-y: auto; -webkit-overflow-scrolling: touch;
-      display: flex; flex-direction: column;
+      width:220px; flex-shrink:0; background:var(--white);
+      border-left:1px solid var(--border); overflow-y:auto; display:flex; flex-direction:column;
     }
-    .info-sidebar::-webkit-scrollbar { width: 4px; }
-    .info-sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-    .info-panel { padding: 14px; border-bottom: 1px solid var(--border); }
-    .info-panel-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--text-3); margin-bottom: 10px; }
-    .info-row { display: flex; flex-direction: column; gap: 2px; margin-bottom: 10px; }
-    .info-row:last-child { margin-bottom: 0; }
-    .info-label { font-size: 11px; color: var(--text-3); }
-    .info-value { font-size: 13px; color: var(--text); font-weight: 500; word-break: break-all; }
-    .info-empty { font-size: 12px; color: var(--text-3); font-style: italic; }
-
+    .info-panel { padding:14px; border-bottom:1px solid var(--border); }
+    .info-panel-title { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--text-3); margin-bottom:10px; }
+    .info-row { display:flex; flex-direction:column; gap:2px; margin-bottom:10px; }
+    .info-row:last-child { margin-bottom:0; }
+    .info-label { font-size:11px; color:var(--text-3); }
+    .info-value { font-size:13px; color:var(--text); font-weight:500; word-break:break-all; }
+    .info-empty { font-size:12px; color:var(--text-3); font-style:italic; }
     .template-btn {
-      width: 100%; text-align: left; padding: 8px 10px; border-radius: var(--radius);
-      border: 1.5px solid var(--border); background: white; cursor: pointer;
-      font-size: 12px; font-family: inherit; color: var(--text-2); margin-bottom: 6px;
-      transition: all .15s; line-height: 1.4; min-height: 40px;
+      width:100%; text-align:left; padding:8px 10px; border-radius:var(--radius);
+      border:1.5px solid var(--border); background:white; cursor:pointer;
+      font-size:12px; font-family:inherit; color:var(--text-2); margin-bottom:6px;
+      transition:all .15s; line-height:1.4; min-height:40px;
     }
-    .template-btn:hover { border-color: var(--green); color: var(--text); background: var(--green-light); }
-    .template-btn:last-child { margin-bottom: 0; }
+    .template-btn:hover { border-color:var(--green); color:var(--text); background:var(--green-light); }
+    .template-btn:last-child { margin-bottom:0; }
 
-    /* ════════════════════════════════════
-       MOBILE INFO SHEET (bottom drawer)
-    ════════════════════════════════════ */
+    /* MOBILE INFO SHEET */
     .info-sheet-overlay {
-      display: none;
-      position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 400;
+      display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:400;
     }
-    .info-sheet-overlay.open { display: block; }
+    .info-sheet-overlay.open { display:block; }
     .info-sheet {
-      position: fixed; bottom: 0; left: 0; right: 0; z-index: 401;
-      background: var(--white); border-radius: 20px 20px 0 0;
-      max-height: 80vh; overflow-y: auto; -webkit-overflow-scrolling: touch;
-      transform: translateY(100%); transition: transform .25s ease;
-      padding-bottom: env(safe-area-inset-bottom);
+      position:fixed; bottom:0; left:0; right:0; z-index:401;
+      background:var(--white); border-radius:20px 20px 0 0;
+      max-height:80vh; overflow-y:auto;
+      transform:translateY(100%); transition:transform .25s ease;
+      padding-bottom:env(safe-area-inset-bottom);
     }
-    .info-sheet.open { transform: translateY(0); }
-    .info-sheet-handle {
-      width: 36px; height: 4px; background: var(--border); border-radius: 2px;
-      margin: 10px auto 4px;
-    }
+    .info-sheet.open { transform:translateY(0); }
+    .info-sheet-handle { width:36px; height:4px; background:var(--border); border-radius:2px; margin:10px auto 4px; }
     .info-sheet-close {
-      position: absolute; top: 10px; right: 14px;
-      background: none; border: none; cursor: pointer; font-size: 22px;
-      color: var(--text-3); min-width: 36px; min-height: 36px;
-      display: flex; align-items: center; justify-content: center;
+      position:absolute; top:10px; right:14px;
+      background:none; border:none; cursor:pointer; font-size:22px;
+      color:var(--text-3); min-width:36px; min-height:36px;
+      display:flex; align-items:center; justify-content:center;
     }
-
-    /* Spinner */
-    .spinner {
-      width: 24px; height: 24px; border: 2.5px solid var(--border);
-      border-top-color: var(--green); border-radius: 50%; animation: spin .7s linear infinite;
-      margin: 40px auto; display: block;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* Toast */
-    .toast {
-      position: fixed; bottom: 20px; right: 16px; z-index: 9999;
-      background: var(--text); color: white; padding: 11px 18px; border-radius: var(--radius);
-      font-size: 13px; transform: translateY(70px); opacity: 0; transition: all .3s; max-width: 300px;
-      pointer-events: none;
-    }
-    .toast.show { transform: translateY(0); opacity: 1; }
-    .toast.success { background: var(--green-dark); }
-    .toast.error   { background: var(--red); }
-
-    /* ════════════════════════════════════
-       RESPONSIVE
-    ════════════════════════════════════ */
-
-    /* Tablet: hide right sidebar */
-    @media (max-width: 960px) {
-      .info-sidebar { display: none; }
-    }
-
-    /* Mobile: sidebar becomes overlay */
-    @media (max-width: 640px) {
-      .topnav-logo-text { display: none; }
-      .topnav-admin     { display: none; }
-
-      /* Sidebar slides in from left as overlay */
-      .conv-sidebar {
-        position: fixed; top: var(--topnav-h); left: 0; bottom: 0;
-        width: 88vw; max-width: 340px;
-        z-index: 250; box-shadow: 4px 0 24px rgba(0,0,0,0.15);
-        transform: translateX(-110%);
-      }
-      .conv-sidebar.mobile-open { transform: translateX(0); }
-      .sidebar-close-btn { display: flex; }
-
-      /* Overlay backdrop for sidebar */
-      .sidebar-overlay {
-        display: none;
-        position: fixed; inset: 0; z-index: 249; background: rgba(0,0,0,0.4);
-      }
-      .sidebar-overlay.show { display: block; }
-
-      /* Show the "Chats" button in conversation header */
-      .mobile-list-btn { display: flex; }
-
-      /* Adjust header for small screens */
-      .conv-header { padding: 8px 12px; gap: 8px; }
-      .conv-header-name { font-size: 13px; max-width: 140px; }
-      .conv-header-meta { max-width: 150px; }
-      .hdr-btn { padding: 6px 10px; font-size: 11px; }
-
-      /* Messages padding */
-      .conv-messages { padding: 12px; }
-      .msg-bubble { max-width: 85%; font-size: 13px; }
-
-      /* Reply bar */
-      .reply-bar { padding: 8px 10px; padding-bottom: max(8px, env(safe-area-inset-bottom)); }
-
-      /* Info sheet trigger button */
-      .info-trigger-btn { display: flex !important; }
-    }
-
-    /* Very small screens */
-    @media (max-width: 380px) {
-      .conv-header-actions { gap: 5px; }
-      .hdr-btn { padding: 5px 8px; font-size: 11px; }
-    }
-
-    /* Info trigger button (shows on mobile to open the bottom sheet) */
     .info-trigger-btn {
-      display: none;
-      align-items: center; gap: 5px; padding: 6px 10px; min-height: 36px;
-      border: 1.5px solid var(--border); border-radius: 8px; background: white;
-      font-size: 12px; font-weight: 500; color: var(--text-2); cursor: pointer;
-      font-family: inherit; flex-shrink: 0;
+      display:none; align-items:center; gap:5px; padding:6px 10px; min-height:36px;
+      border:1.5px solid var(--border); border-radius:8px; background:white;
+      font-size:12px; font-weight:500; color:var(--text-2); cursor:pointer;
+      font-family:inherit; flex-shrink:0;
     }
-    .info-trigger-btn svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; }
+    .info-trigger-btn svg { width:14px; height:14px; stroke:currentColor; fill:none; stroke-width:2; }
+
+    /* Spinner / Toast */
+    .spinner {
+      width:24px; height:24px; border:2.5px solid var(--border);
+      border-top-color:var(--green); border-radius:50%; animation:spin .7s linear infinite;
+      margin:40px auto; display:block;
+    }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    .toast {
+      position:fixed; bottom:20px; right:16px; z-index:9999;
+      background:var(--text); color:white; padding:11px 18px; border-radius:var(--radius);
+      font-size:13px; transform:translateY(70px); opacity:0; transition:all .3s; max-width:300px;
+      pointer-events:none;
+    }
+    .toast.show { transform:translateY(0); opacity:1; }
+    .toast.success { background:var(--green-dark); }
+    .toast.error   { background:var(--red); }
+
+    /* ══════════════════════════════════
+       RESPONSIVE
+    ══════════════════════════════════ */
+    @media (max-width:960px) { .info-sidebar { display:none; } }
+
+    @media (max-width:640px) {
+      .topnav-admin { display:none; }
+
+      /*
+       ══════════════════════════════════════════════════════
+       THE MOBILE SIDEBAR FIX — how it works:
+
+       The sidebar slides in from the left as a fixed overlay.
+       The BACKDROP is a separate fixed div that covers the
+       rest of the screen (i.e. everything to the right of
+       the sidebar) to catch "tap outside to close" gestures.
+
+       KEY: We do NOT put the backdrop BEHIND the sidebar.
+       Instead, the sidebar is always pointer-events:auto and
+       sits at a higher z-index (251). The backdrop (z:250)
+       is always OUTSIDE the sidebar — on narrow screens the
+       sidebar is 88vw wide, so the backdrop only covers
+       the ~12vw strip on the right edge. Taps inside the
+       sidebar always land on the sidebar, never on the backdrop.
+
+       This avoids the iOS compositing layer bug where a
+       backdrop at z:250 intercepts taps on children at z:251
+       when they share a stacking context.
+       ══════════════════════════════════════════════════════
+      */
+      .conv-sidebar {
+        position:fixed;
+        top:var(--topnav-h); left:0; bottom:0;
+        width:88vw; max-width:320px;
+        z-index:251;
+        box-shadow:4px 0 24px rgba(0,0,0,0.18);
+        transform:translateX(-110%);
+        transition:transform .25s ease;
+        /* MUST stay pointer-events:auto at all times */
+        pointer-events:auto;
+      }
+      .conv-sidebar.mobile-open {
+        transform:translateX(0);
+      }
+      .sidebar-close-btn { display:flex; }
+      .mobile-list-btn { display:flex; }
+      .conv-header { padding:8px 12px; gap:8px; }
+      .conv-header-name { font-size:13px; max-width:130px; }
+      .hdr-btn { padding:6px 10px; font-size:11px; }
+      .conv-messages { padding:12px; }
+      .msg-bubble { max-width:85%; font-size:13px; }
+      .reply-bar { padding:8px 10px; padding-bottom:max(8px,env(safe-area-inset-bottom)); }
+      .info-trigger-btn { display:flex; }
+    }
+    @media (max-width:380px) {
+      .conv-sidebar { width:94vw; }
+      .hdr-btn { padding:5px 8px; font-size:11px; }
+    }
   </style>
 </head>
 <body>
 
-<!-- Sidebar overlay backdrop (mobile) — only closes when tapping the backdrop itself, not the sidebar -->
-<div class="sidebar-overlay" id="sidebar-overlay"></div>
+<!--
+  ══════════════════════════════════════════════════════════
+  BACKDROP — covers the area OUTSIDE the sidebar on mobile.
+  z-index 250, always pointer-events:none until sidebar opens,
+  then pointer-events:auto only for the backdrop element itself.
+  The sidebar (z:251) is always above it and always tappable.
+  ══════════════════════════════════════════════════════════
+-->
+<div id="sidebar-backdrop"
+  style="display:none;position:fixed;top:56px;left:0;right:0;bottom:0;z-index:250;background:rgba(0,0,0,0.45);cursor:pointer;"
+  onclick="closeSidebar()">
+</div>
 
-<!-- ── TOP NAV ── -->
+<!-- TOP NAV -->
 <nav class="topnav">
   <a href="nk-ctrl-7f3k2x9.html" class="topnav-logo">
     <div class="topnav-logo-icon">
       <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
     </div>
-    <span class="topnav-logo-text">NyumbaKisumu</span>
+    NyumbaKisumu
   </a>
-  <div class="topnav-divider"></div>
-  <span class="topnav-title">Live Chat</span>
+  <span class="topnav-title" style="margin-left:8px">Live Chat</span>
   <div class="topnav-right">
     <span class="topnav-badge" id="total-unread-badge"></span>
     <span class="topnav-admin" id="admin-name-tag">Admin</span>
@@ -467,7 +484,7 @@
 
 <div class="toast" id="toast"></div>
 
-<!-- ── MAIN LAYOUT ── -->
+<!-- MAIN LAYOUT -->
 <div class="chat-layout">
 
   <!-- LEFT: Conversation list -->
@@ -475,7 +492,7 @@
     <div class="conv-sidebar-head">
       <div class="conv-sidebar-head-row">
         <h2>Conversations <span id="conv-count" style="font-size:11px;font-weight:400;color:var(--text-3)"></span></h2>
-        <button class="sidebar-close-btn" onclick="closeSidebar()" aria-label="Close">
+        <button class="sidebar-close-btn" onclick="closeSidebar()" aria-label="Close sidebar">
           <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
       </div>
@@ -485,7 +502,7 @@
       </div>
     </div>
 
-    <div class="conv-tabs" id="conv-tabs">
+    <div class="conv-tabs">
       <button class="conv-tab active" data-filter="all"      onclick="setFilter('all',this)">All <span class="conv-tab-badge" id="badge-all" style="display:none"></span></button>
       <button class="conv-tab"        data-filter="unread"   onclick="setFilter('unread',this)">Unread <span class="conv-tab-badge" id="badge-unread" style="display:none"></span></button>
       <button class="conv-tab"        data-filter="open"     onclick="setFilter('open',this)">Open</button>
@@ -504,7 +521,6 @@
 
     <!-- Empty state -->
     <div class="conv-empty-state" id="empty-state">
-      <!-- Mobile: show open-sidebar button here too -->
       <button class="mobile-list-btn" style="margin-bottom:20px" onclick="openSidebar()">
         <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
         View conversations
@@ -512,7 +528,7 @@
       </button>
       <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
       <h3>Select a conversation</h3>
-      <p>Tap a visitor from the list to read and reply to their messages.</p>
+      <p>Tap a conversation from the list to start replying.</p>
     </div>
 
     <!-- Active session view -->
@@ -520,7 +536,6 @@
 
       <div class="conv-header" id="conv-header">
         <div class="conv-header-left">
-          <!-- Mobile: open sidebar button -->
           <button class="mobile-list-btn" onclick="openSidebar()">
             <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
             Chats
@@ -529,15 +544,14 @@
           <div class="conv-header-info">
             <div class="conv-header-name" id="active-name">Visitor</div>
             <div class="conv-header-meta" id="active-meta"></div>
+            <!-- Typing indicator shown when the other party is typing -->
+            <div class="conv-header-typing" id="header-typing">
+              <span class="typing-dots"><span></span><span></span><span></span></span>
+              <span id="header-typing-label">typing…</span>
+            </div>
           </div>
         </div>
-        <div class="conv-header-actions" id="header-actions">
-          <!-- Info button (mobile only) -->
-          <button class="info-trigger-btn" onclick="openInfoSheet()">
-            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-            Info
-          </button>
-        </div>
+        <div class="conv-header-actions" id="header-actions"></div>
       </div>
 
       <div class="conv-messages" id="conv-messages">
@@ -551,7 +565,8 @@
         </div>
         <div class="reply-bar-inner" id="reply-bar-inner">
           <textarea id="reply-input" rows="1" placeholder="Type your reply…"
-            oninput="autoResize(this)" onkeydown="replyKeyDown(event)"></textarea>
+            oninput="handleAdminTyping(this)"
+            onkeydown="replyKeyDown(event)"></textarea>
           <button class="reply-send-btn" id="reply-send" onclick="sendReply()" disabled>
             <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
           </button>
@@ -560,21 +575,19 @@
     </div>
   </div>
 
-  <!-- RIGHT: Visitor info (desktop only — hidden on mobile) -->
+  <!-- RIGHT: Info sidebar (desktop only) -->
   <div class="info-sidebar" id="info-sidebar">
     <div class="info-panel">
       <div class="info-panel-title">Visitor info</div>
-      <div id="visitor-info-content">
-        <p class="info-empty">Select a conversation to view visitor details.</p>
-      </div>
+      <div id="visitor-info-content"><p class="info-empty">Select a conversation.</p></div>
     </div>
     <div class="info-panel">
       <div class="info-panel-title">Quick reply templates</div>
       <div id="template-list">
         <button class="template-btn" onclick="insertTemplate(this)">Hi! Thanks for reaching out to NyumbaKisumu. How can I help you today?</button>
         <button class="template-btn" onclick="insertTemplate(this)">To list your apartment, go to our Post Listing page and follow the 4-step process. It takes about 5 minutes!</button>
-        <button class="template-btn" onclick="insertTemplate(this)">We cover all major areas in Kisumu including Milimani, Kondele, Riat Hills, Nyalenda, Manyatta, and areas near Maseno University.</button>
-        <button class="template-btn" onclick="insertTemplate(this)">Standard listing is KES 800 (60 days) and Featured listing is KES 2,500 (90 days). Payment is via M-Pesa.</button>
+        <button class="template-btn" onclick="insertTemplate(this)">We cover Milimani, Kondele, Riat Hills, Nyalenda, Manyatta, and Maseno University areas.</button>
+        <button class="template-btn" onclick="insertTemplate(this)">Standard listing is KES 800 (60 days). Featured listing is KES 2,500 (90 days). Payment via M-Pesa.</button>
         <button class="template-btn" onclick="insertTemplate(this)">Your listing will go live within a few minutes after payment is confirmed.</button>
         <button class="template-btn" onclick="insertTemplate(this)">Could you please share more details so I can assist you better?</button>
         <button class="template-btn" onclick="insertTemplate(this)">Is there anything else I can help you with?</button>
@@ -584,13 +597,13 @@
     <div class="info-panel">
       <div class="info-panel-title">Actions</div>
       <div id="action-buttons" style="display:flex;flex-direction:column;gap:8px">
-        <p class="info-empty">Select a conversation to see actions.</p>
+        <p class="info-empty">Select a conversation.</p>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ── MOBILE INFO BOTTOM SHEET ── -->
+<!-- MOBILE INFO BOTTOM SHEET -->
 <div class="info-sheet-overlay" id="info-sheet-overlay" onclick="closeInfoSheet()"></div>
 <div class="info-sheet" id="info-sheet">
   <div class="info-sheet-handle"></div>
@@ -599,489 +612,754 @@
     <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:16px">Conversation info</div>
     <div id="sheet-visitor-info"></div>
     <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);margin:16px 0 10px">Quick replies</div>
-    <div id="sheet-templates">
-      <button class="template-btn" onclick="insertTemplateText('Hi! Thanks for reaching out to NyumbaKisumu. How can I help you today?')">Hi! Thanks for reaching out to NyumbaKisumu. How can I help you today?</button>
-      <button class="template-btn" onclick="insertTemplateText('To list your apartment, go to our Post Listing page and follow the 4-step process. It takes about 5 minutes!')">To list your apartment, go to our Post Listing page and follow the 4-step process. It takes about 5 minutes!</button>
-      <button class="template-btn" onclick="insertTemplateText('Standard listing is KES 800 (60 days) and Featured listing is KES 2,500 (90 days). Payment is via M-Pesa.')">Standard listing is KES 800 (60 days) and Featured listing is KES 2,500 (90 days). Payment is via M-Pesa.</button>
-      <button class="template-btn" onclick="insertTemplateText('Could you please share more details so I can assist you better?')">Could you please share more details so I can assist you better?</button>
-      <button class="template-btn" onclick="insertTemplateText('Thank you for contacting NyumbaKisumu! Have a great day 🏠')">Thank you for contacting NyumbaKisumu! Have a great day 🏠</button>
-    </div>
+    <button class="template-btn" onclick="insertTemplateText('Hi! Thanks for reaching out. How can I help you today?')">Hi! How can I help?</button>
+    <button class="template-btn" onclick="insertTemplateText('Standard listing is KES 800 (60 days). Featured is KES 2,500 (90 days). Payment via M-Pesa.')">Listing fees info</button>
+    <button class="template-btn" onclick="insertTemplateText('Could you please share more details so I can assist you better?')">Ask for more details</button>
+    <button class="template-btn" onclick="insertTemplateText('Thank you for contacting NyumbaKisumu! Have a great day 🏠')">Thank you & goodbye</button>
     <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);margin:16px 0 10px">Actions</div>
     <div id="sheet-actions" style="display:flex;flex-direction:column;gap:8px"></div>
   </div>
 </div>
 
 <script>
-  const SUPABASE_URL = 'https://vliuuloyfhyxcsuchpss.supabase.co';
-  const SUPABASE_KEY = 'sb_publishable_oIIcecf3wzKMual5K24Z8Q_zmxVfgsx';
-  const { createClient } = supabase;
-  const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+const SUPABASE_URL = 'https://vliuuloyfhyxcsuchpss.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_oIIcecf3wzKMual5K24Z8Q_zmxVfgsx';
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  let allSessions    = [];
-  let activeSessionId = null;
-  let activeMessages  = [];
-  let currentFilter   = 'all';
-  let searchQuery     = '';
-  let realtimeChannel = null;
-  let sessionChannel  = null;
+/* ── State ── */
+let allSessions     = [];
+let activeSessionId = null;
+let activeMessages  = [];
+let currentFilter   = 'all';
+let searchQuery     = '';
+let msgChannel      = null;   // realtime channel for active conversation messages
+let sessionChannel  = null;   // realtime channel for all session updates
+let typingChannel   = null;   // realtime broadcast channel for typing events
+let typingHideTimer = null;
+const TYPING_TIMEOUT = 4000;  // hide typing indicator after 4 s silence
 
-  // ── Helpers ──
-  function isSellerSession(s) { return s && (s.session_key||'').startsWith('admin_to_seller_'); }
-  function otherPartyLabel(s) { return s.visitor_name || (isSellerSession(s) ? 'Seller' : visitorLabel(s.session_key)); }
-  function senderLabel(msg, session) {
-    if (msg.sender === 'admin') return 'You (Admin)';
-    return isSellerSession(session) ? 'Seller' : 'Visitor';
-  }
-  function escHtml(str) {
-    return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-      .replace(/"/g,'&quot;').replace(/\n/g,'<br>');
-  }
-  function visitorLabel(key) {
-    if (!key) return 'Visitor';
-    const parts = key.split('_'); const ts = parseInt(parts[1]);
-    if (!isNaN(ts)) return `Visitor · ${new Date(ts).toLocaleDateString('en-KE',{day:'numeric',month:'short'})}`;
-    return `Visitor #${key.slice(-5)}`;
-  }
-  function timeAgo(iso) {
-    const m = Math.floor((Date.now() - new Date(iso)) / 60000);
-    if (m < 1)  return 'just now';
-    if (m < 60) return `${m}m ago`;
-    const h = Math.floor(m/60);
-    if (h < 24) return `${h}h ago`;
-    const d = Math.floor(h/24);
-    if (d < 7)  return `${d}d ago`;
-    return new Date(iso).toLocaleDateString('en-KE',{day:'numeric',month:'short'});
-  }
+/* ══════════════════════════════════════════════════════════════
+   SELLER DETECTION
+   ─────────────────────────────────────────────────────────────
+   A session counts as a "Seller" (registered platform user) if:
 
-  // ── Toast ──
-  function showToast(msg, type='') {
-    const t = document.getElementById('toast');
-    t.textContent = msg; t.className = `toast ${type} show`;
-    setTimeout(() => t.className = 'toast', 3500);
-  }
+   1. visitor_name is set AND non-empty
+      → Only logged-in sellers have their name attached.
+        Anonymous website visitors never have a visitor_name.
 
-  // ── Sidebar open/close (mobile) ──
-  function openSidebar() {
-    document.getElementById('conv-sidebar').classList.add('mobile-open');
-    document.getElementById('sidebar-overlay').classList.add('show');
-  }
-  function closeSidebar() {
-    document.getElementById('conv-sidebar').classList.remove('mobile-open');
-    document.getElementById('sidebar-overlay').classList.remove('show');
-  }
+   2. session_key starts with "seller_support_" or "admin_to_seller_"
+      → These are programmatically created for seller ↔ admin chats
+        from the dashboard support widget.
 
-  // Wire overlay to close only when the backdrop itself is tapped,
-  // not when a tap inside the sidebar bubbles up to it
-  document.getElementById('sidebar-overlay').addEventListener('click', closeSidebar);
-  document.getElementById('conv-sidebar').addEventListener('click', function(e) {
-    e.stopPropagation(); // prevent sidebar taps from reaching the overlay
+   3. session_type === 'seller'
+      → Explicit field set when creating the session in dashboard.html
+
+   The live chat widget on public pages (index.html, listings.html)
+   never sets visitor_name, so those always fall into "Visitors".
+   The support widget inside dashboard.html always sets visitor_name
+   to the logged-in seller's first name, so those always show as "Sellers".
+══════════════════════════════════════════════════════════════ */
+function isSellerSession(s) {
+  if (!s) return false;
+  if (s.session_type === 'seller') return true;
+  if ((s.session_key || '').startsWith('seller_support_'))  return true;
+  if ((s.session_key || '').startsWith('admin_to_seller_')) return true;
+  /* Primary signal: only registered users have a real name attached */
+  if (s.visitor_name && s.visitor_name.trim().length > 0) return true;
+  return false;
+}
+
+function otherPartyLabel(s) {
+  return (s && s.visitor_name && s.visitor_name.trim())
+    ? s.visitor_name.trim()
+    : visitorLabel(s && s.session_key);
+}
+
+function senderLabel(msg, session) {
+  if (msg.sender === 'admin') return 'You (Admin)';
+  return isSellerSession(session)
+    ? (session.visitor_name || 'Seller')
+    : 'Visitor';
+}
+
+/* ── Utils ── */
+function escHtml(str) {
+  return String(str || '')
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/\n/g,'<br>');
+}
+function visitorLabel(key) {
+  if (!key) return 'Visitor';
+  const parts = key.split('_'); const ts = parseInt(parts[1]);
+  if (!isNaN(ts)) return `Visitor · ${new Date(ts).toLocaleDateString('en-KE',{day:'numeric',month:'short'})}`;
+  return `Visitor #${key.slice(-5)}`;
+}
+function timeAgo(iso) {
+  const m = Math.floor((Date.now() - new Date(iso)) / 60000);
+  if (m < 1)  return 'just now';
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h ago`;
+  const d = Math.floor(h / 24);
+  if (d < 7)  return `${d}d ago`;
+  return new Date(iso).toLocaleDateString('en-KE',{day:'numeric',month:'short'});
+}
+function showToast(msg, type = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = `toast ${type} show`;
+  setTimeout(() => t.className = 'toast', 3500);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   SIDEBAR OPEN / CLOSE
+   ─────────────────────────────────────────────────────────────
+   The backdrop is shown BEHIND the sidebar (z:250).
+   The sidebar is always at z:251 and pointer-events:auto.
+   Tapping inside the sidebar always reaches the sidebar —
+   the backdrop element is spatially behind it, not on top of it.
+
+   The sidebar closes via:
+   - The X button inside the sidebar
+   - Tapping the backdrop (which only covers screen outside sidebar)
+   - The "Chats" back button in the conversation header
+
+   We do NOT close on conversation select — that would fight iOS
+   event ordering. A small setTimeout(200ms) in selectSession
+   handles the close-after-select on mobile cleanly.
+══════════════════════════════════════════════════════════════ */
+function openSidebar() {
+  document.getElementById('conv-sidebar').classList.add('mobile-open');
+  document.getElementById('sidebar-backdrop').style.display = 'block';
+}
+function closeSidebar() {
+  document.getElementById('conv-sidebar').classList.remove('mobile-open');
+  document.getElementById('sidebar-backdrop').style.display = 'none';
+}
+
+/* ── Info sheet (mobile) ── */
+function openInfoSheet() {
+  const session = allSessions.find(s => s.id === activeSessionId);
+  if (!session) return;
+  updateSheetContent(session);
+  document.getElementById('info-sheet-overlay').classList.add('open');
+  document.getElementById('info-sheet').classList.add('open');
+}
+function closeInfoSheet() {
+  document.getElementById('info-sheet-overlay').classList.remove('open');
+  document.getElementById('info-sheet').classList.remove('open');
+}
+function updateSheetContent(session) {
+  const name    = otherPartyLabel(session);
+  const isSeller = isSellerSession(session);
+  const created = session.created_at
+    ? new Date(session.created_at).toLocaleString('en-KE',{day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'})
+    : '—';
+  document.getElementById('sheet-visitor-info').innerHTML = `
+    <div class="info-row"><span class="info-label">Name / ID</span><span class="info-value">${escHtml(name)}</span></div>
+    <div class="info-row"><span class="info-label">Type</span><span class="info-value">${isSeller ? '👤 Seller (registered user)' : '🌐 Anonymous visitor'}</span></div>
+    <div class="info-row"><span class="info-label">Started</span><span class="info-value">${created}</span></div>
+    <div class="info-row"><span class="info-label">From page</span><span class="info-value">${escHtml(session.page||'—')}</span></div>
+    <div class="info-row"><span class="info-label">Status</span><span class="info-value" style="color:${session.is_resolved?'var(--green)':'var(--gold)'}">${session.is_resolved?'✓ Resolved':'● Open'}</span></div>`;
+  document.getElementById('sheet-actions').innerHTML = session.is_resolved
+    ? `<button class="template-btn" style="border-color:var(--gold);color:var(--gold)" onclick="reopenSession('${session.id}');closeInfoSheet()">↺ Reopen</button>
+       <button class="template-btn" style="border-color:var(--red);color:var(--red)"   onclick="deleteSession('${session.id}');closeInfoSheet()">🗑 Delete</button>`
+    : `<button class="template-btn" style="border-color:var(--green);color:var(--green)" onclick="resolveSession('${session.id}');closeInfoSheet()">✓ Resolve</button>
+       <button class="template-btn" style="border-color:var(--red);color:var(--red)"     onclick="deleteSession('${session.id}');closeInfoSheet()">🗑 Delete</button>`;
+}
+
+/* ── Auth ── */
+async function checkAuth() {
+  const { data: { user } } = await db.auth.getUser();
+  if (!user) { window.location.href = 'login.html'; return null; }
+  const { data: profile } = await db.from('profiles').select('full_name,role').eq('id',user.id).single();
+  if (profile?.role !== 'admin') { window.location.href = 'dashboard.html'; return null; }
+  if (profile) document.getElementById('admin-name-tag').textContent = profile.full_name || user.email;
+  return user;
+}
+
+/* ── Load sessions ── */
+async function loadSessions() {
+  const { data, error } = await db.from('chat_sessions').select('*').order('last_msg_at',{ascending:false,nullsFirst:false});
+  if (error) { console.error(error); return; }
+  allSessions = data || [];
+  renderSessionList();
+  updateGlobalBadges();
+}
+
+/* ── Render session list ── */
+function renderSessionList() {
+  const list = document.getElementById('conv-list');
+  let filtered = allSessions.filter(s => {
+    if (currentFilter === 'unread')   return (s.unread_admin || 0) > 0;
+    if (currentFilter === 'open')     return !s.is_resolved;
+    if (currentFilter === 'resolved') return !!s.is_resolved;
+    if (currentFilter === 'sellers')  return isSellerSession(s);
+    if (currentFilter === 'visitors') return !isSellerSession(s);
+    return true;
   });
-
-  // ── Info sheet (mobile) ──
-  function openInfoSheet() {
-    const session = allSessions.find(s => s.id === activeSessionId);
-    if (!session) return;
-    updateSheetContent(session);
-    document.getElementById('info-sheet-overlay').classList.add('open');
-    document.getElementById('info-sheet').classList.add('open');
+  if (searchQuery.trim()) {
+    const q = searchQuery.toLowerCase();
+    filtered = filtered.filter(s =>
+      (s.page||'').toLowerCase().includes(q) ||
+      (s.session_key||'').toLowerCase().includes(q) ||
+      (s.visitor_name||'').toLowerCase().includes(q)
+    );
   }
-  function closeInfoSheet() {
-    document.getElementById('info-sheet-overlay').classList.remove('open');
-    document.getElementById('info-sheet').classList.remove('open');
-  }
-  function updateSheetContent(session) {
-    const name    = otherPartyLabel(session);
-    const created = session.created_at
-      ? new Date(session.created_at).toLocaleString('en-KE',{day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'})
-      : '—';
-    document.getElementById('sheet-visitor-info').innerHTML = `
-      <div class="info-row"><span class="info-label">Name</span><span class="info-value">${escHtml(name)}</span></div>
-      <div class="info-row"><span class="info-label">Started</span><span class="info-value">${created}</span></div>
-      <div class="info-row"><span class="info-label">From page</span><span class="info-value">${escHtml(session.page||'—')}</span></div>
-      <div class="info-row"><span class="info-label">Status</span><span class="info-value" style="color:${session.is_resolved?'var(--green)':'var(--gold)'}">${session.is_resolved?'✓ Resolved':'● Open'}</span></div>`;
-    document.getElementById('sheet-actions').innerHTML = session.is_resolved
-      ? `<button class="template-btn" style="border-color:var(--gold);color:var(--gold)" onclick="reopenSession('${session.id}');closeInfoSheet()">↺ Reopen conversation</button>
-         <button class="template-btn" style="border-color:var(--red);color:var(--red)"   onclick="deleteSession('${session.id}');closeInfoSheet()">🗑 Delete conversation</button>`
-      : `<button class="template-btn" style="border-color:var(--green);color:var(--green)" onclick="resolveSession('${session.id}');closeInfoSheet()">✓ Mark as resolved</button>
-         <button class="template-btn" style="border-color:var(--red);color:var(--red)"     onclick="deleteSession('${session.id}');closeInfoSheet()">🗑 Delete conversation</button>`;
+  document.getElementById('conv-count').textContent = `(${filtered.length})`;
+  if (!filtered.length) {
+    list.innerHTML = `<div class="conv-empty">
+      <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+      No conversations found
+    </div>`;
+    return;
   }
 
-  // ── Auth ──
-  async function checkAuth() {
-    const { data: { user } } = await db.auth.getUser();
-    if (!user) { window.location.href = 'login.html'; return null; }
-    const { data: profile } = await db.from('profiles').select('full_name, role').eq('id', user.id).single();
-    if (profile) document.getElementById('admin-name-tag').textContent = profile.full_name || user.email;
-    return user;
+  list.innerHTML = filtered.map(s => {
+    const isSeller  = isSellerSession(s);
+    const name      = otherPartyLabel(s);
+    const time      = s.last_msg_at ? timeAgo(s.last_msg_at) : '';
+    const pageTag   = isSeller ? '👤 Seller' : ((s.page||'home').replace(/\//g,'').replace('.html','') || 'home');
+    const isActive  = s.id === activeSessionId;
+    const hasUnread = (s.unread_admin || 0) > 0;
+    return `<div
+        class="conv-item${isActive?' active':''}${hasUnread?' unread':''}"
+        id="conv-item-${s.id}"
+        onclick="convItemClick('${s.id}')">
+      <div class="conv-item-top">
+        <span class="conv-item-name">${escHtml(name)}</span>
+        <span class="conv-item-time">${time}</span>
+      </div>
+      <div class="conv-item-preview" id="preview-${s.id}">Loading…</div>
+      <div class="conv-item-meta">
+        ${hasUnread ? `<span class="conv-unread-dot"></span><span style="font-size:11px;font-weight:600;color:var(--red)">${s.unread_admin} new</span>` : ''}
+        ${s.is_resolved ? '<span class="conv-resolved-tag">Resolved</span>' : ''}
+        <span class="conv-page-tag" style="${isSeller?'color:var(--blue);border-color:var(--blue-light);background:var(--blue-light)':''}">${escHtml(pageTag)}</span>
+      </div>
+    </div>`;
+  }).join('');
+
+  filtered.forEach(s => loadPreview(s.id));
+}
+
+/* ══════════════════════════════════════════════════════════════
+   convItemClick — the key handler for conversation selection.
+
+   The flow on mobile:
+   1. User taps a conv-item → this function fires immediately
+   2. selectSession() loads the conversation (fast — no await on render)
+   3. After 180ms, we close the sidebar so the animation feels
+      intentional rather than abrupt.
+
+   Why not close synchronously?
+   On iOS, if we mutate the DOM immediately on touchstart/click,
+   the tap event can get "lost" because the element the touch
+   started on is gone before touchend fires. The 180ms gap lets
+   the browser settle the touch sequence before we change the layout.
+══════════════════════════════════════════════════════════════ */
+function convItemClick(sessionId) {
+  selectSession(sessionId);
+  /* Only auto-close on mobile (when sidebar is overlaid) */
+  if (window.innerWidth <= 640) {
+    setTimeout(closeSidebar, 180);
   }
+}
 
-  // ── Load sessions ──
-  async function loadSessions() {
-    const { data, error } = await db.from('chat_sessions').select('*').order('last_msg_at',{ascending:false});
-    if (error) { console.error(error); return; }
-    allSessions = data || [];
-    renderSessionList();
-    updateGlobalBadges();
+async function loadPreview(sessionId) {
+  const { data } = await db.from('chat_messages')
+    .select('body,sender')
+    .eq('session_id', sessionId)
+    .order('created_at',{ascending:false})
+    .limit(1)
+    .single();
+  const el = document.getElementById(`preview-${sessionId}`);
+  if (el) el.textContent = data
+    ? (data.sender === 'admin' ? 'You: ' : '') + data.body
+    : 'No messages yet';
+}
+
+/* ── Select session ── */
+async function selectSession(sessionId) {
+  activeSessionId = sessionId;
+
+  /* Clear unread badge immediately for UX */
+  await db.from('chat_sessions').update({ unread_admin: 0 }).eq('id', sessionId);
+  const sess = allSessions.find(s => s.id === sessionId);
+  if (sess) sess.unread_admin = 0;
+
+  renderSessionList();
+  showActiveView(sess);
+  await loadMessages(sessionId);
+  subscribeMessages(sessionId);
+  subscribeTyping(sessionId);
+  updateInfoSidebar(sess);
+  updateGlobalBadges();
+}
+
+function showActiveView(session) {
+  document.getElementById('empty-state').style.display  = 'none';
+  const av = document.getElementById('active-view');
+  av.style.display = 'flex';
+
+  const isSeller  = isSellerSession(session);
+  document.getElementById('active-name').textContent = otherPartyLabel(session);
+  const startDate = session.created_at
+    ? new Date(session.created_at).toLocaleDateString('en-KE',{day:'numeric',month:'short',year:'numeric'}) : '';
+  document.getElementById('active-meta').textContent = isSeller
+    ? `Registered seller · Started ${startDate}`
+    : `Visitor on ${(session.page||'unknown').replace('.html','')} · Started ${startDate}`;
+
+  /* Reset typing indicator */
+  hideTypingIndicator();
+
+  renderHeaderActions(session);
+  renderReplyBar(session);
+}
+
+function renderHeaderActions(session) {
+  const resolveBtn = session.is_resolved
+    ? `<button class="hdr-btn reopen" onclick="reopenSession('${session.id}')">↺ Reopen</button>`
+    : `<button class="hdr-btn resolve" onclick="resolveSession('${session.id}')">✓ Resolve</button>`;
+  document.getElementById('header-actions').innerHTML = `
+    ${resolveBtn}
+    <button class="hdr-btn danger" onclick="deleteSession('${session.id}')" title="Delete conversation">🗑</button>
+    <button class="info-trigger-btn" onclick="openInfoSheet()">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+      Info
+    </button>`;
+}
+
+function renderReplyBar(session) {
+  const resolved = document.getElementById('resolved-notice');
+  const inner    = document.getElementById('reply-bar-inner');
+  const input    = document.getElementById('reply-input');
+  const isSeller = isSellerSession(session);
+  input.placeholder = isSeller ? 'Message this seller…' : 'Type your reply…';
+  if (session.is_resolved) {
+    resolved.style.display = 'block'; inner.style.display = 'none';
+  } else {
+    resolved.style.display = 'none'; inner.style.display = 'flex'; input.disabled = false;
   }
+}
 
-  // ── Render session list ──
-  function renderSessionList() {
-    const list = document.getElementById('conv-list');
-    let filtered = allSessions.filter(s => {
-      if (currentFilter === 'unread')   return s.unread_admin > 0;
-      if (currentFilter === 'open')     return !s.is_resolved;
-      if (currentFilter === 'resolved') return s.is_resolved;
-      if (currentFilter === 'sellers')  return isSellerSession(s);
-      if (currentFilter === 'visitors') return !isSellerSession(s);
-      return true;
-    });
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
-      filtered = filtered.filter(s =>
-        (s.page||'').toLowerCase().includes(q) ||
-        (s.session_key||'').toLowerCase().includes(q) ||
-        (s.visitor_name||'').toLowerCase().includes(q)
-      );
-    }
-    document.getElementById('conv-count').textContent = `(${filtered.length})`;
-    if (!filtered.length) {
-      list.innerHTML = `<div class="conv-empty"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>No conversations found</div>`;
-      return;
-    }
-    list.innerHTML = filtered.map(s => {
-      const isSeller = isSellerSession(s);
-      const name     = otherPartyLabel(s);
-      const time     = s.last_msg_at ? timeAgo(s.last_msg_at) : '';
-      const pageTag  = isSeller ? '👤 Seller' : (s.page||'unknown').replace('/','').replace('.html','') || 'home';
-      return `<div class="conv-item ${s.id===activeSessionId?'active':''} ${s.unread_admin>0?'unread':''}"
-        data-session-id="${s.id}" id="conv-item-${s.id}">
-        <div class="conv-item-top">
-          <span class="conv-item-name">${escHtml(name)}</span>
-          <span class="conv-item-time">${time}</span>
-        </div>
-        <div class="conv-item-preview" id="preview-${s.id}">Loading…</div>
-        <div class="conv-item-meta">
-          ${s.unread_admin>0?`<span class="conv-unread-dot"></span><span style="font-size:11px;font-weight:600;color:var(--red)">${s.unread_admin} new</span>`:''}
-          ${s.is_resolved?'<span class="conv-resolved-tag">Resolved</span>':''}
-          <span class="conv-page-tag" style="${isSeller?'color:var(--blue);border-color:var(--blue);background:var(--blue-light)':''}">${escHtml(pageTag)}</span>
-        </div>
-      </div>`;
-    }).join('');
-    filtered.forEach(s => loadPreview(s.id));
+/* ── Messages ── */
+async function loadMessages(sessionId) {
+  document.getElementById('conv-messages').innerHTML = '<div class="spinner"></div>';
+  const { data, error } = await db.from('chat_messages').select('*')
+    .eq('session_id', sessionId).order('created_at',{ascending:true});
+  if (error) { console.error(error); return; }
+  activeMessages = data || [];
+  renderMessages();
+  /* Mark incoming messages as read */
+  const unreadIds = activeMessages.filter(m => m.sender !== 'admin' && !m.read_at).map(m => m.id);
+  if (unreadIds.length) await db.from('chat_messages').update({read_at:new Date().toISOString()}).in('id',unreadIds);
+}
+
+function renderMessages() {
+  const container = document.getElementById('conv-messages');
+  const session   = allSessions.find(s => s.id === activeSessionId);
+  if (!activeMessages.length) {
+    container.innerHTML = `<div style="text-align:center;color:var(--text-3);font-size:13px;padding:40px">
+      ${isSellerSession(session) ? 'No messages yet — type below to start.' : 'Waiting for the visitor to send a message.'}</div>`;
+    return;
   }
-
-  async function loadPreview(sessionId) {
-    const { data } = await db.from('chat_messages').select('body,sender')
-      .eq('session_id', sessionId).order('created_at',{ascending:false}).limit(1).single();
-    const el = document.getElementById(`preview-${sessionId}`);
-    if (el) el.textContent = data ? (data.sender==='admin'?'You: ':'')+data.body : 'No messages yet — send the first message';
-  }
-
-  // ── Select session ──
-  async function selectSession(sessionId) {
-    // Close sidebar first on mobile, with a small delay so the tap
-    // fully registers before the DOM shifts beneath the user's finger
-    closeSidebar();
-
-    activeSessionId = sessionId;
-    await db.from('chat_sessions').update({unread_admin:0}).eq('id',sessionId);
-    const sess = allSessions.find(s => s.id === sessionId);
-    if (sess) sess.unread_admin = 0;
-    renderSessionList();
-    showActiveView(sess);
-    await loadMessages(sessionId);
-    subscribeMessages(sessionId);
-    updateInfoSidebar(sess);
-    updateGlobalBadges();
-  }
-
-  function showActiveView(session) {
-    document.getElementById('empty-state').style.display  = 'none';
-    const av = document.getElementById('active-view');
-    av.style.display = 'flex';
-    const name = otherPartyLabel(session);
-    document.getElementById('active-name').textContent = name;
-    const isSeller  = isSellerSession(session);
-    const startDate = session.created_at
-      ? new Date(session.created_at).toLocaleDateString('en-KE',{day:'numeric',month:'short',year:'numeric'}) : '';
-    document.getElementById('active-meta').textContent = isSeller
-      ? `Seller conversation · Started ${startDate}`
-      : `Visitor on ${(session.page||'unknown').replace('.html','')} · Started ${startDate}`;
-    renderHeaderActions(session);
-    renderReplyBar(session);
-  }
-
-  function renderHeaderActions(session) {
-    const actions = document.getElementById('header-actions');
-    const resolveBtn = session.is_resolved
-      ? `<button class="hdr-btn reopen" onclick="reopenSession('${session.id}')">↺ Reopen</button>`
-      : `<button class="hdr-btn resolve" onclick="resolveSession('${session.id}')">✓ Resolve</button>`;
-    // Info button always last (mobile only via CSS)
-    actions.innerHTML = `${resolveBtn}
-      <button class="hdr-btn danger" onclick="deleteSession('${session.id}')">🗑</button>
-      <button class="info-trigger-btn" onclick="openInfoSheet()">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-        Info
-      </button>`;
-  }
-
-  function renderReplyBar(session) {
-    const resolved = document.getElementById('resolved-notice');
-    const inner    = document.getElementById('reply-bar-inner');
-    const input    = document.getElementById('reply-input');
-    input.placeholder = isSellerSession(session) ? 'Type your message to the seller…' : 'Type your reply…';
-    if (session.is_resolved) {
-      resolved.style.display = 'block'; inner.style.display = 'none';
-    } else {
-      resolved.style.display = 'none'; inner.style.display = 'flex';
-      input.disabled = false;
-    }
-  }
-
-  // ── Messages ──
-  async function loadMessages(sessionId) {
-    document.getElementById('conv-messages').innerHTML = '<div class="spinner"></div>';
-    const { data, error } = await db.from('chat_messages').select('*')
-      .eq('session_id', sessionId).order('created_at',{ascending:true});
-    if (error) { console.error(error); return; }
-    activeMessages = data || [];
-    renderMessages();
-    const unreadIds = activeMessages.filter(m => m.sender==='visitor' && !m.read_at).map(m=>m.id);
-    if (unreadIds.length) await db.from('chat_messages').update({read_at:new Date().toISOString()}).in('id',unreadIds);
-  }
-
-  function renderMessages() {
-    const container = document.getElementById('conv-messages');
-    const session   = allSessions.find(s => s.id === activeSessionId);
-    if (!activeMessages.length) {
-      container.innerHTML = `<div style="text-align:center;color:var(--text-3);font-size:13px;padding:40px">
-        ${isSellerSession(session)
-          ? 'No messages yet — type below to start the conversation with this seller.'
-          : 'No messages yet. Waiting for the visitor to send something.'}</div>`;
-      return;
-    }
-    let html = ''; let lastDate = '';
-    activeMessages.forEach(m => {
-      const d = new Date(m.created_at);
-      const dateStr = d.toLocaleDateString('en-KE',{weekday:'long',day:'numeric',month:'long'});
-      if (dateStr !== lastDate) { html += `<div class="msg-date-divider">${dateStr}</div>`; lastDate = dateStr; }
-      const time  = d.toLocaleTimeString('en-KE',{hour:'2-digit',minute:'2-digit'});
-      const label = senderLabel(m, session);
-      html += `<div class="msg-wrap ${m.sender}" id="msg-${m.id}">
-        <div class="msg-sender-label">${label}</div>
-        <div class="msg-bubble ${m.sender}">${escHtml(m.body)}</div>
-        <div class="msg-time">${time}</div>
-      </div>`;
-    });
-    container.innerHTML = html;
-    scrollToBottom();
-  }
-
-  function scrollToBottom() {
-    const c = document.getElementById('conv-messages');
-    if (c) setTimeout(() => { c.scrollTop = c.scrollHeight; }, 50);
-  }
-
-  function appendMessage(m) {
-    const container = document.getElementById('conv-messages');
-    const session   = allSessions.find(s => s.id === activeSessionId);
-    const d    = new Date(m.created_at);
+  let html = ''; let lastDate = '';
+  activeMessages.forEach(m => {
+    const d = new Date(m.created_at);
+    const dateStr = d.toLocaleDateString('en-KE',{weekday:'long',day:'numeric',month:'long'});
+    if (dateStr !== lastDate) { html += `<div class="msg-date-divider">${dateStr}</div>`; lastDate = dateStr; }
     const time = d.toLocaleTimeString('en-KE',{hour:'2-digit',minute:'2-digit'});
-    const label = senderLabel(m, session);
-    container.insertAdjacentHTML('beforeend', `
-      <div class="msg-wrap ${m.sender}" id="msg-${m.id}">
-        <div class="msg-sender-label">${label}</div>
-        <div class="msg-bubble ${m.sender}">${escHtml(m.body)}</div>
-        <div class="msg-time">${time}</div>
-      </div>`);
-    scrollToBottom();
-  }
+    html += `<div class="msg-wrap ${m.sender}" id="msg-${m.id}">
+      <div class="msg-sender-label">${senderLabel(m, session)}</div>
+      <div class="msg-bubble ${m.sender}">${escHtml(m.body)}</div>
+      <div class="msg-time">${time}</div>
+    </div>`;
+  });
+  container.innerHTML = html;
+  scrollToBottom();
+}
 
-  // ── Realtime ──
-  function subscribeMessages(sessionId) {
-    if (realtimeChannel) realtimeChannel.unsubscribe();
-    realtimeChannel = db.channel(`admin-chat-${sessionId}`)
-      .on('postgres_changes',{event:'INSERT',schema:'public',table:'chat_messages',filter:`session_id=eq.${sessionId}`}, payload => {
+function scrollToBottom() {
+  const c = document.getElementById('conv-messages');
+  if (c) setTimeout(() => { c.scrollTop = c.scrollHeight; }, 50);
+}
+
+function appendMessage(m) {
+  const container = document.getElementById('conv-messages');
+  const session   = allSessions.find(s => s.id === activeSessionId);
+
+  /* Remove empty-state div if present */
+  const empty = container.querySelector('[data-empty-state]');
+  if (empty) empty.remove();
+
+  /* Remove typing indicator before appending the real message */
+  removeTypingBubble();
+
+  const time = new Date(m.created_at).toLocaleTimeString('en-KE',{hour:'2-digit',minute:'2-digit'});
+  const div = document.createElement('div');
+  div.id = `msg-${m.id}`;
+  div.className = `msg-wrap ${m.sender}`;
+  div.innerHTML = `
+    <div class="msg-sender-label">${senderLabel(m, session)}</div>
+    <div class="msg-bubble ${m.sender}">${escHtml(m.body)}</div>
+    <div class="msg-time">${time}</div>`;
+  container.appendChild(div);
+  scrollToBottom();
+}
+
+/* ══════════════════════════════════════════════════════════════
+   REALTIME — MESSAGES
+   Subscribes to INSERT events on chat_messages for the active
+   session. Each new message is appended without a full re-render.
+══════════════════════════════════════════════════════════════ */
+function subscribeMessages(sessionId) {
+  if (msgChannel) { msgChannel.unsubscribe(); msgChannel = null; }
+
+  msgChannel = db
+    .channel(`admin-chat-msgs-${sessionId}`)
+    .on(
+      'postgres_changes',
+      { event:'INSERT', schema:'public', table:'chat_messages', filter:`session_id=eq.${sessionId}` },
+      payload => {
         const msg = payload.new;
-        if (activeMessages.find(m => m.id === msg.id)) return;
+        if (activeMessages.find(m => m.id === msg.id)) return; /* skip dupes */
         activeMessages.push(msg);
         appendMessage(msg);
-        if (msg.sender === 'visitor') {
-          showToast('New message from visitor','success');
-          db.from('chat_messages').update({read_at:new Date().toISOString()}).eq('id',msg.id);
+        /* When visitor/seller sends a message, clear their typing indicator */
+        if (msg.sender !== 'admin') {
+          hideTypingIndicator();
+          /* Mark as read since admin is looking at this conversation */
+          db.from('chat_messages').update({ read_at: new Date().toISOString() }).eq('id', msg.id);
         }
-      }).subscribe();
-  }
+      }
+    )
+    .subscribe();
+}
 
-  // ── Send reply ──
-  async function sendReply() {
-    const input = document.getElementById('reply-input');
-    const body  = input.value.trim();
-    if (!body || !activeSessionId) return;
-    const btn = document.getElementById('reply-send');
-    btn.disabled = true; input.value = ''; autoResize(input);
-    const { data: msg, error } = await db.from('chat_messages')
-      .insert({ session_id: activeSessionId, sender: 'admin', body }).select().single();
-    if (error) { showToast('Failed to send. Try again.','error'); btn.disabled=false; return; }
-    activeMessages.push(msg); appendMessage(msg);
-    await db.from('chat_sessions').update({last_msg_at:new Date().toISOString()}).eq('id',activeSessionId);
-    const sess = allSessions.find(s=>s.id===activeSessionId);
-    if (sess) sess.last_msg_at = new Date().toISOString();
-    allSessions.sort((a,b) => new Date(b.last_msg_at)-new Date(a.last_msg_at));
-    renderSessionList();
-    btn.disabled = false; input.focus();
-  }
+/* ══════════════════════════════════════════════════════════════
+   REALTIME — TYPING INDICATORS
+   Uses Supabase Realtime Broadcast (not postgres_changes).
+   Broadcast is low-latency and doesn't write to the DB.
 
-  // ── Resolve / Reopen / Delete ──
-  async function resolveSession(id) {
-    const {error} = await db.from('chat_sessions').update({is_resolved:true}).eq('id',id);
-    if (error) { showToast('Error resolving','error'); return; }
-    const sess = allSessions.find(s=>s.id===id); if(sess) sess.is_resolved = true;
-    renderSessionList();
-    if (id===activeSessionId) { renderHeaderActions(sess); renderReplyBar(sess); }
-    updateInfoSidebar(sess); showToast('Conversation resolved ✓','success');
-  }
-  async function reopenSession(id) {
-    const {error} = await db.from('chat_sessions').update({is_resolved:false}).eq('id',id);
-    if (error) { showToast('Error reopening','error'); return; }
-    const sess = allSessions.find(s=>s.id===id); if(sess) sess.is_resolved = false;
-    renderSessionList();
-    if (id===activeSessionId) { renderHeaderActions(sess); renderReplyBar(sess); }
-    updateInfoSidebar(sess); showToast('Conversation reopened','success');
-  }
-  async function deleteSession(id) {
-    if (!confirm('Delete this entire conversation? This cannot be undone.')) return;
-    const {error} = await db.from('chat_sessions').delete().eq('id',id);
-    if (error) { showToast('Error deleting','error'); return; }
-    allSessions = allSessions.filter(s=>s.id!==id); renderSessionList();
-    if (id===activeSessionId) {
-      activeSessionId = null;
-      document.getElementById('active-view').style.display = 'none';
-      document.getElementById('empty-state').style.display = 'flex';
-    }
-    showToast('Conversation deleted','success');
-  }
+   Admin side:
+   - Broadcasts 'typing' event while typing in the textarea
+   - Stops broadcasting 3 s after last keystroke
 
-  // ── Info sidebar (desktop) ──
-  function updateInfoSidebar(session) {
-    if (!session) return;
-    const name     = otherPartyLabel(session);
-    const isSeller = isSellerSession(session);
-    const created  = session.created_at
-      ? new Date(session.created_at).toLocaleString('en-KE',{day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
-    document.getElementById('visitor-info-content').innerHTML = `
-      <div class="info-row"><span class="info-label">Type</span><span class="info-value" style="color:${isSeller?'var(--blue)':'var(--green)'}">${isSeller?'👤 Seller':'🌐 Visitor'}</span></div>
-      <div class="info-row"><span class="info-label">Name</span><span class="info-value">${escHtml(name)}</span></div>
-      <div class="info-row"><span class="info-label">Started</span><span class="info-value">${created}</span></div>
-      <div class="info-row"><span class="info-label">Last message</span><span class="info-value">${session.last_msg_at?timeAgo(session.last_msg_at):'—'}</span></div>
-      <div class="info-row"><span class="info-label">From page</span><span class="info-value">${escHtml(session.page||'—')}</span></div>
-      <div class="info-row"><span class="info-label">Status</span><span class="info-value" style="color:${session.is_resolved?'var(--green)':'var(--gold)'}">${session.is_resolved?'✓ Resolved':'● Open'}</span></div>`;
-    document.getElementById('action-buttons').innerHTML = session.is_resolved
-      ? `<button class="template-btn" style="border-color:var(--gold);color:var(--gold)" onclick="reopenSession('${session.id}')">↺ Reopen conversation</button>
-         <button class="template-btn" style="border-color:var(--red);color:var(--red)"   onclick="deleteSession('${session.id}')">🗑 Delete conversation</button>`
-      : `<button class="template-btn" style="border-color:var(--green);color:var(--green)" onclick="resolveSession('${session.id}')">✓ Mark as resolved</button>
-         <button class="template-btn" style="border-color:var(--red);color:var(--red)"     onclick="deleteSession('${session.id}')">🗑 Delete conversation</button>`;
-    // Also refresh the mobile sheet if it's open
-    if (document.getElementById('info-sheet').classList.contains('open')) updateSheetContent(session);
-  }
+   Visitor/Seller side:
+   - Listens for 'typing' events and shows indicator
+   - Indicator auto-hides after TYPING_TIMEOUT ms of silence
+══════════════════════════════════════════════════════════════ */
+let adminTypingTimer = null;
 
-  // ── Global badges ──
-  function updateGlobalBadges() {
-    const totalUnread = allSessions.reduce((s,r) => s+(r.unread_admin||0), 0);
-    const badge = document.getElementById('total-unread-badge');
-    badge.textContent = totalUnread || '';
-    badge.className = `topnav-badge ${totalUnread>0?'show':''}`;
-    const unreadCount = allSessions.filter(s=>s.unread_admin>0).length;
-    const ab = document.getElementById('badge-all');
-    const ub = document.getElementById('badge-unread');
-    if (totalUnread>0) {
-      ab.style.display='inline-flex'; ab.textContent=totalUnread;
-      ub.style.display='inline-flex'; ub.textContent=unreadCount;
-    } else { ab.style.display='none'; ub.style.display='none'; }
-    // Mobile unread dots on list buttons
-    const showDot = totalUnread > 0;
-    ['empty-unread-dot','header-unread-dot'].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.style.display = showDot ? 'block' : 'none';
+function handleAdminTyping(textarea) {
+  /* Enable/disable send button */
+  document.getElementById('reply-send').disabled = !textarea.value.trim();
+  autoResize(textarea);
+
+  if (!activeSessionId) return;
+
+  /* Broadcast typing signal */
+  if (typingChannel) {
+    typingChannel.send({
+      type:    'broadcast',
+      event:   'typing',
+      payload: { sender: 'admin', typing: true },
     });
-    document.title = totalUnread>0 ? `(${totalUnread}) Live Chat — NyumbaKisumu` : 'Live Chat — NyumbaKisumu';
   }
 
-  // ── Filter / search ──
-  function setFilter(f, btn) {
-    currentFilter = f;
-    document.querySelectorAll('.conv-tab').forEach(t => t.classList.remove('active'));
-    btn.classList.add('active');
-    renderSessionList();
-  }
-  function filterConversations() {
-    searchQuery = document.getElementById('search-input').value;
-    renderSessionList();
+  /* Auto-stop after 3 s of no further keystrokes */
+  clearTimeout(adminTypingTimer);
+  adminTypingTimer = setTimeout(() => {
+    if (typingChannel) {
+      typingChannel.send({
+        type:    'broadcast',
+        event:   'typing',
+        payload: { sender: 'admin', typing: false },
+      });
+    }
+  }, 3000);
+}
+
+function subscribeTyping(sessionId) {
+  if (typingChannel) { typingChannel.unsubscribe(); typingChannel = null; }
+
+  typingChannel = db
+    .channel(`chat-typing-${sessionId}`)
+    .on('broadcast', { event: 'typing' }, ({ payload }) => {
+      /* Ignore our own typing signals */
+      if (payload.sender === 'admin') return;
+
+      if (payload.typing) {
+        showTypingIndicator();
+      } else {
+        hideTypingIndicator();
+      }
+    })
+    .subscribe();
+}
+
+function showTypingIndicator() {
+  /* Header typing label */
+  const session = allSessions.find(s => s.id === activeSessionId);
+  const name    = otherPartyLabel(session);
+  const headerTyping = document.getElementById('header-typing');
+  const headerLabel  = document.getElementById('header-typing-label');
+  if (headerLabel) headerLabel.textContent = `${name} is typing…`;
+  if (headerTyping) headerTyping.classList.add('show');
+
+  /* Typing bubble in message area */
+  if (!document.getElementById('admin-typing-bubble')) {
+    const container = document.getElementById('conv-messages');
+    const row = document.createElement('div');
+    row.id = 'admin-typing-bubble';
+    row.className = 'typing-bubble-row';
+    row.innerHTML = `
+      <div class="typing-bubble">
+        <span></span><span></span><span></span>
+      </div>
+      <div class="typing-name">${escHtml(name)} is typing</div>`;
+    container.appendChild(row);
+    scrollToBottom();
   }
 
-  // ── Template insert ──
-  function insertTemplate(btn) {
-    const input = document.getElementById('reply-input');
-    input.value = btn.textContent.trim();
-    input.focus(); autoResize(input);
-    document.getElementById('reply-send').disabled = false;
-  }
-  function insertTemplateText(text) {
-    const input = document.getElementById('reply-input');
-    input.value = text; input.focus(); autoResize(input);
-    document.getElementById('reply-send').disabled = false;
-    closeInfoSheet();
+  /* Auto-hide after silence */
+  clearTimeout(typingHideTimer);
+  typingHideTimer = setTimeout(hideTypingIndicator, TYPING_TIMEOUT);
+}
+
+function hideTypingIndicator() {
+  clearTimeout(typingHideTimer);
+  const headerTyping = document.getElementById('header-typing');
+  if (headerTyping) headerTyping.classList.remove('show');
+  removeTypingBubble();
+}
+
+function removeTypingBubble() {
+  const el = document.getElementById('admin-typing-bubble');
+  if (el) el.remove();
+}
+
+/* ── Send reply ── */
+async function sendReply() {
+  const input = document.getElementById('reply-input');
+  const body  = input.value.trim();
+  if (!body || !activeSessionId) return;
+
+  const btn = document.getElementById('reply-send');
+  btn.disabled = true;
+  input.value = '';
+  autoResize(input);
+
+  /* Stop typing broadcast */
+  clearTimeout(adminTypingTimer);
+  if (typingChannel) {
+    typingChannel.send({ type:'broadcast', event:'typing', payload:{ sender:'admin', typing:false } });
   }
 
-  // ── Reply helpers ──
-  function autoResize(el) {
-    el.style.height = 'auto';
-    el.style.height = Math.min(el.scrollHeight, 120) + 'px';
-    document.getElementById('reply-send').disabled = !el.value.trim();
+  const { data: msg, error } = await db.from('chat_messages')
+    .insert({ session_id: activeSessionId, sender: 'admin', body })
+    .select().single();
+
+  if (error) { showToast('Failed to send. Try again.','error'); btn.disabled = false; return; }
+
+  activeMessages.push(msg);
+  appendMessage(msg);
+
+  /* Update session last_msg_at */
+  await db.from('chat_sessions').update({ last_msg_at: new Date().toISOString() }).eq('id', activeSessionId);
+  const sess = allSessions.find(s => s.id === activeSessionId);
+  if (sess) sess.last_msg_at = new Date().toISOString();
+  allSessions.sort((a,b) => new Date(b.last_msg_at||0) - new Date(a.last_msg_at||0));
+  renderSessionList();
+
+  btn.disabled = false;
+  input.focus();
+}
+
+/* ── Resolve / Reopen / Delete ── */
+async function resolveSession(id) {
+  const { error } = await db.from('chat_sessions').update({ is_resolved: true }).eq('id', id);
+  if (error) { showToast('Error resolving','error'); return; }
+  const sess = allSessions.find(s => s.id === id);
+  if (sess) sess.is_resolved = true;
+  renderSessionList();
+  if (id === activeSessionId) { renderHeaderActions(sess); renderReplyBar(sess); }
+  updateInfoSidebar(sess);
+  showToast('Conversation resolved ✓','success');
+}
+async function reopenSession(id) {
+  const { error } = await db.from('chat_sessions').update({ is_resolved: false }).eq('id', id);
+  if (error) { showToast('Error reopening','error'); return; }
+  const sess = allSessions.find(s => s.id === id);
+  if (sess) sess.is_resolved = false;
+  renderSessionList();
+  if (id === activeSessionId) { renderHeaderActions(sess); renderReplyBar(sess); }
+  updateInfoSidebar(sess);
+  showToast('Conversation reopened','success');
+}
+async function deleteSession(id) {
+  if (!confirm('Delete this entire conversation? This cannot be undone.')) return;
+  await db.from('chat_messages').delete().eq('session_id', id);
+  const { error } = await db.from('chat_sessions').delete().eq('id', id);
+  if (error) { showToast('Error deleting','error'); return; }
+  allSessions = allSessions.filter(s => s.id !== id);
+  renderSessionList();
+  if (id === activeSessionId) {
+    activeSessionId = null;
+    document.getElementById('active-view').style.display = 'none';
+    document.getElementById('empty-state').style.display = 'flex';
+    if (msgChannel) { msgChannel.unsubscribe(); msgChannel = null; }
+    if (typingChannel) { typingChannel.unsubscribe(); typingChannel = null; }
   }
-  function replyKeyDown(e) {
-    if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); sendReply(); }
+  showToast('Conversation deleted','success');
+}
+
+/* ── Info sidebar (desktop) ── */
+function updateInfoSidebar(session) {
+  if (!session) return;
+  const isSeller = isSellerSession(session);
+  const created  = session.created_at
+    ? new Date(session.created_at).toLocaleString('en-KE',{day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
+  document.getElementById('visitor-info-content').innerHTML = `
+    <div class="info-row"><span class="info-label">Type</span><span class="info-value" style="color:${isSeller?'var(--blue)':'var(--green)'}">${isSeller ? '👤 Seller' : '🌐 Visitor'}</span></div>
+    <div class="info-row"><span class="info-label">Name</span><span class="info-value">${escHtml(otherPartyLabel(session))}</span></div>
+    <div class="info-row"><span class="info-label">Started</span><span class="info-value">${created}</span></div>
+    <div class="info-row"><span class="info-label">Last msg</span><span class="info-value">${session.last_msg_at ? timeAgo(session.last_msg_at) : '—'}</span></div>
+    <div class="info-row"><span class="info-label">Page</span><span class="info-value">${escHtml(session.page||'—')}</span></div>
+    <div class="info-row"><span class="info-label">Status</span><span class="info-value" style="color:${session.is_resolved?'var(--green)':'var(--gold)'}">${session.is_resolved?'✓ Resolved':'● Open'}</span></div>`;
+  document.getElementById('action-buttons').innerHTML = session.is_resolved
+    ? `<button class="template-btn" style="border-color:var(--gold);color:var(--gold)" onclick="reopenSession('${session.id}')">↺ Reopen</button>
+       <button class="template-btn" style="border-color:var(--red);color:var(--red)"   onclick="deleteSession('${session.id}')">🗑 Delete</button>`
+    : `<button class="template-btn" style="border-color:var(--green);color:var(--green)" onclick="resolveSession('${session.id}')">✓ Mark resolved</button>
+       <button class="template-btn" style="border-color:var(--red);color:var(--red)"     onclick="deleteSession('${session.id}')">🗑 Delete</button>`;
+  if (document.getElementById('info-sheet').classList.contains('open')) updateSheetContent(session);
+}
+
+/* ── Global badges ── */
+function updateGlobalBadges() {
+  const totalUnread = allSessions.reduce((s,r) => s + (r.unread_admin||0), 0);
+  const badge = document.getElementById('total-unread-badge');
+  badge.textContent = totalUnread || '';
+  badge.className   = `topnav-badge ${totalUnread > 0 ? 'show' : ''}`;
+
+  const unreadCount = allSessions.filter(s => (s.unread_admin||0) > 0).length;
+  const ab = document.getElementById('badge-all');
+  const ub = document.getElementById('badge-unread');
+  if (totalUnread > 0) {
+    ab.style.display = 'inline-flex'; ab.textContent = totalUnread;
+    ub.style.display = 'inline-flex'; ub.textContent = unreadCount;
+  } else {
+    ab.style.display = 'none';
+    ub.style.display = 'none';
   }
 
-  // ── Init ──
-  async function init() {
-    await checkAuth();
-    await loadSessions();
+  const showDot = totalUnread > 0;
+  ['empty-unread-dot','header-unread-dot'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = showDot ? 'block' : 'none';
+  });
 
-    // Auto-select session from URL param
-    const preselect = new URLSearchParams(window.location.search).get('session');
-    if (preselect) setTimeout(() => selectSession(preselect), 100);
+  document.title = totalUnread > 0
+    ? `(${totalUnread}) Live Chat — NyumbaKisumu`
+    : 'Live Chat — NyumbaKisumu';
+}
 
-    // Realtime for all sessions
-    sessionChannel = db.channel('admin-all-sessions')
-      .on('postgres_changes',{event:'INSERT',schema:'public',table:'chat_sessions'}, () => {
-        loadSessions(); showToast('New visitor started a conversation!','success');
-      })
-      .on('postgres_changes',{event:'UPDATE',schema:'public',table:'chat_sessions'}, () => loadSessions())
-      .on('postgres_changes',{event:'INSERT',schema:'public',table:'chat_messages'}, payload => {
-        const msg = payload.new;
-        if (msg.session_id !== activeSessionId && msg.sender === 'visitor') {
-          const sess = allSessions.find(s=>s.id===msg.session_id);
-          if (sess) { sess.unread_admin=(sess.unread_admin||0)+1; sess.last_msg_at=msg.created_at; }
-          allSessions.sort((a,b)=>new Date(b.last_msg_at)-new Date(a.last_msg_at));
-          renderSessionList(); updateGlobalBadges();
+/* ── Filter / search ── */
+function setFilter(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.conv-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  renderSessionList();
+}
+function filterConversations() {
+  searchQuery = document.getElementById('search-input').value;
+  renderSessionList();
+}
+
+/* ── Templates ── */
+function insertTemplate(btn) {
+  const input = document.getElementById('reply-input');
+  input.value = btn.textContent.trim();
+  input.focus(); autoResize(input);
+  document.getElementById('reply-send').disabled = false;
+}
+function insertTemplateText(text) {
+  const input = document.getElementById('reply-input');
+  input.value = text; input.focus(); autoResize(input);
+  document.getElementById('reply-send').disabled = false;
+  closeInfoSheet();
+}
+
+/* ── Input helpers ── */
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+function replyKeyDown(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendReply(); }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   GLOBAL REALTIME — session list updates
+   Watches chat_sessions and chat_messages for any session,
+   so the sidebar badge counts stay live without polling.
+══════════════════════════════════════════════════════════════ */
+function subscribeGlobalUpdates() {
+  if (sessionChannel) { sessionChannel.unsubscribe(); }
+
+  sessionChannel = db
+    .channel('admin-all-sessions')
+    .on('postgres_changes', { event:'INSERT', schema:'public', table:'chat_sessions' }, () => {
+      loadSessions();
+      showToast('New conversation started!', 'success');
+    })
+    .on('postgres_changes', { event:'UPDATE', schema:'public', table:'chat_sessions' }, () => {
+      loadSessions();
+    })
+    .on('postgres_changes', { event:'INSERT', schema:'public', table:'chat_messages' }, payload => {
+      const msg = payload.new;
+      /* If message is for a session OTHER than the active one, bump unread count */
+      if (msg.session_id !== activeSessionId && msg.sender !== 'admin') {
+        const sess = allSessions.find(s => s.id === msg.session_id);
+        if (sess) {
+          sess.unread_admin = (sess.unread_admin || 0) + 1;
+          sess.last_msg_at  = msg.created_at;
         }
-      }).subscribe();
+        allSessions.sort((a,b) => new Date(b.last_msg_at||0) - new Date(a.last_msg_at||0));
+        renderSessionList();
+        updateGlobalBadges();
 
-    setInterval(loadSessions, 30000);
+        /* Update the preview text for that session */
+        const previewEl = document.getElementById(`preview-${msg.session_id}`);
+        if (previewEl) previewEl.textContent = msg.body;
+      }
+    })
+    .subscribe();
+}
+
+/* ── INIT ── */
+async function init() {
+  await checkAuth();
+  await loadSessions();
+  subscribeGlobalUpdates();
+
+  /* Pre-select session from URL param (e.g. admin.html "Message" button) */
+  const preselect = new URLSearchParams(window.location.search).get('session');
+  if (preselect) {
+    setTimeout(() => selectSession(preselect), 300);
   }
+}
 
-  init();
+init();
 </script>
 
-<!-- Page view tracker -->
 <script>
-  (function(){
-    const sb = supabase.createClient('https://vliuuloyfhyxcsuchpss.supabase.co','sb_publishable_oIIcecf3wzKMual5K24Z8Q_zmxVfgsx');
-    let sid = localStorage.getItem('nk_sid');
-    if (!sid) { sid = (crypto.randomUUID ? crypto.randomUUID() : Date.now()+'-'+Math.random().toString(36).slice(2)); localStorage.setItem('nk_sid',sid); }
-    sb.from('page_views').insert({path:location.pathname,referrer:document.referrer||null,user_agent:navigator.userAgent,session_id:sid});
-  })();
+(function(){
+  const sb = supabase.createClient('https://vliuuloyfhyxcsuchpss.supabase.co','sb_publishable_oIIcecf3wzKMual5K24Z8Q_zmxVfgsx');
+  let sid = localStorage.getItem('nk_sid');
+  if (!sid) { sid = (crypto.randomUUID ? crypto.randomUUID() : Date.now()+'-'+Math.random().toString(36).slice(2)); localStorage.setItem('nk_sid',sid); }
+  sb.from('page_views').insert({path:location.pathname,referrer:document.referrer||null,user_agent:navigator.userAgent,session_id:sid});
+})();
 </script>
 </body>
 </html>
