@@ -150,7 +150,8 @@
 
     /* Activity */
     .activity-feed{display:flex;flex-direction:column}
-    .activity-item{display:flex;align-items:flex-start;gap:12px;padding:14px 0;border-bottom:1px solid var(--border)}
+    .activity-item{display:flex;align-items:flex-start;gap:12px;padding:14px 0;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s}
+    .activity-item:hover{background:var(--surface)}
     .activity-item:last-child{border-bottom:none}
     .activity-dot{width:32px;height:32px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:1px}
     .activity-dot svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2}
@@ -325,7 +326,6 @@
     .lsw-fab:hover{background:var(--green-dark);transform:scale(1.07)}
     .lsw-fab svg{width:24px;height:24px;stroke:white;fill:none;stroke-width:2}
 
-    /* ── unread badge on FAB ── */
     .lsw-fab-badge{
       position:absolute;top:-3px;right:-3px;
       min-width:18px;height:18px;border-radius:10px;
@@ -396,7 +396,6 @@
     .lsw-msg-time{font-size:10px;color:var(--text-3);margin-top:3px;padding:0 2px}
     .lsw-msg.from-seller .lsw-msg-time{text-align:right}
 
-    /* ── Quick option chips (shown ONCE in welcome) ── */
     .lsw-options{display:flex;flex-direction:column;gap:6px;margin-top:8px;padding:0 0 4px}
     .lsw-option-btn{
       text-align:left;padding:8px 12px;border-radius:10px;
@@ -406,7 +405,6 @@
     }
     .lsw-option-btn:hover{background:var(--green);color:white}
 
-    /* ── Typing dots ── */
     .lsw-typing-bub{
       display:flex;gap:4px;padding:10px 14px;
       background:var(--white);border:1px solid var(--border);
@@ -497,7 +495,7 @@
         My listings
         <span class="badge-count" id="nav-badge-listings">0</span>
       </button>
-      <button class="nav-item" id="nav-messages" onclick="showPage('messages')">
+      <button class="nav-item" id="nav-messages" onclick="showAllMessages()">
         <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
         Messages
         <span class="badge-count red" id="nav-badge-messages" style="display:none">0</span>
@@ -591,7 +589,7 @@
         <div class="card" style="padding:20px 24px">
           <div class="section-head">
             <h2>Recent activity</h2>
-            <button class="btn btn-outline btn-sm" onclick="showPage('messages')">View messages</button>
+            <button class="btn btn-outline btn-sm" onclick="showAllMessages()">View messages</button>
           </div>
           <div class="activity-feed" id="activity-feed">
             <div style="padding:20px 0;text-align:center;color:var(--text-3);font-size:13px">Loading activity…</div>
@@ -653,6 +651,7 @@
             <h3>Messages</h3>
             <span id="msg-thread-count" style="font-size:12px;color:var(--text-3)"></span>
           </div>
+          <div id="thread-filter-chip" style="display:none;padding:8px 14px 0"></div>
           <div class="thread-search">
             <input type="text" placeholder="Search conversations…" id="thread-search-input" oninput="renderThreadList()"/>
           </div>
@@ -808,7 +807,6 @@
 <!-- ══ LIVE SUPPORT WIDGET ══ -->
 <button class="lsw-fab" id="lsw-fab" onclick="lswToggle()" aria-label="Contact support">
   <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-  <!-- ── FIX: dedicated badge element, never touches unread_admin count ── -->
   <span class="lsw-fab-badge" id="lsw-fab-badge"></span>
 </button>
 
@@ -838,9 +836,6 @@
 </div>
 
 <script>
-// ════════════════════════════════════════════════════════
-// SUPABASE + DASHBOARD CORE
-// ════════════════════════════════════════════════════════
 const SUPABASE_URL = 'https://vliuuloyfhyxcsuchpss.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_oIIcecf3wzKMual5K24Z8Q_zmxVfgsx';
 const { createClient } = supabase;
@@ -859,6 +854,7 @@ let enquiryFilter  = 'all';
 let deleteTargetId = null;
 let replyTargetEnquiry = null;
 let msgPollTimer   = null;
+let threadListingFilter = null;
 
 const AMENITY_KEYS = [
   { key:'has_parking',      label:'Parking' },
@@ -994,15 +990,36 @@ function renderOverview() {
 
 function renderActivityFeed() {
   const items = [];
-  threads.slice(0,4).forEach(t => { const lb=[...t.messages].reverse().find(m=>m.sender==='buyer'); if(lb) items.push({type:'message',time:lb.created_at,html:`<strong>${escHtml(t.buyer_name)}</strong> sent a message about <strong>${escHtml(t.listing_title)}</strong>`}); });
-  allEnquiries.slice(0,3).forEach(e => items.push({type:'enquiry',time:e.created_at,html:`<strong>${escHtml(e.buyer_name||'Someone')}</strong> enquired about <strong>${escHtml(e.listings?.title||'your listing')}</strong>`}));
-  allListings.slice(0,3).forEach(l => items.push({type:'listing',time:l.created_at,html:`You posted <strong>${escHtml(l.title)}</strong> in ${l.area}`}));
-  allPayments.slice(0,2).forEach(p => items.push({type:'payment',time:p.created_at,html:`Payment of <strong>KES ${Number(p.amount||0).toLocaleString('en-KE')}</strong> recorded`}));
+  threads.slice(0,4).forEach(t => {
+    const lb = [...t.messages].reverse().find(m=>m.sender==='buyer');
+    if (lb) items.push({
+      type:'message', time:lb.created_at,
+      html:`<strong>${escHtml(t.buyer_name)}</strong> sent a message about <strong>${escHtml(t.listing_title)}</strong>`,
+      action: () => { showAllMessages(); openThread(t.key); }
+    });
+  });
+  allEnquiries.slice(0,3).forEach(e => items.push({
+    type:'enquiry', time:e.created_at,
+    html:`<strong>${escHtml(e.buyer_name||'Someone')}</strong> enquired about <strong>${escHtml(e.listings?.title||'your listing')}</strong>`,
+    action: () => openConversationFromEnquiry(e.id)
+  }));
+  allListings.slice(0,3).forEach(l => items.push({
+    type:'listing', time:l.created_at,
+    html:`You posted <strong>${escHtml(l.title)}</strong> in ${l.area}`,
+    action: () => showPage('listings')
+  }));
+  allPayments.slice(0,2).forEach(p => items.push({
+    type:'payment', time:p.created_at,
+    html:`Payment of <strong>KES ${Number(p.amount||0).toLocaleString('en-KE')}</strong> recorded`,
+    action: () => showPage('payments')
+  }));
   items.sort((a,b)=>new Date(b.time)-new Date(a.time));
   const icons = { enquiry:`<svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13"/></svg>`, message:`<svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>`, listing:`<svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>`, payment:`<svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>` };
   const feed = document.getElementById('activity-feed');
-  if (!items.length) { feed.innerHTML=`<div style="text-align:center;padding:30px 0;color:var(--text-3);font-size:13px">No activity yet. <a href="post-listing.html" style="color:var(--green);font-weight:500">Post your first listing →</a></div>`; return; }
-  feed.innerHTML = items.slice(0,8).map(i=>`<div class="activity-item"><div class="activity-dot ${i.type}">${icons[i.type]||icons.enquiry}</div><div class="activity-text">${i.html}</div><div class="activity-time">${timeAgo(i.time)}</div></div>`).join('');
+  const top = items.slice(0,8);
+  if (!top.length) { feed.innerHTML=`<div style="text-align:center;padding:30px 0;color:var(--text-3);font-size:13px">No activity yet. <a href="post-listing.html" style="color:var(--green);font-weight:500">Post your first listing →</a></div>`; return; }
+  feed.innerHTML = top.map((i,idx)=>`<div class="activity-item" data-idx="${idx}"><div class="activity-dot ${i.type}">${icons[i.type]||icons.enquiry}</div><div class="activity-text">${i.html}</div><div class="activity-time">${timeAgo(i.time)}</div></div>`).join('');
+  feed.querySelectorAll('.activity-item').forEach((el,idx) => { el.onclick = top[idx].action; });
 }
 
 function renderChart() {
@@ -1042,7 +1059,7 @@ function renderListingsTable() {
       <td style="font-size:12px;color:var(--text-3)">${posted}</td>
       <td><div class="actions-cell">
         <a href="listing.html?id=${l.id}" target="_blank" class="icon-btn" title="View live"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></a>
-        <div class="icon-btn" onclick="showPage('messages')" title="Messages"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
+        <div class="icon-btn" onclick="openMessagesForListing('${l.id}')" title="Messages for this listing"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
         <div class="icon-btn" onclick="shareListing('${l.id}')" title="Share"><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></div>
         <div class="icon-btn" data-id="${l.id}" onclick="openEditModal(this.dataset.id)" title="Edit"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
         ${l.status==='expired'?`<div class="icon-btn" onclick="renewListing('${l.id}')" title="Renew"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg></div>`:''}
@@ -1106,12 +1123,49 @@ async function confirmDelete(){
 }
 
 // Messages page
+function showAllMessages() {
+  threadListingFilter = null;
+  showPage('messages');
+}
+
+function openMessagesForListing(listingId) {
+  threadListingFilter = listingId;
+  showPage('messages');
+}
+
+function openConversationFromEnquiry(enqId) {
+  const e = allEnquiries.find(x => x.id === enqId);
+  if (!e) return;
+  threadListingFilter = null;
+  showPage('messages');
+  const key = `${e.listing_id}__${e.buyer_token || e.buyer_phone || e.id}`;
+  openThread(key);
+}
+
 function renderThreadList(){
   const q=(document.getElementById('thread-search-input')?.value||'').toLowerCase();
-  const filtered=q?threads.filter(t=>t.buyer_name.toLowerCase().includes(q)||t.listing_title.toLowerCase().includes(q)):threads;
+  let filtered = threads;
+  if (threadListingFilter) filtered = filtered.filter(t => t.listing_id === threadListingFilter);
+  if (q) filtered = filtered.filter(t=>t.buyer_name.toLowerCase().includes(q)||t.listing_title.toLowerCase().includes(q));
+
+  const chipWrap = document.getElementById('thread-filter-chip');
+  if (chipWrap) {
+    if (threadListingFilter) {
+      const l = allListings.find(l => l.id === threadListingFilter);
+      chipWrap.style.display = 'block';
+      chipWrap.innerHTML = `<span style="display:inline-flex;align-items:center;gap:6px;font-size:11px;background:var(--green-light);color:var(--green-dark);padding:4px 10px;border-radius:20px">
+        Filtered: ${escHtml(l?.title || 'listing')}
+        <span style="cursor:pointer;font-weight:700" onclick="showAllMessages()">×</span>
+      </span>`;
+    } else {
+      chipWrap.style.display = 'none';
+      chipWrap.innerHTML = '';
+    }
+  }
+
   document.getElementById('msg-thread-count').textContent=`${filtered.length} conversation${filtered.length!==1?'s':''}`;
   const el=document.getElementById('thread-items');
-  if(!filtered.length){el.innerHTML=`<div style="padding:40px 20px;text-align:center;color:var(--text-3);font-size:13px">${q?'No matching conversations.':'No messages yet. When buyers contact you, conversations appear here.'}</div>`;return;}
+  if(!filtered.length){el.innerHTML=`<div style="padding:40px 20px;text-align:center;color:var(--text-3);font-size:13px">${q||threadListingFilter?'No matching conversations.':'No messages yet. When buyers contact you, conversations appear here.'}</div>`;return;}
   el.innerHTML=filtered.map(t=>{const lm=t.messages[t.messages.length-1];const prev=lm?(lm.sender==='seller'?'You: ':'')+(lm.content||lm.message||''):'';const ini=t.buyer_name.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase()||'?';const isA=activeThread&&activeThread.key===t.key;const isU=(t.unread_count||0)>0;return `<div class="thread-item${isA?' active':''}${isU?' unread':''}" onclick="openThread('${t.key}')"><div class="thread-avatar">${ini}</div><div class="thread-meta"><div class="thread-name">${escHtml(t.buyer_name)}</div><div class="thread-listing-ref">${escHtml(t.listing_title)}${t.listing_area?' · '+t.listing_area:''}</div><div class="thread-preview">${escHtml(prev)}</div></div><div class="thread-time">${timeAgo(t.last_at)}</div></div>`;}).join('');
 }
 
@@ -1179,7 +1233,7 @@ function renderEnquiries(){
   const filtered=enquiryFilter==='unread'?allEnquiries.filter(e=>!e.read_at):allEnquiries;
   const el=document.getElementById('enquiry-list');
   if(!filtered.length){el.innerHTML=`<div class="empty-state"><svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13"/></svg><h3>${enquiryFilter==='unread'?'All caught up!':'No enquiries yet'}</h3><p>${enquiryFilter==='unread'?'No unread messages.':"When buyers message you, they'll appear here."}</p></div>`;return;}
-  el.innerHTML=filtered.map(e=>{const ini=(e.buyer_name||'B').split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase();return `<div class="enquiry-card${!e.read_at?' unread':''}" id="enq-${e.id}"><div class="enquiry-avatar">${ini}</div><div class="enquiry-body"><div class="enquiry-head"><span class="enquiry-name">${escHtml(e.buyer_name||'Unknown buyer')}</span><span class="enquiry-phone">${e.buyer_phone||''}</span><span class="enquiry-time">${timeAgo(e.created_at)}</span></div><div class="enquiry-listing-ref">Re: ${escHtml(e.listings?.title||'Listing')} · ${e.listings?.area||''}</div><div class="enquiry-msg">${escHtml(e.message||'')}</div><div class="enquiry-actions"><button class="btn btn-primary btn-sm" onclick="showPage('messages')"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Open conversation</button>${e.buyer_phone?`<a class="btn btn-sm" style="background:#25D366;color:white" href="https://wa.me/${formatWaPhone(e.buyer_phone)}" target="_blank">WhatsApp</a>`:''}${!e.read_at?`<button class="btn btn-outline btn-sm" data-id="${e.id}" onclick="markEnqRead(this.dataset.id)">Mark read</button>`:''}</div></div></div>`;}).join('');
+  el.innerHTML=filtered.map(e=>{const ini=(e.buyer_name||'B').split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase();return `<div class="enquiry-card${!e.read_at?' unread':''}" id="enq-${e.id}"><div class="enquiry-avatar">${ini}</div><div class="enquiry-body"><div class="enquiry-head"><span class="enquiry-name">${escHtml(e.buyer_name||'Unknown buyer')}</span><span class="enquiry-phone">${e.buyer_phone||''}</span><span class="enquiry-time">${timeAgo(e.created_at)}</span></div><div class="enquiry-listing-ref">Re: ${escHtml(e.listings?.title||'Listing')} · ${e.listings?.area||''}</div><div class="enquiry-msg">${escHtml(e.message||'')}</div><div class="enquiry-actions"><button class="btn btn-primary btn-sm" onclick="openConversationFromEnquiry('${e.id}')"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Open conversation</button>${e.buyer_phone?`<a class="btn btn-sm" style="background:#25D366;color:white" href="https://wa.me/${formatWaPhone(e.buyer_phone)}" target="_blank">WhatsApp</a>`:''}${!e.read_at?`<button class="btn btn-outline btn-sm" data-id="${e.id}" onclick="markEnqRead(this.dataset.id)">Mark read</button>`:''}</div></div></div>`;}).join('');
   const uIds=filtered.filter(e=>!e.read_at).map(e=>e.id);if(uIds.length) setTimeout(()=>markAllEnqRead(uIds),2000);
 }
 
@@ -1234,16 +1288,7 @@ function timeAgo(iso){if(!iso)return'';const d=(Date.now()-new Date(iso))/1000;i
 function escHtml(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function escAttr(s){if(!s)return'';return String(s).replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 
-/* ═══════════════════════════════════════════════════════════════════
-   LIVE SUPPORT WIDGET — SELLER SIDE
-   ───────────────────────────────────────────────────────────────────
-   FIX 1 — Welcome message shown ONCE only (lswWelcomeDone flag)
-   FIX 2 — No auto-reply loop; widget sends ONE referral message
-            after first seller message then stops forever
-   FIX 3 — Unread badge counts only admin replies from Supabase,
-            never increments from the welcome/referral messages we
-            write locally, and never touches unread_admin column
-   ═══════════════════════════════════════════════════════════════════ */
+/* LIVE SUPPORT WIDGET — SELLER SIDE (left exactly as wired — do not modify) */
 
 let lswOpen          = false;
 let lswSessionId     = null;
@@ -1251,9 +1296,9 @@ let lswChannel       = null;
 let lswLoaded        = false;
 let lswSellerName    = '';
 let lswSellerInits   = '';
-let lswWelcomeDone   = false; // ← FIX 1: welcome shown only once
-let lswReferralSent  = false; // ← FIX 2: referral message sent only once
-let lswAdminUnread   = 0;     // ← FIX 3: counts ONLY real admin DB messages
+let lswWelcomeDone   = false;
+let lswReferralSent  = false;
+let lswAdminUnread   = 0;
 
 const LSW_OPTIONS = [
   { icon:'💳', label:'Payment or M-Pesa issue' },
@@ -1267,15 +1312,19 @@ const LSW_OPTIONS = [
 async function lswInit() {
   lswSellerName  = (currentProfile?.full_name || currentUser?.email?.split('@')[0] || 'Seller').trim();
   lswSellerInits = lswSellerName.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase() || 'S';
-  // Ensure a Supabase session exists silently in background
-  lswEnsureSession().catch(() => {});
+  try {
+    await lswEnsureSession();
+    await lswLoadUnread();
+    lswSubscribeReplies();
+  } catch (err) {
+    console.error('LSW init error:', err);
+  }
 }
 
 async function lswEnsureSession() {
   if (lswSessionId) return;
   const key = 'seller_support_' + currentUser.id;
 
-  // Look for an open (not resolved) session first
   const { data: existing } = await db
     .from('chat_sessions')
     .select('id')
@@ -1303,7 +1352,6 @@ async function lswEnsureSession() {
   if (lswSessionId) lswSubscribeReplies();
 }
 
-/* ── FIX 3: count ONLY real admin messages that are unread ── */
 async function lswLoadUnread() {
   if (!lswSessionId) return;
   const { data } = await db
@@ -1323,7 +1371,6 @@ function lswSetBadge(n) {
   badge.classList.toggle('show', n > 0);
 }
 
-/* ── Real-time: listen for admin replies only ── */
 function lswSubscribeReplies() {
   if (!lswSessionId || lswChannel) return;
   lswChannel = db
@@ -1335,25 +1382,21 @@ function lswSubscribeReplies() {
       filter: `session_id=eq.${lswSessionId}`,
     }, payload => {
       const msg = payload.new;
-      // Only care about admin replies
       if (msg.sender !== 'admin') return;
 
       if (lswOpen) {
-        // Widget is open — show the bubble and mark read immediately
         lswAppendBubble('admin', msg.body, new Date(msg.created_at));
         db.from('chat_messages')
           .update({ read_at: new Date().toISOString() })
           .eq('id', msg.id)
           .then(() => {});
       } else {
-        // Widget is closed — increment badge by exactly 1
         lswSetBadge(lswAdminUnread + 1);
       }
     })
     .subscribe();
 }
 
-/* ── Load full conversation history from DB ── */
 async function lswLoadHistory() {
   if (!lswSessionId) return;
   const container = document.getElementById('lsw-msgs');
@@ -1368,21 +1411,17 @@ async function lswLoadHistory() {
   const msgs = data || [];
 
   if (!msgs.length) {
-    // FIX 1: show welcome ONCE
     lswShowWelcome();
     return;
   }
 
-  // Render all history
   msgs.forEach(m => {
     const side = m.sender === 'admin' ? 'admin' : 'seller';
     lswAppendBubble(side, m.body, new Date(m.created_at));
   });
 
-  // Check if referral was already sent (any admin message in history)
   if (msgs.some(m => m.sender === 'admin')) lswReferralSent = true;
 
-  // Mark all unread admin messages as read
   const unreadIds = msgs.filter(m => m.sender === 'admin' && !m.read_at).map(m => m.id);
   if (unreadIds.length) {
     await db.from('chat_messages')
@@ -1394,7 +1433,6 @@ async function lswLoadHistory() {
   lswScrollBottom();
 }
 
-/* ── Welcome message with selectable options — shown ONCE ── */
 function lswShowWelcome() {
   if (lswWelcomeDone) return;
   lswWelcomeDone = true;
@@ -1406,7 +1444,6 @@ function lswShowWelcome() {
     new Date()
   );
 
-  // Render option chips directly in the messages container
   const container = document.getElementById('lsw-msgs');
   const optionsDiv = document.createElement('div');
   optionsDiv.className = 'lsw-options';
@@ -1418,48 +1455,38 @@ function lswShowWelcome() {
   lswScrollBottom();
 }
 
-/* ── When a seller picks an option chip ── */
 function lswPickOption(label) {
-  // Remove option chips
   document.getElementById('lsw-options-wrap')?.remove();
-  // Send the option as if the seller typed it
   document.getElementById('lsw-input').value = label;
   lswSend();
 }
 
-/* ── Send a message ── */
 async function lswSend() {
   const input = document.getElementById('lsw-input');
   const body  = input.value.trim();
   if (!body) return;
 
-  // Remove option chips if still showing
   document.getElementById('lsw-options-wrap')?.remove();
 
-  // Show seller bubble immediately
   lswAppendBubble('seller', body, new Date());
   input.value = '';
   input.style.height = 'auto';
 
-  // Ensure DB session exists
   await lswEnsureSession();
 
-  // Save seller message to Supabase
   if (lswSessionId) {
     await db.from('chat_messages').insert({
       session_id: lswSessionId,
-      sender:     'visitor',  // visitor = seller side
+      sender:     'visitor',
       body,
     });
 
-    // Update session timestamp & increment admin's unread counter
     await db.from('chat_sessions').update({
       last_msg_at:  new Date().toISOString(),
       unread_admin: lswAdminUnread + 1,
     }).eq('id', lswSessionId);
   }
 
-  // FIX 2: Send ONE referral message then stop forever — no per-message loop
   if (!lswReferralSent) {
     lswReferralSent = true;
     setTimeout(() => {
@@ -1468,22 +1495,19 @@ async function lswSend() {
         lswHideTyping();
         const reply = `Thanks for reaching out! 🙋 How may we help you today — an available agent will chat with you shortly. For urgent help, email hello@nyumbakisumu.co.ke 📩`;
         lswAppendBubble('admin', reply, new Date());
-        // Persist the referral reply to DB so admin sees it
         if (lswSessionId) {
           await db.from('chat_messages').insert({
             session_id: lswSessionId,
             sender:     'admin',
             body:       reply,
-            read_at:    new Date().toISOString(), // pre-mark as read (seller sees it)
+            read_at:    new Date().toISOString(),
           });
         }
       }, 1800);
     }, 800);
   }
-  // After lswReferralSent = true, no more automatic replies — admin takes over
 }
 
-/* ── Typing dots (local only, shown briefly before referral reply) ── */
 function lswShowTyping() {
   const container = document.getElementById('lsw-msgs');
   if (document.getElementById('lsw-typ')) return;
@@ -1503,7 +1527,6 @@ function lswHideTyping() {
   document.getElementById('lsw-typ')?.remove();
 }
 
-/* ── Append a chat bubble ── */
 function lswAppendBubble(side, body, date) {
   const container = document.getElementById('lsw-msgs');
   const isAdmin   = side === 'admin';
@@ -1520,13 +1543,11 @@ function lswAppendBubble(side, body, date) {
   lswScrollBottom();
 }
 
-/* ── Toggle open/close ── */
 function lswToggle() {
   lswOpen = !lswOpen;
   document.getElementById('lsw-popup').classList.toggle('open', lswOpen);
 
   if (lswOpen) {
-    // FIX 3: clear badge and mark all admin messages read in DB
     lswSetBadge(0);
     if (lswSessionId) {
       db.from('chat_messages')
@@ -1537,11 +1558,9 @@ function lswToggle() {
         .then(() => {});
     }
 
-    // Load history ONCE on first open
     if (!lswLoaded) {
       lswLoaded = true;
       lswLoadHistory().then(() => {
-        // After loading, set correct badge (should be 0)
         lswLoadUnread();
       });
     }
@@ -1555,7 +1574,6 @@ function lswResize(el)  { el.style.height = 'auto'; el.style.height = Math.min(e
 function lswScrollBottom() { const el = document.getElementById('lsw-msgs'); if (el) el.scrollTop = el.scrollHeight; }
 function lswCleanup()   { if (lswChannel) { lswChannel.unsubscribe(); lswChannel = null; } }
 
-// Boot
 init();
 </script>
 </body>
