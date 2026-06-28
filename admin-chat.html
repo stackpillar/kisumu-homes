@@ -64,17 +64,16 @@
 
     /* ══════════════════════════════════════════════════
        LEFT SIDEBAR
-       MOBILE FIX EXPLAINED:
-       The sidebar itself is the overlay on mobile — it slides
-       in from the left at z-index 251. The backdrop sits at
-       z-index 250 BEHIND it.
+       MOBILE FIX:
+       The sidebar slides in from the left at z-index 251.
+       The backdrop sits at z-index 250, and is nested inside
+       the same .chat-layout stacking context as the sidebar
+       (see the HTML comment above #sidebar-backdrop) so that
+       251 vs 250 is actually compared and the sidebar wins.
 
-       The critical fix: we set pointer-events:none on the
-       backdrop always, and only enable it when the sidebar
-       is open. The sidebar itself always has pointer-events:auto.
-       This means taps on conv-items ALWAYS reach them directly —
-       the backdrop can never intercept a tap that landed inside
-       the sidebar's bounds.
+       pointer-events:auto here is just a defensive belt-and-
+       braces — it is NOT what makes taps reach conv-items;
+       the stacking order is what does that.
     ══════════════════════════════════════════════════ */
     .conv-sidebar {
       width:280px; flex-shrink:0;
@@ -401,24 +400,18 @@
 
       /*
        ══════════════════════════════════════════════════════
-       THE MOBILE SIDEBAR FIX — how it works:
+       THE MOBILE SIDEBAR FIX — how it actually works:
 
-       The sidebar slides in from the left as a fixed overlay.
-       The BACKDROP is a separate fixed div that covers the
-       rest of the screen (i.e. everything to the right of
-       the sidebar) to catch "tap outside to close" gestures.
+       The sidebar slides in from the left as a fixed overlay
+       at z-index:251. #sidebar-backdrop (z-index:250) covers
+       the full screen below the topnav and closes the sidebar
+       on tap — it is intentionally full-width, not just the
+       strip to the right of the sidebar, because it's nested
+       inside .chat-layout so the sidebar's higher z-index lets
+       it paint above the backdrop wherever the two overlap.
 
-       KEY: We do NOT put the backdrop BEHIND the sidebar.
-       Instead, the sidebar is always pointer-events:auto and
-       sits at a higher z-index (251). The backdrop (z:250)
-       is always OUTSIDE the sidebar — on narrow screens the
-       sidebar is 88vw wide, so the backdrop only covers
-       the ~12vw strip on the right edge. Taps inside the
-       sidebar always land on the sidebar, never on the backdrop.
-
-       This avoids the iOS compositing layer bug where a
-       backdrop at z:250 intercepts taps on children at z:251
-       when they share a stacking context.
+       Taps inside the sidebar's bounds land on the sidebar (251);
+       taps outside it land on the backdrop (250) and close it.
        ══════════════════════════════════════════════════════
       */
       .conv-sidebar {
@@ -453,19 +446,6 @@
 </head>
 <body>
 
-<!--
-  ══════════════════════════════════════════════════════════
-  BACKDROP — covers the area OUTSIDE the sidebar on mobile.
-  z-index 250, always pointer-events:none until sidebar opens,
-  then pointer-events:auto only for the backdrop element itself.
-  The sidebar (z:251) is always above it and always tappable.
-  ══════════════════════════════════════════════════════════
--->
-<div id="sidebar-backdrop"
-  style="display:none;position:fixed;top:56px;left:0;right:0;bottom:0;z-index:250;background:rgba(0,0,0,0.45);cursor:pointer;"
-  onclick="closeSidebar()">
-</div>
-
 <!-- TOP NAV -->
 <nav class="topnav">
   <a href="nk-ctrl-7f3k2x9.html" class="topnav-logo">
@@ -486,6 +466,37 @@
 
 <!-- MAIN LAYOUT -->
 <div class="chat-layout">
+
+  <!--
+    ══════════════════════════════════════════════════════════
+    BACKDROP — covers the area outside the sidebar on mobile and
+    closes it on tap.
+
+    IMPORTANT: this must live INSIDE .chat-layout, as a sibling of
+    .conv-sidebar — not as a direct child of <body>.
+
+    Reason: .chat-layout is `position:fixed`, and fixed-positioned
+    elements always create their own stacking context, regardless
+    of z-index. That means everything inside .chat-layout (including
+    .conv-sidebar with its z-index:251) is painted as a single unit
+    at z-index:0 within the root/body stacking context. If the
+    backdrop lived at the body level with z-index:250, it would sit
+    on top of that *entire* unit — sidebar included — because 250
+    beats the chat-layout's effective 0, no matter what z-index the
+    sidebar declares internally. That's exactly what was swallowing
+    every tap on a conversation item: elementFromPoint() over a
+    conv-item resolved to #sidebar-backdrop, not the item.
+
+    By nesting the backdrop inside .chat-layout, it now competes for
+    stacking order directly against .conv-sidebar within the *same*
+    stacking context, so the declared z-index:250 vs z-index:251
+    finally does what the comments always claimed it did.
+    ══════════════════════════════════════════════════════════
+  -->
+  <div id="sidebar-backdrop"
+    style="display:none;position:fixed;top:56px;left:0;right:0;bottom:0;z-index:250;background:rgba(0,0,0,0.45);cursor:pointer;"
+    onclick="closeSidebar()">
+  </div>
 
   <!-- LEFT: Conversation list -->
   <div class="conv-sidebar" id="conv-sidebar">
