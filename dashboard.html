@@ -58,7 +58,6 @@
     .main{margin-left:var(--sidebar-w);padding-top:var(--topbar-h);min-height:100vh;width:100%}
     .page{display:none;padding:28px}
     .page.active{display:block}
-    /* Messages page has its own layout — no default padding */
     #page-messages{padding:0}
 
     /* Buttons */
@@ -90,7 +89,6 @@
     .status-expired{background:#f3f4f6;color:#6b7280}
     .status-disabled{background:var(--red-light);color:var(--red)}
 
-    /* Admin disabled/recycled notice */
     .disabled-note{font-size:11px;color:var(--red);background:var(--red-light);border-radius:6px;padding:6px 9px;margin-top:6px;line-height:1.5;max-width:300px}
     .icon-btn.locked{opacity:.45;cursor:not-allowed}
     .icon-btn.locked:hover{border-color:var(--border);color:var(--text-2);background:white}
@@ -122,7 +120,6 @@
     .form-group input,.form-group select,.form-group textarea{width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:var(--radius);font-size:13px;color:var(--text);background:var(--white);outline:none;transition:border-color .15s}
     .form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(15,110,86,0.08)}
     .form-group textarea{min-height:100px;resize:vertical}
-    .form-group .hint{font-size:11px;color:var(--text-3);margin-top:4px}
 
     /* Toggle switch */
     .toggle-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border)}
@@ -147,7 +144,6 @@
     .stat-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);margin-bottom:10px}
     .stat-val{font-size:32px;font-weight:700;color:var(--text);line-height:1;margin-bottom:6px}
     .stat-delta{font-size:12px;color:var(--text-3)}
-    .stat-delta.up{color:var(--green)}
     .stat-icon{position:absolute;top:18px;right:18px;width:36px;height:36px;border-radius:8px;background:var(--surface);display:flex;align-items:center;justify-content:center}
     .stat-icon svg{width:18px;height:18px;stroke:var(--text-3);fill:none;stroke-width:1.8}
     .overview-grid{display:grid;grid-template-columns:2fr 1fr;gap:20px}
@@ -233,7 +229,7 @@
     .enquiry-msg{font-size:13px;color:var(--text-2);line-height:1.6}
     .enquiry-actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
 
-    /* ── MESSAGES (inbox) ── */
+    /* Messages inbox */
     .messages-layout{display:grid;grid-template-columns:320px 1fr;height:calc(100vh - var(--topbar-h));overflow:hidden}
     .thread-list{border-right:1px solid var(--border);background:var(--white);overflow-y:auto;display:flex;flex-direction:column}
     .thread-list-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
@@ -252,8 +248,6 @@
     .thread-listing-ref{font-size:11px;color:var(--green);font-weight:500;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .thread-preview{font-size:12px;color:var(--text-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:20px}
     .thread-time{font-size:10px;color:var(--text-3);white-space:nowrap;position:absolute;top:14px;right:16px}
-
-    /* Chat pane */
     .chat-pane{display:flex;flex-direction:column;background:var(--surface);overflow:hidden}
     .chat-pane-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;color:var(--text-3)}
     .chat-pane-empty svg{width:48px;height:48px;stroke:var(--border);fill:none;stroke-width:1.2;margin-bottom:16px}
@@ -287,11 +281,6 @@
     .chat-send-btn:disabled{opacity:.5;cursor:not-allowed}
     .chat-send-btn svg{width:16px;height:16px;stroke:white;fill:none;stroke-width:2}
     .chat-wa-hint{font-size:11px;color:var(--text-3);padding:4px 20px 10px;background:var(--white);display:flex;align-items:center;gap:6px;border-top:1px solid var(--surface);flex-shrink:0}
-    .typing-indicator{display:flex;gap:3px;padding:8px 12px}
-    .typing-indicator span{width:6px;height:6px;border-radius:50%;background:var(--text-3);animation:bounce .9s infinite}
-    .typing-indicator span:nth-child(2){animation-delay:.15s}
-    .typing-indicator span:nth-child(3){animation-delay:.3s}
-    @keyframes bounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-5px)}}
 
     /* Payments */
     .payments-table{width:100%;border-collapse:collapse}
@@ -324,6 +313,141 @@
     #loading-screen p{font-size:14px;color:rgba(255,255,255,0.6)}
     .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:99}
 
+    /* ══ LIVE SUPPORT WIDGET ══ */
+    .lsw-fab{
+      position:fixed;bottom:28px;right:28px;z-index:8000;
+      width:56px;height:56px;border-radius:50%;
+      background:var(--green);border:none;cursor:pointer;
+      box-shadow:0 4px 20px rgba(15,110,86,0.4);
+      display:flex;align-items:center;justify-content:center;
+      transition:transform .2s, background .2s;
+    }
+    .lsw-fab:hover{background:var(--green-dark);transform:scale(1.07)}
+    .lsw-fab svg{width:24px;height:24px;stroke:white;fill:none;stroke-width:2}
+
+    /* ── unread badge on FAB ── */
+    .lsw-fab-badge{
+      position:absolute;top:-3px;right:-3px;
+      min-width:18px;height:18px;border-radius:10px;
+      background:var(--red);border:2px solid white;
+      font-size:10px;font-weight:700;color:white;
+      display:none;align-items:center;justify-content:center;padding:0 4px;
+      font-family:'Inter',sans-serif;
+    }
+    .lsw-fab-badge.show{display:flex}
+
+    .lsw-popup{
+      position:fixed;bottom:98px;right:28px;z-index:8000;
+      width:340px;background:var(--white);
+      border-radius:var(--radius-lg);border:1px solid var(--border);
+      box-shadow:0 8px 40px rgba(0,0,0,0.16);
+      display:none;flex-direction:column;overflow:hidden;
+      max-height:calc(100vh - 130px);
+    }
+    .lsw-popup.open{display:flex;animation:lswIn .22s ease}
+    @keyframes lswIn{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:none}}
+
+    .lsw-head{
+      background:var(--green-dark);padding:14px 16px;
+      display:flex;align-items:center;gap:12px;flex-shrink:0;
+    }
+    .lsw-head-av{
+      width:40px;height:40px;border-radius:50%;
+      background:rgba(255,255,255,0.15);
+      display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative;
+    }
+    .lsw-head-av svg{width:20px;height:20px;stroke:white;fill:none;stroke-width:2}
+    .lsw-head-av::after{
+      content:'';position:absolute;bottom:2px;right:2px;
+      width:10px;height:10px;border-radius:50%;
+      background:#22c55e;border:2px solid var(--green-dark);
+    }
+    .lsw-head-info{flex:1}
+    .lsw-head-name{font-size:14px;font-weight:700;color:white}
+    .lsw-head-status{font-size:11px;color:rgba(255,255,255,.7);display:flex;align-items:center;gap:5px;margin-top:2px}
+    .lsw-head-status span{width:6px;height:6px;border-radius:50%;background:#22c55e;display:inline-block}
+    .lsw-close{background:none;border:none;color:rgba(255,255,255,.7);cursor:pointer;font-size:22px;line-height:1;padding:0 2px;transition:color .15s}
+    .lsw-close:hover{color:white}
+
+    .lsw-msgs{
+      flex:1;overflow-y:auto;padding:14px;gap:10px;
+      display:flex;flex-direction:column;
+      min-height:180px;max-height:300px;background:var(--surface);
+    }
+    .lsw-msgs::-webkit-scrollbar{width:4px}
+    .lsw-msgs::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+
+    .lsw-msg{display:flex;gap:8px;align-items:flex-end}
+    .lsw-msg.from-admin{flex-direction:row}
+    .lsw-msg.from-seller{flex-direction:row-reverse}
+    .lsw-msg-av{
+      width:26px;height:26px;border-radius:50%;flex-shrink:0;
+      display:flex;align-items:center;justify-content:center;
+      font-size:10px;font-weight:700;margin-bottom:2px;
+    }
+    .lsw-msg.from-admin  .lsw-msg-av{background:var(--green);color:white}
+    .lsw-msg.from-seller .lsw-msg-av{background:var(--surface);color:var(--text-2);border:1px solid var(--border)}
+    .lsw-msg-bub{
+      max-width:76%;padding:9px 13px;border-radius:16px;
+      font-size:13px;line-height:1.5;word-break:break-word;
+    }
+    .lsw-msg.from-admin  .lsw-msg-bub{background:var(--white);color:var(--text);border:1px solid var(--border);border-bottom-left-radius:4px}
+    .lsw-msg.from-seller .lsw-msg-bub{background:var(--green);color:white;border-bottom-right-radius:4px}
+    .lsw-msg-time{font-size:10px;color:var(--text-3);margin-top:3px;padding:0 2px}
+    .lsw-msg.from-seller .lsw-msg-time{text-align:right}
+
+    /* ── Quick option chips (shown ONCE in welcome) ── */
+    .lsw-options{display:flex;flex-direction:column;gap:6px;margin-top:8px;padding:0 0 4px}
+    .lsw-option-btn{
+      text-align:left;padding:8px 12px;border-radius:10px;
+      border:1.5px solid var(--green);background:white;color:var(--green);
+      font-size:12px;font-weight:500;font-family:'Inter',sans-serif;
+      cursor:pointer;transition:all .15s;line-height:1.4;
+    }
+    .lsw-option-btn:hover{background:var(--green);color:white}
+
+    /* ── Typing dots ── */
+    .lsw-typing-bub{
+      display:flex;gap:4px;padding:10px 14px;
+      background:var(--white);border:1px solid var(--border);
+      border-radius:16px 16px 16px 4px;align-items:center;
+    }
+    .lsw-dot{width:6px;height:6px;border-radius:50%;background:var(--text-3);animation:lswDot .9s infinite}
+    .lsw-dot:nth-child(2){animation-delay:.15s}
+    .lsw-dot:nth-child(3){animation-delay:.3s}
+    @keyframes lswDot{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-5px)}}
+
+    .lsw-input-bar{
+      border-top:1px solid var(--border);padding:10px 12px;
+      display:flex;gap:8px;align-items:flex-end;flex-shrink:0;background:var(--white);
+    }
+    .lsw-input-bar textarea{
+      flex:1;border:1.5px solid var(--border);border-radius:18px;
+      padding:8px 13px;font-size:13px;font-family:inherit;resize:none;
+      outline:none;min-height:36px;max-height:100px;line-height:1.5;
+      color:var(--text);background:var(--surface);transition:border-color .15s;
+    }
+    .lsw-input-bar textarea:focus{border-color:var(--green);background:white}
+    .lsw-input-bar textarea::placeholder{color:var(--text-3)}
+    .lsw-send{
+      width:36px;height:36px;border-radius:50%;background:var(--green);
+      border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;
+      flex-shrink:0;transition:background .15s;
+    }
+    .lsw-send:hover{background:var(--green-dark)}
+    .lsw-send svg{width:15px;height:15px;stroke:white;fill:none;stroke-width:2}
+
+    .lsw-footer{
+      padding:7px 14px;font-size:11px;color:var(--text-3);
+      text-align:center;border-top:1px solid var(--border);
+      background:var(--white);flex-shrink:0;
+    }
+
+    @media(max-width:600px){
+      .lsw-popup{width:calc(100vw - 24px);right:12px;bottom:84px}
+      .lsw-fab{bottom:16px;right:16px}
+    }
+
     @media(max-width:1100px){.overview-grid{grid-template-columns:1fr}.settings-grid{grid-template-columns:1fr}}
     @media(max-width:900px){
       .sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}.sidebar-overlay.open{display:block}
@@ -338,7 +462,6 @@
     @media(max-width:400px){.stat-grid{grid-template-columns:1fr}}
   </style>
 </head>
-
 <body>
 
 <div id="loading-screen">
@@ -414,12 +537,9 @@
   </aside>
 
   <div class="main">
-    <!-- Topbar -->
     <div class="topbar">
       <div class="topbar-left">
-        <button class="hamburger" onclick="toggleSidebar()">
-          <span></span><span></span><span></span>
-        </button>
+        <button class="hamburger" onclick="toggleSidebar()"><span></span><span></span><span></span></button>
         <div>
           <div class="topbar-title" id="topbar-title">Overview</div>
           <div class="topbar-subtitle" id="topbar-date"></div>
@@ -525,10 +645,9 @@
       </div>
     </div>
 
-    <!-- PAGE: MESSAGES (in-site chat) -->
+    <!-- PAGE: MESSAGES -->
     <div class="page" id="page-messages">
       <div class="messages-layout">
-        <!-- Thread list (left panel) -->
         <div class="thread-list" id="thread-list">
           <div class="thread-list-head">
             <h3>Messages</h3>
@@ -541,8 +660,6 @@
             <div style="padding:30px 20px;text-align:center;color:var(--text-3);font-size:13px">Loading…</div>
           </div>
         </div>
-
-        <!-- Chat pane (right panel) -->
         <div class="chat-pane" id="chat-pane">
           <div class="chat-pane-empty" id="chat-empty">
             <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
@@ -601,10 +718,7 @@
       <div class="section-head" style="margin-bottom:24px"><h2>Account settings</h2></div>
       <div class="settings-grid">
         <div class="settings-section">
-          <h3>
-            <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-            Profile
-          </h3>
+          <h3><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile</h3>
           <div class="profile-avatar-row">
             <div class="profile-avatar-lg" id="settings-avatar">?</div>
             <div class="profile-avatar-info">
@@ -612,9 +726,7 @@
               <span id="settings-email-display">—</span>
             </div>
           </div>
-          <p style="font-size:13px;color:var(--text-3);margin-bottom:18px;line-height:1.6">
-            Edit your name, phone number, email address, and password from your dedicated profile page.
-          </p>
+          <p style="font-size:13px;color:var(--text-3);margin-bottom:18px;line-height:1.6">Edit your name, phone number, email address, and password from your dedicated profile page.</p>
           <a href="profile.html" class="btn btn-primary btn-lg" style="width:100%;justify-content:center;text-decoration:none">
             <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" width="15" height="15"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
             Edit profile &amp; password
@@ -622,31 +734,14 @@
         </div>
         <div style="display:flex;flex-direction:column;gap:20px">
           <div class="settings-section">
-            <h3>
-              <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
-              Notifications
-            </h3>
+            <h3><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>Notifications</h3>
             <div class="notif-list">
-              <div class="toggle-row">
-                <div class="toggle-label"><strong>New message</strong><span>Get notified when a buyer messages you</span></div>
-                <label class="switch"><input type="checkbox" id="notif-enquiry" checked/><span class="switch-track"></span></label>
-              </div>
-              <div class="toggle-row">
-                <div class="toggle-label"><strong>Listing approved</strong><span>When your listing goes live</span></div>
-                <label class="switch"><input type="checkbox" id="notif-approved" checked/><span class="switch-track"></span></label>
-              </div>
-              <div class="toggle-row">
-                <div class="toggle-label"><strong>Listing expiring</strong><span>7 days before your listing expires</span></div>
-                <label class="switch"><input type="checkbox" id="notif-expiring" checked/><span class="switch-track"></span></label>
-              </div>
-              <div class="toggle-row">
-                <div class="toggle-label"><strong>Payment confirmed</strong><span>Payment receipt notifications</span></div>
-                <label class="switch"><input type="checkbox" id="notif-payment" checked/><span class="switch-track"></span></label>
-              </div>
+              <div class="toggle-row"><div class="toggle-label"><strong>New message</strong><span>Get notified when a buyer messages you</span></div><label class="switch"><input type="checkbox" id="notif-enquiry" checked/><span class="switch-track"></span></label></div>
+              <div class="toggle-row"><div class="toggle-label"><strong>Listing approved</strong><span>When your listing goes live</span></div><label class="switch"><input type="checkbox" id="notif-approved" checked/><span class="switch-track"></span></label></div>
+              <div class="toggle-row"><div class="toggle-label"><strong>Listing expiring</strong><span>7 days before your listing expires</span></div><label class="switch"><input type="checkbox" id="notif-expiring" checked/><span class="switch-track"></span></label></div>
+              <div class="toggle-row"><div class="toggle-label"><strong>Payment confirmed</strong><span>Payment receipt notifications</span></div><label class="switch"><input type="checkbox" id="notif-payment" checked/><span class="switch-track"></span></label></div>
             </div>
-            <button class="btn btn-outline btn-sm" style="margin-top:14px;width:100%;justify-content:center" onclick="showToast('Notification preferences saved','success')">
-              Save preferences
-            </button>
+            <button class="btn btn-outline btn-sm" style="margin-top:14px;width:100%;justify-content:center" onclick="showToast('Notification preferences saved','success')">Save preferences</button>
           </div>
         </div>
       </div>
@@ -660,8 +755,8 @@
       </div>
     </div>
 
-  </div><!-- /.main -->
-</div><!-- /.shell -->
+  </div><!-- end .main -->
+</div><!-- end .shell -->
 
 <!-- EDIT LISTING MODAL -->
 <div class="modal-overlay" id="modal-edit">
@@ -670,74 +765,21 @@
     <div class="modal-body">
       <input type="hidden" id="edit-id"/>
       <div class="form-grid">
-        <div class="form-group" style="grid-column:1/-1">
-          <label>Title</label>
-          <input type="text" id="edit-title" placeholder="e.g. Spacious 2-bedroom in Milimani"/>
-        </div>
-        <div class="form-group">
-          <label>Price (KES)</label>
-          <input type="number" id="edit-price" placeholder="e.g. 4500000"/>
-        </div>
-        <div class="form-group">
-          <label>Price type</label>
-          <select id="edit-price-type">
-            <option value="sale">For sale</option>
-            <option value="rent">To let (monthly)</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Bedrooms</label>
-          <input type="number" id="edit-bedrooms" min="0" max="20"/>
-        </div>
-        <div class="form-group">
-          <label>Bathrooms</label>
-          <input type="number" id="edit-bathrooms" min="0" max="20"/>
-        </div>
-        <div class="form-group">
-          <label>Size (m²)</label>
-          <input type="number" id="edit-size"/>
-        </div>
-        <div class="form-group">
-          <label>Area</label>
-          <select id="edit-area">
-            <option value="Milimani">Milimani</option><option value="Kisumu CBD">Kisumu CBD</option>
-            <option value="Kondele">Kondele</option><option value="Riat Hills">Riat Hills</option>
-            <option value="Mamboleo">Mamboleo</option><option value="Maseno">Maseno</option>
-            <option value="Luanda">Luanda</option><option value="Ahero">Ahero</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Category</label>
-          <select id="edit-category">
-            <option value="student">Student</option>
-            <option value="standard">Standard</option>
-            <option value="luxury">Luxury</option>
-          </select>
-        </div>
-        <div class="form-group" style="grid-column:1/-1">
-          <label>Address / sub-area</label>
-          <input type="text" id="edit-address" placeholder="e.g. Near Aga Khan Hospital"/>
-        </div>
-        <div class="form-group" style="grid-column:1/-1">
-          <label>Description</label>
-          <textarea id="edit-description" placeholder="Describe the apartment…" style="min-height:120px"></textarea>
-        </div>
-        <div class="form-group" style="grid-column:1/-1">
-          <label>Furnished</label>
-          <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;padding:10px;background:var(--surface);border-radius:6px;text-transform:none;letter-spacing:0">
-            <input type="checkbox" id="edit-furnished"/> This apartment is furnished
-          </label>
-        </div>
+        <div class="form-group" style="grid-column:1/-1"><label>Title</label><input type="text" id="edit-title"/></div>
+        <div class="form-group"><label>Price (KES)</label><input type="number" id="edit-price"/></div>
+        <div class="form-group"><label>Price type</label><select id="edit-price-type"><option value="sale">For sale</option><option value="rent">To let (monthly)</option></select></div>
+        <div class="form-group"><label>Bedrooms</label><input type="number" id="edit-bedrooms" min="0" max="20"/></div>
+        <div class="form-group"><label>Bathrooms</label><input type="number" id="edit-bathrooms" min="0" max="20"/></div>
+        <div class="form-group"><label>Size (m²)</label><input type="number" id="edit-size"/></div>
+        <div class="form-group"><label>Area</label><select id="edit-area"><option value="Milimani">Milimani</option><option value="Kisumu CBD">Kisumu CBD</option><option value="Kondele">Kondele</option><option value="Riat Hills">Riat Hills</option><option value="Mamboleo">Mamboleo</option><option value="Maseno">Maseno</option><option value="Luanda">Luanda</option><option value="Ahero">Ahero</option></select></div>
+        <div class="form-group"><label>Category</label><select id="edit-category"><option value="student">Student</option><option value="standard">Standard</option><option value="luxury">Luxury</option></select></div>
+        <div class="form-group" style="grid-column:1/-1"><label>Address / sub-area</label><input type="text" id="edit-address"/></div>
+        <div class="form-group" style="grid-column:1/-1"><label>Description</label><textarea id="edit-description" style="min-height:120px"></textarea></div>
+        <div class="form-group" style="grid-column:1/-1"><label>Furnished</label><label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;padding:10px;background:var(--surface);border-radius:6px;text-transform:none;letter-spacing:0"><input type="checkbox" id="edit-furnished"/> This apartment is furnished</label></div>
       </div>
-      <div style="margin-top:16px">
-        <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--text-3);margin-bottom:10px">Amenities</div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px" id="edit-amenities-grid"></div>
-      </div>
+      <div style="margin-top:16px"><div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--text-3);margin-bottom:10px">Amenities</div><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px" id="edit-amenities-grid"></div></div>
     </div>
-    <div class="modal-foot">
-      <button class="btn btn-outline" onclick="closeModal('modal-edit')">Cancel</button>
-      <button class="btn btn-primary" id="btn-save-edit" onclick="saveEdit()">Save changes</button>
-    </div>
+    <div class="modal-foot"><button class="btn btn-outline" onclick="closeModal('modal-edit')">Cancel</button><button class="btn btn-primary" id="btn-save-edit" onclick="saveEdit()">Save changes</button></div>
   </div>
 </div>
 
@@ -745,69 +787,90 @@
 <div class="modal-overlay" id="modal-delete">
   <div class="modal" style="max-width:400px">
     <div class="modal-head"><h3>Delete listing?</h3><div class="modal-close" onclick="closeModal('modal-delete')">✕</div></div>
-    <div class="modal-body">
-      <p style="font-size:14px;color:var(--text-2);line-height:1.7">
-        This will permanently delete <strong id="delete-listing-name"></strong>. Any messages and enquiries linked to it will also be removed. This cannot be undone.
-      </p>
-    </div>
-    <div class="modal-foot">
-      <button class="btn btn-outline" onclick="closeModal('modal-delete')">Keep it</button>
-      <button class="btn btn-danger btn-lg" id="btn-confirm-delete" onclick="confirmDelete()">Delete listing</button>
-    </div>
+    <div class="modal-body"><p style="font-size:14px;color:var(--text-2);line-height:1.7">This will permanently delete <strong id="delete-listing-name"></strong>. Any messages and enquiries linked to it will also be removed. This cannot be undone.</p></div>
+    <div class="modal-foot"><button class="btn btn-outline" onclick="closeModal('modal-delete')">Keep it</button><button class="btn btn-danger btn-lg" id="btn-confirm-delete" onclick="confirmDelete()">Delete listing</button></div>
   </div>
 </div>
 
-<!-- REPLY MODAL (WhatsApp quick-reply for enquiries page) -->
+<!-- REPLY MODAL -->
 <div class="modal-overlay" id="modal-reply">
   <div class="modal" style="max-width:440px">
     <div class="modal-head"><h3>Reply to enquiry</h3><div class="modal-close" onclick="closeModal('modal-reply')">✕</div></div>
     <div class="modal-body">
       <div style="background:var(--surface);border-radius:var(--radius);padding:14px;margin-bottom:16px;font-size:13px;color:var(--text-2);line-height:1.6" id="reply-original-msg"></div>
-      <div class="form-group">
-        <label>Your reply</label>
-        <textarea id="reply-text" placeholder="Type your reply…" style="min-height:120px"></textarea>
-      </div>
+      <div class="form-group"><label>Your reply</label><textarea id="reply-text" placeholder="Type your reply…" style="min-height:120px"></textarea></div>
       <div id="reply-whatsapp-row" style="margin-top:10px"></div>
     </div>
-    <div class="modal-foot">
-      <button class="btn btn-outline" onclick="closeModal('modal-reply')">Cancel</button>
-      <button class="btn btn-primary" onclick="sendReply()">Send via WhatsApp</button>
-    </div>
+    <div class="modal-foot"><button class="btn btn-outline" onclick="closeModal('modal-reply')">Cancel</button><button class="btn btn-primary" onclick="sendReply()">Send via WhatsApp</button></div>
   </div>
 </div>
 
+<!-- ══ LIVE SUPPORT WIDGET ══ -->
+<button class="lsw-fab" id="lsw-fab" onclick="lswToggle()" aria-label="Contact support">
+  <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+  <!-- ── FIX: dedicated badge element, never touches unread_admin count ── -->
+  <span class="lsw-fab-badge" id="lsw-fab-badge"></span>
+</button>
+
+<div class="lsw-popup" id="lsw-popup">
+  <div class="lsw-head">
+    <div class="lsw-head-av">
+      <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+    </div>
+    <div class="lsw-head-info">
+      <div class="lsw-head-name">NyumbaKisumu Support</div>
+      <div class="lsw-head-status"><span></span>Online — we reply quickly</div>
+    </div>
+    <button class="lsw-close" onclick="lswToggle()">×</button>
+  </div>
+
+  <div class="lsw-msgs" id="lsw-msgs"></div>
+
+  <div class="lsw-input-bar">
+    <textarea id="lsw-input" rows="1" placeholder="Type a message…"
+      oninput="lswResize(this)" onkeydown="lswKeydown(event)"></textarea>
+    <button class="lsw-send" onclick="lswSend()">
+      <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+    </button>
+  </div>
+
+  <div class="lsw-footer">NyumbaKisumu · Seller Support</div>
+</div>
+
 <script>
+// ════════════════════════════════════════════════════════
+// SUPABASE + DASHBOARD CORE
+// ════════════════════════════════════════════════════════
 const SUPABASE_URL = 'https://vliuuloyfhyxcsuchpss.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_oIIcecf3wzKMual5K24Z8Q_zmxVfgsx';
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-let currentUser = null;
+let currentUser    = null;
 let currentProfile = null;
-let allListings = [];
-let allEnquiries = [];
-let allPayments = [];
-let allMessages = []; // flat list from messages table
-let threads = [];     // grouped by (listing_id + buyer_token)
-let activeThread = null;
-let listingFilter = 'all';
-let enquiryFilter = 'all';
+let allListings    = [];
+let allEnquiries   = [];
+let allPayments    = [];
+let allMessages    = [];
+let threads        = [];
+let activeThread   = null;
+let listingFilter  = 'all';
+let enquiryFilter  = 'all';
 let deleteTargetId = null;
 let replyTargetEnquiry = null;
-let msgPollTimer = null;
+let msgPollTimer   = null;
 
 const AMENITY_KEYS = [
-  { key:'has_parking', label:'Parking' },
-  { key:'has_water', label:'Water supply' },
-  { key:'has_security', label:'Security' },
-  { key:'has_wifi', label:'WiFi ready' },
+  { key:'has_parking',      label:'Parking' },
+  { key:'has_water',        label:'Water supply' },
+  { key:'has_security',     label:'Security' },
+  { key:'has_wifi',         label:'WiFi ready' },
   { key:'has_backup_power', label:'Backup power' },
-  { key:'has_gym', label:'Gym' },
-  { key:'has_pool', label:'Swimming pool' },
-  { key:'has_balcony', label:'Balcony' },
+  { key:'has_gym',          label:'Gym' },
+  { key:'has_pool',         label:'Swimming pool' },
+  { key:'has_balcony',      label:'Balcony' },
 ];
 
-// ── INIT ──
 async function init() {
   try {
     const { data: { session } } = await db.auth.getSession();
@@ -819,1427 +882,681 @@ async function init() {
     renderOverview();
     document.getElementById('loading-screen').style.display = 'none';
     document.getElementById('app-shell').style.display = 'flex';
-    // Poll for new messages every 30 s while dashboard is open
     msgPollTimer = setInterval(pollNewMessages, 30000);
+    lswInit().catch(err => console.error('LSW init error:', err));
   } catch(err) {
     console.error('Init error:', err);
     window.location.href = 'login.html';
   }
 }
 
-// ── LOAD PROFILE ──
 async function loadProfile() {
   const { data } = await db.from('profiles').select('*').eq('id', currentUser.id).single();
   currentProfile = data;
-  const email = currentUser.email || '';
-  const name = (data && data.full_name) ? data.full_name : email.split('@')[0];
+  const email    = currentUser.email || '';
+  const name     = (data && data.full_name) ? data.full_name : email.split('@')[0];
   const initials = name.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase() || '?';
-  document.getElementById('sidebar-avatar').textContent = initials;
-  document.getElementById('sidebar-name').textContent = name;
-  document.getElementById('sidebar-email').textContent = email;
-  document.getElementById('settings-avatar').textContent = initials;
+  document.getElementById('sidebar-avatar').textContent   = initials;
+  document.getElementById('sidebar-name').textContent     = name;
+  document.getElementById('sidebar-email').textContent    = email;
+  document.getElementById('settings-avatar').textContent  = initials;
   document.getElementById('settings-fullname').textContent = name;
   document.getElementById('settings-email-display').textContent = email;
 }
 
-// ── LOAD ALL DATA ──
 async function loadAllData() {
-  // Listings
-  const { data: listingsData } = await db
-    .from('listings')
-    .select('*, listing_photos(*)')
-    .eq('seller_id', currentUser.id)
-    .order('created_at', { ascending: false });
+  const { data: listingsData } = await db.from('listings').select('*, listing_photos(*)').eq('seller_id', currentUser.id).order('created_at', { ascending: false });
   allListings = listingsData || [];
-
   const ids = allListings.map(l => l.id);
-
-  // Enquiries
   if (ids.length) {
-    const { data: enqData } = await db
-      .from('enquiries')
-      .select('*, listings(title, area)')
-      .in('listing_id', ids)
-      .order('created_at', { ascending: false });
+    const { data: enqData } = await db.from('enquiries').select('*, listings(title, area)').in('listing_id', ids).order('created_at', { ascending: false });
     allEnquiries = enqData || [];
-  } else {
-    allEnquiries = [];
-  }
-
-  // Payments
-  const { data: payData } = await db
-    .from('payments')
-    .select('*, listings(title)')
-    .eq('seller_id', currentUser.id)
-    .order('created_at', { ascending: false });
-  allPayments = payData || [];
-
-  // Messages (in-site chat)
-  if (ids.length) {
-    const { data: msgData } = await db
-      .from('messages')
-      .select('*')
-      .in('listing_id', ids)
-      .order('created_at', { ascending: true });
+    const { data: msgData } = await db.from('messages').select('*').in('listing_id', ids).order('created_at', { ascending: true });
     allMessages = msgData || [];
-  } else {
-    allMessages = [];
-  }
-
+  } else { allEnquiries = []; allMessages = []; }
+  const { data: payData } = await db.from('payments').select('*, listings(title)').eq('seller_id', currentUser.id).order('created_at', { ascending: false });
+  allPayments = payData || [];
   buildThreads();
   updateNavBadges();
 }
 
-// ── BUILD THREADS from flat messages list ──
 function buildThreads() {
   const map = new Map();
-  // First seed from enquiries (so we capture buyers who only sent initial enquiry, no chat yet)
   allEnquiries.forEach(e => {
     const key = `${e.listing_id}__${e.buyer_token || e.buyer_phone || e.id}`;
     if (!map.has(key)) {
-      map.set(key, {
-        key,
-        listing_id: e.listing_id,
-        buyer_token: e.buyer_token || null,
-        buyer_name: e.buyer_name || 'Unknown buyer',
-        buyer_phone: e.buyer_phone || '',
-        listing_title: e.listings?.title || 'Listing',
-        listing_area: e.listings?.area || '',
-        messages: [{
-          id: 'enq-' + e.id,
-          sender: 'buyer',
-          message: e.message || '',
-          created_at: e.created_at,
-          read_at: e.read_at
-        }],
-        last_at: e.created_at,
-        unread_count: e.read_at ? 0 : 1
-      });
+      map.set(key, { key, listing_id:e.listing_id, buyer_token:e.buyer_token||null, buyer_name:e.buyer_name||'Unknown buyer', buyer_phone:e.buyer_phone||'', listing_title:e.listings?.title||'Listing', listing_area:e.listings?.area||'', messages:[{ id:'enq-'+e.id, sender:'buyer', message:e.message||'', created_at:e.created_at, read_at:e.read_at }], last_at:e.created_at, unread_count:e.read_at?0:1 });
     }
   });
-
-  // Layer in actual messages from the messages table
   allMessages.forEach(m => {
     const key = `${m.listing_id}__${m.buyer_token || m.buyer_phone || ''}`;
     if (map.has(key)) {
       const t = map.get(key);
-      // Avoid duplicating the initial enquiry message if it's already there
-      const isDupe = t.messages.some(x => x.id === 'enq-' + m.id || ((x.content||x.message) === (m.content||m.message) && Math.abs(new Date(x.created_at) - new Date(m.created_at)) < 2000));
+      const isDupe = t.messages.some(x => x.id === 'enq-'+m.id || ((x.content||x.message)===(m.content||m.message) && Math.abs(new Date(x.created_at)-new Date(m.created_at))<2000));
       if (!isDupe) t.messages.push(m);
       if (new Date(m.created_at) > new Date(t.last_at)) t.last_at = m.created_at;
-      if (m.sender === 'buyer' && !m.read_at) t.unread_count = (t.unread_count || 0) + 1;
+      if (m.sender==='buyer' && !m.read_at) t.unread_count = (t.unread_count||0)+1;
     } else {
-      // Message without a matching enquiry (shouldn't happen often but handle gracefully)
-      const listing = allListings.find(l => l.id === m.listing_id);
-      map.set(key, {
-        key,
-        listing_id: m.listing_id,
-        buyer_token: m.buyer_token || null,
-        buyer_name: m.buyer_name || 'Buyer',
-        buyer_phone: m.buyer_phone || '',
-        listing_title: listing?.title || 'Listing',
-        listing_area: listing?.area || '',
-        messages: [m],
-        last_at: m.created_at,
-        unread_count: (m.sender === 'buyer' && !m.read_at) ? 1 : 0
-      });
+      const listing = allListings.find(l => l.id===m.listing_id);
+      map.set(key, { key, listing_id:m.listing_id, buyer_token:m.buyer_token||null, buyer_name:m.buyer_name||'Buyer', buyer_phone:m.buyer_phone||'', listing_title:listing?.title||'Listing', listing_area:listing?.area||'', messages:[m], last_at:m.created_at, unread_count:(m.sender==='buyer'&&!m.read_at)?1:0 });
     }
   });
-
-  // Sort messages within each thread by date, then sort threads by latest message
-  threads = Array.from(map.values()).map(t => {
-    t.messages.sort((a,b) => new Date(a.created_at) - new Date(b.created_at));
-    return t;
-  }).sort((a,b) => new Date(b.last_at) - new Date(a.last_at));
+  threads = Array.from(map.values()).map(t => { t.messages.sort((a,b)=>new Date(a.created_at)-new Date(b.created_at)); return t; }).sort((a,b)=>new Date(b.last_at)-new Date(a.last_at));
 }
 
-// ── POLL FOR NEW MESSAGES ──
 async function pollNewMessages() {
-  if (allListings.length === 0) return;
-  const ids = allListings.map(l => l.id);
-  const { data: msgData } = await db
-    .from('messages')
-    .select('*')
-    .in('listing_id', ids)
-    .order('created_at', { ascending: true });
-  const newMsgs = msgData || [];
+  if (!allListings.length) return;
+  const ids = allListings.map(l=>l.id);
+  const { data: msgData } = await db.from('messages').select('*').in('listing_id', ids).order('created_at', { ascending: true });
   const hadCount = allMessages.length;
-  allMessages = newMsgs;
-  buildThreads();
-  updateNavBadges();
-  // If messages page is open, refresh thread list without losing active thread
+  allMessages = msgData || [];
+  buildThreads(); updateNavBadges();
   if (document.getElementById('page-messages').classList.contains('active')) {
     renderThreadList();
-    if (activeThread) {
-      const refreshed = threads.find(t => t.key === activeThread.key);
-      if (refreshed) { activeThread = refreshed; renderChatPane(activeThread); }
-    }
+    if (activeThread) { const r = threads.find(t=>t.key===activeThread.key); if(r){activeThread=r;renderChatPane(activeThread);} }
   }
-  // Notify if new messages arrived
-  if (allMessages.length > hadCount) {
-    const diff = allMessages.length - hadCount;
-    showToast(`${diff} new message${diff>1?'s':''} received`, 'success');
-  }
+  if (allMessages.length > hadCount) showToast(`${allMessages.length-hadCount} new message(s) received`, 'success');
 }
 
-// ── UPDATE NAV BADGES ──
 function updateNavBadges() {
   document.getElementById('nav-badge-listings').textContent = allListings.length;
-
-  const totalUnreadMsgs = threads.reduce((s,t) => s + (t.unread_count||0), 0);
+  const totalUnread = threads.reduce((s,t)=>s+(t.unread_count||0),0);
   const msgBadge = document.getElementById('nav-badge-messages');
-  msgBadge.textContent = totalUnreadMsgs;
-  msgBadge.style.display = totalUnreadMsgs > 0 ? 'inline-block' : 'none';
-
-  const unreadEnq = allEnquiries.filter(e => !e.read_at).length;
+  msgBadge.textContent = totalUnread; msgBadge.style.display = totalUnread>0?'inline-block':'none';
+  const unreadEnq = allEnquiries.filter(e=>!e.read_at).length;
   const enqBadge = document.getElementById('nav-badge-enquiries');
-  enqBadge.textContent = unreadEnq;
-  enqBadge.style.display = unreadEnq > 0 ? 'inline-block' : 'none';
+  enqBadge.textContent = unreadEnq; enqBadge.style.display = unreadEnq>0?'inline-block':'none';
 }
 
-// ── ADMIN DISABLE / RECYCLE BIN DISPLAY ──
 function getListingStatusDisplay(l) {
-  if (l.recycle_bin) {
-    const daysLeft = l.purge_at ? Math.max(0, Math.ceil((new Date(l.purge_at) - new Date()) / 86400000)) : null;
-    return {
-      label: 'In recycle bin',
-      cls: 'status-disabled',
-      banner: `Disabled by admin${l.disabled_reason ? ': ' + escHtml(l.disabled_reason) : ''}. Contact admin for more information.` +
-              (daysLeft !== null ? ` It will be permanently removed in ${daysLeft} day(s) unless restored.` : '')
-    };
-  }
-  if (l.is_disabled) {
-    return {
-      label: 'Disabled by admin',
-      cls: 'status-disabled',
-      banner: `Disabled by admin${l.disabled_reason ? ': ' + escHtml(l.disabled_reason) : ''}. Contact admin for more information.`
-    };
-  }
-  return { label: statusLabel(l.status), cls: 'status-' + l.status, banner: null };
+  if (l.recycle_bin) { const d=l.purge_at?Math.max(0,Math.ceil((new Date(l.purge_at)-new Date())/86400000)):null; return { label:'In recycle bin', cls:'status-disabled', banner:`Disabled by admin${l.disabled_reason?': '+escHtml(l.disabled_reason):''}. Contact admin for more information.`+(d!==null?` Removed in ${d} day(s).`:'') }; }
+  if (l.is_disabled)  return { label:'Disabled by admin', cls:'status-disabled', banner:`Disabled by admin${l.disabled_reason?': '+escHtml(l.disabled_reason):''}. Contact admin for more information.` };
+  return { label:statusLabel(l.status), cls:'status-'+l.status, banner:null };
 }
 
-// ── OVERVIEW ──
 function renderOverview() {
-  const active = allListings.filter(l => l.status === 'active' && !l.is_disabled).length;
-  const totalUnreadMsgs = threads.reduce((s,t) => s + (t.unread_count||0), 0);
-  const confirmedPayments = allPayments.filter(p => p.status === 'confirmed' || p.status === 'paid');
-  const totalPaid = confirmedPayments.reduce((s,p) => s + (Number(p.amount)||0), 0);
-  const totalViews = allListings.reduce((s,l) => s + (Number(l.views)||0), 0);
-  document.getElementById('stat-active').textContent = active;
-  document.getElementById('stat-active-delta').textContent = `of ${allListings.length} total listing${allListings.length!==1?'s':''}`;
-  document.getElementById('stat-enquiries').textContent = allEnquiries.length;
+  const active   = allListings.filter(l=>l.status==='active'&&!l.is_disabled).length;
+  const unread   = threads.reduce((s,t)=>s+(t.unread_count||0),0);
+  const confirmed= allPayments.filter(p=>p.status==='confirmed'||p.status==='paid');
+  const totalPaid= confirmed.reduce((s,p)=>s+(Number(p.amount)||0),0);
+  const views    = allListings.reduce((s,l)=>s+(Number(l.views)||0),0);
+  document.getElementById('stat-active').textContent        = active;
+  document.getElementById('stat-active-delta').textContent  = `of ${allListings.length} total listing${allListings.length!==1?'s':''}`;
+  document.getElementById('stat-enquiries').textContent     = allEnquiries.length;
   document.getElementById('stat-enquiries-delta').textContent = `${allEnquiries.length} buyer${allEnquiries.length!==1?'s':''} reached out`;
-  document.getElementById('stat-new-enq').textContent = totalUnreadMsgs;
-  document.getElementById('stat-new-enq-delta').textContent = totalUnreadMsgs > 0 ? `${totalUnreadMsgs} unread — check messages` : 'All caught up ✓';
-  document.getElementById('stat-paid').textContent = `KES ${totalPaid.toLocaleString('en-KE')}`;
-  document.getElementById('stat-paid-delta').textContent = `${confirmedPayments.length} payment${confirmedPayments.length!==1?'s':''}`;
-  document.getElementById('stat-views').textContent = totalViews.toLocaleString('en-KE');
-  renderActivityFeed();
-  renderChart();
-  renderQuickListings();
+  document.getElementById('stat-new-enq').textContent       = unread;
+  document.getElementById('stat-new-enq-delta').textContent = unread>0?`${unread} unread — check messages`:'All caught up ✓';
+  document.getElementById('stat-paid').textContent          = `KES ${totalPaid.toLocaleString('en-KE')}`;
+  document.getElementById('stat-paid-delta').textContent    = `${confirmed.length} payment${confirmed.length!==1?'s':''}`;
+  document.getElementById('stat-views').textContent         = views.toLocaleString('en-KE');
+  renderActivityFeed(); renderChart(); renderQuickListings();
 }
 
 function renderActivityFeed() {
   const items = [];
-  // Most recent messages from buyers
-  threads.slice(0,4).forEach(t => {
-    const lastBuyer = [...t.messages].reverse().find(m => m.sender === 'buyer');
-    if (lastBuyer) items.push({ type:'message', time:lastBuyer.created_at, html:`<strong>${escHtml(t.buyer_name)}</strong> sent a message about <strong>${escHtml(t.listing_title)}</strong>` });
-  });
-  allEnquiries.slice(0,3).forEach(e => items.push({ type:'enquiry', time:e.created_at, html:`<strong>${escHtml(e.buyer_name||'Someone')}</strong> enquired about <strong>${escHtml(e.listings?.title||'your listing')}</strong>` }));
-  allListings.slice(0,3).forEach(l => items.push({ type:'listing', time:l.created_at, html:`You posted <strong>${escHtml(l.title)}</strong> in ${l.area}` }));
-  allPayments.slice(0,2).forEach(p => items.push({ type:'payment', time:p.created_at, html:`Payment of <strong>KES ${Number(p.amount||0).toLocaleString('en-KE')}</strong> recorded` }));
-  items.sort((a,b) => new Date(b.time) - new Date(a.time));
-  const top = items.slice(0,8);
+  threads.slice(0,4).forEach(t => { const lb=[...t.messages].reverse().find(m=>m.sender==='buyer'); if(lb) items.push({type:'message',time:lb.created_at,html:`<strong>${escHtml(t.buyer_name)}</strong> sent a message about <strong>${escHtml(t.listing_title)}</strong>`}); });
+  allEnquiries.slice(0,3).forEach(e => items.push({type:'enquiry',time:e.created_at,html:`<strong>${escHtml(e.buyer_name||'Someone')}</strong> enquired about <strong>${escHtml(e.listings?.title||'your listing')}</strong>`}));
+  allListings.slice(0,3).forEach(l => items.push({type:'listing',time:l.created_at,html:`You posted <strong>${escHtml(l.title)}</strong> in ${l.area}`}));
+  allPayments.slice(0,2).forEach(p => items.push({type:'payment',time:p.created_at,html:`Payment of <strong>KES ${Number(p.amount||0).toLocaleString('en-KE')}</strong> recorded`}));
+  items.sort((a,b)=>new Date(b.time)-new Date(a.time));
+  const icons = { enquiry:`<svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13"/></svg>`, message:`<svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>`, listing:`<svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>`, payment:`<svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>` };
   const feed = document.getElementById('activity-feed');
-  if (!top.length) {
-    feed.innerHTML = `<div style="text-align:center;padding:30px 0;color:var(--text-3);font-size:13px">No activity yet. <a href="post-listing.html" style="color:var(--green);font-weight:500">Post your first listing →</a></div>`;
-    return;
-  }
-  const icons = {
-    enquiry:`<svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13"/></svg>`,
-    message:`<svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>`,
-    listing:`<svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>`,
-    payment:`<svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>`,
-  };
-  feed.innerHTML = top.map(item => `<div class="activity-item"><div class="activity-dot ${item.type}">${icons[item.type]||icons.enquiry}</div><div class="activity-text">${item.html}</div><div class="activity-time">${timeAgo(item.time)}</div></div>`).join('');
+  if (!items.length) { feed.innerHTML=`<div style="text-align:center;padding:30px 0;color:var(--text-3);font-size:13px">No activity yet. <a href="post-listing.html" style="color:var(--green);font-weight:500">Post your first listing →</a></div>`; return; }
+  feed.innerHTML = items.slice(0,8).map(i=>`<div class="activity-item"><div class="activity-dot ${i.type}">${icons[i.type]||icons.enquiry}</div><div class="activity-text">${i.html}</div><div class="activity-time">${timeAgo(i.time)}</div></div>`).join('');
 }
 
 function renderChart() {
-  const labels=[], counts=[];
-  for (let i=6;i>=0;i--) {
-    const d = new Date(); d.setDate(d.getDate()-i);
-    const key = d.toISOString().slice(0,10);
-    labels.push(d.toLocaleDateString('en-KE',{weekday:'short'}));
-    // Count both enquiries and messages on that day
-    const enqCount = allEnquiries.filter(e => e.created_at && e.created_at.slice(0,10)===key).length;
-    const msgCount = allMessages.filter(m => m.sender==='buyer' && m.created_at && m.created_at.slice(0,10)===key).length;
-    counts.push(enqCount + msgCount);
-  }
-  const max = Math.max(...counts,1);
-  document.getElementById('chart-bars').innerHTML = counts.map((c,i) => {
-    const h = Math.round((c/max)*68)+8;
-    return `<div class="chart-bar" style="height:${h}px"><div class="bar-tip">${labels[i]}: ${c} message${c===1?'':'s'}</div></div>`;
-  }).join('');
-  document.getElementById('chart-labels').innerHTML = labels.map(l => `<div class="chart-label">${l}</div>`).join('');
+  const labels=[],counts=[];
+  for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);const k=d.toISOString().slice(0,10);labels.push(d.toLocaleDateString('en-KE',{weekday:'short'}));counts.push(allEnquiries.filter(e=>e.created_at&&e.created_at.slice(0,10)===k).length+allMessages.filter(m=>m.sender==='buyer'&&m.created_at&&m.created_at.slice(0,10)===k).length);}
+  const max=Math.max(...counts,1);
+  document.getElementById('chart-bars').innerHTML = counts.map((c,i)=>`<div class="chart-bar" style="height:${Math.round((c/max)*68)+8}px"><div class="bar-tip">${labels[i]}: ${c}</div></div>`).join('');
+  document.getElementById('chart-labels').innerHTML = labels.map(l=>`<div class="chart-label">${l}</div>`).join('');
 }
 
 function renderQuickListings() {
-  const el = document.getElementById('quick-listings');
-  if (!allListings.length) {
-    el.innerHTML = `<div style="text-align:center;padding:20px 0;color:var(--text-3);font-size:13px">No listings yet. <a href="post-listing.html" style="color:var(--green);font-weight:500">Post one →</a></div>`;
-    return;
-  }
-  el.innerHTML = allListings.slice(0,5).map(l => {
-    const cover = (l.listing_photos||[]).find(p=>p.is_cover)||(l.listing_photos||[])[0];
-    const imgHtml = cover ? `<img src="${cover.url}" alt=""/>` : `<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>`;
-    const disp = getListingStatusDisplay(l);
-    return `<div class="quick-listing">
-      <div class="quick-img">${imgHtml}</div>
-      <div style="flex:1;min-width:0">
-        <div class="quick-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(l.title)}</div>
-        <div class="quick-meta" style="${l.is_disabled?'color:var(--red)':''}">${l.area} · ${disp.label}</div>
-      </div>
-      <div class="quick-price">KES ${Number(l.price).toLocaleString('en-KE')}${l.price_type==='rent'?'/mo':''}</div>
-    </div>`;
-  }).join('');
+  const el=document.getElementById('quick-listings');
+  if(!allListings.length){el.innerHTML=`<div style="text-align:center;padding:20px 0;color:var(--text-3);font-size:13px">No listings yet. <a href="post-listing.html" style="color:var(--green);font-weight:500">Post one →</a></div>`;return;}
+  el.innerHTML=allListings.slice(0,5).map(l=>{const cover=(l.listing_photos||[]).find(p=>p.is_cover)||(l.listing_photos||[])[0];const img=cover?`<img src="${cover.url}" alt=""/>`:`<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>`;const d=getListingStatusDisplay(l);return `<div class="quick-listing"><div class="quick-img">${img}</div><div style="flex:1;min-width:0"><div class="quick-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(l.title)}</div><div class="quick-meta" style="${l.is_disabled?'color:var(--red)':''}">${l.area} · ${d.label}</div></div><div class="quick-price">KES ${Number(l.price).toLocaleString('en-KE')}${l.price_type==='rent'?'/mo':''}</div></div>`;}).join('');
 }
 
-// ── LISTINGS PAGE ──
-function filterListings(status, el) {
-  listingFilter = status;
-  document.querySelectorAll('#page-listings .filter-pill').forEach(p => p.classList.remove('active'));
-  el.classList.add('active');
-  renderListingsTable();
-}
+function filterListings(status,el){listingFilter=status;document.querySelectorAll('#page-listings .filter-pill').forEach(p=>p.classList.remove('active'));el.classList.add('active');renderListingsTable();}
 
 function renderListingsTable() {
-  const q = (document.getElementById('listing-search')?.value||'').toLowerCase();
-  const rows = allListings.filter(l => {
-    if (listingFilter !== 'all' && l.status !== listingFilter) return false;
-    if (q && !l.title.toLowerCase().includes(q) && !(l.area||'').toLowerCase().includes(q)) return false;
-    return true;
-  });
-  const tbody = document.getElementById('listings-tbody');
-  if (!rows.length) {
-    tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state">
-      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
-      <h3>No listings found</h3>
-      <p>${listingFilter==='all'?"You haven't posted any listings yet.":`No ${listingFilter} listings.`}</p>
-      <a href="post-listing.html" class="btn btn-primary">Post your first listing</a>
-    </div></td></tr>`;
-    return;
-  }
-  tbody.innerHTML = rows.map(l => {
-    const cover = (l.listing_photos||[]).find(p=>p.is_cover)||(l.listing_photos||[])[0];
-    const imgHtml = cover ? `<img src="${cover.url}" alt=""/>` : `<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>`;
-    const msgCount = threads.filter(t => t.listing_id === l.id).reduce((s,t) => s + t.messages.length, 0);
-    const unreadCount = threads.filter(t => t.listing_id === l.id).reduce((s,t) => s + (t.unread_count||0), 0);
-    const posted = new Date(l.created_at).toLocaleDateString('en-KE',{day:'numeric',month:'short',year:'numeric'});
-    const isPaused = l.status === 'paused';
-    const disp = getListingStatusDisplay(l);
-    const isLocked = !!l.is_disabled;
+  const q=(document.getElementById('listing-search')?.value||'').toLowerCase();
+  const rows=allListings.filter(l=>{if(listingFilter!=='all'&&l.status!==listingFilter)return false;if(q&&!l.title.toLowerCase().includes(q)&&!(l.area||'').toLowerCase().includes(q))return false;return true;});
+  const tbody=document.getElementById('listings-tbody');
+  if(!rows.length){tbody.innerHTML=`<tr><td colspan="7"><div class="empty-state"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg><h3>No listings found</h3><p>${listingFilter==='all'?"You haven't posted any listings yet.":`No ${listingFilter} listings.`}</p><a href="post-listing.html" class="btn btn-primary">Post your first listing</a></div></td></tr>`;return;}
+  tbody.innerHTML=rows.map(l=>{
+    const cover=(l.listing_photos||[]).find(p=>p.is_cover)||(l.listing_photos||[])[0];
+    const img=cover?`<img src="${cover.url}" alt=""/>`:`<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>`;
+    const mc=threads.filter(t=>t.listing_id===l.id).reduce((s,t)=>s+t.messages.length,0);
+    const uc=threads.filter(t=>t.listing_id===l.id).reduce((s,t)=>s+(t.unread_count||0),0);
+    const posted=new Date(l.created_at).toLocaleDateString('en-KE',{day:'numeric',month:'short',year:'numeric'});
+    const d=getListingStatusDisplay(l);
     return `<tr>
-      <td><div class="listing-name-cell">
-        <div class="listing-thumb">${imgHtml}</div>
-        <div>
-          <div class="listing-title-text">${escHtml(l.title)}</div>
-          <div class="listing-area-text">${l.area}${l.sub_area?' · '+l.sub_area:''}</div>
-          ${disp.banner ? `<div class="disabled-note">${disp.banner}</div>` : ''}
-        </div>
-      </div></td>
+      <td><div class="listing-name-cell"><div class="listing-thumb">${img}</div><div><div class="listing-title-text">${escHtml(l.title)}</div><div class="listing-area-text">${l.area}${l.sub_area?' · '+l.sub_area:''}</div>${d.banner?`<div class="disabled-note">${d.banner}</div>`:''}</div></div></td>
       <td><div class="listing-price-text">KES ${Number(l.price).toLocaleString('en-KE')}${l.price_type==='rent'?'/mo':''}</div><div class="listing-price-sub">${l.price_type==='rent'?'Monthly rent':'For sale'}</div></td>
-      <td><span class="status ${disp.cls}">${disp.label}</span></td>
-      <td>
-        <span style="font-size:13px;font-weight:600;color:${msgCount>0?'var(--green-dark)':'var(--text-3)'}">
-          ${msgCount}${unreadCount>0?` <span style="color:var(--red);font-size:11px">(${unreadCount} new)</span>`:''}
-        </span>
-      </td>
+      <td><span class="status ${d.cls}">${d.label}</span></td>
+      <td><span style="font-size:13px;font-weight:600;color:${mc>0?'var(--green-dark)':'var(--text-3)'}">${mc}${uc>0?` <span style="color:var(--red);font-size:11px">(${uc} new)</span>`:''}</span></td>
       <td style="font-size:13px;color:var(--text-3)">${l.views||0}</td>
       <td style="font-size:12px;color:var(--text-3)">${posted}</td>
       <td><div class="actions-cell">
-        <a href="listing.html?id=${l.id}" target="_blank" class="icon-btn" title="View live listing">
-          <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-        </a>
-        <div class="icon-btn" title="View messages" onclick="showPage('messages')">
-          <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-        </div>
-        <div class="icon-btn" data-id="${l.id}" onclick="shareListing('${l.id}')" title="Share listing">
-          <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-        </div>
-        <div class="icon-btn" data-id="${l.id}" onclick="openEditModal(this.dataset.id)" title="Edit">
-          <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-        </div>
-        ${l.status==='expired' ? `<div class="icon-btn" data-id="${l.id}" onclick="renewListing('${l.id}')" title="Renew listing">
-          <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
-        </div>` : ''}
-        ${isLocked
-          ? `<div class="icon-btn locked" title="Disabled by admin — contact admin to reactivate">
-              <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-            </div>`
-          : `<div class="icon-btn" data-id="${l.id}" data-status="${l.status}" onclick="togglePause(this.dataset.id,this.dataset.status)" title="${isPaused?'Activate':'Pause'}">
-              ${isPaused?`<svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>`:`<svg viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>`}
-            </div>`}
-        <div class="icon-btn danger" data-id="${l.id}" data-title="${escAttr(l.title)}" onclick="openDeleteModal(this.dataset.id,this.dataset.title)" title="Delete">
-          <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
-        </div>
+        <a href="listing.html?id=${l.id}" target="_blank" class="icon-btn" title="View live"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></a>
+        <div class="icon-btn" onclick="showPage('messages')" title="Messages"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
+        <div class="icon-btn" onclick="shareListing('${l.id}')" title="Share"><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></div>
+        <div class="icon-btn" data-id="${l.id}" onclick="openEditModal(this.dataset.id)" title="Edit"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
+        ${l.status==='expired'?`<div class="icon-btn" onclick="renewListing('${l.id}')" title="Renew"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg></div>`:''}
+        ${l.is_disabled?`<div class="icon-btn locked" title="Disabled by admin"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>`:`<div class="icon-btn" data-id="${l.id}" data-status="${l.status}" onclick="togglePause(this.dataset.id,this.dataset.status)" title="${l.status==='paused'?'Activate':'Pause'}">${l.status==='paused'?`<svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>`:`<svg viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>`}</div>`}
+        <div class="icon-btn danger" data-id="${l.id}" data-title="${escAttr(l.title)}" onclick="openDeleteModal(this.dataset.id,this.dataset.title)" title="Delete"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg></div>
       </div></td>
     </tr>`;
   }).join('');
 }
 
-function statusLabel(s) {
-  return {active:'Active',pending:'Pending review',paused:'Paused',rejected:'Rejected',expired:'Expired'}[s]||s;
-}
+function statusLabel(s){return {active:'Active',pending:'Pending review',paused:'Paused',rejected:'Rejected',expired:'Expired'}[s]||s;}
 
-async function togglePause(id, currentStatus) {
-  const l = allListings.find(l => l.id === id);
-  if (l && l.is_disabled) { showToast('This listing was disabled by the admin. Contact admin for more information.', 'error'); return; }
-  const newStatus = currentStatus === 'paused' ? 'active' : 'paused';
-  const { error } = await db.from('listings').update({ status: newStatus }).eq('id', id);
-  if (error) { showToast('Could not update listing','error'); return; }
-  if (l) l.status = newStatus;
-  renderListingsTable(); renderOverview();
-  showToast(newStatus==='active'?'Listing is now active':'Listing paused','success');
-}
+async function togglePause(id,cs){const l=allListings.find(l=>l.id===id);if(l&&l.is_disabled){showToast('Disabled by admin. Contact admin.','error');return;}const ns=cs==='paused'?'active':'paused';const{error}=await db.from('listings').update({status:ns}).eq('id',id);if(error){showToast('Could not update','error');return;}if(l)l.status=ns;renderListingsTable();renderOverview();showToast(ns==='active'?'Listing active':'Listing paused','success');}
+async function renewListing(id){const{error}=await db.from('listings').update({status:'pending'}).eq('id',id);if(error){showToast('Could not renew: '+error.message,'error');return;}const l=allListings.find(l=>l.id===id);if(l)l.status='pending';renderListingsTable();renderOverview();showToast('Resubmitted for approval','success');}
+function shareListing(id){const l=allListings.find(l=>l.id===id);if(!l)return;const url=`${location.origin}${location.pathname.replace(/dashboard\.html$/,'')}listing.html?id=${id}`;window.open(`https://wa.me/?text=${encodeURIComponent(l.title+' — KES '+Number(l.price).toLocaleString('en-KE')+(l.price_type==='rent'?'/mo':'')+' in '+l.area+'\n'+url)}`,'_blank');}
 
-async function renewListing(id) {
-  const { error } = await db.from('listings').update({ status: 'pending' }).eq('id', id);
-  if (error) { showToast('Could not renew: '+error.message, 'error'); return; }
-  const l = allListings.find(l => l.id === id);
-  if (l) l.status = 'pending';
-  renderListingsTable(); renderOverview();
-  showToast('Listing resubmitted — it will go live once approved again', 'success');
-}
-
-function shareListing(id) {
-  const l = allListings.find(l => l.id === id);
-  if (!l) return;
-  const basePath = location.pathname.replace(/dashboard\.html$/, '');
-  const url = `${location.origin}${basePath}listing.html?id=${id}`;
-  const text = `${l.title} — KES ${Number(l.price).toLocaleString('en-KE')}${l.price_type==='rent'?'/mo':''} in ${l.area}\n${url}`;
-  window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
-}
-
-function openEditModal(id) {
-  const l = allListings.find(l => l.id === id);
-  if (!l) return;
-  document.getElementById('edit-id').value = l.id;
-  document.getElementById('edit-title').value = l.title||'';
-  document.getElementById('edit-price').value = l.price||'';
-  document.getElementById('edit-price-type').value = l.price_type||'sale';
-  document.getElementById('edit-bedrooms').value = l.bedrooms||'';
-  document.getElementById('edit-bathrooms').value = l.bathrooms||'';
-  document.getElementById('edit-size').value = l.size_sqm||'';
-  document.getElementById('edit-area').value = l.area||'Milimani';
-  document.getElementById('edit-category').value = l.category||'standard';
-  document.getElementById('edit-address').value = l.address||'';
-  document.getElementById('edit-description').value = l.description||'';
-  document.getElementById('edit-furnished').checked = l.furnished||false;
-  document.getElementById('edit-amenities-grid').innerHTML = AMENITY_KEYS.map(a =>
-    `<label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;padding:7px;background:var(--surface);border-radius:6px">
-      <input type="checkbox" id="edit-${a.key}" ${l[a.key]?'checked':''}/>${a.label}
-    </label>`
-  ).join('');
+function openEditModal(id){
+  const l=allListings.find(l=>l.id===id);if(!l)return;
+  document.getElementById('edit-id').value=l.id;
+  document.getElementById('edit-title').value=l.title||'';
+  document.getElementById('edit-price').value=l.price||'';
+  document.getElementById('edit-price-type').value=l.price_type||'sale';
+  document.getElementById('edit-bedrooms').value=l.bedrooms||'';
+  document.getElementById('edit-bathrooms').value=l.bathrooms||'';
+  document.getElementById('edit-size').value=l.size_sqm||'';
+  document.getElementById('edit-area').value=l.area||'Milimani';
+  document.getElementById('edit-category').value=l.category||'standard';
+  document.getElementById('edit-address').value=l.address||'';
+  document.getElementById('edit-description').value=l.description||'';
+  document.getElementById('edit-furnished').checked=l.furnished||false;
+  document.getElementById('edit-amenities-grid').innerHTML=AMENITY_KEYS.map(a=>`<label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;padding:7px;background:var(--surface);border-radius:6px"><input type="checkbox" id="edit-${a.key}" ${l[a.key]?'checked':''}/>${a.label}</label>`).join('');
   openModal('modal-edit');
-  if (l.is_disabled) {
-    setTimeout(() => showToast("This listing is disabled by the admin. Contact admin once you've addressed the issue.", 'error'), 350);
-  }
+  if(l.is_disabled) setTimeout(()=>showToast("Disabled by admin. Edits won't make it live — contact admin.",'error'),350);
 }
 
-async function saveEdit() {
-  const id = document.getElementById('edit-id').value;
-  const amenities = {};
-  AMENITY_KEYS.forEach(a => { amenities[a.key] = document.getElementById('edit-'+a.key)?.checked||false; });
-  const updates = {
-    title: document.getElementById('edit-title').value.trim(),
-    price: parseFloat(document.getElementById('edit-price').value)||0,
-    price_type: document.getElementById('edit-price-type').value,
-    bedrooms: parseInt(document.getElementById('edit-bedrooms').value)||null,
-    bathrooms: parseInt(document.getElementById('edit-bathrooms').value)||null,
-    size_sqm: parseFloat(document.getElementById('edit-size').value)||null,
-    area: document.getElementById('edit-area').value,
-    category: document.getElementById('edit-category').value,
-    address: document.getElementById('edit-address').value.trim(),
-    description: document.getElementById('edit-description').value.trim(),
-    furnished: document.getElementById('edit-furnished').checked,
-    ...amenities,
-  };
-  const btn = document.getElementById('btn-save-edit');
-  btn.disabled = true; btn.innerHTML = '<span class="spinner-sm"></span> Saving…';
-  const { error } = await db.from('listings').update(updates).eq('id', id);
-  btn.disabled = false; btn.innerHTML = 'Save changes';
-  if (error) { showToast('Could not save: '+error.message,'error'); return; }
-  const idx = allListings.findIndex(l => l.id === id);
-  if (idx !== -1) allListings[idx] = { ...allListings[idx], ...updates };
-  closeModal('modal-edit'); renderListingsTable(); renderQuickListings();
-  showToast('Listing updated successfully','success');
+async function saveEdit(){
+  const id=document.getElementById('edit-id').value;
+  const am={};AMENITY_KEYS.forEach(a=>{am[a.key]=document.getElementById('edit-'+a.key)?.checked||false;});
+  const u={title:document.getElementById('edit-title').value.trim(),price:parseFloat(document.getElementById('edit-price').value)||0,price_type:document.getElementById('edit-price-type').value,bedrooms:parseInt(document.getElementById('edit-bedrooms').value)||null,bathrooms:parseInt(document.getElementById('edit-bathrooms').value)||null,size_sqm:parseFloat(document.getElementById('edit-size').value)||null,area:document.getElementById('edit-area').value,category:document.getElementById('edit-category').value,address:document.getElementById('edit-address').value.trim(),description:document.getElementById('edit-description').value.trim(),furnished:document.getElementById('edit-furnished').checked,...am};
+  const btn=document.getElementById('btn-save-edit');btn.disabled=true;btn.innerHTML='<span class="spinner-sm"></span> Saving…';
+  const{error}=await db.from('listings').update(u).eq('id',id);
+  btn.disabled=false;btn.innerHTML='Save changes';
+  if(error){showToast('Could not save: '+error.message,'error');return;}
+  const idx=allListings.findIndex(l=>l.id===id);if(idx!==-1)allListings[idx]={...allListings[idx],...u};
+  closeModal('modal-edit');renderListingsTable();renderQuickListings();showToast('Listing updated ✓','success');
 }
 
-function openDeleteModal(id, name) {
-  deleteTargetId = id;
-  document.getElementById('delete-listing-name').textContent = name;
-  openModal('modal-delete');
+function openDeleteModal(id,name){deleteTargetId=id;document.getElementById('delete-listing-name').textContent=name;openModal('modal-delete');}
+async function confirmDelete(){
+  if(!deleteTargetId)return;
+  const btn=document.getElementById('btn-confirm-delete');btn.disabled=true;btn.innerHTML='<span class="spinner-sm" style="border-top-color:var(--red)"></span> Deleting…';
+  await db.from('listing_photos').delete().eq('listing_id',deleteTargetId);
+  await db.from('enquiries').delete().eq('listing_id',deleteTargetId);
+  await db.from('messages').delete().eq('listing_id',deleteTargetId);
+  const{data,error}=await db.from('listings').delete().eq('id',deleteTargetId).select();
+  btn.disabled=false;btn.innerHTML='Delete listing';
+  if(error){showToast('Could not delete: '+error.message,'error');return;}
+  if(!data?.length){showToast('Delete blocked by database permissions (RLS)','error');return;}
+  allListings=allListings.filter(l=>l.id!==deleteTargetId);allEnquiries=allEnquiries.filter(e=>e.listing_id!==deleteTargetId);allMessages=allMessages.filter(m=>m.listing_id!==deleteTargetId);
+  buildThreads();updateNavBadges();deleteTargetId=null;closeModal('modal-delete');renderListingsTable();renderOverview();showToast('Listing deleted','success');
 }
 
-async function confirmDelete() {
-  if (!deleteTargetId) return;
-  const btn = document.getElementById('btn-confirm-delete');
-  btn.disabled = true; btn.innerHTML = '<span class="spinner-sm" style="border-top-color:var(--red)"></span> Deleting…';
-  await db.from('listing_photos').delete().eq('listing_id', deleteTargetId);
-  await db.from('enquiries').delete().eq('listing_id', deleteTargetId);
-  await db.from('messages').delete().eq('listing_id', deleteTargetId);
-  const { data, error } = await db.from('listings').delete().eq('id', deleteTargetId).select();
-  btn.disabled = false; btn.innerHTML = 'Delete listing';
-  if (error) { showToast('Could not delete: '+error.message,'error'); return; }
-  if (!data || data.length === 0) { showToast('Delete blocked by database permissions (RLS)','error'); return; }
-  allListings = allListings.filter(l => l.id !== deleteTargetId);
-  allEnquiries = allEnquiries.filter(e => e.listing_id !== deleteTargetId);
-  allMessages = allMessages.filter(m => m.listing_id !== deleteTargetId);
-  buildThreads(); updateNavBadges();
-  deleteTargetId = null;
-  closeModal('modal-delete'); renderListingsTable(); renderOverview();
-  showToast('Listing deleted','success');
+// Messages page
+function renderThreadList(){
+  const q=(document.getElementById('thread-search-input')?.value||'').toLowerCase();
+  const filtered=q?threads.filter(t=>t.buyer_name.toLowerCase().includes(q)||t.listing_title.toLowerCase().includes(q)):threads;
+  document.getElementById('msg-thread-count').textContent=`${filtered.length} conversation${filtered.length!==1?'s':''}`;
+  const el=document.getElementById('thread-items');
+  if(!filtered.length){el.innerHTML=`<div style="padding:40px 20px;text-align:center;color:var(--text-3);font-size:13px">${q?'No matching conversations.':'No messages yet. When buyers contact you, conversations appear here.'}</div>`;return;}
+  el.innerHTML=filtered.map(t=>{const lm=t.messages[t.messages.length-1];const prev=lm?(lm.sender==='seller'?'You: ':'')+(lm.content||lm.message||''):'';const ini=t.buyer_name.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase()||'?';const isA=activeThread&&activeThread.key===t.key;const isU=(t.unread_count||0)>0;return `<div class="thread-item${isA?' active':''}${isU?' unread':''}" onclick="openThread('${t.key}')"><div class="thread-avatar">${ini}</div><div class="thread-meta"><div class="thread-name">${escHtml(t.buyer_name)}</div><div class="thread-listing-ref">${escHtml(t.listing_title)}${t.listing_area?' · '+t.listing_area:''}</div><div class="thread-preview">${escHtml(prev)}</div></div><div class="thread-time">${timeAgo(t.last_at)}</div></div>`;}).join('');
 }
 
-// ── MESSAGES PAGE ──
-function renderThreadList() {
-  const q = (document.getElementById('thread-search-input')?.value||'').toLowerCase();
-  const filtered = q
-    ? threads.filter(t => t.buyer_name.toLowerCase().includes(q) || t.listing_title.toLowerCase().includes(q))
-    : threads;
+function openThread(key){activeThread=threads.find(t=>t.key===key)||null;if(!activeThread)return;renderThreadList();renderChatPane(activeThread);markThreadRead(activeThread);}
 
-  document.getElementById('msg-thread-count').textContent = `${filtered.length} conversation${filtered.length!==1?'s':''}`;
-
-  const el = document.getElementById('thread-items');
-  if (!filtered.length) {
-    el.innerHTML = `<div style="padding:40px 20px;text-align:center;color:var(--text-3);font-size:13px">${q?'No matching conversations.':'No messages yet. When buyers contact you through a listing, conversations appear here.'}</div>`;
-    return;
-  }
-  el.innerHTML = filtered.map(t => {
-    const lastMsg = t.messages[t.messages.length-1];
-    const preview = lastMsg ? (lastMsg.sender==='seller'?'You: ':'')+(lastMsg.content||lastMsg.message||'') : '';
-    const initials = t.buyer_name.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase()||'?';
-    const isActive = activeThread && activeThread.key === t.key;
-    const isUnread = (t.unread_count||0) > 0;
-    return `<div class="thread-item${isActive?' active':''}${isUnread?' unread':''}" onclick="openThread('${t.key}')">
-      <div class="thread-avatar">${initials}</div>
-      <div class="thread-meta">
-        <div class="thread-name">${escHtml(t.buyer_name)}</div>
-        <div class="thread-listing-ref">${escHtml(t.listing_title)}${t.listing_area?' · '+t.listing_area:''}</div>
-        <div class="thread-preview">${escHtml(preview)}</div>
-      </div>
-      <div class="thread-time">${timeAgo(t.last_at)}</div>
-    </div>`;
-  }).join('');
-}
-
-function openThread(key) {
-  activeThread = threads.find(t => t.key === key) || null;
-  if (!activeThread) return;
-  renderThreadList(); // re-render to update active highlight
-  renderChatPane(activeThread);
-  markThreadRead(activeThread);
-}
-
-function renderChatPane(t) {
-  document.getElementById('chat-empty').style.display = 'none';
-  const active = document.getElementById('chat-active');
-  active.style.display = 'flex';
-
-  // Header
-  const initials = t.buyer_name.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase()||'?';
-  const waLink = t.buyer_phone
-    ? `<a href="https://wa.me/${formatWaPhone(t.buyer_phone)}" target="_blank" class="btn btn-sm" style="background:#25D366;color:white;text-decoration:none">
-        <svg viewBox="0 0 24 24" width="13" height="13" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.997 2C6.477 2 2 6.477 2 12c0 1.885.52 3.648 1.425 5.157L2 22l4.955-1.397A9.954 9.954 0 0011.997 22C17.517 22 22 17.523 22 12S17.517 2 11.997 2z"/></svg>
-        WhatsApp
-      </a>`
-    : '';
-  const listing = allListings.find(l => l.id === t.listing_id);
-  const liveLink = listing
-    ? `<a href="listing.html?id=${t.listing_id}" target="_blank" class="btn btn-outline btn-sm" style="text-decoration:none">View listing</a>`
-    : '';
-  document.getElementById('chat-header').innerHTML = `
-    <div class="chat-header-avatar">${initials}</div>
-    <div>
-      <div class="chat-header-name">${escHtml(t.buyer_name)}</div>
-      <div class="chat-header-sub">${t.buyer_phone||'No phone'} · Re: ${escHtml(t.listing_title)}</div>
-    </div>
-    <div class="chat-header-actions">${waLink}${liveLink}</div>`;
-
-  // WhatsApp hint
-  document.getElementById('chat-wa-hint').innerHTML = t.buyer_phone
-    ? `<svg viewBox="0 0 24 24" width="12" height="12" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.997 2C6.477 2 2 6.477 2 12c0 1.885.52 3.648 1.425 5.157L2 22l4.955-1.397A9.954 9.954 0 0011.997 22C17.517 22 22 17.523 22 12S17.517 2 11.997 2z"/></svg>
-    Replies are saved here and also delivered via WhatsApp if the buyer's number is available.`
-    : `Replies are saved here. No phone number — buyer will see your reply when they revisit the listing.`;
-
-  // Messages
+function renderChatPane(t){
+  document.getElementById('chat-empty').style.display='none';
+  const av=document.getElementById('chat-active');av.style.display='flex';
+  const ini=t.buyer_name.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase()||'?';
+  const waLink=t.buyer_phone?`<a href="https://wa.me/${formatWaPhone(t.buyer_phone)}" target="_blank" class="btn btn-sm" style="background:#25D366;color:white;text-decoration:none">WhatsApp</a>`:'';
+  const listing=allListings.find(l=>l.id===t.listing_id);
+  const liveLink=listing?`<a href="listing.html?id=${t.listing_id}" target="_blank" class="btn btn-outline btn-sm" style="text-decoration:none">View listing</a>`:'';
+  document.getElementById('chat-header').innerHTML=`<div class="chat-header-avatar">${ini}</div><div><div class="chat-header-name">${escHtml(t.buyer_name)}</div><div class="chat-header-sub">${t.buyer_phone||'No phone'} · Re: ${escHtml(t.listing_title)}</div></div><div class="chat-header-actions">${waLink}${liveLink}</div>`;
+  document.getElementById('chat-wa-hint').innerHTML=t.buyer_phone?'Replies also sent via WhatsApp if number is available.':'Buyer will see your reply when they revisit the listing.';
   renderChatMessages(t);
-
-  // Scroll to bottom
-  setTimeout(() => {
-    const mc = document.getElementById('chat-messages');
-    mc.scrollTop = mc.scrollHeight;
-  }, 50);
+  setTimeout(()=>{const mc=document.getElementById('chat-messages');mc.scrollTop=mc.scrollHeight;},50);
 }
 
-function renderChatMessages(t) {
-  const mc = document.getElementById('chat-messages');
-  if (!t.messages.length) {
-    mc.innerHTML = '<div style="text-align:center;color:var(--text-3);font-size:13px;padding:20px">No messages yet</div>';
-    return;
-  }
-  let lastDate = '';
-  const sellerName = currentProfile?.full_name || currentUser?.email?.split('@')[0] || 'You';
-  const sellerInitials = sellerName.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase()||'S';
-  const buyerInitials = t.buyer_name.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase()||'?';
-
-  mc.innerHTML = t.messages.map(m => {
-    const msgDate = new Date(m.created_at).toLocaleDateString('en-KE',{weekday:'long',day:'numeric',month:'long'});
-    const dateDivider = msgDate !== lastDate
-      ? `<div class="chat-date-divider"><span>${msgDate}</span></div>`
-      : '';
-    lastDate = msgDate;
-    const isSeller = m.sender === 'seller';
-    const time = new Date(m.created_at).toLocaleTimeString('en-KE',{hour:'2-digit',minute:'2-digit'});
-    const avatarHtml = isSeller
-      ? `<div class="bubble-avatar seller-av">${sellerInitials}</div>`
-      : `<div class="bubble-avatar buyer">${buyerInitials}</div>`;
-    return `${dateDivider}
-      <div class="chat-bubble-row ${isSeller?'seller':''}">
-        ${avatarHtml}
-        <div>
-          <div class="chat-bubble ${isSeller?'seller-b':'buyer'}">${escHtml(m.content||m.message||'')}</div>
-          <div class="bubble-time">${time}${isSeller?' · Sent':''}</div>
-        </div>
-      </div>`;
+function renderChatMessages(t){
+  const mc=document.getElementById('chat-messages');
+  if(!t.messages.length){mc.innerHTML='<div style="text-align:center;color:var(--text-3);font-size:13px;padding:20px">No messages yet</div>';return;}
+  let lastDate='';
+  const sn=currentProfile?.full_name||currentUser?.email?.split('@')[0]||'You';
+  const si=sn.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase()||'S';
+  const bi=t.buyer_name.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase()||'?';
+  mc.innerHTML=t.messages.map(m=>{
+    const md=new Date(m.created_at).toLocaleDateString('en-KE',{weekday:'long',day:'numeric',month:'long'});
+    const dd=md!==lastDate?`<div class="chat-date-divider"><span>${md}</span></div>`:'';lastDate=md;
+    const isSeller=m.sender==='seller';
+    const time=new Date(m.created_at).toLocaleTimeString('en-KE',{hour:'2-digit',minute:'2-digit'});
+    return `${dd}<div class="chat-bubble-row ${isSeller?'seller':''}"><div class="bubble-avatar ${isSeller?'seller-av':'buyer'}">${isSeller?si:bi}</div><div><div class="chat-bubble ${isSeller?'seller-b':'buyer'}">${escHtml(m.content||m.message||'')}</div><div class="bubble-time">${time}${isSeller?' · Sent':''}</div></div></div>`;
   }).join('');
 }
 
-async function sendChatReply() {
-  if (!activeThread) return;
-  const input = document.getElementById('chat-reply-input');
-  const text = input.value.trim();
-  if (!text) return;
-
-  const btn = document.getElementById('chat-send-btn');
-  btn.disabled = true;
-
-  const newMsg = {
-    listing_id: activeThread.listing_id,
-    buyer_token: activeThread.buyer_token || null,
-    buyer_name: activeThread.buyer_name,
-    buyer_phone: activeThread.buyer_phone || null,
-    sender: 'seller',
-    content: text,
-  };
-
-  const { data, error } = await db.from('messages').insert(newMsg).select().single();
-  btn.disabled = false;
-
-  if (error) {
-    showToast('Could not send: ' + error.message, 'error');
-    return;
-  }
-
-  // Add to local state
-  allMessages.push(data || { ...newMsg, id: Date.now(), created_at: new Date().toISOString() });
-  buildThreads();
-  activeThread = threads.find(t => t.key === activeThread.key) || activeThread;
-  input.value = '';
-  input.style.height = 'auto';
-  renderChatMessages(activeThread);
-  renderThreadList();
-  // Scroll to bottom
-  setTimeout(() => {
-    const mc = document.getElementById('chat-messages');
-    mc.scrollTop = mc.scrollHeight;
-  }, 30);
-
-  // Also open WhatsApp if buyer has phone (optional — sends same message there too)
-  if (activeThread.buyer_phone) {
-    // Don't auto-open WhatsApp to avoid spam — seller can use the header button if they want
-  }
+async function sendChatReply(){
+  if(!activeThread)return;
+  const input=document.getElementById('chat-reply-input');const text=input.value.trim();if(!text)return;
+  const btn=document.getElementById('chat-send-btn');btn.disabled=true;
+  const nm={listing_id:activeThread.listing_id,buyer_token:activeThread.buyer_token||null,buyer_name:activeThread.buyer_name,buyer_phone:activeThread.buyer_phone||null,sender:'seller',content:text};
+  const{data,error}=await db.from('messages').insert(nm).select().single();
+  btn.disabled=false;
+  if(error){showToast('Could not send: '+error.message,'error');return;}
+  allMessages.push(data||{...nm,id:Date.now(),created_at:new Date().toISOString()});
+  buildThreads();activeThread=threads.find(t=>t.key===activeThread.key)||activeThread;
+  input.value='';input.style.height='auto';renderChatMessages(activeThread);renderThreadList();
+  setTimeout(()=>{const mc=document.getElementById('chat-messages');mc.scrollTop=mc.scrollHeight;},30);
 }
 
-function handleChatKeydown(e) {
-  if (e.key === 'Enter' && !e.shiftKey) {
-    e.preventDefault();
-    sendChatReply();
-  }
+function handleChatKeydown(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendChatReply();}}
+function autoResizeTextarea(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,140)+'px';}
+
+async function markThreadRead(t){
+  if(!t.unread_count)return;
+  const eIds=allEnquiries.filter(e=>e.listing_id===t.listing_id&&!e.read_at).map(e=>e.id);
+  if(eIds.length){await db.from('enquiries').update({read_at:new Date().toISOString()}).in('id',eIds);eIds.forEach(id=>{const e=allEnquiries.find(e=>e.id===id);if(e)e.read_at=new Date().toISOString();});}
+  const uIds=t.messages.filter(m=>m.sender==='buyer'&&!m.read_at&&!String(m.id).startsWith('enq-')).map(m=>m.id);
+  if(uIds.length){await db.from('messages').update({read_at:new Date().toISOString()}).in('id',uIds);uIds.forEach(id=>{const m=allMessages.find(m=>m.id===id);if(m)m.read_at=new Date().toISOString();});}
+  buildThreads();updateNavBadges();
 }
 
-function autoResizeTextarea(el) {
-  el.style.height = 'auto';
-  el.style.height = Math.min(el.scrollHeight, 140) + 'px';
+// Enquiries
+function filterEnquiries(f,el){enquiryFilter=f;document.querySelectorAll('#page-enquiries .filter-pill').forEach(p=>p.classList.remove('active'));el.classList.add('active');renderEnquiries();}
+
+function renderEnquiries(){
+  const filtered=enquiryFilter==='unread'?allEnquiries.filter(e=>!e.read_at):allEnquiries;
+  const el=document.getElementById('enquiry-list');
+  if(!filtered.length){el.innerHTML=`<div class="empty-state"><svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13"/></svg><h3>${enquiryFilter==='unread'?'All caught up!':'No enquiries yet'}</h3><p>${enquiryFilter==='unread'?'No unread messages.':"When buyers message you, they'll appear here."}</p></div>`;return;}
+  el.innerHTML=filtered.map(e=>{const ini=(e.buyer_name||'B').split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase();return `<div class="enquiry-card${!e.read_at?' unread':''}" id="enq-${e.id}"><div class="enquiry-avatar">${ini}</div><div class="enquiry-body"><div class="enquiry-head"><span class="enquiry-name">${escHtml(e.buyer_name||'Unknown buyer')}</span><span class="enquiry-phone">${e.buyer_phone||''}</span><span class="enquiry-time">${timeAgo(e.created_at)}</span></div><div class="enquiry-listing-ref">Re: ${escHtml(e.listings?.title||'Listing')} · ${e.listings?.area||''}</div><div class="enquiry-msg">${escHtml(e.message||'')}</div><div class="enquiry-actions"><button class="btn btn-primary btn-sm" onclick="showPage('messages')"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Open conversation</button>${e.buyer_phone?`<a class="btn btn-sm" style="background:#25D366;color:white" href="https://wa.me/${formatWaPhone(e.buyer_phone)}" target="_blank">WhatsApp</a>`:''}${!e.read_at?`<button class="btn btn-outline btn-sm" data-id="${e.id}" onclick="markEnqRead(this.dataset.id)">Mark read</button>`:''}</div></div></div>`;}).join('');
+  const uIds=filtered.filter(e=>!e.read_at).map(e=>e.id);if(uIds.length) setTimeout(()=>markAllEnqRead(uIds),2000);
 }
 
-async function markThreadRead(t) {
-  if (!t.unread_count) return;
-  // Mark enquiries as read
-  const enqIds = allEnquiries.filter(e => e.listing_id === t.listing_id && !e.read_at).map(e => e.id);
-  if (enqIds.length) {
-    await db.from('enquiries').update({ read_at: new Date().toISOString() }).in('id', enqIds);
-    enqIds.forEach(id => { const e = allEnquiries.find(e => e.id === id); if (e) e.read_at = new Date().toISOString(); });
-  }
-  // Mark messages as read
-  const unreadIds = t.messages
-    .filter(m => m.sender === 'buyer' && !m.read_at && !String(m.id).startsWith('enq-'))
-    .map(m => m.id);
-  if (unreadIds.length) {
-    await db.from('messages').update({ read_at: new Date().toISOString() }).in('id', unreadIds);
-    unreadIds.forEach(id => { const m = allMessages.find(m => m.id === id); if (m) m.read_at = new Date().toISOString(); });
-  }
-  buildThreads();
-  updateNavBadges();
+function formatWaPhone(p){return (p||'').replace(/^0/,'254').replace(/\s/g,'');}
+async function markEnqRead(id){await db.from('enquiries').update({read_at:new Date().toISOString()}).eq('id',id);const e=allEnquiries.find(e=>e.id===id);if(e)e.read_at=new Date().toISOString();document.getElementById('enq-'+id)?.classList.remove('unread');buildThreads();updateNavBadges();}
+async function markAllEnqRead(ids){if(!ids.length)return;await db.from('enquiries').update({read_at:new Date().toISOString()}).in('id',ids);ids.forEach(id=>{const e=allEnquiries.find(e=>e.id===id);if(e)e.read_at=new Date().toISOString();});buildThreads();updateNavBadges();}
+
+function openReplyModal(id){replyTargetEnquiry=allEnquiries.find(e=>e.id===id);if(!replyTargetEnquiry)return;document.getElementById('reply-original-msg').textContent=`${replyTargetEnquiry.buyer_name||'Buyer'} said: "${replyTargetEnquiry.message||''}"`;document.getElementById('reply-text').value='';const wr=document.getElementById('reply-whatsapp-row');wr.innerHTML=replyTargetEnquiry.buyer_phone?`<a href="https://wa.me/${formatWaPhone(replyTargetEnquiry.buyer_phone)}" target="_blank" class="btn btn-sm" style="background:#25D366;color:white">Open WhatsApp chat</a>`:'';openModal('modal-reply');}
+function sendReply(){const text=document.getElementById('reply-text').value.trim();if(!text){showToast('Please type a reply first','error');return;}if(replyTargetEnquiry?.buyer_phone){window.open(`https://wa.me/${formatWaPhone(replyTargetEnquiry.buyer_phone)}?text=${encodeURIComponent(text)}`,'_blank');}else{showToast('No phone number available','error');return;}closeModal('modal-reply');showToast('Opened WhatsApp with your reply','success');}
+
+// Payments
+function renderPayments(){
+  const paid=allPayments.filter(p=>p.status==='confirmed'||p.status==='paid');
+  const total=paid.reduce((s,p)=>s+(Number(p.amount)||0),0);
+  const pending=allPayments.filter(p=>p.status==='pending'||p.status==='pending_verification');
+  document.getElementById('payment-summary').innerHTML=[{label:'Total collected',val:`KES ${total.toLocaleString('en-KE')}`,sub:`${paid.length} confirmed payment${paid.length!==1?'s':''}`,color:'var(--green)'},{label:'Pending',val:pending.length,sub:'awaiting confirmation',color:'var(--amber)'},{label:'Avg per listing',val:paid.length?`KES ${Math.round(total/paid.length).toLocaleString('en-KE')}`:'—',sub:'listing fee',color:'var(--text-3)'}].map(s=>`<div class="card" style="padding:18px 20px"><div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);margin-bottom:8px">${s.label}</div><div style="font-size:24px;font-weight:700;color:${s.color};margin-bottom:4px">${s.val}</div><div style="font-size:12px;color:var(--text-3)">${s.sub}</div></div>`).join('');
+  const tbody=document.getElementById('payments-tbody');
+  if(!allPayments.length){tbody.innerHTML=`<tr><td colspan="6"><div class="empty-state"><svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg><h3>No payments yet</h3><p>When you pay the listing fee, your payment history appears here.</p></div></td></tr>`;return;}
+  tbody.innerHTML=allPayments.map(p=>{const date=new Date(p.created_at).toLocaleDateString('en-KE',{day:'numeric',month:'short',year:'numeric'});const isPaid=p.status==='confirmed'||p.status==='paid';const isPending=p.status==='pending'||p.status==='pending_verification';return `<tr><td style="color:var(--text-2)">${date}</td><td style="font-weight:500">${escHtml(p.listings?.title||'—')}</td><td><span class="pay-ref">${p.reference||p.mpesa_ref||'—'}</span></td><td style="font-weight:700;color:var(--green-dark)">KES ${Number(p.amount||0).toLocaleString('en-KE')}</td><td><span class="pay-status ${isPaid?'paid':isPending?'pending':'failed'}">${isPaid?'✓ Paid':isPending?'⏳ Pending':'✕ Failed'}</span></td><td>${isPaid?`<button class="btn btn-outline btn-sm" onclick="showToast('Receipt download coming soon','success')">Receipt</button>`:'—'}</td></tr>`;}).join('');
 }
 
-// ── ENQUIRIES PAGE ──
-function filterEnquiries(filter, el) {
-  enquiryFilter = filter;
-  document.querySelectorAll('#page-enquiries .filter-pill').forEach(p => p.classList.remove('active'));
-  el.classList.add('active');
-  renderEnquiries();
-}
-
-function renderEnquiries() {
-  const filtered = enquiryFilter === 'unread' ? allEnquiries.filter(e => !e.read_at) : allEnquiries;
-  const el = document.getElementById('enquiry-list');
-  if (!filtered.length) {
-    el.innerHTML = `<div class="empty-state">
-      <svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13"/></svg>
-      <h3>${enquiryFilter==='unread'?'All caught up!':'No enquiries yet'}</h3>
-      <p>${enquiryFilter==='unread'?'No unread messages.':"When buyers message you, they'll appear here."}</p>
-    </div>`;
-    return;
-  }
-  el.innerHTML = filtered.map(e => {
-    const initials = (e.buyer_name||'B').split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase();
-    return `<div class="enquiry-card${!e.read_at?' unread':''}" id="enq-${e.id}">
-      <div class="enquiry-avatar">${initials}</div>
-      <div class="enquiry-body">
-        <div class="enquiry-head">
-          <span class="enquiry-name">${escHtml(e.buyer_name||'Unknown buyer')}</span>
-          <span class="enquiry-phone">${e.buyer_phone||''}</span>
-          <span class="enquiry-time">${timeAgo(e.created_at)}</span>
-        </div>
-        <div class="enquiry-listing-ref">Re: ${escHtml(e.listings?.title||'Listing')} · ${e.listings?.area||''}</div>
-        <div class="enquiry-msg">${escHtml(e.message||'')}</div>
-        <div class="enquiry-actions">
-          <button class="btn btn-primary btn-sm" onclick="showPage('messages')" title="Open in Messages">
-            <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-            Open conversation
-          </button>
-          <button class="btn btn-outline btn-sm" data-id="${e.id}" onclick="openReplyModal(this.dataset.id)">
-            <svg viewBox="0 0 24 24"><polyline points="9 17 4 12 9 7"/><path d="M20 18v-2a4 4 0 00-4-4H4"/></svg>
-            Quick WhatsApp reply
-          </button>
-          ${e.buyer_phone?`<a class="btn btn-sm" style="background:#25D366;color:white" href="https://wa.me/${formatWaPhone(e.buyer_phone)}" target="_blank">WhatsApp</a>`:''}
-          ${!e.read_at?`<button class="btn btn-outline btn-sm" data-id="${e.id}" onclick="markEnqRead(this.dataset.id)">Mark read</button>`:''}
-        </div>
-      </div>
-    </div>`;
-  }).join('');
-  const unreadIds = filtered.filter(e => !e.read_at).map(e => e.id);
-  if (unreadIds.length) setTimeout(() => markAllEnqRead(unreadIds), 2000);
-}
-
-function formatWaPhone(phone) {
-  return (phone||'').replace(/^0/,'254').replace(/\s/g,'');
-}
-
-async function markEnqRead(id) {
-  await db.from('enquiries').update({ read_at: new Date().toISOString() }).eq('id', id);
-  const e = allEnquiries.find(e => e.id === id);
-  if (e) e.read_at = new Date().toISOString();
-  document.getElementById('enq-'+id)?.classList.remove('unread');
-  buildThreads(); updateNavBadges();
-}
-
-async function markAllEnqRead(ids) {
-  if (!ids.length) return;
-  await db.from('enquiries').update({ read_at: new Date().toISOString() }).in('id', ids);
-  ids.forEach(id => { const e = allEnquiries.find(e => e.id === id); if (e) e.read_at = new Date().toISOString(); });
-  buildThreads(); updateNavBadges();
-}
-
-function openReplyModal(id) {
-  replyTargetEnquiry = allEnquiries.find(e => e.id === id);
-  if (!replyTargetEnquiry) return;
-  document.getElementById('reply-original-msg').textContent = `${replyTargetEnquiry.buyer_name||'Buyer'} said: "${replyTargetEnquiry.message||''}"`;
-  document.getElementById('reply-text').value = '';
-  const waRow = document.getElementById('reply-whatsapp-row');
-  if (replyTargetEnquiry.buyer_phone) {
-    waRow.innerHTML = `<div style="font-size:12px;color:var(--text-3);margin-bottom:6px">Or contact them directly:</div>
-      <a href="https://wa.me/${formatWaPhone(replyTargetEnquiry.buyer_phone)}" target="_blank" class="btn btn-sm" style="background:#25D366;color:white">Open WhatsApp chat</a>`;
-  } else { waRow.innerHTML = ''; }
-  openModal('modal-reply');
-}
-
-function sendReply() {
-  const text = document.getElementById('reply-text').value.trim();
-  if (!text) { showToast('Please type a reply first','error'); return; }
-  if (replyTargetEnquiry?.buyer_phone) {
-    window.open(`https://wa.me/${formatWaPhone(replyTargetEnquiry.buyer_phone)}?text=${encodeURIComponent(text)}`, '_blank');
-  } else { showToast('No phone number available','error'); return; }
-  closeModal('modal-reply');
-  showToast('Opened WhatsApp with your reply','success');
-}
-
-// ── PAYMENTS PAGE ──
-function renderPayments() {
-  const paid = allPayments.filter(p => p.status==='confirmed'||p.status==='paid');
-  const total = paid.reduce((s,p) => s+(Number(p.amount)||0), 0);
-  const pending = allPayments.filter(p => p.status==='pending'||p.status==='pending_verification');
-  document.getElementById('payment-summary').innerHTML = [
-    { label:'Total collected', val:`KES ${total.toLocaleString('en-KE')}`, sub:`${paid.length} confirmed payment${paid.length!==1?'s':''}`, color:'var(--green)' },
-    { label:'Pending', val:pending.length, sub:'awaiting confirmation', color:'var(--amber)' },
-    { label:'Avg per listing', val:paid.length?`KES ${Math.round(total/paid.length).toLocaleString('en-KE')}`:'—', sub:'listing fee', color:'var(--text-3)' },
-  ].map(s => `<div class="card" style="padding:18px 20px">
-    <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);margin-bottom:8px">${s.label}</div>
-    <div style="font-size:24px;font-weight:700;color:${s.color};margin-bottom:4px">${s.val}</div>
-    <div style="font-size:12px;color:var(--text-3)">${s.sub}</div>
-  </div>`).join('');
-
-  const tbody = document.getElementById('payments-tbody');
-  if (!allPayments.length) {
-    tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state">
-      <svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-      <h3>No payments yet</h3>
-      <p>When you pay the listing fee, your payment history appears here.</p>
-    </div></td></tr>`;
-    return;
-  }
-  tbody.innerHTML = allPayments.map(p => {
-    const date = new Date(p.created_at).toLocaleDateString('en-KE',{day:'numeric',month:'short',year:'numeric'});
-    const isPaid = p.status==='confirmed'||p.status==='paid';
-    const isPendingState = p.status==='pending'||p.status==='pending_verification';
-    const statusCls = isPaid?'paid':isPendingState?'pending':'failed';
-    const statusTxt = isPaid?'✓ Paid':isPendingState?'⏳ Pending':'✕ Failed';
-    return `<tr>
-      <td style="color:var(--text-2)">${date}</td>
-      <td style="font-weight:500">${escHtml(p.listings?.title||'—')}</td>
-      <td><span class="pay-ref">${p.reference||p.mpesa_ref||'—'}</span></td>
-      <td style="font-weight:700;color:var(--green-dark)">KES ${Number(p.amount||0).toLocaleString('en-KE')}</td>
-      <td><span class="pay-status ${statusCls}">${statusTxt}</span></td>
-      <td>${isPaid?`<button class="btn btn-outline btn-sm" onclick="showToast('Receipt download coming soon','success')">
-        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Receipt</button>`:'—'}</td>
-    </tr>`;
-  }).join('');
-}
-
-// ── NAVIGATION ──
-const pageTitles = { overview:'Overview', listings:'My listings', messages:'Messages', enquiries:'Enquiries', payments:'Payments', settings:'Settings' };
-function showPage(name) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+// Navigation
+const pageTitles={overview:'Overview',listings:'My listings',messages:'Messages',enquiries:'Enquiries',payments:'Payments',settings:'Settings'};
+function showPage(name){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   document.getElementById('page-'+name).classList.add('active');
-  const navEl = document.getElementById('nav-'+name);
-  if (navEl) navEl.classList.add('active');
-  document.getElementById('topbar-title').textContent = pageTitles[name]||name;
-  if (name==='overview')  renderOverview();
-  if (name==='listings')  renderListingsTable();
-  if (name==='messages')  { renderThreadList(); }
-  if (name==='enquiries') renderEnquiries();
-  if (name==='payments')  renderPayments();
+  const navEl=document.getElementById('nav-'+name);if(navEl)navEl.classList.add('active');
+  document.getElementById('topbar-title').textContent=pageTitles[name]||name;
+  if(name==='overview') renderOverview();
+  if(name==='listings') renderListingsTable();
+  if(name==='messages') renderThreadList();
+  if(name==='enquiries') renderEnquiries();
+  if(name==='payments') renderPayments();
   closeSidebar();
 }
 
-function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('sidebar-overlay').classList.toggle('open'); }
-function closeSidebar()  { document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebar-overlay').classList.remove('open'); }
+function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('sidebar-overlay').classList.toggle('open');}
+function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sidebar-overlay').classList.remove('open');}
 
-// ── MODALS ──
-function openModal(id)  { document.getElementById(id).classList.add('open'); document.body.style.overflow='hidden'; }
-function closeModal(id) { document.getElementById(id).classList.remove('open'); document.body.style.overflow=''; }
-document.addEventListener('keydown', e => {
-  if (e.key==='Escape') document.querySelectorAll('.modal-overlay.open').forEach(m => { m.classList.remove('open'); document.body.style.overflow=''; });
-});
-document.querySelectorAll('.modal-overlay').forEach(overlay => {
-  overlay.addEventListener('click', e => { if (e.target===overlay) closeModal(overlay.id); });
-});
+function openModal(id){document.getElementById(id).classList.add('open');document.body.style.overflow='hidden';}
+function closeModal(id){document.getElementById(id).classList.remove('open');document.body.style.overflow='';}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.modal-overlay.open').forEach(m=>{m.classList.remove('open');document.body.style.overflow='';});});
+document.querySelectorAll('.modal-overlay').forEach(ov=>ov.addEventListener('click',e=>{if(e.target===ov)closeModal(ov.id);}));
 
-// ── SIGN OUT ──
-async function doSignOut() {
-  clearInterval(msgPollTimer);
-  await db.auth.signOut();
-  window.location.href = 'login.html';
-}
+async function doSignOut(){clearInterval(msgPollTimer);lswCleanup();await db.auth.signOut();window.location.href='login.html';}
 
-// ── TOAST ──
 let toastTimer;
-function showToast(msg, type='success') {
-  const t = document.getElementById('toast'), m = document.getElementById('toast-msg');
-  clearTimeout(toastTimer); t.className='toast '+type; m.textContent=msg; t.classList.add('show');
-  toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
+function showToast(msg,type='success'){const t=document.getElementById('toast'),m=document.getElementById('toast-msg');clearTimeout(toastTimer);t.className='toast '+type;m.textContent=msg;t.classList.add('show');toastTimer=setTimeout(()=>t.classList.remove('show'),3500);}
+
+function timeAgo(iso){if(!iso)return'';const d=(Date.now()-new Date(iso))/1000;if(d<60)return'just now';if(d<3600)return`${Math.floor(d/60)}m ago`;if(d<86400)return`${Math.floor(d/3600)}h ago`;if(d<604800)return`${Math.floor(d/86400)}d ago`;return new Date(iso).toLocaleDateString('en-KE',{day:'numeric',month:'short'});}
+function escHtml(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function escAttr(s){if(!s)return'';return String(s).replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+
+/* ═══════════════════════════════════════════════════════════════════
+   LIVE SUPPORT WIDGET — SELLER SIDE
+   ───────────────────────────────────────────────────────────────────
+   FIX 1 — Welcome message shown ONCE only (lswWelcomeDone flag)
+   FIX 2 — No auto-reply loop; widget sends ONE referral message
+            after first seller message then stops forever
+   FIX 3 — Unread badge counts only admin replies from Supabase,
+            never increments from the welcome/referral messages we
+            write locally, and never touches unread_admin column
+   ═══════════════════════════════════════════════════════════════════ */
+
+let lswOpen          = false;
+let lswSessionId     = null;
+let lswChannel       = null;
+let lswLoaded        = false;
+let lswSellerName    = '';
+let lswSellerInits   = '';
+let lswWelcomeDone   = false; // ← FIX 1: welcome shown only once
+let lswReferralSent  = false; // ← FIX 2: referral message sent only once
+let lswAdminUnread   = 0;     // ← FIX 3: counts ONLY real admin DB messages
+
+const LSW_OPTIONS = [
+  { icon:'💳', label:'Payment or M-Pesa issue' },
+  { icon:'🏠', label:'My listing is pending approval' },
+  { icon:'📋', label:'How do I edit or delete my listing?' },
+  { icon:'💰', label:'Listing fees & pricing' },
+  { icon:'🐛', label:'Report a bug or technical issue' },
+  { icon:'💬', label:'Something else' },
+];
+
+async function lswInit() {
+  lswSellerName  = (currentProfile?.full_name || currentUser?.email?.split('@')[0] || 'Seller').trim();
+  lswSellerInits = lswSellerName.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase() || 'S';
+  // Ensure a Supabase session exists silently in background
+  lswEnsureSession().catch(() => {});
 }
 
-// ── UTILS ──
-function timeAgo(iso) {
-  if (!iso) return '';
-  const diff = (Date.now()-new Date(iso))/1000;
-  if (diff<60) return 'just now';
-  if (diff<3600) return `${Math.floor(diff/60)}m ago`;
-  if (diff<86400) return `${Math.floor(diff/3600)}h ago`;
-  if (diff<604800) return `${Math.floor(diff/86400)}d ago`;
-  return new Date(iso).toLocaleDateString('en-KE',{day:'numeric',month:'short'});
-}
-function escHtml(str) {
-  if (!str) return '';
-  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-function escAttr(str) {
-  if (!str) return '';
-  return String(str).replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-}
+async function lswEnsureSession() {
+  if (lswSessionId) return;
+  const key = 'seller_support_' + currentUser.id;
 
-init();
-</script>
-<!-- ══════════════════════════════════════════
-     SUPPORT CHAT WIDGET
-     Paste this entire block just before </body>
-     in dashboard.html
-══════════════════════════════════════════ -->
-
-<style>
-  /* ── Floating button ── */
-  .support-fab {
-    position: fixed; bottom: 28px; right: 28px; z-index: 8000;
-    display: flex; align-items: center; gap: 10px;
-    background: var(--white); border-radius: 40px;
-    padding: 10px 18px 10px 10px;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.14), 0 1px 6px rgba(0,0,0,0.08);
-    cursor: pointer; border: 1.5px solid var(--border);
-    transition: box-shadow .2s, transform .2s;
-    user-select: none;
-  }
-  .support-fab:hover { box-shadow: 0 6px 32px rgba(0,0,0,0.18); transform: translateY(-2px); }
-  .support-fab-avatar {
-    width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0; overflow: hidden;
-    background: var(--green); display: flex; align-items: center; justify-content: center;
-    position: relative;
-  }
-  .support-fab-avatar svg { width: 22px; height: 22px; stroke: white; fill: none; stroke-width: 2; }
-  /* Online pulse dot */
-  .support-fab-avatar::after {
-    content: ''; position: absolute; bottom: 1px; right: 1px;
-    width: 10px; height: 10px; border-radius: 50%;
-    background: #22c55e; border: 2px solid white;
-  }
-  .support-fab-text { display: flex; flex-direction: column; gap: 1px; }
-  .support-fab-status { font-size: 10px; font-weight: 600; color: #22c55e; letter-spacing: .04em; text-transform: uppercase; }
-  .support-fab-status.blink { animation: statusBlink 1s ease-in-out 3; }
-  @keyframes statusBlink { 0%,100%{opacity:1} 50%{opacity:0} }
-  .support-fab-label { font-size: 13px; font-weight: 600; color: var(--text); }
-
-  /* ── Chat popup ── */
-  .support-popup {
-    position: fixed; bottom: 90px; right: 28px; z-index: 8000;
-    width: 340px; background: var(--white);
-    border-radius: var(--radius-lg); border: 1px solid var(--border);
-    box-shadow: 0 8px 40px rgba(0,0,0,0.16);
-    display: none; flex-direction: column; overflow: hidden;
-    animation: popupIn .22s ease;
-    max-height: calc(100vh - 120px);
-  }
-  .support-popup.open { display: flex; }
-  @keyframes popupIn { from { opacity:0; transform:translateY(14px) scale(.97); } to { opacity:1; transform:translateY(0) scale(1); } }
-
-  /* Popup header */
-  .support-popup-head {
-    background: var(--green-dark); padding: 18px 18px 20px;
-    display: flex; align-items: flex-start; gap: 12px; flex-shrink: 0;
-  }
-  .support-popup-head-avatar {
-    width: 44px; height: 44px; border-radius: 50%; background: rgba(255,255,255,0.15);
-    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-    position: relative;
-  }
-  .support-popup-head-avatar svg { width: 24px; height: 24px; stroke: white; fill: none; stroke-width: 2; }
-  .support-popup-head-avatar::after {
-    content: ''; position: absolute; bottom: 2px; right: 2px;
-    width: 10px; height: 10px; border-radius: 50%;
-    background: #22c55e; border: 2px solid var(--green-dark);
-    animation: pulseDot 2s ease-in-out infinite;
-  }
-  @keyframes pulseDot { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.2);opacity:.7} }
-  .support-popup-head-info { flex: 1; }
-  .support-popup-head-name { font-size: 15px; font-weight: 700; color: white; margin-bottom: 2px; }
-  .support-popup-head-tag { font-size: 11px; color: rgba(255,255,255,0.7); display: flex; align-items: center; gap: 5px; }
-  .support-popup-head-tag span { width: 6px; height: 6px; border-radius: 50%; background: #22c55e; display: inline-block; }
-  .support-popup-close {
-    background: none; border: none; color: rgba(255,255,255,0.7); cursor: pointer;
-    font-size: 20px; line-height: 1; padding: 0; transition: color .15s;
-  }
-  .support-popup-close:hover { color: white; }
-
-  /* Chat messages area */
-  .support-messages {
-    flex: 1; overflow-y: auto; padding: 16px;
-    display: flex; flex-direction: column; gap: 10px;
-    max-height: 280px; min-height: 160px;
-    background: var(--surface);
-  }
-  .support-messages::-webkit-scrollbar { width: 4px; }
-  .support-messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-  .support-msg { display: flex; gap: 8px; align-items: flex-end; }
-  .support-msg.admin { flex-direction: row; }
-  .support-msg.seller { flex-direction: row-reverse; }
-  .support-msg-avatar {
-    width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 10px; font-weight: 700; margin-bottom: 2px;
-  }
-  .support-msg.admin .support-msg-avatar { background: var(--green); color: white; }
-  .support-msg.seller .support-msg-avatar { background: var(--surface); color: var(--text-2); border: 1px solid var(--border); }
-  .support-msg-bubble {
-    max-width: 75%; padding: 9px 13px; border-radius: 16px;
-    font-size: 13px; line-height: 1.5;
-  }
-  .support-msg.admin .support-msg-bubble {
-    background: var(--white); color: var(--text);
-    border: 1px solid var(--border); border-bottom-left-radius: 4px;
-  }
-  .support-msg.seller .support-msg-bubble {
-    background: var(--green); color: white; border-bottom-right-radius: 4px;
-  }
-  .support-msg-time { font-size: 10px; color: var(--text-3); margin-top: 3px; text-align: right; }
-  .support-msg.admin .support-msg-time { text-align: left; }
-
-  /* Typing indicator */
-  .support-typing { display: flex; gap: 4px; padding: 10px 14px; background: var(--white); border: 1px solid var(--border); border-radius: 16px; border-bottom-left-radius: 4px; width: fit-content; }
-  .support-typing span { width: 6px; height: 6px; border-radius: 50%; background: var(--text-3); animation: typingBounce .9s infinite; }
-  .support-typing span:nth-child(2) { animation-delay: .15s; }
-  .support-typing span:nth-child(3) { animation-delay: .3s; }
-  @keyframes typingBounce { 0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-5px)} }
-
-  /* Input area */
-  .support-input-wrap {
-    border-top: 1px solid var(--border); padding: 12px 14px;
-    display: flex; gap: 8px; align-items: flex-end; flex-shrink: 0; background: var(--white);
-  }
-  .support-input-wrap textarea {
-    flex: 1; border: 1.5px solid var(--border); border-radius: 20px;
-    padding: 9px 14px; font-size: 13px; font-family: inherit; resize: none;
-    outline: none; min-height: 38px; max-height: 100px; line-height: 1.5;
-    color: var(--text); background: var(--surface); transition: border-color .15s;
-  }
-  .support-input-wrap textarea:focus { border-color: var(--green); background: white; }
-  .support-input-wrap textarea::placeholder { color: var(--text-3); }
-  .support-send-btn {
-    width: 36px; height: 36px; border-radius: 50%; background: var(--green);
-    border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0; transition: background .15s;
-  }
-  .support-send-btn:hover { background: var(--green-dark); }
-  .support-send-btn:disabled { opacity: .5; cursor: not-allowed; }
-  .support-send-btn svg { width: 15px; height: 15px; stroke: white; fill: none; stroke-width: 2; }
-
-  /* Footer note */
-  .support-popup-footer {
-    padding: 8px 14px; font-size: 11px; color: var(--text-3);
-    text-align: center; border-top: 1px solid var(--border);
-    background: var(--white); flex-shrink: 0;
-  }
-</style>
-
-<!-- FAB button -->
-<div class="support-fab" id="support-fab" onclick="toggleSupportChat()">
-  <div class="support-fab-avatar">
-    <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-  </div>
-  <div class="support-fab-text">
-    <span class="support-fab-status" id="support-fab-status">We are online 24/7</span>
-    <span class="support-fab-label">Let's Chat</span>
-  </div>
-</div>
-
-<!-- Chat popup -->
-<div class="support-popup" id="support-popup">
-
-  <!-- Header -->
-  <div class="support-popup-head">
-    <div class="support-popup-head-avatar">
-      <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-    </div>
-    <div class="support-popup-head-info">
-      <div class="support-popup-head-name">NyumbaKisumu Support</div>
-      <div class="support-popup-head-tag">
-        <span></span> Online · Contact the support team
-      </div>
-    </div>
-    <button class="support-popup-close" onclick="toggleSupportChat()">×</button>
-  </div>
-
-  <!-- Messages -->
-  <div class="support-messages" id="support-messages">
-    <!-- Welcome message from admin -->
-    <div class="support-msg admin" id="support-welcome-msg" style="display:none">
-      <div class="support-msg-avatar">NK</div>
-      <div>
-        <div class="support-msg-bubble">
-          👋 Hi <strong id="support-seller-name">there</strong>! Welcome to NyumbaKisumu support.<br/><br/>
-          How can we help you today? You can ask about your listings, payments, or anything else.
-        </div>
-        <div class="support-msg-time">Support team · just now</div>
-      </div>
-    </div>
-    <!-- Typing indicator shown briefly on open -->
-    <div class="support-msg admin" id="support-typing-row" style="display:none">
-      <div class="support-msg-avatar">NK</div>
-      <div class="support-typing"><span></span><span></span><span></span></div>
-    </div>
-    <!-- Dynamic messages injected here -->
-    <div id="support-dynamic-msgs"></div>
-  </div>
-
-  <!-- Input -->
-  <div class="support-input-wrap">
-    <textarea
-      id="support-input"
-      placeholder="Type your message…"
-      rows="1"
-      onkeydown="handleSupportKeydown(event)"
-      oninput="autoResizeSupportInput(this)"
-    ></textarea>
-    <button class="support-send-btn" onclick="sendSupportMessage()" title="Send">
-      <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-    </button>
-  </div>
-
-  <!-- Footer -->
-  <div class="support-popup-footer">
-    Powered by NyumbaKisumu &nbsp;·&nbsp;
-    <a href="contact.html" target="_blank" style="color:var(--green);text-decoration:none">Contact us</a>
-  </div>
-</div>
-
-<script>
-// ════════════════════════════════════════
-// SUPPORT CHAT WIDGET — connected to admin-chat.html
-// ════════════════════════════════════════
-let supportOpen       = false;
-let supportMsgs       = [];
-let supportSellerName = 'there';
-let supportInitialized = false;
-let supportSessionId  = null;   // chat_sessions row id
-let supportChannel    = null;   // realtime subscription
-
-// Reuse the dashboard's db client
-const supportDb = (typeof db !== 'undefined') ? db : supabase.createClient(
-  'https://vliuuloyfhyxcsuchpss.supabase.co',
-  'sb_publishable_oIIcecf3wzKMual5K24Z8Q_zmxVfgsx'
-);
-
-document.addEventListener('DOMContentLoaded', () => {
-  // Grab seller name from sidebar once dashboard loads it
-  const observer = new MutationObserver(() => {
-    const name = document.getElementById('sidebar-name')?.textContent;
-    if (name && name !== 'Loading…') {
-      supportSellerName = name.split(' ')[0] || 'there';
-      document.getElementById('support-seller-name').textContent = supportSellerName;
-      observer.disconnect();
-      initSupportSession(); // create/restore session now we have a name
-    }
-  });
-  observer.observe(document.getElementById('sidebar-name') || document.body,
-    { childList: true, subtree: true, characterData: true });
-
-  // Blink status label
-  const statusEl = document.getElementById('support-fab-status');
-  statusEl.classList.add('blink');
-  setTimeout(() => {
-    statusEl.textContent = "Let's Chat";
-    statusEl.style.color = 'var(--green)';
-  }, 3200);
-});
-
-// ── Create or restore a chat session for this seller ──
-async function initSupportSession() {
-  // Use a stable key tied to the logged-in user
-  const userId = currentUser?.id || 'anon';
-  const sessionKey = 'seller_support_' + userId;
-
-  // Check for existing open session
-  const { data: existing } = await supportDb
+  // Look for an open (not resolved) session first
+  const { data: existing } = await db
     .from('chat_sessions')
-    .select('*')
-    .eq('session_key', sessionKey)
+    .select('id')
+    .eq('session_key', key)
     .eq('is_resolved', false)
-    .single();
+    .maybeSingle();
 
   if (existing) {
-    supportSessionId = existing.id;
-    await loadSupportHistory();
+    lswSessionId = existing.id;
   } else {
-    // Create new session
-    const { data: created } = await supportDb
+    const { data: created, error } = await db
       .from('chat_sessions')
       .insert({
-        session_key:   sessionKey,
-        session_type:  'seller',
-        visitor_name:  supportSellerName,
-        page:          'dashboard.html',
-        last_msg_at:   new Date().toISOString(),
+        session_key:  key,
+        session_type: 'seller',
+        visitor_name: lswSellerName,
+        page:         'dashboard.html',
+        last_msg_at:  new Date().toISOString(),
       })
-      .select()
+      .select('id')
       .single();
-
-    if (created) supportSessionId = created.id;
+    if (!error && created) lswSessionId = created.id;
   }
 
-  // Subscribe to admin replies in real time
-  subscribeToAdminReplies();
+  if (lswSessionId) lswSubscribeReplies();
 }
 
-// ── Load existing message history ──
-async function loadSupportHistory() {
-  if (!supportSessionId) return;
-  const { data } = await supportDb
+/* ── FIX 3: count ONLY real admin messages that are unread ── */
+async function lswLoadUnread() {
+  if (!lswSessionId) return;
+  const { data } = await db
     .from('chat_messages')
-    .select('*')
-    .eq('session_id', supportSessionId)
-    .order('created_at', { ascending: true });
-
-  if (!data?.length) return;
-
-  const dynEl = document.getElementById('support-dynamic-msgs');
-  const sellerInitials = supportSellerName.slice(0, 2).toUpperCase();
-  dynEl.innerHTML = '';
-
-  // Show welcome message first
-  document.getElementById('support-welcome-msg').style.display = 'flex';
-
-  data.forEach(m => {
-    const time = new Date(m.created_at).toLocaleTimeString('en-KE', { hour: '2-digit', minute: '2-digit' });
-    if (m.sender === 'visitor' || m.sender === 'seller') {
-      dynEl.innerHTML += `
-        <div class="support-msg seller">
-          <div class="support-msg-avatar">${sellerInitials}</div>
-          <div>
-            <div class="support-msg-bubble">${escSupportHtml(m.body)}</div>
-            <div class="support-msg-time">${time}</div>
-          </div>
-        </div>`;
-    } else {
-      dynEl.innerHTML += `
-        <div class="support-msg admin">
-          <div class="support-msg-avatar">NK</div>
-          <div>
-            <div class="support-msg-bubble">${m.body}</div>
-            <div class="support-msg-time">Support team · ${time}</div>
-          </div>
-        </div>`;
-    }
-  });
-  scrollSupportToBottom();
+    .select('id')
+    .eq('session_id', lswSessionId)
+    .eq('sender', 'admin')
+    .is('read_at', null);
+  lswSetBadge(data?.length || 0);
 }
 
-// ── Subscribe to incoming admin replies ──
-function subscribeToAdminReplies() {
-  if (!supportSessionId) return;
-  if (supportChannel) supportChannel.unsubscribe();
+function lswSetBadge(n) {
+  lswAdminUnread = n;
+  const badge = document.getElementById('lsw-fab-badge');
+  if (!badge) return;
+  badge.textContent = n > 0 ? String(n) : '';
+  badge.classList.toggle('show', n > 0);
+}
 
-  supportChannel = supportDb
-    .channel('seller-support-' + supportSessionId)
+/* ── Real-time: listen for admin replies only ── */
+function lswSubscribeReplies() {
+  if (!lswSessionId || lswChannel) return;
+  lswChannel = db
+    .channel('lsw-seller-' + lswSessionId)
     .on('postgres_changes', {
       event:  'INSERT',
       schema: 'public',
       table:  'chat_messages',
-      filter: `session_id=eq.${supportSessionId}`,
-    }, (payload) => {
+      filter: `session_id=eq.${lswSessionId}`,
+    }, payload => {
       const msg = payload.new;
-      if (msg.sender !== 'admin') return; // we already show seller msgs optimistically
+      // Only care about admin replies
+      if (msg.sender !== 'admin') return;
 
-      const time = new Date(msg.created_at).toLocaleTimeString('en-KE', { hour: '2-digit', minute: '2-digit' });
-      const dynEl = document.getElementById('support-dynamic-msgs');
-      dynEl.innerHTML += `
-        <div class="support-msg admin">
-          <div class="support-msg-avatar">NK</div>
-          <div>
-            <div class="support-msg-bubble">${msg.body}</div>
-            <div class="support-msg-time">Support team · ${time}</div>
-          </div>
-        </div>`;
-      scrollSupportToBottom();
-
-      // Open the popup if it's closed so seller notices the reply
-      if (!supportOpen) {
-        document.getElementById('support-fab-status').textContent = '1 new reply!';
-        document.getElementById('support-fab-status').style.color = 'var(--red)';
+      if (lswOpen) {
+        // Widget is open — show the bubble and mark read immediately
+        lswAppendBubble('admin', msg.body, new Date(msg.created_at));
+        db.from('chat_messages')
+          .update({ read_at: new Date().toISOString() })
+          .eq('id', msg.id)
+          .then(() => {});
+      } else {
+        // Widget is closed — increment badge by exactly 1
+        lswSetBadge(lswAdminUnread + 1);
       }
     })
     .subscribe();
 }
 
-function toggleSupportChat() {
-  supportOpen = !supportOpen;
-  const popup = document.getElementById('support-popup');
-  if (supportOpen) {
-    popup.classList.add('open');
-    // Reset unread indicator
-    document.getElementById('support-fab-status').textContent = 'We are online 24/7';
-    document.getElementById('support-fab-status').style.color = '#22c55e';
+/* ── Load full conversation history from DB ── */
+async function lswLoadHistory() {
+  if (!lswSessionId) return;
+  const container = document.getElementById('lsw-msgs');
+  container.innerHTML = '';
 
-    if (!supportInitialized) {
-      supportInitialized = true;
-      document.getElementById('support-typing-row').style.display = 'flex';
-      setTimeout(() => {
-        document.getElementById('support-typing-row').style.display = 'none';
-        document.getElementById('support-welcome-msg').style.display = 'flex';
-        scrollSupportToBottom();
-      }, 1200);
-    }
-    setTimeout(() => document.getElementById('support-input').focus(), 200);
-  } else {
-    popup.classList.remove('open');
+  const { data } = await db
+    .from('chat_messages')
+    .select('*')
+    .eq('session_id', lswSessionId)
+    .order('created_at', { ascending: true });
+
+  const msgs = data || [];
+
+  if (!msgs.length) {
+    // FIX 1: show welcome ONCE
+    lswShowWelcome();
+    return;
   }
+
+  // Render all history
+  msgs.forEach(m => {
+    const side = m.sender === 'admin' ? 'admin' : 'seller';
+    lswAppendBubble(side, m.body, new Date(m.created_at));
+  });
+
+  // Check if referral was already sent (any admin message in history)
+  if (msgs.some(m => m.sender === 'admin')) lswReferralSent = true;
+
+  // Mark all unread admin messages as read
+  const unreadIds = msgs.filter(m => m.sender === 'admin' && !m.read_at).map(m => m.id);
+  if (unreadIds.length) {
+    await db.from('chat_messages')
+      .update({ read_at: new Date().toISOString() })
+      .in('id', unreadIds);
+    lswSetBadge(0);
+  }
+
+  lswScrollBottom();
 }
 
-async function sendSupportMessage() {
-  const input = document.getElementById('support-input');
-  const text  = input.value.trim();
-  if (!text) return;
+/* ── Welcome message with selectable options — shown ONCE ── */
+function lswShowWelcome() {
+  if (lswWelcomeDone) return;
+  lswWelcomeDone = true;
 
-  const now = new Date().toLocaleTimeString('en-KE', { hour: '2-digit', minute: '2-digit' });
-  const sellerInitials = supportSellerName.slice(0, 2).toUpperCase();
-  supportMsgs.push({ sender: 'seller', text, time: now });
+  const firstName = lswSellerName.split(' ')[0];
+  lswAppendBubble(
+    'admin',
+    `👋 Thanks for reaching out! How may we help you today, ${firstName}?`,
+    new Date()
+  );
 
-  // Show in UI immediately (optimistic)
-  const dynEl = document.getElementById('support-dynamic-msgs');
-  dynEl.innerHTML += `
-    <div class="support-msg seller">
-      <div class="support-msg-avatar">${sellerInitials}</div>
-      <div>
-        <div class="support-msg-bubble">${escSupportHtml(text)}</div>
-        <div class="support-msg-time">${now}</div>
-      </div>
-    </div>`;
+  // Render option chips directly in the messages container
+  const container = document.getElementById('lsw-msgs');
+  const optionsDiv = document.createElement('div');
+  optionsDiv.className = 'lsw-options';
+  optionsDiv.id = 'lsw-options-wrap';
+  optionsDiv.innerHTML = LSW_OPTIONS
+    .map(o => `<button class="lsw-option-btn" onclick="lswPickOption('${escAttr(o.label)}')">${o.icon} ${o.label}</button>`)
+    .join('');
+  container.appendChild(optionsDiv);
+  lswScrollBottom();
+}
 
+/* ── When a seller picks an option chip ── */
+function lswPickOption(label) {
+  // Remove option chips
+  document.getElementById('lsw-options-wrap')?.remove();
+  // Send the option as if the seller typed it
+  document.getElementById('lsw-input').value = label;
+  lswSend();
+}
+
+/* ── Send a message ── */
+async function lswSend() {
+  const input = document.getElementById('lsw-input');
+  const body  = input.value.trim();
+  if (!body) return;
+
+  // Remove option chips if still showing
+  document.getElementById('lsw-options-wrap')?.remove();
+
+  // Show seller bubble immediately
+  lswAppendBubble('seller', body, new Date());
   input.value = '';
   input.style.height = 'auto';
-  scrollSupportToBottom();
 
-  // Ensure session exists then save to Supabase
-  await initSupportSession();
-  if (supportSessionId) {
-    await supportDb.from('chat_messages').insert({
-      session_id: supportSessionId,
-      sender:     'visitor',   // 'visitor' = the non-admin side
-      body:       text,
+  // Ensure DB session exists
+  await lswEnsureSession();
+
+  // Save seller message to Supabase
+  if (lswSessionId) {
+    await db.from('chat_messages').insert({
+      session_id: lswSessionId,
+      sender:     'visitor',  // visitor = seller side
+      body,
     });
-    // Update last_msg_at and admin unread count
-    const { data: sess } = await supportDb
-      .from('chat_sessions')
-      .select('unread_admin')
-      .eq('id', supportSessionId)
-      .single();
-    await supportDb.from('chat_sessions').update({
+
+    // Update session timestamp & increment admin's unread counter
+    await db.from('chat_sessions').update({
       last_msg_at:  new Date().toISOString(),
-      unread_admin: (sess?.unread_admin || 0) + 1,
-    }).eq('id', supportSessionId);
+      unread_admin: lswAdminUnread + 1,
+    }).eq('id', lswSessionId);
   }
 
-  // Show bot auto-reply after short delay
-  setTimeout(() => showSupportAutoReply(text), 1400);
+  // FIX 2: Send ONE referral message then stop forever — no per-message loop
+  if (!lswReferralSent) {
+    lswReferralSent = true;
+    setTimeout(() => {
+      lswShowTyping();
+      setTimeout(async () => {
+        lswHideTyping();
+        const reply = `Thanks for reaching out! 🙋 How may we help you today — an available agent will chat with you shortly. For urgent help, email hello@nyumbakisumu.co.ke 📩`;
+        lswAppendBubble('admin', reply, new Date());
+        // Persist the referral reply to DB so admin sees it
+        if (lswSessionId) {
+          await db.from('chat_messages').insert({
+            session_id: lswSessionId,
+            sender:     'admin',
+            body:       reply,
+            read_at:    new Date().toISOString(), // pre-mark as read (seller sees it)
+          });
+        }
+      }, 1800);
+    }, 800);
+  }
+  // After lswReferralSent = true, no more automatic replies — admin takes over
 }
 
-async function showSupportAutoReply(originalText) {
-  const dynEl = document.getElementById('support-dynamic-msgs');
-  const typingId = 'st-' + Date.now();
-  dynEl.innerHTML += `<div class="support-msg admin" id="${typingId}">
-    <div class="support-msg-avatar">NK</div>
-    <div class="support-typing"><span></span><span></span><span></span></div>
-  </div>`;
-  scrollSupportToBottom();
+/* ── Typing dots (local only, shown briefly before referral reply) ── */
+function lswShowTyping() {
+  const container = document.getElementById('lsw-msgs');
+  if (document.getElementById('lsw-typ')) return;
+  const d = document.createElement('div');
+  d.id = 'lsw-typ';
+  d.className = 'lsw-msg from-admin';
+  d.innerHTML = `<div class="lsw-msg-av">NK</div>
+    <div class="lsw-typing-bub">
+      <div class="lsw-dot"></div>
+      <div class="lsw-dot"></div>
+      <div class="lsw-dot"></div>
+    </div>`;
+  container.appendChild(d);
+  lswScrollBottom();
+}
+function lswHideTyping() {
+  document.getElementById('lsw-typ')?.remove();
+}
 
-  setTimeout(async () => {
-    const typingEl = document.getElementById(typingId);
-    if (typingEl) typingEl.remove();
+/* ── Append a chat bubble ── */
+function lswAppendBubble(side, body, date) {
+  const container = document.getElementById('lsw-msgs');
+  const isAdmin   = side === 'admin';
+  const time      = date.toLocaleTimeString('en-KE', { hour:'2-digit', minute:'2-digit' });
+  const div       = document.createElement('div');
+  div.className   = `lsw-msg ${isAdmin ? 'from-admin' : 'from-seller'}`;
+  div.innerHTML   = `
+    <div class="lsw-msg-av">${isAdmin ? 'NK' : lswSellerInits}</div>
+    <div>
+      <div class="lsw-msg-bub">${escHtml(body)}</div>
+      <div class="lsw-msg-time">${isAdmin ? 'Support · ' : ''}${time}</div>
+    </div>`;
+  container.appendChild(div);
+  lswScrollBottom();
+}
 
-    const { reply, isHandoff } = getSupportAutoReply(originalText);
-    const now = new Date().toLocaleTimeString('en-KE', { hour: '2-digit', minute: '2-digit' });
+/* ── Toggle open/close ── */
+function lswToggle() {
+  lswOpen = !lswOpen;
+  document.getElementById('lsw-popup').classList.toggle('open', lswOpen);
 
-    dynEl.innerHTML += `
-      <div class="support-msg admin">
-        <div class="support-msg-avatar">NK</div>
-        <div>
-          <div class="support-msg-bubble">${reply}</div>
-          <div class="support-msg-time">Support team · ${now}</div>
-        </div>
-      </div>`;
-    scrollSupportToBottom();
-
-    // Save the bot reply to Supabase so admin can see the full conversation
-    if (supportSessionId) {
-      await supportDb.from('chat_messages').insert({
-        session_id: supportSessionId,
-        sender:     'admin',
-        body:       reply.replace(/<[^>]+>/g, ''), // strip HTML for storage
-      });
-
-      // If it's a handoff message, flag the session so admin knows to take over
-      if (isHandoff) {
-        await supportDb.from('chat_sessions').update({
-          unread_admin: 999, // spike the count so it sorts to top for admin
-        }).eq('id', supportSessionId);
-      }
+  if (lswOpen) {
+    // FIX 3: clear badge and mark all admin messages read in DB
+    lswSetBadge(0);
+    if (lswSessionId) {
+      db.from('chat_messages')
+        .update({ read_at: new Date().toISOString() })
+        .eq('session_id', lswSessionId)
+        .eq('sender', 'admin')
+        .is('read_at', null)
+        .then(() => {});
     }
-  }, 1600);
+
+    // Load history ONCE on first open
+    if (!lswLoaded) {
+      lswLoaded = true;
+      lswLoadHistory().then(() => {
+        // After loading, set correct badge (should be 0)
+        lswLoadUnread();
+      });
+    }
+
+    setTimeout(() => document.getElementById('lsw-input')?.focus(), 200);
+  }
 }
 
-// Returns { reply, isHandoff }
-function getSupportAutoReply(text) {
-  const t = (text || '').toLowerCase();
+function lswKeydown(e)  { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); lswSend(); } }
+function lswResize(el)  { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 100) + 'px'; }
+function lswScrollBottom() { const el = document.getElementById('lsw-msgs'); if (el) el.scrollTop = el.scrollHeight; }
+function lswCleanup()   { if (lswChannel) { lswChannel.unsubscribe(); lswChannel = null; } }
 
-  if (t.includes('payment') || t.includes('mpesa') || t.includes('pay')) {
-    return { reply: `For payment issues, send your M-Pesa transaction code to <strong>hello@nyumbakisumu.co.ke</strong> and we'll activate your listing within 30 minutes. ✅`, isHandoff: false };
-  }
-  if (t.includes('listing') && (t.includes('not show') || t.includes('pending') || t.includes('approv'))) {
-    return { reply: `Listings are reviewed within 2 hours of payment. If yours has been waiting longer, share your listing ID and we'll check it immediately. 🏠`, isHandoff: false };
-  }
-  if (t.includes('delete') || t.includes('remov') || t.includes('disable')) {
-    return { reply: `If your listing was disabled, the reason is shown on your dashboard. Share your listing ID and we'll look into it right away. 📋`, isHandoff: false };
-  }
-  if (t.includes('photo') || t.includes('image') || t.includes('blur')) {
-    return { reply: `For best quality, upload photos directly from your device without compression. Still blurry? Re-upload and let us know your listing ID!`, isHandoff: false };
-  }
-  if (t.includes('price') || t.includes('cost') || t.includes('fee') || t.includes('upgrade')) {
-    return { reply: `Listing fees: <br/>• Standard: <strong>KES 800</strong> (60 days)<br/>• Featured: <strong>KES 2,500</strong> (90 days, top placement)<br/>No commission on sales. 💚`, isHandoff: false };
-  }
-  if (t.includes('hello') || t.includes('hi') || t.includes('hey')) {
-    return { reply: `Hello ${supportSellerName}! 👋 What can we help you with today?`, isHandoff: false };
-  }
-  if (t.includes('thank')) {
-    return { reply: `You're very welcome, ${supportSellerName}! 😊 Happy selling!`, isHandoff: false };
-  }
-
-  // ── DEFAULT: Handoff to admin ──
-  return {
-    reply: `Thanks for reaching out, ${supportSellerName}! 🙋 I've flagged your message for our team — a real person will reply here shortly. For urgent help, WhatsApp or email <strong>hello@nyumbakisumu.co.ke</strong>. 📩`,
-    isHandoff: true
-  };
-}
-
-function handleSupportKeydown(e) {
-  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendSupportMessage(); }
-}
-
-function autoResizeSupportInput(el) {
-  el.style.height = 'auto';
-  el.style.height = Math.min(el.scrollHeight, 100) + 'px';
-}
-
-function scrollSupportToBottom() {
-  const el = document.getElementById('support-messages');
-  if (el) el.scrollTop = el.scrollHeight;
-}
-
-function escSupportHtml(str) {
-  if (!str) return '';
-  return String(str)
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-}
+// Boot
+init();
 </script>
 </body>
 </html>
