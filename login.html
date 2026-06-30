@@ -23,6 +23,8 @@
       --white:       #ffffff;
       --red:         #c0392b;
       --red-light:   #fdecea;
+      --amber:       #b7791f;
+      --amber-light: #fef3da;
       --radius:      10px;
       --radius-lg:   16px;
     }
@@ -35,7 +37,6 @@
     a { text-decoration: none; color: inherit; }
     button { font-family: inherit; cursor: pointer; border: none; }
 
-    /* ── Navbar ── */
     nav {
       display: flex; align-items: center; justify-content: space-between;
       padding: 0 32px; height: 64px;
@@ -48,10 +49,8 @@
     .nav-right a { color: var(--green); font-weight: 500; }
     .nav-right a:hover { text-decoration: underline; }
 
-    /* ── Layout ── */
     .page { flex: 1; display: grid; grid-template-columns: 1fr 1fr; min-height: calc(100vh - 64px); }
 
-    /* ── Left panel ── */
     .left-panel {
       background: var(--green-dark); padding: 64px 56px;
       display: flex; flex-direction: column; justify-content: center;
@@ -96,14 +95,12 @@
     .left-stat-val { font-size: 20px; font-weight: 700; color: white; }
     .left-stat-lbl { font-size: 12px; color: rgba(255,255,255,0.45); margin-top: 2px; }
 
-    /* ── Right panel ── */
-    .right-panel { display: flex; align-items: center; justify-content: center; padding: 48px 40px; background: var(--white); }
+    .right-panel { display: flex; align-items: center; justify-content: center; padding: 48px 40px; background: var(--white); overflow-y: auto; }
     .auth-card { width: 100%; max-width: 420px; }
 
-    /* Tabs */
     .auth-tabs {
       display: flex; background: var(--surface); border-radius: var(--radius);
-      padding: 4px; margin-bottom: 32px;
+      padding: 4px; margin-bottom: 24px;
     }
     .auth-tab {
       flex: 1; text-align: center; padding: 9px 16px; font-size: 14px; font-weight: 500;
@@ -111,9 +108,8 @@
     }
     .auth-tab.active { background: var(--white); color: var(--text); box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
 
-    /* Form */
     .auth-title { font-family: 'Playfair Display', serif; font-size: 24px; color: var(--text); margin-bottom: 6px; }
-    .auth-sub { font-size: 14px; color: var(--text-3); margin-bottom: 28px; }
+    .auth-sub { font-size: 14px; color: var(--text-3); margin-bottom: 24px; }
 
     .form-group { margin-bottom: 16px; }
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
@@ -128,7 +124,7 @@
     .input-wrap .icon {
       position: absolute; left: 13px; top: 50%; transform: translateY(-50%);
       width: 16px; height: 16px; stroke: var(--text-3); fill: none; stroke-width: 2;
-      pointer-events: none; transition: stroke .15s;
+      pointer-events: none; transition: stroke .15s; z-index: 1;
     }
     .input-wrap:focus-within .icon { stroke: var(--green); }
 
@@ -141,41 +137,44 @@
     .input-wrap input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(15,110,86,0.08); }
     .input-wrap input.error { border-color: var(--red); }
     .input-wrap input.error:focus { box-shadow: 0 0 0 3px rgba(192,57,43,0.08); }
+    .input-wrap input.checking { border-color: var(--amber); }
+    .input-wrap input.valid-ok { border-color: var(--green-mid); }
 
     .field-error { font-size: 12px; color: var(--red); margin-top: 5px; display: none; }
     .field-error.show { display: block; }
+    .field-status { font-size: 12px; margin-top: 5px; display: none; align-items: center; gap: 5px; }
+    .field-status.show { display: flex; }
+    .field-status.checking { color: var(--amber); }
+    .field-status.ok { color: var(--green); }
+    .field-status .mini-spin { width: 11px; height: 11px; border: 1.5px solid rgba(183,121,31,0.3); border-top-color: var(--amber); border-radius: 50%; animation: spin .6s linear infinite; flex-shrink: 0; }
 
-    /* Password toggle */
     .pw-toggle {
       position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
       background: none; padding: 4px; color: var(--text-3); border-radius: 4px;
-      transition: color .15s;
+      transition: color .15s; z-index: 1;
     }
     .pw-toggle:hover { color: var(--text); }
     .pw-toggle svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; display: block; }
     .input-wrap input:has(+ .pw-toggle) { padding-right: 40px; }
 
-    /* Password strength */
     .pw-strength { margin-top: 6px; }
     .pw-strength-bar { height: 3px; border-radius: 2px; background: var(--border); overflow: hidden; margin-bottom: 4px; }
     .pw-strength-fill { height: 100%; border-radius: 2px; transition: width .3s, background .3s; width: 0%; }
     .pw-strength-label { font-size: 11px; color: var(--text-3); }
 
-    /* Alert banner */
     .alert {
       display: none; align-items: flex-start; gap: 10px;
       padding: 12px 14px; border-radius: var(--radius); font-size: 13px; margin-bottom: 18px;
     }
     .alert.error { display: flex; background: var(--red-light); color: var(--red); border: 1px solid #f5c6c2; }
     .alert.success { display: flex; background: var(--green-light); color: var(--green-dark); border: 1px solid #9FE1CB; }
+    .alert.warn { display: flex; background: var(--amber-light); color: var(--amber); border: 1px solid #f0d999; }
     .alert svg { width: 16px; height: 16px; flex-shrink: 0; margin-top: 1px; fill: none; stroke: currentColor; stroke-width: 2; }
 
-    /* Forgot */
     .forgot { text-align: right; margin-top: -8px; margin-bottom: 16px; }
     .forgot a { font-size: 13px; color: var(--green); font-weight: 500; }
     .forgot a:hover { text-decoration: underline; }
 
-    /* Submit */
     .btn-submit {
       width: 100%; padding: 13px; background: var(--green); color: white;
       font-size: 15px; font-weight: 600; border-radius: var(--radius);
@@ -188,22 +187,31 @@
     .btn-submit.loading .spinner { display: block; }
     .btn-submit.loading .btn-text { display: none; }
 
-    /* Divider */
-    .divider { display: flex; align-items: center; gap: 12px; margin: 20px 0; color: var(--text-3); font-size: 13px; }
+    .btn-google {
+      width: 100%; padding: 12px; background: var(--white); color: var(--text);
+      font-size: 14px; font-weight: 500; border-radius: var(--radius);
+      border: 1.5px solid var(--border); transition: all .15s;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+    }
+    .btn-google:hover:not(:disabled) { background: var(--surface); border-color: #c5c2b8; }
+    .btn-google:disabled { opacity: .6; cursor: not-allowed; }
+    .btn-google svg { width: 18px; height: 18px; flex-shrink: 0; }
+    .btn-google .spinner { border: 2px solid rgba(0,0,0,0.15); border-top-color: var(--text-2); display: none; }
+    .btn-google.loading .spinner { display: block; }
+    .btn-google.loading .g-text { display: none; }
+
+    .divider { display: flex; align-items: center; gap: 12px; margin: 18px 0; color: var(--text-3); font-size: 13px; }
     .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
 
     .terms { font-size: 12px; color: var(--text-3); text-align: center; margin-top: 14px; line-height: 1.7; }
     .terms a { color: var(--green); }
     .terms a:hover { text-decoration: underline; }
 
-    /* Phone hint */
     .phone-note { font-size: 12px; color: var(--text-3); margin-top: 5px; }
 
-    /* Panels */
     #panel-login, #panel-register, #panel-reset { display: none; }
     #panel-login.active, #panel-register.active, #panel-reset.active { display: block; }
 
-    /* Reset back link */
     .back-link {
       display: inline-flex; align-items: center; gap: 6px;
       font-size: 13px; color: var(--green); font-weight: 500;
@@ -212,7 +220,6 @@
     .back-link:hover { text-decoration: underline; }
     .back-link svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2.5; }
 
-    /* Success screens */
     .success-screen { text-align: center; padding: 16px 0; display: none; }
     .success-icon { width: 64px; height: 64px; background: var(--green-light); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; }
     .success-icon svg { width: 28px; height: 28px; stroke: var(--green); fill: none; stroke-width: 2.5; }
@@ -225,7 +232,6 @@
     }
     .btn-green:hover { background: var(--green-dark); }
 
-    /* Responsive */
     @media (max-width: 900px) {
       .page { grid-template-columns: 1fr; }
       .left-panel { display: none; }
@@ -240,7 +246,6 @@
 </head>
 <body>
 
-<!-- ── NAVBAR ── -->
 <nav>
   <a href="index.html" class="logo">
     <div class="logo-icon">
@@ -255,7 +260,6 @@
 
 <div class="page">
 
-  <!-- ── LEFT PANEL ── -->
   <div class="left-panel">
     <div class="left-eyebrow">Kisumu · Maseno · Luanda</div>
     <h2>List your apartment,<br>reach <span>real buyers</span></h2>
@@ -307,19 +311,15 @@
     </div>
   </div>
 
-  <!-- ── RIGHT PANEL ── -->
   <div class="right-panel">
     <div class="auth-card">
 
-      <!-- Tabs -->
       <div class="auth-tabs">
         <button class="auth-tab active" id="tab-login" onclick="switchTab('login')">Sign in</button>
         <button class="auth-tab" id="tab-register" onclick="switchTab('register')">Create account</button>
       </div>
 
-      <!-- ════════════════════════════ -->
-      <!-- LOGIN                        -->
-      <!-- ════════════════════════════ -->
+      <!-- LOGIN -->
       <div id="panel-login" class="active">
         <h1 class="auth-title">Welcome back</h1>
         <p class="auth-sub">Sign in to manage your listings and enquiries.</p>
@@ -328,6 +328,16 @@
           <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
           <span id="login-alert-msg"></span>
         </div>
+
+        <button class="btn-google" id="btn-google-login" onclick="doGoogleAuth()">
+          <div class="spinner"></div>
+          <span class="g-text" style="display:flex;align-items:center;gap:10px">
+            <svg viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12s5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24s8.955,20,20,20s20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/><path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"/><path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"/><path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"/></svg>
+            Sign in with Google
+          </span>
+        </button>
+
+        <div class="divider">or sign in with email</div>
 
         <div class="form-group">
           <label class="field-label" for="login-email">Email address</label>
@@ -359,13 +369,10 @@
           <span class="btn-text">Sign in</span>
         </button>
 
-        <div class="divider">or</div>
         <p class="terms">Don't have an account? <a href="#" onclick="switchTab('register');return false">Create one free →</a></p>
       </div>
 
-      <!-- ════════════════════════════ -->
-      <!-- REGISTER                     -->
-      <!-- ════════════════════════════ -->
+      <!-- REGISTER -->
       <div id="panel-register">
         <h1 class="auth-title">Create your account</h1>
         <p class="auth-sub">Free to join. Start listing in under 10 minutes.</p>
@@ -374,6 +381,16 @@
           <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
           <span id="register-alert-msg"></span>
         </div>
+
+        <button class="btn-google" id="btn-google-register" onclick="doGoogleAuth()">
+          <div class="spinner"></div>
+          <span class="g-text" style="display:flex;align-items:center;gap:10px">
+            <svg viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12s5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24s8.955,20,20,20s20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/><path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"/><path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"/><path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"/></svg>
+            Sign up with Google
+          </span>
+        </button>
+
+        <div class="divider">or sign up with email</div>
 
         <div class="form-row">
           <div class="form-group">
@@ -398,8 +415,9 @@
           <label class="field-label" for="reg-email">Email address</label>
           <div class="input-wrap">
             <svg class="icon" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-            <input type="email" id="reg-email" placeholder="you@example.com" autocomplete="email"/>
+            <input type="email" id="reg-email" placeholder="you@example.com" autocomplete="email" oninput="onEmailInput(this.value)" onblur="onEmailInput(this.value)"/>
           </div>
+          <div class="field-status" id="status-reg-email"><div class="mini-spin"></div><span></span></div>
           <div class="field-error" id="err-reg-email">Please enter a valid email</div>
         </div>
 
@@ -410,9 +428,10 @@
           </label>
           <div class="input-wrap">
             <svg class="icon" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.12 1.2 2 2 0 012.11 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>
-            <input type="tel" id="reg-phone" placeholder="07XX XXX XXX" autocomplete="tel" oninput="formatPhone(this)"/>
+            <input type="tel" id="reg-phone" placeholder="07XX XXX XXX" autocomplete="tel" oninput="formatPhone(this)" onblur="onPhoneInput(this.value)"/>
           </div>
-          <div class="field-error" id="err-phone">Please enter a valid Kenyan phone number</div>
+          <div class="field-status" id="status-reg-phone"><div class="mini-spin"></div><span></span></div>
+          <div class="field-error" id="err-phone">Please enter a valid Kenyan phone number (e.g. 07XX XXX XXX or 01XX XXX XXX)</div>
           <p class="phone-note">Used for M-Pesa listing payments only. Never shared publicly.</p>
         </div>
 
@@ -441,7 +460,6 @@
           By creating an account you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
         </p>
 
-        <!-- Register success -->
         <div class="success-screen" id="register-success">
           <div class="success-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
           <h3>Account created!</h3>
@@ -450,9 +468,7 @@
         </div>
       </div>
 
-      <!-- ════════════════════════════ -->
-      <!-- RESET PASSWORD               -->
-      <!-- ════════════════════════════ -->
+      <!-- RESET -->
       <div id="panel-reset">
         <div class="back-link" onclick="switchPanel('login')">
           <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
@@ -499,16 +515,12 @@
   const { createClient } = supabase;
   const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  // ── Redirect destination ──
-  // If user came from post-listing page, send them back after login
   const redirectTo = new URLSearchParams(window.location.search).get('next') || 'dashboard.html';
 
-  // ── If already logged in, redirect immediately ──
   db.auth.getSession().then(({ data }) => {
     if (data.session) window.location.href = redirectTo;
   });
 
-  // ── Tab switching ──
   function switchTab(tab) {
     ['login','register'].forEach(t => {
       document.getElementById('tab-' + t).classList.toggle('active', t === tab);
@@ -525,7 +537,6 @@
     clearAllErrors();
   }
 
-  // ── Error helpers ──
   function clearAllErrors() {
     document.querySelectorAll('.alert').forEach(a => { a.className = 'alert'; });
     document.querySelectorAll('.field-error').forEach(e => e.classList.remove('show'));
@@ -549,17 +560,30 @@
     btn.classList.toggle('loading', loading);
   }
 
-  // ── Phone formatter ──
   function formatPhone(input) {
     let v = input.value.replace(/\D/g, '').slice(0, 12);
-    // Format as 07XX XXX XXX or +254 7XX XXX XXX
     if (v.startsWith('254')) v = '0' + v.slice(3);
     if (v.length > 4 && v.length <= 7) v = v.slice(0,4) + ' ' + v.slice(4);
     else if (v.length > 7) v = v.slice(0,4) + ' ' + v.slice(4,7) + ' ' + v.slice(7);
     input.value = v;
+    const statusEl = document.getElementById('status-reg-phone');
+    statusEl.classList.remove('show');
+    fieldError('reg-phone', 'err-phone', false);
+    document.getElementById('reg-phone').classList.remove('valid-ok','checking');
   }
 
-  // ── Password visibility toggle ──
+  function isValidKenyanPhone(v) {
+    const digits = v.replace(/\D/g, '');
+    return /^0(7\d{8}|1\d{8})$/.test(digits);
+  }
+
+  function normalizePhone(v) {
+    const digits = v.replace(/\D/g, '');
+    if (digits.startsWith('0')) return '254' + digits.slice(1);
+    if (digits.startsWith('254')) return digits;
+    return digits;
+  }
+
   function togglePw(inputId, btn) {
     const input = document.getElementById(inputId);
     const show = input.type === 'password';
@@ -569,7 +593,6 @@
       : `<svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
   }
 
-  // ── Password strength ──
   function checkPwStrength(pw) {
     const fill = document.getElementById('pw-fill');
     const label = document.getElementById('pw-label');
@@ -591,9 +614,152 @@
   }
 
   const isEmail = v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
-  const isPhone = v => v.replace(/\s/g,'').length >= 9;
 
-  // ── LOGIN ──
+  let emailCheckTimer = null;
+  let emailIsDuplicate = false;
+  let emailIsValid = false;
+
+  function onEmailInput(value) {
+    clearTimeout(emailCheckTimer);
+    const input = document.getElementById('reg-email');
+    const statusEl = document.getElementById('status-reg-email');
+    const v = value.trim();
+
+    emailIsDuplicate = false;
+    emailIsValid = false;
+    fieldError('reg-email', 'err-reg-email', false);
+    input.classList.remove('valid-ok','checking');
+
+    if (!v) { statusEl.classList.remove('show'); return; }
+    if (!isEmail(v)) { statusEl.classList.remove('show'); return; }
+
+    statusEl.className = 'field-status show checking';
+    statusEl.querySelector('span').textContent = 'Checking availability…';
+    input.classList.add('checking');
+
+    emailCheckTimer = setTimeout(async () => {
+      try {
+        const { data, error } = await db
+          .from('profiles')
+          .select('id')
+          .eq('email', v)
+          .maybeSingle();
+
+        input.classList.remove('checking');
+
+        if (error) {
+          statusEl.classList.remove('show');
+          emailIsValid = true;
+          return;
+        }
+
+        if (data) {
+          emailIsDuplicate = true;
+          statusEl.className = 'field-status show';
+          statusEl.style.color = 'var(--red)';
+          statusEl.querySelector('span').textContent = 'An account already exists with this email';
+          input.classList.add('error');
+        } else {
+          emailIsValid = true;
+          statusEl.className = 'field-status show ok';
+          statusEl.style.color = '';
+          statusEl.querySelector('span').textContent = 'Email available ✓';
+          input.classList.add('valid-ok');
+        }
+      } catch (e) {
+        input.classList.remove('checking');
+        statusEl.classList.remove('show');
+        emailIsValid = true;
+      }
+    }, 500);
+  }
+
+  let phoneIsDuplicate = false;
+  let phoneIsValid = false;
+
+  async function onPhoneInput(value) {
+    const input = document.getElementById('reg-phone');
+    const statusEl = document.getElementById('status-reg-phone');
+    const v = value.trim();
+
+    phoneIsDuplicate = false;
+    phoneIsValid = false;
+    input.classList.remove('valid-ok','checking');
+
+    if (!v) { statusEl.classList.remove('show'); fieldError('reg-phone','err-phone',false); return; }
+
+    if (!isValidKenyanPhone(v)) {
+      fieldError('reg-phone', 'err-phone', true);
+      statusEl.classList.remove('show');
+      return;
+    }
+    fieldError('reg-phone', 'err-phone', false);
+
+    statusEl.className = 'field-status show checking';
+    statusEl.querySelector('span').textContent = 'Checking availability…';
+    input.classList.add('checking');
+
+    try {
+      const normalized = normalizePhone(v);
+      const { data, error } = await db
+        .from('profiles')
+        .select('id')
+        .eq('phone', normalized)
+        .maybeSingle();
+
+      input.classList.remove('checking');
+
+      if (error) {
+        statusEl.classList.remove('show');
+        phoneIsValid = true;
+        return;
+      }
+
+      if (data) {
+        phoneIsDuplicate = true;
+        statusEl.className = 'field-status show';
+        statusEl.style.color = 'var(--red)';
+        statusEl.querySelector('span').textContent = 'This phone number is already registered';
+        input.classList.add('error');
+      } else {
+        phoneIsValid = true;
+        statusEl.className = 'field-status show ok';
+        statusEl.style.color = '';
+        statusEl.querySelector('span').textContent = 'Phone number available ✓';
+        input.classList.add('valid-ok');
+      }
+    } catch (e) {
+      input.classList.remove('checking');
+      statusEl.classList.remove('show');
+      phoneIsValid = true;
+    }
+  }
+
+  async function doGoogleAuth() {
+    const btns = ['btn-google-login', 'btn-google-register'];
+    btns.forEach(id => setLoading(id, true));
+
+    try {
+      const { error } = await db.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: window.location.origin + window.location.pathname.replace('login.html', '') + redirectTo
+        }
+      });
+
+      if (error) {
+        btns.forEach(id => setLoading(id, false));
+        showAlert('login-alert', 'login-alert-msg', 'Could not start Google sign-in: ' + error.message, 'error');
+        showAlert('register-alert', 'register-alert-msg', 'Could not start Google sign-in: ' + error.message, 'error');
+      }
+    } catch (err) {
+      btns.forEach(id => setLoading(id, false));
+      console.error('Google auth error:', err);
+      showAlert('login-alert', 'login-alert-msg', 'Something went wrong starting Google sign-in. Please try again.', 'error');
+      showAlert('register-alert', 'register-alert-msg', 'Something went wrong starting Google sign-in. Please try again.', 'error');
+    }
+  }
+
   async function doLogin() {
     clearAllErrors();
     const email = document.getElementById('login-email').value.trim();
@@ -604,29 +770,35 @@
     if (!ok) return;
 
     setLoading('btn-login', true);
-    const { error } = await db.auth.signInWithPassword({ email, password: pw });
-    setLoading('btn-login', false);
 
-    if (error) {
-      if (error.message.includes('Email not confirmed')) {
-        showAlert('login-alert','login-alert-msg',
-          'Please verify your email first — check your inbox.', 'error');
-        showResendLink(email);
+    try {
+      const { error } = await db.auth.signInWithPassword({ email, password: pw });
+      setLoading('btn-login', false);
+
+      if (error) {
+        if (error.message.includes('Email not confirmed')) {
+          showAlert('login-alert','login-alert-msg',
+            'Please verify your email first — check your inbox.', 'error');
+          showResendLink(email);
+          return;
+        }
+        const msg = error.message.includes('Invalid login credentials')
+          ? 'Email or password is incorrect. Please try again.'
+          : error.message;
+        showAlert('login-alert','login-alert-msg', msg, 'error');
         return;
       }
-      const msg = error.message.includes('Invalid login credentials')
-        ? 'Email or password is incorrect. Please try again.'
-        : error.message;
-      showAlert('login-alert','login-alert-msg', msg, 'error');
-      return;
+      window.location.href = redirectTo;
+    } catch (err) {
+      setLoading('btn-login', false);
+      console.error('Login error:', err);
+      showAlert('login-alert','login-alert-msg',
+        'Could not connect right now. Check your internet connection and try again.', 'error');
     }
-    window.location.href = redirectTo;
   }
 
-  // ── Show a "resend verification email" link under the login alert ──
   function showResendLink(email) {
     const alertEl = document.getElementById('login-alert');
-    // Avoid adding multiple resend links if user clicks login twice
     if (document.getElementById('resend-link')) return;
     const link = document.createElement('a');
     link.id = 'resend-link';
@@ -636,99 +808,142 @@
     link.onclick = async (e) => {
       e.preventDefault();
       link.textContent = 'Sending…';
-      const { error } = await db.auth.resend({
-        type: 'signup',
-        email: email,
-        options: { emailRedirectTo: window.location.origin + window.location.pathname.replace('login.html','verify-email.html') }
-      });
-      if (error) {
-        link.textContent = error.message.includes('rate limit') || error.message.includes('after')
-          ? 'Please wait a minute before requesting again'
-          : 'Could not resend — try again shortly';
-      } else {
-        link.textContent = '✓ Verification email sent — check your inbox';
-        link.style.pointerEvents = 'none';
+      try {
+        const { error } = await db.auth.resend({
+          type: 'signup',
+          email: email,
+          options: { emailRedirectTo: window.location.origin + window.location.pathname.replace('login.html','verify-email.html') }
+        });
+        if (error) {
+          link.textContent = error.message.includes('rate limit') || error.message.includes('after')
+            ? 'Please wait a minute before requesting again'
+            : 'Could not resend — try again shortly';
+        } else {
+          link.textContent = '✓ Verification email sent — check your inbox';
+          link.style.pointerEvents = 'none';
+        }
+      } catch (err) {
+        link.textContent = 'Could not resend — check your connection';
       }
     };
     alertEl.appendChild(link);
   }
 
-  // ── REGISTER ──
   async function doRegister() {
     clearAllErrors();
     const first = document.getElementById('reg-firstname').value.trim();
     const last  = document.getElementById('reg-lastname').value.trim();
     const email = document.getElementById('reg-email').value.trim();
-    const phone = document.getElementById('reg-phone').value.trim();
+    const phoneRaw = document.getElementById('reg-phone').value.trim();
     const pw    = document.getElementById('reg-password').value;
     let ok = true;
 
-    if (!first)        { fieldError('reg-firstname','err-firstname',true); ok=false; }
-    if (!last)         { fieldError('reg-lastname','err-lastname',true); ok=false; }
-    if (!isEmail(email)){ fieldError('reg-email','err-reg-email',true); ok=false; }
-    if (!isPhone(phone)){ fieldError('reg-phone','err-phone',true); ok=false; }
-    if (pw.length < 8) { fieldError('reg-password','err-reg-pw',true); ok=false; }
+    if (!first)            { fieldError('reg-firstname','err-firstname',true); ok=false; }
+    if (!last)             { fieldError('reg-lastname','err-lastname',true); ok=false; }
+    if (!isEmail(email))   { fieldError('reg-email','err-reg-email',true); ok=false; }
+    if (!isValidKenyanPhone(phoneRaw)) { fieldError('reg-phone','err-phone',true); ok=false; }
+    if (pw.length < 8)     { fieldError('reg-password','err-reg-pw',true); ok=false; }
+
+    if (emailIsDuplicate) {
+      showAlert('register-alert','register-alert-msg',
+        'An account with this email already exists. Try signing in instead.', 'error');
+      ok = false;
+    }
+    if (phoneIsDuplicate) {
+      showAlert('register-alert','register-alert-msg',
+        'This phone number is already linked to another account.', 'error');
+      ok = false;
+    }
+
     if (!ok) return;
 
+    const phone = normalizePhone(phoneRaw);
+
     setLoading('btn-register', true);
-    const { data, error } = await db.auth.signUp({
-      email, password: pw,
-      options: { data: { full_name: `${first} ${last}`, phone } }
-    });
-    setLoading('btn-register', false);
 
-    if (error) {
-      showAlert('register-alert','register-alert-msg',
-        error.message.includes('already registered')
-          ? 'An account with this email already exists. Try signing in instead.'
-          : error.message,
-        'error');
-      return;
-    }
-
-    // Save to profiles table
-    if (data.user) {
-      await db.from('profiles').upsert({
-        id: data.user.id,
-        full_name: `${first} ${last}`,
-        phone, email
+    try {
+      const { data, error } = await db.auth.signUp({
+        email,
+        password: pw,
+        options: { data: { full_name: `${first} ${last}`, phone } }
       });
-    }
 
-    // Hide form, show success
-    document.querySelector('#panel-register .auth-title').style.display = 'none';
-    document.querySelector('#panel-register .auth-sub').style.display = 'none';
-    document.querySelector('#panel-register #register-alert').style.display = 'none';
-    document.querySelectorAll('#panel-register .form-row, #panel-register .form-group, #panel-register .btn-submit, #panel-register .terms, #panel-register p.auth-sub').forEach(el => el.style.display='none');
-    document.getElementById('register-success').style.display = 'block';
+      if (error) {
+        setLoading('btn-register', false);
+        const msg = error.message.includes('already registered') || error.message.includes('already exists')
+          ? 'An account with this email already exists. Try signing in instead.'
+          : error.message;
+        showAlert('register-alert','register-alert-msg', msg, 'error');
+        return;
+      }
+
+      if (data.user) {
+        try {
+          const { error: profileError } = await db.from('profiles').upsert({
+            id: data.user.id,
+            full_name: `${first} ${last}`,
+            phone,
+            email
+          });
+          if (profileError) {
+            console.warn('Profile upsert warning:', profileError.message);
+          }
+        } catch (profileErr) {
+          console.warn('Profile upsert failed (non-fatal):', profileErr);
+        }
+      }
+
+      setLoading('btn-register', false);
+      document.querySelector('#panel-register .auth-title').style.display = 'none';
+      document.querySelector('#panel-register .auth-sub').style.display = 'none';
+      document.querySelector('#panel-register #register-alert').style.display = 'none';
+      document.querySelectorAll(
+        '#panel-register .form-row, #panel-register .form-group, #panel-register .btn-submit, ' +
+        '#panel-register .terms, #panel-register .btn-google, #panel-register .divider'
+      ).forEach(el => el.style.display = 'none');
+      document.getElementById('register-success').style.display = 'block';
+
+    } catch (err) {
+      setLoading('btn-register', false);
+      console.error('Register error:', err);
+      showAlert('register-alert','register-alert-msg',
+        'Could not create your account right now. Check your internet connection and try again.', 'error');
+    }
   }
 
-  // ── PASSWORD RESET ──
   async function doReset() {
     clearAllErrors();
     const email = document.getElementById('reset-email').value.trim();
     if (!isEmail(email)) { fieldError('reset-email','err-reset-email',true); return; }
 
     setLoading('btn-reset', true);
-    const { error } = await db.auth.resetPasswordForEmail(email, {
-      redirectTo: window.location.origin + '/reset-confirm.html'
-    });
-    setLoading('btn-reset', false);
 
-    if (error) { showAlert('reset-alert','reset-alert-msg', error.message, 'error'); return; }
-    document.getElementById('reset-form').style.display = 'none';
-    document.getElementById('reset-success').style.display = 'block';
+    try {
+      const { error } = await db.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin + '/reset-confirm.html'
+      });
+      setLoading('btn-reset', false);
+
+      if (error) { showAlert('reset-alert','reset-alert-msg', error.message, 'error'); return; }
+      document.getElementById('reset-form').style.display = 'none';
+      document.getElementById('reset-success').style.display = 'block';
+    } catch (err) {
+      setLoading('btn-reset', false);
+      console.error('Reset error:', err);
+      showAlert('reset-alert','reset-alert-msg',
+        'Could not send reset link. Check your internet connection and try again.', 'error');
+    }
   }
 
-  // ── Live listing count ──
   async function loadStat() {
-    const { count } = await db.from('listings').select('*', { count:'exact', head:true }).eq('status','active');
-    const el = document.getElementById('stat-total');
-    if (el) el.textContent = count || '0';
+    try {
+      const { count } = await db.from('listings').select('*', { count:'exact', head:true }).eq('status','active');
+      const el = document.getElementById('stat-total');
+      if (el) el.textContent = count || '0';
+    } catch (e) {}
   }
   loadStat();
 
-  // ── Enter key support ──
   document.addEventListener('keydown', e => {
     if (e.key !== 'Enter' || e.target.tagName === 'BUTTON') return;
     const panels = { 'panel-login': doLogin, 'panel-register': doRegister, 'panel-reset': doReset };
@@ -737,7 +952,6 @@
     }
   });
 
-  // ── Check URL for ?tab=register (e.g. from homepage CTA) ──
   const tabParam = new URLSearchParams(window.location.search).get('tab');
   if (tabParam === 'register') switchTab('register');
 </script>
