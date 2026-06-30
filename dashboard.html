@@ -258,6 +258,8 @@
     .chat-header-name{font-size:14px;font-weight:600;color:var(--text)}
     .chat-header-sub{font-size:12px;color:var(--text-3)}
     .chat-header-actions{margin-left:auto;display:flex;gap:8px}
+    .mobile-back-btn{display:none;align-items:center;justify-content:center;width:32px;height:32px;border-radius:8px;border:1px solid var(--border);background:white;color:var(--text-2);flex-shrink:0;cursor:pointer}
+    .mobile-back-btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2}
     .chat-messages{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:10px}
     .chat-messages::-webkit-scrollbar{width:4px}
     .chat-messages::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
@@ -453,8 +455,14 @@
       .listings-table thead{display:none}.listings-table td{display:block;padding:6px 16px}
       .listings-table td:first-child{padding-top:14px}.listings-table td:last-child{padding-bottom:14px}
       .listings-table tr{display:block;border-bottom:1px solid var(--border)}
-      .messages-layout{grid-template-columns:1fr}
-      .thread-list{display:none}.thread-list.mobile-open{display:flex}
+
+      /* ── Mobile messages: show ONE pane at a time, toggled by JS ── */
+      .messages-layout{grid-template-columns:1fr;position:relative}
+      .messages-layout .thread-list{display:flex}
+      .messages-layout .chat-pane{display:none}
+      .messages-layout.mobile-chat-active .thread-list{display:none}
+      .messages-layout.mobile-chat-active .chat-pane{display:flex}
+      .mobile-back-btn{display:flex !important}
     }
     @media(max-width:600px){.stat-grid{grid-template-columns:1fr 1fr}.page{padding:16px}.form-grid{grid-template-columns:1fr}.topbar{padding:0 16px}}
     @media(max-width:400px){.stat-grid{grid-template-columns:1fr}}
@@ -645,7 +653,7 @@
 
     <!-- PAGE: MESSAGES -->
     <div class="page" id="page-messages">
-      <div class="messages-layout">
+      <div class="messages-layout" id="messages-layout">
         <div class="thread-list" id="thread-list">
           <div class="thread-list-head">
             <h3>Messages</h3>
@@ -1125,11 +1133,13 @@ async function confirmDelete(){
 // Messages page
 function showAllMessages() {
   threadListingFilter = null;
+  activeThread = null;
   showPage('messages');
 }
 
 function openMessagesForListing(listingId) {
   threadListingFilter = listingId;
+  activeThread = null;
   showPage('messages');
 }
 
@@ -1140,6 +1150,14 @@ function openConversationFromEnquiry(enqId) {
   showPage('messages');
   const key = `${e.listing_id}__${e.buyer_token || e.buyer_phone || e.id}`;
   openThread(key);
+}
+
+/* ── Mobile messages view toggle ── */
+function showThreadListMobile() {
+  document.getElementById('messages-layout')?.classList.remove('mobile-chat-active');
+}
+function showChatMobile() {
+  document.getElementById('messages-layout')?.classList.add('mobile-chat-active');
 }
 
 function renderThreadList(){
@@ -1169,7 +1187,14 @@ function renderThreadList(){
   el.innerHTML=filtered.map(t=>{const lm=t.messages[t.messages.length-1];const prev=lm?(lm.sender==='seller'?'You: ':'')+(lm.content||lm.message||''):'';const ini=t.buyer_name.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase()||'?';const isA=activeThread&&activeThread.key===t.key;const isU=(t.unread_count||0)>0;return `<div class="thread-item${isA?' active':''}${isU?' unread':''}" onclick="openThread('${t.key}')"><div class="thread-avatar">${ini}</div><div class="thread-meta"><div class="thread-name">${escHtml(t.buyer_name)}</div><div class="thread-listing-ref">${escHtml(t.listing_title)}${t.listing_area?' · '+t.listing_area:''}</div><div class="thread-preview">${escHtml(prev)}</div></div><div class="thread-time">${timeAgo(t.last_at)}</div></div>`;}).join('');
 }
 
-function openThread(key){activeThread=threads.find(t=>t.key===key)||null;if(!activeThread)return;renderThreadList();renderChatPane(activeThread);markThreadRead(activeThread);}
+function openThread(key){
+  activeThread=threads.find(t=>t.key===key)||null;
+  if(!activeThread)return;
+  renderThreadList();
+  renderChatPane(activeThread);
+  markThreadRead(activeThread);
+  showChatMobile();
+}
 
 function renderChatPane(t){
   document.getElementById('chat-empty').style.display='none';
@@ -1178,7 +1203,7 @@ function renderChatPane(t){
   const waLink=t.buyer_phone?`<a href="https://wa.me/${formatWaPhone(t.buyer_phone)}" target="_blank" class="btn btn-sm" style="background:#25D366;color:white;text-decoration:none">WhatsApp</a>`:'';
   const listing=allListings.find(l=>l.id===t.listing_id);
   const liveLink=listing?`<a href="listing.html?id=${t.listing_id}" target="_blank" class="btn btn-outline btn-sm" style="text-decoration:none">View listing</a>`:'';
-  document.getElementById('chat-header').innerHTML=`<div class="chat-header-avatar">${ini}</div><div><div class="chat-header-name">${escHtml(t.buyer_name)}</div><div class="chat-header-sub">${t.buyer_phone||'No phone'} · Re: ${escHtml(t.listing_title)}</div></div><div class="chat-header-actions">${waLink}${liveLink}</div>`;
+  document.getElementById('chat-header').innerHTML=`<button class="mobile-back-btn" onclick="showThreadListMobile()" title="Back to conversations"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></button><div class="chat-header-avatar">${ini}</div><div><div class="chat-header-name">${escHtml(t.buyer_name)}</div><div class="chat-header-sub">${t.buyer_phone||'No phone'} · Re: ${escHtml(t.listing_title)}</div></div><div class="chat-header-actions">${waLink}${liveLink}</div>`;
   document.getElementById('chat-wa-hint').innerHTML=t.buyer_phone?'Replies also sent via WhatsApp if number is available.':'Buyer will see your reply when they revisit the listing.';
   renderChatMessages(t);
   setTimeout(()=>{const mc=document.getElementById('chat-messages');mc.scrollTop=mc.scrollHeight;},50);
@@ -1265,7 +1290,7 @@ function showPage(name){
   document.getElementById('topbar-title').textContent=pageTitles[name]||name;
   if(name==='overview') renderOverview();
   if(name==='listings') renderListingsTable();
-  if(name==='messages') renderThreadList();
+  if(name==='messages') { showThreadListMobile(); renderThreadList(); }
   if(name==='enquiries') renderEnquiries();
   if(name==='payments') renderPayments();
   closeSidebar();
@@ -1288,7 +1313,7 @@ function timeAgo(iso){if(!iso)return'';const d=(Date.now()-new Date(iso))/1000;i
 function escHtml(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function escAttr(s){if(!s)return'';return String(s).replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 
-/* LIVE SUPPORT WIDGET — SELLER SIDE (left exactly as wired — do not modify) */
+/* LIVE SUPPORT WIDGET — SELLER SIDE (left exactly as wired — unchanged) */
 
 let lswOpen          = false;
 let lswSessionId     = null;
