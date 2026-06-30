@@ -608,15 +608,49 @@
     setLoading('btn-login', false);
 
     if (error) {
+      if (error.message.includes('Email not confirmed')) {
+        showAlert('login-alert','login-alert-msg',
+          'Please verify your email first — check your inbox.', 'error');
+        showResendLink(email);
+        return;
+      }
       const msg = error.message.includes('Invalid login credentials')
         ? 'Email or password is incorrect. Please try again.'
-        : error.message.includes('Email not confirmed')
-        ? 'Please verify your email first — check your inbox.'
         : error.message;
       showAlert('login-alert','login-alert-msg', msg, 'error');
       return;
     }
     window.location.href = redirectTo;
+  }
+
+  // ── Show a "resend verification email" link under the login alert ──
+  function showResendLink(email) {
+    const alertEl = document.getElementById('login-alert');
+    // Avoid adding multiple resend links if user clicks login twice
+    if (document.getElementById('resend-link')) return;
+    const link = document.createElement('a');
+    link.id = 'resend-link';
+    link.href = '#';
+    link.style.cssText = 'display:block;margin-top:6px;font-weight:600;text-decoration:underline;color:inherit';
+    link.textContent = 'Resend verification email';
+    link.onclick = async (e) => {
+      e.preventDefault();
+      link.textContent = 'Sending…';
+      const { error } = await db.auth.resend({
+        type: 'signup',
+        email: email,
+        options: { emailRedirectTo: window.location.origin + window.location.pathname.replace('login.html','verify-email.html') }
+      });
+      if (error) {
+        link.textContent = error.message.includes('rate limit') || error.message.includes('after')
+          ? 'Please wait a minute before requesting again'
+          : 'Could not resend — try again shortly';
+      } else {
+        link.textContent = '✓ Verification email sent — check your inbox';
+        link.style.pointerEvents = 'none';
+      }
+    };
+    alertEl.appendChild(link);
   }
 
   // ── REGISTER ──
