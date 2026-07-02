@@ -545,8 +545,14 @@
 
   function showAlert(alertId, msgId, message, type) {
     const el = document.getElementById(alertId);
+    if (!el) return;
+    // Always convert to string — never show raw {} object
+    const safeMessage = (typeof message === 'string' && message.trim())
+      ? message
+      : (message?.message || 'Something went wrong. Please try again.');
     el.className = 'alert ' + type;
-    document.getElementById(msgId).textContent = message;
+    const msgEl = document.getElementById(msgId);
+    if (msgEl) msgEl.textContent = safeMessage;
   }
 
   function fieldError(inputId, errId, show) {
@@ -735,31 +741,28 @@
     }
   }
 
-  async function doGoogleAuth() {
+async function doGoogleAuth() {
     const btns = ['btn-google-login', 'btn-google-register'];
     btns.forEach(id => setLoading(id, true));
 
     try {
+      const googleRedirect = window.location.origin + '/dashboard.html';
       const { error } = await db.auth.signInWithOAuth({
         provider: 'google',
-        options: {
-          redirectTo: window.location.origin + window.location.pathname.replace('login.html', '') + redirectTo
-        }
+        options: { redirectTo: googleRedirect }
       });
 
       if (error) {
         btns.forEach(id => setLoading(id, false));
-        showAlert('login-alert', 'login-alert-msg', 'Could not start Google sign-in: ' + error.message, 'error');
-        showAlert('register-alert', 'register-alert-msg', 'Could not start Google sign-in: ' + error.message, 'error');
+        showAlert('login-alert', 'login-alert-msg', 'Could not start Google sign-in. Please try again.', 'error');
+        showAlert('register-alert', 'register-alert-msg', 'Could not start Google sign-in. Please try again.', 'error');
       }
     } catch (err) {
       btns.forEach(id => setLoading(id, false));
-      console.error('Google auth error:', err);
-      showAlert('login-alert', 'login-alert-msg', 'Something went wrong starting Google sign-in. Please try again.', 'error');
-      showAlert('register-alert', 'register-alert-msg', 'Something went wrong starting Google sign-in. Please try again.', 'error');
+      showAlert('login-alert', 'login-alert-msg', 'Something went wrong. Please try again.', 'error');
+      showAlert('register-alert', 'register-alert-msg', 'Something went wrong. Please try again.', 'error');
     }
   }
-
   async function doLogin() {
     clearAllErrors();
     const email = document.getElementById('login-email').value.trim();
@@ -788,7 +791,15 @@
         showAlert('login-alert','login-alert-msg', msg, 'error');
         return;
       }
-      window.location.href = redirectTo;
+      // Check role and redirect correctly
+      const { data: { session } } = await db.auth.getSession();
+      if (session) {
+        const { data: profile } = await db.from('profiles').select('role').eq('id', session.user.id).single();
+        const role = profile?.role || 'seller';
+        window.location.href = role === 'admin' ? 'nk-ctrl-7f3k2x9.html' : redirectTo;
+      } else {
+        window.location.href = redirectTo;
+      }
     } catch (err) {
       setLoading('btn-login', false);
       console.error('Login error:', err);
