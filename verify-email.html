@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Verify Email — NyumbaKisumu</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --green:#0F6E56;--green-light:#E1F5EE;--green-dark:#085041;
+      --text:#1a1a18;--text-2:#4a4a46;--text-3:#888780;
+      --border:#e0ded8;--surface:#f7f6f2;--white:#ffffff;
+      --red:#c0392b;--red-light:#fdecea;
+      --radius:10px;--radius-lg:16px;
+    }
+    body{
+      font-family:'Inter',sans-serif;color:var(--text);background:var(--surface);
+      min-height:100vh;display:flex;align-items:center;justify-content:center;
+      padding:24px;
+    }
+    a{text-decoration:none}
+    .card{
+      background:var(--white);border-radius:var(--radius-lg);
+      border:1px solid var(--border);max-width:420px;width:100%;
+      padding:44px 36px;text-align:center;
+    }
+    .logo{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:28px;font-family:'Playfair Display',serif;font-size:18px;color:var(--green-dark)}
+    .logo-icon{width:30px;height:30px;background:var(--green);border-radius:7px;display:flex;align-items:center;justify-content:center}
+    .logo-icon svg{width:16px;height:16px;fill:none;stroke:white;stroke-width:2;stroke-linecap:round}
+
+    .icon-wrap{width:68px;height:68px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 22px}
+    .icon-wrap.loading{background:var(--green-light)}
+    .icon-wrap.success{background:var(--green-light)}
+    .icon-wrap.error{background:var(--red-light)}
+    .icon-wrap svg{width:30px;height:30px;fill:none;stroke-width:2.2}
+    .icon-wrap.success svg{stroke:var(--green)}
+    .icon-wrap.error svg{stroke:var(--red)}
+
+    .spin{width:30px;height:30px;border:3px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:spin .8s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    h1{font-family:'Playfair Display',serif;font-size:22px;margin-bottom:10px;color:var(--text)}
+    p{font-size:14px;color:var(--text-3);line-height:1.7;margin-bottom:26px}
+
+    .btn{
+      display:inline-flex;align-items:center;gap:8px;
+      background:var(--green);color:white;padding:12px 28px;
+      border-radius:var(--radius);font-size:14px;font-weight:600;
+      transition:background .15s;
+    }
+    .btn:hover{background:var(--green-dark)}
+    .btn svg{width:15px;height:15px;stroke:white;fill:none;stroke-width:2.2}
+
+    .btn-outline{
+      display:inline-flex;align-items:center;gap:8px;
+      background:transparent;color:var(--text-2);
+      border:1.5px solid var(--border);padding:11px 26px;
+      border-radius:var(--radius);font-size:13px;font-weight:500;
+      margin-top:10px;transition:all .15s;
+    }
+    .btn-outline:hover{border-color:var(--green);color:var(--green)}
+
+    #state-loading,#state-success,#state-error{display:none}
+    #state-loading.active,#state-success.active,#state-error.active{display:block}
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <a href="index.html" class="logo">
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    </div>
+    NyumbaKisumu
+  </a>
+
+  <!-- LOADING STATE -->
+  <div id="state-loading" class="active">
+    <div class="icon-wrap loading"><div class="spin"></div></div>
+    <h1>Verifying your email…</h1>
+    <p>Just a moment while we confirm your account.</p>
+  </div>
+
+  <!-- SUCCESS STATE -->
+  <div id="state-success">
+    <div class="icon-wrap success">
+      <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <h1>Email verified!</h1>
+    <p>Your account is confirmed and ready to go. You can now sign in and start listing your apartment.</p>
+    <a href="login.html" class="btn">
+      <svg viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+      Sign in to your account
+    </a>
+  </div>
+
+  <!-- ERROR STATE -->
+  <div id="state-error">
+    <div class="icon-wrap error">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    </div>
+    <h1>Verification link expired</h1>
+    <p id="error-msg">This link is no longer valid. It may have already been used, or it expired. Please try signing in — if your email isn't verified yet, you can request a new link.</p>
+    <a href="login.html" class="btn">Go to sign in</a>
+    <br/>
+    <a href="contact.html" class="btn-outline">Contact support</a>
+  </div>
+
+</div>
+
+<script>
+  const SUPABASE_URL = 'https://vliuuloyfhyxcsuchpss.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_oIIcecf3wzKMual5K24Z8Q_zmxVfgsx';
+  const { createClient } = supabase;
+  const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  function showState(id) {
+    document.querySelectorAll('#state-loading,#state-success,#state-error').forEach(el => el.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  async function verifyEmail() {
+    // Supabase appends tokens either as a URL hash (#access_token=...)
+    // or sometimes as query params depending on email template settings.
+    // The JS client auto-detects and processes the session from the URL.
+    const hashParams = new URLSearchParams(window.location.hash.replace('#', '?'));
+    const errorDesc = hashParams.get('error_description') || new URLSearchParams(window.location.search).get('error_description');
+
+    if (errorDesc) {
+      document.getElementById('error-msg').textContent = decodeURIComponent(errorDesc.replace(/\+/g, ' '));
+      showState('state-error');
+      return;
+    }
+
+    // Give Supabase a moment to process the URL hash into a session
+    const { data, error } = await db.auth.getSession();
+
+    if (error || !data.session) {
+      // Try one more time after a short delay — sometimes the hash takes a tick to process
+      setTimeout(async () => {
+        const retry = await db.auth.getSession();
+        if (retry.data.session) {
+          showState('state-success');
+        } else {
+          showState('state-error');
+        }
+      }, 1200);
+      return;
+    }
+
+    showState('state-success');
+  }
+
+  verifyEmail();
+</script>
+</body>
+</html>

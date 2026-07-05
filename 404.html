@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Page Not Found — NyumbaKisumu</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@700;400i&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --green:       #0F6E56;
+      --green-light: #E1F5EE;
+      --green-dark:  #085041;
+      --green-mid:   #1D9E75;
+      --text:        #1a1a18;
+      --text-2:      #4a4a46;
+      --text-3:      #888780;
+      --border:      #e0ded8;
+      --surface:     #f7f6f2;
+      --white:       #ffffff;
+      --radius:      10px;
+      --radius-lg:   16px;
+    }
+    html { height: 100%; }
+    body {
+      font-family: 'Inter', sans-serif; color: var(--text);
+      background: var(--surface); font-size: 15px; line-height: 1.6;
+      min-height: 100vh; display: flex; flex-direction: column;
+    }
+    a { text-decoration: none; color: inherit; }
+    button { font-family: inherit; cursor: pointer; border: none; }
+
+    /* ── Navbar ── */
+    nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 32px; height: 64px;
+      background: var(--white); border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .logo { display: flex; align-items: center; gap: 10px; font-family: 'Playfair Display', serif; font-size: 20px; color: var(--green-dark); }
+    .logo-icon { width: 34px; height: 34px; background: var(--green); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+    .logo-icon svg { width: 18px; height: 18px; fill: none; stroke: white; stroke-width: 2; stroke-linecap: round; }
+    .nav-links { display: flex; align-items: center; gap: 8px; }
+    .nav-link { font-size: 14px; color: var(--text-2); padding: 8px 14px; border-radius: var(--radius); transition: background .15s; }
+    .nav-link:hover { background: var(--surface); }
+    .btn-primary { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 500; padding: 9px 18px; border-radius: var(--radius); background: var(--green); color: white; transition: background .15s; }
+    .btn-primary:hover { background: var(--green-dark); }
+
+    /* ── Main ── */
+    .main {
+      flex: 1; display: flex; align-items: center; justify-content: center;
+      padding: 60px 24px;
+    }
+    .container { max-width: 600px; width: 100%; text-align: center; }
+
+    /* ── Illustration ── */
+    .illustration {
+      width: 180px; height: 180px; margin: 0 auto 36px;
+      position: relative;
+    }
+    .house-wrap {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      position: relative;
+    }
+    /* Animated floating house */
+    .house-svg {
+      animation: float 3s ease-in-out infinite;
+      filter: drop-shadow(0 12px 24px rgba(15,110,86,0.15));
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-10px); }
+    }
+    /* The 404 number */
+    .big-number {
+      position: absolute;
+      bottom: -8px; left: 50%; transform: translateX(-50%);
+      font-family: 'Playfair Display', serif;
+      font-size: 72px; font-weight: 700;
+      color: var(--green-light);
+      line-height: 1;
+      letter-spacing: -2px;
+      z-index: 0;
+      user-select: none;
+    }
+
+    /* ── Text ── */
+    .eyebrow {
+      display: inline-block; font-size: 12px; font-weight: 700;
+      letter-spacing: .12em; text-transform: uppercase;
+      color: var(--green); margin-bottom: 14px;
+    }
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(28px, 5vw, 42px);
+      color: var(--text); line-height: 1.15; margin-bottom: 16px;
+    }
+    h1 em { font-style: italic; color: var(--green); }
+    .sub {
+      font-size: 16px; color: var(--text-2); max-width: 400px;
+      margin: 0 auto 36px; line-height: 1.7;
+    }
+
+    /* ── Buttons ── */
+    .cta-row {
+      display: flex; align-items: center; justify-content: center;
+      gap: 12px; flex-wrap: wrap; margin-bottom: 48px;
+    }
+    .btn-green {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 12px 24px; border-radius: var(--radius);
+      background: var(--green); color: white;
+      font-size: 14px; font-weight: 600; transition: background .15s;
+    }
+    .btn-green:hover { background: var(--green-dark); }
+    .btn-green svg { width: 16px; height: 16px; stroke: white; fill: none; stroke-width: 2; }
+    .btn-outline {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 12px 24px; border-radius: var(--radius);
+      background: var(--white); color: var(--text-2);
+      font-size: 14px; font-weight: 500;
+      border: 1.5px solid var(--border); transition: all .15s;
+    }
+    .btn-outline:hover { border-color: var(--green); color: var(--green); }
+    .btn-outline svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+    /* ── Quick links ── */
+    .quick-links {
+      background: var(--white); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 24px 28px;
+      text-align: left;
+    }
+    .quick-links-title {
+      font-size: 13px; font-weight: 600; color: var(--text-3);
+      text-transform: uppercase; letter-spacing: .08em;
+      margin-bottom: 16px;
+    }
+    .quick-links-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+    }
+    .quick-link {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 14px; border-radius: var(--radius);
+      border: 1px solid var(--border); background: var(--surface);
+      transition: all .15s; cursor: pointer;
+    }
+    .quick-link:hover { border-color: var(--green); background: var(--green-light); }
+    .quick-link:hover .ql-icon { background: var(--green); }
+    .quick-link:hover .ql-icon svg { stroke: white; }
+    .ql-icon {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: var(--green-light); display: flex; align-items: center;
+      justify-content: center; flex-shrink: 0; transition: background .15s;
+    }
+    .ql-icon svg { width: 15px; height: 15px; stroke: var(--green); fill: none; stroke-width: 2; stroke-linecap: round; }
+    .ql-text { flex: 1; }
+    .ql-label { font-size: 13px; font-weight: 600; color: var(--text); }
+    .ql-sub { font-size: 11px; color: var(--text-3); margin-top: 1px; }
+
+    /* ── Search bar ── */
+    .search-wrap {
+      display: flex; gap: 8px; margin-bottom: 28px;
+      background: var(--white); border: 1.5px solid var(--border);
+      border-radius: var(--radius); padding: 6px 6px 6px 14px;
+      transition: border-color .15s;
+    }
+    .search-wrap:focus-within { border-color: var(--green); }
+    .search-wrap input {
+      flex: 1; border: none; outline: none; font-size: 14px;
+      color: var(--text); background: transparent; font-family: inherit;
+    }
+    .search-wrap input::placeholder { color: var(--text-3); }
+    .search-wrap button {
+      padding: 8px 16px; background: var(--green); color: white;
+      border-radius: 7px; font-size: 13px; font-weight: 500;
+      transition: background .15s;
+    }
+    .search-wrap button:hover { background: var(--green-dark); }
+
+    /* ── Footer strip ── */
+    .footer-strip {
+      background: var(--white); border-top: 1px solid var(--border);
+      padding: 18px 32px; display: flex; align-items: center;
+      justify-content: space-between; flex-wrap: wrap; gap: 12px;
+      flex-shrink: 0;
+    }
+    .footer-strip p { font-size: 13px; color: var(--text-3); }
+    .footer-strip a { color: var(--green); font-weight: 500; font-size: 13px; }
+    .footer-strip a:hover { text-decoration: underline; }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      nav { padding: 0 16px; }
+      .nav-links .nav-link { display: none; }
+      .quick-links-grid { grid-template-columns: 1fr; }
+      .big-number { font-size: 52px; }
+      .footer-strip { padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── NAVBAR ── -->
+<nav>
+  <a href="index.html" class="logo">
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    </div>
+    NyumbaKisumu
+  </a>
+  <div class="nav-links">
+    <a href="index.html" class="nav-link">Home</a>
+    <a href="listings.html" class="nav-link">Browse</a>
+    <a href="how-it-works.html" class="nav-link">How it works</a>
+    <a href="contact.html" class="nav-link">Contact</a>
+    <a href="post-listing.html" class="btn-primary">List your apartment</a>
+  </div>
+</nav>
+
+<!-- ── MAIN ── -->
+<div class="main">
+  <div class="container">
+
+    <!-- Illustration -->
+    <div class="illustration">
+      <div class="big-number">404</div>
+      <div class="house-wrap">
+        <svg class="house-svg" width="110" height="110" viewBox="0 0 110 110" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- House body -->
+          <rect x="18" y="52" width="74" height="50" rx="4" fill="#E1F5EE" stroke="#0F6E56" stroke-width="2.5"/>
+          <!-- Roof -->
+          <path d="M8 56 L55 14 L102 56" stroke="#0F6E56" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="#9FE1CB"/>
+          <!-- Door -->
+          <rect x="42" y="72" width="26" height="30" rx="3" fill="#0F6E56"/>
+          <circle cx="64" cy="87" r="2.5" fill="white"/>
+          <!-- Window left -->
+          <rect x="22" y="62" width="18" height="16" rx="2" fill="white" stroke="#0F6E56" stroke-width="1.5"/>
+          <line x1="31" y1="62" x2="31" y2="78" stroke="#0F6E56" stroke-width="1.5"/>
+          <line x1="22" y1="70" x2="40" y2="70" stroke="#0F6E56" stroke-width="1.5"/>
+          <!-- Window right -->
+          <rect x="70" y="62" width="18" height="16" rx="2" fill="white" stroke="#0F6E56" stroke-width="1.5"/>
+          <line x1="79" y1="62" x2="79" y2="78" stroke="#0F6E56" stroke-width="1.5"/>
+          <line x1="70" y1="70" x2="88" y2="70" stroke="#0F6E56" stroke-width="1.5"/>
+          <!-- Chimney -->
+          <rect x="68" y="20" width="10" height="22" rx="2" fill="#085041"/>
+          <!-- Smoke puffs -->
+          <circle cx="73" cy="14" r="4" fill="#C8EFE2" opacity="0.8" style="animation: puff1 2s ease-in-out infinite"/>
+          <circle cx="78" cy="8" r="3" fill="#C8EFE2" opacity="0.5" style="animation: puff2 2s ease-in-out infinite .4s"/>
+          <circle cx="70" cy="5" r="2.5" fill="#C8EFE2" opacity="0.3" style="animation: puff3 2s ease-in-out infinite .8s"/>
+          <!-- Question mark on door -->
+          <text x="55" y="91" text-anchor="middle" font-family="Georgia,serif" font-size="16" font-weight="bold" fill="white">?</text>
+        </svg>
+      </div>
+    </div>
+
+    <style>
+      @keyframes puff1 { 0%,100%{transform:translateY(0);opacity:.8} 50%{transform:translateY(-6px);opacity:.4} }
+      @keyframes puff2 { 0%,100%{transform:translateY(0);opacity:.5} 50%{transform:translateY(-6px);opacity:.2} }
+      @keyframes puff3 { 0%,100%{transform:translateY(0);opacity:.3} 50%{transform:translateY(-6px);opacity:.1} }
+    </style>
+
+    <!-- Text -->
+    <div class="eyebrow">Page not found</div>
+    <h1>This apartment<br>doesn't <em>exist</em></h1>
+    <p class="sub">The page you're looking for may have been removed, the listing may have expired, or the link might be wrong.</p>
+
+    <!-- Search -->
+    <div class="search-wrap">
+      <input type="text" id="search-input" placeholder="Search for apartments in Kisumu, Maseno, Luanda…" onkeydown="if(event.key==='Enter')doSearch()"/>
+      <button onclick="doSearch()">Search</button>
+    </div>
+
+    <!-- CTA buttons -->
+    <div class="cta-row">
+      <a href="index.html" class="btn-green">
+        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Go to homepage
+      </a>
+      <a href="listings.html" class="btn-outline">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        Browse all listings
+      </a>
+    </div>
+
+    <!-- Quick links -->
+    <div class="quick-links">
+      <div class="quick-links-title">Or go directly to</div>
+      <div class="quick-links-grid">
+        <a href="listings.html?category=student" class="quick-link">
+          <div class="ql-icon"><svg viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5-10-5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg></div>
+          <div class="ql-text"><div class="ql-label">Student housing</div><div class="ql-sub">Near Maseno University</div></div>
+        </a>
+        <a href="listings.html?area=Milimani" class="quick-link">
+          <div class="ql-icon"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
+          <div class="ql-text"><div class="ql-label">Milimani</div><div class="ql-sub">Kisumu's premier estate</div></div>
+        </a>
+        <a href="listings.html?area=Maseno" class="quick-link">
+          <div class="ql-icon"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
+          <div class="ql-text"><div class="ql-label">Maseno</div><div class="ql-sub">University area listings</div></div>
+        </a>
+        <a href="post-listing.html" class="quick-link">
+          <div class="ql-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+          <div class="ql-text"><div class="ql-label">List your apartment</div><div class="ql-sub">KES 800 — go live today</div></div>
+        </a>
+        <a href="how-it-works.html" class="quick-link">
+          <div class="ql-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+          <div class="ql-text"><div class="ql-label">How it works</div><div class="ql-sub">Buyers and sellers guide</div></div>
+        </a>
+        <a href="contact.html" class="quick-link">
+          <div class="ql-icon"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
+          <div class="ql-text"><div class="ql-label">Contact us</div><div class="ql-sub">We'll help you find it</div></div>
+        </a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── FOOTER STRIP ── -->
+<div class="footer-strip">
+  <p>© 2025 NyumbaKisumu · Kisumu · Maseno · Luanda</p>
+  <div style="display:flex;gap:20px">
+    <a href="index.html">Home</a>
+    <a href="listings.html">Browse</a>
+    <a href="contact.html">Contact</a>
+  </div>
+</div>
+
+<script>
+  function doSearch() {
+    const q = document.getElementById('search-input').value.trim();
+    if (q) window.location.href = `listings.html?q=${encodeURIComponent(q)}`;
+  }
+</script>
+</body>
+</html>

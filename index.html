@@ -1,0 +1,1314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NyumbaKisumu — Apartments for Sale & Rent in Kisumu</title>
+  <meta name="description" content="Find apartments for sale and rent in Kisumu, Maseno, and Luanda. Student bedsitters to luxury apartments — all in one place."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --green:       #0F6E56;
+      --green-light: #E1F5EE;
+      --green-mid:   #1D9E75;
+      --green-dark:  #085041;
+      --gold:        #BA7517;
+      --gold-light:  #FAEEDA;
+      --text:        #1a1a18;
+      --text-2:      #4a4a46;
+      --text-3:      #888780;
+      --border:      #e0ded8;
+      --surface:     #f7f6f2;
+      --white:       #ffffff;
+      --radius:      10px;
+      --radius-lg:   16px;
+      --shadow:      0 1px 3px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.06);
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; color: var(--text); background: var(--white); font-size: 15px; line-height: 1.6; }
+    a { text-decoration: none; color: inherit; }
+    img { display: block; max-width: 100%; }
+    button { font-family: inherit; cursor: pointer; border: none; }
+
+    /* ── Navbar ── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 32px; height: 64px;
+      background: var(--white); border-bottom: 1px solid var(--border);
+    }
+    .logo {
+      display: flex; align-items: center; gap: 10px;
+      font-family: 'Playfair Display', serif; font-size: 20px; color: var(--green-dark);
+    }
+    .logo-icon {
+      width: 34px; height: 34px; background: var(--green); border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .logo-icon svg { width: 18px; height: 18px; fill: none; stroke: white; stroke-width: 2; stroke-linecap: round; }
+    .nav-links { display: flex; align-items: center; gap: 6px; }
+    .nav-link { font-size: 14px; color: var(--text-2); padding: 8px 14px; border-radius: var(--radius); transition: background .15s; white-space: nowrap; }
+    .nav-link:hover { background: var(--surface); color: var(--text); }
+    .btn { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 500; padding: 9px 18px; border-radius: var(--radius); transition: all .15s; }
+    .btn-primary { background: var(--green); color: white; }
+    .btn-primary:hover { background: var(--green-dark); }
+    .btn-outline { background: transparent; color: var(--green); border: 1.5px solid var(--green); }
+    .btn-outline:hover { background: var(--green-light); }
+
+    /* Mobile menu */
+    .mobile-menu-btn {
+      display: none; background: none; border: none; cursor: pointer;
+      padding: 6px; border-radius: 6px;
+    }
+    .mobile-menu-btn svg { width: 22px; height: 22px; stroke: var(--text); fill: none; stroke-width: 2; display: block; }
+    .mobile-nav {
+      display: none; position: fixed; top: 64px; left: 0; right: 0;
+      background: var(--white); border-bottom: 1px solid var(--border);
+      padding: 16px; z-index: 99; flex-direction: column; gap: 4px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+    }
+    .mobile-nav.open { display: flex; }
+    .mobile-nav a { font-size: 15px; color: var(--text-2); padding: 10px 14px; border-radius: var(--radius); }
+    .mobile-nav a:hover { background: var(--surface); }
+    .mobile-nav .btn-primary { text-align: center; justify-content: center; margin-top: 8px; }
+
+    /* ── Hero ── */
+    .hero {
+      background: var(--green-dark);
+      padding: 72px 32px 80px;
+      text-align: center;
+      position: relative; overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+    .hero-eyebrow {
+      display: inline-block; background: rgba(255,255,255,0.12); color: #9FE1CB;
+      font-size: 12px; font-weight: 500; letter-spacing: .06em; text-transform: uppercase;
+      padding: 5px 14px; border-radius: 20px; margin-bottom: 20px; position: relative;
+    }
+    .hero h1 {
+      font-family: 'Playfair Display', serif; font-size: clamp(32px, 5vw, 52px);
+      color: white; line-height: 1.15; margin-bottom: 16px; position: relative;
+    }
+    .hero h1 span { color: #5DCAA5; }
+    .hero-sub {
+      font-size: 16px; color: rgba(255,255,255,0.65); margin-bottom: 40px;
+      max-width: 480px; margin-left: auto; margin-right: auto; position: relative;
+    }
+    .search-box {
+      background: white; border-radius: var(--radius-lg); padding: 8px;
+      display: flex; gap: 8px; flex-wrap: wrap;
+      max-width: 680px; margin: 0 auto 24px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+      position: relative;
+    }
+    .search-box select, .search-box input {
+      flex: 1; min-width: 140px; border: none; outline: none;
+      font-family: inherit; font-size: 14px; color: var(--text); background: var(--surface);
+      padding: 10px 14px; border-radius: 8px;
+    }
+    .search-box input { flex: 2; min-width: 200px; }
+    .search-box button {
+      flex-shrink: 0; background: var(--green); color: white;
+      font-size: 14px; font-weight: 500; padding: 10px 22px; border-radius: 8px;
+      transition: background .15s; font-family: inherit;
+    }
+    .search-box button:hover { background: var(--green-mid); }
+    .hero-stats { display: flex; justify-content: center; gap: 32px; flex-wrap: wrap; position: relative; }
+    .hero-stat { text-align: center; }
+    .hero-stat-val { font-size: 22px; font-weight: 600; color: white; }
+    .hero-stat-lbl { font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 2px; }
+
+    /* ── Sections ── */
+    .section { padding: 56px 32px; }
+    .section-alt { background: var(--surface); }
+    .section-header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 28px; }
+    .section-title { font-family: 'Playfair Display', serif; font-size: 26px; color: var(--text); }
+    .see-all { font-size: 14px; color: var(--green); font-weight: 500; }
+    .see-all:hover { text-decoration: underline; }
+
+    /* ── Trust bar ── */
+    .trust-bar {
+      background: var(--green-light); border-top: 1px solid #9FE1CB; border-bottom: 1px solid #9FE1CB;
+      padding: 18px 32px; display: flex; align-items: center; justify-content: center;
+      gap: 40px; flex-wrap: wrap;
+    }
+    .trust-item { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; color: var(--green-dark); }
+    .trust-item svg { width: 16px; height: 16px; stroke: var(--green); fill: none; stroke-width: 2; flex-shrink: 0; }
+
+    /* ── Area pills ── */
+    .area-pills { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 28px; }
+    .pill {
+      font-size: 13px; padding: 6px 16px; border-radius: 20px; border: 1.5px solid var(--border);
+      background: white; color: var(--text-2); cursor: pointer; transition: all .15s; font-weight: 500;
+    }
+    .pill:hover { border-color: var(--green); color: var(--green); }
+    .pill.active { background: var(--green); color: white; border-color: var(--green); }
+
+    /* ── Listings grid ── */
+    .listings-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+    .card {
+      background: white; border-radius: var(--radius-lg); border: 1px solid var(--border);
+      overflow: hidden; transition: transform .2s, box-shadow .2s; cursor: pointer;
+    }
+    .card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+    .card-img {
+      height: 190px; background: var(--surface); position: relative; overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .card-img img { width: 100%; height: 100%; object-fit: cover; }
+    .card-img-placeholder { display: flex; flex-direction: column; align-items: center; gap: 8px; color: var(--text-3); }
+    .card-img-placeholder svg { width: 36px; height: 36px; opacity: .4; }
+    .badge-featured {
+      position: absolute; top: 10px; left: 10px;
+      background: var(--gold); color: white; font-size: 11px; font-weight: 600;
+      padding: 3px 10px; border-radius: 20px; letter-spacing: .03em;
+    }
+    .badge-student {
+      position: absolute; top: 10px; right: 10px;
+      background: var(--green); color: white; font-size: 11px; font-weight: 600;
+      padding: 3px 10px; border-radius: 20px;
+    }
+    .card-body { padding: 16px; }
+    .card-area { font-size: 11px; font-weight: 600; color: var(--green); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 5px; }
+    .card-title { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 4px; line-height: 1.3; }
+    .card-sub { font-size: 13px; color: var(--text-3); margin-bottom: 12px; }
+    .card-price { font-size: 18px; font-weight: 700; color: var(--green-dark); margin-bottom: 12px; }
+    .card-price span { font-size: 13px; font-weight: 400; color: var(--text-3); }
+    .card-meta { display: flex; gap: 14px; font-size: 12px; color: var(--text-2); padding-top: 12px; border-top: 1px solid var(--border); }
+    .card-meta-item { display: flex; align-items: center; gap: 4px; }
+    .card-meta-item svg { width: 14px; height: 14px; stroke: var(--text-3); fill: none; stroke-width: 2; }
+
+    /* ── Categories ── */
+    .categories { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
+    .cat-card { border-radius: var(--radius-lg); padding: 24px; cursor: pointer; transition: transform .2s; border: 1.5px solid transparent; }
+    .cat-card:hover { transform: translateY(-2px); }
+    .cat-card.student { background: var(--green-light); border-color: #9FE1CB; }
+    .cat-card.standard { background: #EAF3DE; border-color: #C0DD97; }
+    .cat-card.luxury { background: var(--gold-light); border-color: #FAC775; }
+    .cat-icon { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 14px; }
+    .cat-card.student .cat-icon { background: #9FE1CB; }
+    .cat-card.standard .cat-icon { background: #C0DD97; }
+    .cat-card.luxury .cat-icon { background: #FAC775; }
+    .cat-icon svg { width: 22px; height: 22px; stroke-width: 1.8; fill: none; }
+    .cat-card.student .cat-icon svg { stroke: var(--green-dark); }
+    .cat-card.standard .cat-icon svg { stroke: #27500A; }
+    .cat-card.luxury .cat-icon svg { stroke: var(--gold); }
+    .cat-title { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+    .cat-card.student .cat-title { color: var(--green-dark); }
+    .cat-card.standard .cat-title { color: #27500A; }
+    .cat-card.luxury .cat-title { color: #633806; }
+    .cat-desc { font-size: 13px; color: var(--text-2); margin-bottom: 10px; }
+    .cat-count { font-size: 12px; font-weight: 600; color: var(--text-3); }
+
+    /* ── Areas ── */
+    .areas { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+    .area-card { border-radius: var(--radius); padding: 20px 16px; background: white; border: 1px solid var(--border); cursor: pointer; transition: all .15s; text-align: center; }
+    .area-card:hover { border-color: var(--green); background: var(--green-light); }
+    .area-card-name { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+    .area-card-count { font-size: 12px; color: var(--text-3); }
+
+    /* ── CTA banner ── */
+    .cta-banner {
+      background: var(--green-dark); border-radius: var(--radius-lg); padding: 48px 40px;
+      display: flex; align-items: center; justify-content: space-between; gap: 32px; flex-wrap: wrap;
+    }
+    .cta-banner h2 { font-family: 'Playfair Display', serif; font-size: 28px; color: white; margin-bottom: 8px; }
+    .cta-banner p { font-size: 15px; color: rgba(255,255,255,0.65); max-width: 420px; }
+    .cta-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+    .btn-white { background: white; color: var(--green-dark); font-weight: 600; padding: 12px 24px; border-radius: var(--radius); font-size: 15px; transition: all .15s; display: inline-block; }
+    .btn-white:hover { background: var(--green-light); }
+    .btn-ghost { background: transparent; color: white; border: 1.5px solid rgba(255,255,255,0.4); font-size: 15px; padding: 12px 24px; border-radius: var(--radius); transition: all .15s; display: inline-block; }
+    .btn-ghost:hover { border-color: white; }
+
+    /* ── Footer ── */
+    footer { background: var(--text); color: rgba(255,255,255,0.6); padding: 56px 32px 28px; }
+    .footer-inner { max-width: 1200px; margin: 0 auto; }
+    .footer-top { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; gap: 40px; margin-bottom: 48px; }
+    .footer-logo { font-family: 'Playfair Display', serif; font-size: 22px; color: white; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+    .footer-logo-icon { width: 30px; height: 30px; background: var(--green); border-radius: 7px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .footer-logo-icon svg { width: 15px; height: 15px; fill: none; stroke: white; stroke-width: 2; stroke-linecap: round; }
+    .footer-tagline { font-size: 13px; line-height: 1.8; max-width: 240px; color: rgba(255,255,255,0.5); margin-bottom: 20px; }
+    .footer-social { display: flex; gap: 8px; }
+    .footer-social a {
+      width: 34px; height: 34px; border-radius: 8px; background: rgba(255,255,255,0.08);
+      display: flex; align-items: center; justify-content: center; transition: background .15s;
+    }
+    .footer-social a:hover { background: var(--green); }
+    .footer-social svg { width: 15px; height: 15px; stroke: rgba(255,255,255,0.6); fill: none; stroke-width: 2; }
+    .footer-col h4 { font-size: 11px; font-weight: 700; color: white; margin-bottom: 16px; letter-spacing: .1em; text-transform: uppercase; }
+    .footer-col a { display: block; font-size: 13px; color: rgba(255,255,255,0.5); margin-bottom: 10px; transition: color .15s; }
+    .footer-col a:hover { color: white; }
+    .footer-divider { height: 1px; background: rgba(255,255,255,0.08); margin-bottom: 24px; }
+    .footer-bottom { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+    .footer-bottom p { font-size: 12px; color: rgba(255,255,255,0.35); }
+    .footer-bottom-links { display: flex; gap: 20px; }
+    .footer-bottom-links a { font-size: 12px; color: rgba(255,255,255,0.35); transition: color .15s; }
+    .footer-bottom-links a:hover { color: white; }
+
+    /* ── Loading & empty states ── */
+    .loading-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+    .skeleton { background: var(--surface); border-radius: var(--radius-lg); overflow: hidden; border: 1px solid var(--border); }
+    .skeleton-img { height: 190px; background: linear-gradient(90deg, #f0efe9 25%, #e8e7e1 50%, #f0efe9 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; }
+    .skeleton-body { padding: 16px; }
+    .skeleton-line { height: 12px; background: linear-gradient(90deg, #f0efe9 25%, #e8e7e1 50%, #f0efe9 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; border-radius: 4px; margin-bottom: 10px; }
+    .skeleton-line.short { width: 60%; }
+    @keyframes shimmer { to { background-position: -200% 0; } }
+    .empty-state { text-align: center; padding: 60px 20px; color: var(--text-3); }
+    .empty-state svg { width: 48px; height: 48px; margin: 0 auto 16px; stroke: var(--border); fill: none; stroke-width: 1.5; }
+    .empty-state p { font-size: 15px; }
+
+    /* ── Responsive ── */
+    @media (max-width: 1024px) {
+      .footer-top { grid-template-columns: 2fr 1fr 1fr; }
+      .footer-top > *:nth-child(4),
+      .footer-top > *:nth-child(5) { display: none; }
+    }
+    @media (max-width: 768px) {
+      nav { padding: 0 16px; }
+      .nav-links { display: none; }
+      .mobile-menu-btn { display: flex; }
+      .hero { padding: 48px 16px 56px; }
+      .section { padding: 40px 16px; }
+      .trust-bar { padding: 16px; gap: 20px; }
+      .footer-top { grid-template-columns: 1fr 1fr; gap: 28px; }
+      .footer-top > *:nth-child(4),
+      .footer-top > *:nth-child(5) { display: block; }
+      .cta-banner { padding: 32px 24px; }
+    }
+    @media (max-width: 480px) {
+      .footer-top { grid-template-columns: 1fr; }
+      .search-box { flex-direction: column; }
+      .search-box select, .search-box input, .search-box button { width: 100%; }
+      .footer-bottom { flex-direction: column; align-items: flex-start; gap: 8px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── NAVBAR ── -->
+<nav>
+  <a href="index.html" class="logo">
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    </div>
+    NyumbaKisumu
+  </a>
+  <div class="nav-links">
+<a href="listings.html" class="nav-link">Browse</a>
+    <a href="how-it-works.html" class="nav-link">How it works</a>
+    <a href="about.html" class="nav-link">About us</a>
+    <a href="pricing.html" class="nav-link">Pricing</a>
+    <a href="contact.html" class="nav-link">Contact</a>
+    <a href="login.html" class="nav-link" id="nav-account-link">Sign in</a>
+    <a href="saved.html" class="nav-link">
+  <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+  Saved
+  <span class="nav-count" id="nav-count-badge" style="display:none">0</span>
+</a>
+    <a href="post-listing.html" class="btn btn-primary">List your apartment</a>
+  </div>
+  <!-- Mobile menu button -->
+  <button class="mobile-menu-btn" onclick="toggleMobileMenu()" aria-label="Open menu">
+    <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  </button>
+</nav>
+
+<!-- Mobile nav -->
+<div class="mobile-nav" id="mobile-nav">
+  <a href="listings.html">Browse listings</a>
+  <a href="how-it-works.html">How it works</a>
+  <a href="about.html" class="nav-link">About us</a>
+  <a href="pricing.html">Pricing</a>
+  <a href="contact.html">Contact</a>
+  <a href="login.html" class="mobile-nav-link" id="mobile-account-link">Sign in</a>
+  <a href="saved.html" class="nav-link">
+  <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+  Saved
+  <span class="nav-count" id="nav-count-badge" style="display:none">0</span>
+</a>
+  <a href="post-listing.html" class="btn btn-primary">List your apartment</a>
+</div>
+
+<!-- ── HERO ── -->
+<section class="hero">
+  <div class="hero-eyebrow">Kisumu · Maseno · Luanda</div>
+  <h1>Find your next home<br>in <span>Western Kenya</span></h1>
+  <p class="hero-sub">Student bedsitters near Maseno University to spacious family apartments in Milimani — find and list properties without agents.</p>
+
+  <div class="search-box">
+    <select id="search-area">
+      <option value="">All areas</option>
+      <option value="Milimani">Milimani</option>
+      <option value="Kisumu CBD">Kisumu CBD</option>
+      <option value="Kondele">Kondele</option>
+      <option value="Riat Hills">Riat Hills</option>
+      <option value="Mamboleo">Mamboleo</option>
+      <option value="Maseno">Maseno</option>
+      <option value="Luanda">Luanda</option>
+      <option value="Ahero">Ahero</option>
+    </select>
+    <select id="search-type">
+      <option value="">Sale or rent</option>
+      <option value="sale">For sale</option>
+      <option value="rent">To let</option>
+    </select>
+    <input type="text" id="search-q" placeholder="Search by area, price, or keyword…"/>
+    <button onclick="doSearch()">Search</button>
+  </div>
+
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <div class="hero-stat-val" id="stat-listings">—</div>
+      <div class="hero-stat-lbl">Active listings</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-val">8</div>
+      <div class="hero-stat-lbl">Areas covered</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-val">0%</div>
+      <div class="hero-stat-lbl">Agent commission</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── TRUST BAR ── -->
+<div class="trust-bar">
+  <div class="trust-item">
+    <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+    No agents or middlemen
+  </div>
+  <div class="trust-item">
+    <svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+    Pay once via M-Pesa
+  </div>
+  <div class="trust-item">
+    <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.12 1.2 2 2 0 012.11 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>
+    Buyers contact you directly
+  </div>
+  <div class="trust-item">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    Live in under 10 minutes
+  </div>
+</div>
+
+<!-- ── CATEGORIES ── -->
+<section class="section" id="categories">
+  <div class="section-header">
+    <h2 class="section-title">What are you looking for?</h2>
+    <a href="how-it-works.html" class="see-all">How it works →</a>
+  </div>
+  <div class="categories">
+    <div class="cat-card student" onclick="filterCategory('student')">
+      <div class="cat-icon">
+        <svg viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5-10-5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+      </div>
+      <div class="cat-title">Student housing</div>
+      <div class="cat-desc">Bedsitters and shared flats near Maseno University and Kisumu campuses</div>
+      <div class="cat-count" id="count-student">Loading…</div>
+    </div>
+    <div class="cat-card standard" onclick="filterCategory('standard')">
+      <div class="cat-icon">
+        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      </div>
+      <div class="cat-title">Standard apartments</div>
+      <div class="cat-desc">1–3 bedroom apartments for families and professionals across Kisumu</div>
+      <div class="cat-count" id="count-standard">Loading…</div>
+    </div>
+    <div class="cat-card luxury" onclick="filterCategory('luxury')">
+      <div class="cat-icon">
+        <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      </div>
+      <div class="cat-title">Luxury & premium</div>
+      <div class="cat-desc">High-end apartments and penthouses in Milimani and Riat Hills</div>
+      <div class="cat-count" id="count-luxury">Loading…</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FEATURED LISTINGS ── -->
+<section class="section section-alt">
+  <div class="section-header">
+    <h2 class="section-title">Featured listings</h2>
+    <a href="listings.html" class="see-all">See all →</a>
+  </div>
+  <div id="featured-listings">
+    <div class="loading-grid">
+      <div class="skeleton"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line short"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div></div></div>
+      <div class="skeleton"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line short"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div></div></div>
+      <div class="skeleton"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line short"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── LATEST LISTINGS ── -->
+<section class="section">
+  <div class="section-header">
+    <h2 class="section-title">Latest listings</h2>
+    <a href="listings.html" class="see-all">Browse all →</a>
+  </div>
+  <div class="area-pills" id="area-pills">
+    <div class="pill active" onclick="filterArea(null, this)">All areas</div>
+    <div class="pill" onclick="filterArea('Milimani', this)">Milimani</div>
+    <div class="pill" onclick="filterArea('Maseno', this)">Maseno</div>
+    <div class="pill" onclick="filterArea('Kondele', this)">Kondele</div>
+    <div class="pill" onclick="filterArea('Kisumu CBD', this)">Kisumu CBD</div>
+    <div class="pill" onclick="filterArea('Luanda', this)">Luanda</div>
+    <div class="pill" onclick="filterArea('Riat Hills', this)">Riat Hills</div>
+  </div>
+  <div id="latest-listings">
+    <div class="loading-grid">
+      <div class="skeleton"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line short"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div></div></div>
+      <div class="skeleton"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line short"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div></div></div>
+      <div class="skeleton"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line short"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── AREAS ── -->
+<section class="section section-alt" id="areas">
+  <div class="section-header">
+    <h2 class="section-title">Browse by area</h2>
+    <a href="listings.html" class="see-all">All listings →</a>
+  </div>
+  <div class="areas">
+    <div class="area-card" onclick="goArea('Milimani')"><div class="area-card-name">Milimani</div><div class="area-card-count">Kisumu's premier estate</div></div>
+    <div class="area-card" onclick="goArea('Kisumu CBD')"><div class="area-card-name">Kisumu CBD</div><div class="area-card-count">Central business district</div></div>
+    <div class="area-card" onclick="goArea('Kondele')"><div class="area-card-name">Kondele</div><div class="area-card-count">Affordable & accessible</div></div>
+    <div class="area-card" onclick="goArea('Riat Hills')"><div class="area-card-name">Riat Hills</div><div class="area-card-count">Scenic hillside views</div></div>
+    <div class="area-card" onclick="goArea('Mamboleo')"><div class="area-card-name">Mamboleo</div><div class="area-card-count">Growing suburb</div></div>
+    <div class="area-card" onclick="goArea('Maseno')"><div class="area-card-name">Maseno</div><div class="area-card-count">Near Maseno University</div></div>
+    <div class="area-card" onclick="goArea('Luanda')"><div class="area-card-name">Luanda</div><div class="area-card-count">North of Kisumu</div></div>
+    <div class="area-card" onclick="goArea('Ahero')"><div class="area-card-name">Ahero</div><div class="area-card-count">Along Kisumu–Nairobi road</div></div>
+  </div>
+</section>
+
+<!-- ── CTA BANNER ── -->
+<section class="section">
+  <div class="cta-banner">
+    <div>
+      <h2>Selling or renting out your apartment?</h2>
+      <p>List your property and reach thousands of buyers and tenants across Kisumu, Maseno, and Luanda — no agent needed.</p>
+    </div>
+    <div class="cta-actions">
+      <a href="post-listing.html" class="btn-white">List your apartment</a>
+      <a href="how-it-works.html" class="btn-ghost">How it works</a>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <!-- Brand -->
+      <div>
+        <div class="footer-logo">
+          <div class="footer-logo-icon">
+            <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          </div>
+          NyumbaKisumu
+        </div>
+        <p class="footer-tagline">The easiest way to find and list apartments in Kisumu, Maseno, and Luanda — without agents or commissions.</p>
+        <div class="footer-social">
+          <a href="https://wa.me/254700000000" target="_blank" rel="noopener" title="WhatsApp">
+            <svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
+          </a>
+          <a href="mailto:hello@nyumbakisumu.co.ke" title="Email">
+            <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- Browse -->
+      <div class="footer-col">
+        <h4>Browse</h4>
+        <a href="listings.html">All listings</a>
+        <a href="listings.html?category=student">Student housing</a>
+        <a href="listings.html?category=standard">Standard</a>
+        <a href="listings.html?category=luxury">Luxury</a>
+        <a href="listings.html?type=rent">To let</a>
+        <a href="listings.html?type=sale">For sale</a>
+      </div>
+
+      <!-- Areas -->
+      <div class="footer-col">
+        <h4>Areas</h4>
+        <a href="listings.html?area=Milimani">Milimani</a>
+        <a href="listings.html?area=Maseno">Maseno</a>
+        <a href="listings.html?area=Luanda">Luanda</a>
+        <a href="listings.html?area=Kondele">Kondele</a>
+        <a href="listings.html?area=Riat Hills">Riat Hills</a>
+        <a href="listings.html?area=Kisumu CBD">Kisumu CBD</a>
+      </div>
+
+      <!-- Platform -->
+      <div class="footer-col">
+        <h4>Platform</h4>
+        <a href="post-listing.html">List a property</a>
+        <a href="pricing.html">Pricing</a>
+        <a href="how-it-works.html">How it works</a>
+        <a href="login.html">Seller login</a>
+      </div>
+
+      <!-- Company -->
+      <div class="footer-col">
+        <h4>Company</h4>
+        <a href="contact.html">Contact us</a>
+        <a href="terms.html">Terms of service</a>
+        <a href="privacy.html">Privacy policy</a>
+        <a href="how-it-works.html#faq">FAQ</a>
+      </div>
+    </div>
+
+    <div class="footer-divider"></div>
+
+    <div class="footer-bottom">
+      <p>© 2025 NyumbaKisumu. All rights reserved. Built for Western Kenya.</p>
+      <div class="footer-bottom-links">
+        <a href="terms.html">Terms</a>
+        <a href="privacy.html">Privacy</a>
+        <a href="contact.html">Contact</a>
+        <a href="sitemap.html">Sitemap</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const SUPABASE_URL = 'https://vliuuloyfhyxcsuchpss.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_oIIcecf3wzKMual5K24Z8Q_zmxVfgsx';
+  const { createClient } = supabase;
+  const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  // ── Mobile menu ──
+  function toggleMobileMenu() {
+    document.getElementById('mobile-nav').classList.toggle('open');
+  }
+  document.addEventListener('click', e => {
+    const nav = document.getElementById('mobile-nav');
+    const btn = document.querySelector('.mobile-menu-btn');
+    if (nav.classList.contains('open') && !nav.contains(e.target) && !btn.contains(e.target)) {
+      nav.classList.remove('open');
+    }
+  });
+
+  // ── Format price ──
+  function formatPrice(price, type) {
+    const p = Number(price).toLocaleString('en-KE');
+    return type === 'rent' ? `KES ${p}<span>/mo</span>` : `KES ${p}`;
+  }
+
+  // ── Build listing card ──
+  function buildCard(listing) {
+    const photos = listing.listing_photos || [];
+    const cover = photos.find(p => p.is_cover) || photos[0];
+    const imgHtml = cover
+      ? `<img src="${cover.url}" alt="${listing.title}" loading="lazy"/>`
+      : `<div class="card-img-placeholder">
+           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+           <span style="font-size:12px">No photo yet</span>
+         </div>`;
+    return `
+      <div class="card" onclick="window.location='listing.html?id=${listing.id}'">
+        <div class="card-img">
+        ${imgHtml}
+        ${listing.is_featured ? '<span class="badge-featured">Featured</span>' : ''}
+        <div class="nk-heart-overlay">${NKSaved.buildHeartBtn(listing.id)}</div>
+        ${listing.category === 'student' ? '<span class="badge-student">Student</span>' : ''}
+      </div>
+        <div class="card-body">
+          <div class="card-area">${listing.area}${listing.sub_area ? ' · ' + listing.sub_area : ''}</div>
+          <div class="card-title">${listing.title}</div>
+          <div class="card-sub">${listing.address || ''}</div>
+          <div class="card-price">${formatPrice(listing.price, listing.price_type)}</div>
+          <div class="card-meta">
+            ${listing.bedrooms ? `<div class="card-meta-item"><svg viewBox="0 0 24 24"><path d="M2 4v16M22 4v16M2 12h20M2 8h4a2 2 0 012 2v2H2V8zM16 8h4a2 2 0 012 2v2h-6V8z"/></svg>${listing.bedrooms} bed</div>` : ''}
+            ${listing.bathrooms ? `<div class="card-meta-item"><svg viewBox="0 0 24 24"><path d="M9 6l1-1a2 2 0 012.83 0l6.17 6.17a1 1 0 010 1.41L17 14M3 20h18M5 20v-4a3 3 0 013-3h1"/></svg>${listing.bathrooms} bath</div>` : ''}
+            ${listing.size_sqm ? `<div class="card-meta-item"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="1"/></svg>${listing.size_sqm}m²</div>` : ''}
+          </div>
+        </div>
+      </div>`;
+  }
+
+  // ── Render listings ──
+  function renderListings(containerId, listings) {
+    const el = document.getElementById(containerId);
+    if (!listings.length) {
+      el.innerHTML = `<div class="empty-state">
+        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+        <p>No listings here yet — <a href="post-listing.html" style="color:var(--green);font-weight:500">be the first to post!</a></p>
+      </div>`;
+      return;
+    }
+    el.innerHTML = `<div class="listings-grid">${listings.map(buildCard).join('')}</div>`;
+  }
+
+  // ── Load featured ──
+  async function loadFeatured() {
+    const { data, error } = await db
+      .from('listings')
+      .select('*, listing_photos(*)')
+      .eq('status', 'active')
+      .eq('is_featured', true)
+      .order('created_at', { ascending: false })
+      .limit(3);
+    if (error) { console.error(error); return; }
+    renderListings('featured-listings', data || []);
+  }
+
+  // ── Load latest ──
+  let currentArea = null;
+  async function loadLatest(area) {
+    document.getElementById('latest-listings').innerHTML = `<div class="loading-grid">
+      <div class="skeleton"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line short"></div><div class="skeleton-line"></div></div></div>
+      <div class="skeleton"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line short"></div><div class="skeleton-line"></div></div></div>
+      <div class="skeleton"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line short"></div><div class="skeleton-line"></div></div></div>
+    </div>`;
+    let query = db.from('listings').select('*, listing_photos(*)').eq('status', 'active');
+    if (area) query = query.eq('area', area);
+    const { data, error } = await query.order('created_at', { ascending: false }).limit(6);
+    if (error) { console.error(error); return; }
+    renderListings('latest-listings', data || []);
+  }
+
+  // ── Load counts ──
+  async function loadCounts() {
+    const cats = ['student', 'standard', 'luxury'];
+    for (const cat of cats) {
+      const { count } = await db.from('listings').select('*', { count: 'exact', head: true }).eq('status', 'active').eq('category', cat);
+      const el = document.getElementById('count-' + cat);
+      if (el) el.textContent = `${count || 0} listing${count !== 1 ? 's' : ''} available`;
+    }
+    const { count: total } = await db.from('listings').select('*', { count: 'exact', head: true }).eq('status', 'active');
+    const stat = document.getElementById('stat-listings');
+    if (stat) stat.textContent = total || '0';
+  }
+
+  // ── Filter by area pill ──
+  function filterArea(area, el) {
+    currentArea = area;
+    document.querySelectorAll('#area-pills .pill').forEach(p => p.classList.remove('active'));
+    if (el) el.classList.add('active');
+    loadLatest(area);
+  }
+
+  // ── Go to listings page filtered by area ──
+  function goArea(area) {
+    window.location.href = `listings.html?area=${encodeURIComponent(area)}`;
+  }
+
+  // ── Filter by category ──
+  function filterCategory(cat) {
+    window.location.href = `listings.html?category=${cat}`;
+  }
+
+  // ── Search ──
+  function doSearch() {
+    const area = document.getElementById('search-area').value;
+    const type = document.getElementById('search-type').value;
+    const q    = document.getElementById('search-q').value;
+    const params = new URLSearchParams();
+    if (area) params.set('area', area);
+    if (type) params.set('type', type);
+    if (q)    params.set('q', q);
+    window.location.href = `listings.html?${params.toString()}`;
+  }
+
+  document.getElementById('search-q').addEventListener('keydown', e => {
+    if (e.key === 'Enter') doSearch();
+  });
+
+  // ── Init ──
+  loadFeatured();
+  loadLatest(null);
+  loadCounts();
+</script>
+<script src="saved-listings.js"></script>
+<script>NKSaved.init();</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  (function () {
+    const SUPABASE_URL = 'https://vliuuloyfhyxcsuchpss.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_oIIcecf3wzKMual5K24Z8Q_zmxVfgsx';
+    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    let sid = localStorage.getItem('nk_sid');
+    if (!sid) {
+      sid = (crypto.randomUUID ? crypto.randomUUID() : Date.now() + '-' + Math.random().toString(36).slice(2));
+      localStorage.setItem('nk_sid', sid);
+    }
+
+    sb.from('page_views').insert({
+      path: location.pathname,
+      referrer: document.referrer || null,
+      user_agent: navigator.userAgent,
+      session_id: sid
+    });
+  })();
+</script>
+<script>
+(function() {
+  // Swap Sign in → My Account when logged in
+  const SUPABASE_URL = 'https://vliuuloyfhyxcsuchpss.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_oIIcecf3wzKMual5K24Z8Q_zmxVfgsx';
+
+  // Reuse existing client if already on page, otherwise create one
+  const _db = (typeof db !== 'undefined') ? db : supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  _db.auth.getSession().then(({ data: { session } }) => {
+    if (!session) return; // not logged in — leave Sign in button as is
+
+    // Find the Sign in link in the navbar and replace it
+    const navLinks = document.querySelector('.nav-links');
+    if (!navLinks) return;
+
+    const signInLink = [...navLinks.querySelectorAll('a')].find(a =>
+      a.textContent.trim().toLowerCase() === 'sign in'
+    );
+    if (!signInLink) return;
+
+    signInLink.textContent = 'My account';
+    signInLink.href = 'dashboard.html';
+    signInLink.style.fontWeight = '600';
+    signInLink.style.color = 'var(--green)';
+  });
+})();
+</script>
+<script>
+(async function() {
+  const { data: { session } } = await db.auth.getSession();
+
+  const desktopLink = document.getElementById('nav-account-link');
+  const mobileLink = document.getElementById('mobile-account-link');
+
+  console.log(mobileLink);
+
+  if (session) {
+    if (desktopLink) {
+      desktopLink.textContent = 'My Account';
+      desktopLink.href = 'dashboard.html';
+    }
+
+    if (mobileLink) {
+      mobileLink.textContent = 'My Account';
+      mobileLink.href = 'dashboard.html';
+    }
+  }
+})();
+</script>
+
+<style>
+/* ── Widget shell ── */
+#nk-chat-btn {
+  position: fixed; bottom: 24px; right: 24px; z-index: 1000;
+  width: 52px; height: 52px; border-radius: 50%;
+  background: #0F6E56; border: none; cursor: pointer;
+  box-shadow: 0 4px 16px rgba(15,110,86,0.35);
+  display: flex; align-items: center; justify-content: center;
+  transition: transform .2s, background .2s;
+}
+#nk-chat-btn:hover { background: #085041; transform: scale(1.07); }
+#nk-chat-btn svg { width: 24px; height: 24px; stroke: white; fill: none; stroke-width: 2; stroke-linecap: round; }
+#nk-chat-btn .nk-badge {
+  position: absolute; top: -2px; right: -2px;
+  width: 18px; height: 18px; border-radius: 50%;
+  background: #BA7517; color: white; font-size: 10px; font-weight: 700;
+  display: none; align-items: center; justify-content: center;
+  font-family: 'Inter', sans-serif; border: 2px solid white;
+}
+
+/* ── Panel ── */
+#nk-chat-panel {
+  position: fixed; bottom: 88px; right: 24px; z-index: 1000;
+  width: 340px; max-height: 520px;
+  background: #ffffff; border: 1px solid #e0ded8;
+  border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.14);
+  display: none; flex-direction: column;
+  font-family: 'Inter', sans-serif; font-size: 14px; overflow: hidden;
+  animation: nkSlideUp .2s ease;
+}
+@keyframes nkSlideUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+#nk-chat-panel.open { display: flex; }
+
+/* Header */
+.nk-head {
+  background: #0F6E56; padding: 14px 16px;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-shrink: 0;
+}
+.nk-head-left { display: flex; align-items: center; gap: 10px; }
+.nk-head-avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: #1D9E75; display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.nk-head-avatar svg { width: 18px; height: 18px; stroke: white; fill: none; stroke-width: 2; }
+.nk-head-title { font-size: 14px; font-weight: 600; color: white; }
+.nk-head-sub { font-size: 11px; color: rgba(255,255,255,0.65); margin-top: 1px; }
+.nk-head-close {
+  background: none; border: none; cursor: pointer;
+  color: rgba(255,255,255,0.7); font-size: 20px; line-height: 1;
+  padding: 2px 4px; transition: color .15s;
+}
+.nk-head-close:hover { color: white; }
+
+/* Messages area */
+.nk-msgs {
+  flex: 1; overflow-y: auto; padding: 16px 14px 8px;
+  display: flex; flex-direction: column; gap: 10px;
+  scroll-behavior: smooth;
+}
+.nk-msgs::-webkit-scrollbar { width: 4px; }
+.nk-msgs::-webkit-scrollbar-thumb { background: #e0ded8; border-radius: 2px; }
+
+/* Greeting */
+.nk-greeting {
+  background: #f7f6f2; border-radius: 12px 12px 12px 2px;
+  padding: 12px 14px; font-size: 13px; color: #4a4a46; line-height: 1.6;
+  max-width: 90%;
+}
+.nk-greeting strong { color: #1a1a18; display: block; margin-bottom: 4px; font-size: 14px; }
+
+/* Quick replies */
+.nk-quick-replies { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.nk-qr {
+  font-size: 12px; font-weight: 500; padding: 5px 11px;
+  border-radius: 20px; border: 1.5px solid #0F6E56; color: #0F6E56;
+  background: white; cursor: pointer; transition: all .15s; font-family: inherit;
+}
+.nk-qr:hover { background: #0F6E56; color: white; }
+
+/* Bubbles */
+.nk-bubble-wrap { display: flex; flex-direction: column; }
+.nk-bubble-wrap.visitor { align-items: flex-end; }
+.nk-bubble-wrap.admin  { align-items: flex-start; }
+.nk-bubble {
+  max-width: 82%; padding: 9px 13px;
+  font-size: 13px; line-height: 1.55; word-break: break-word;
+}
+.nk-bubble.visitor {
+  background: #0F6E56; color: white;
+  border-radius: 14px 14px 2px 14px;
+}
+.nk-bubble.admin {
+  background: #f7f6f2; color: #1a1a18;
+  border-radius: 14px 14px 14px 2px; border: 1px solid #e0ded8;
+}
+.nk-bubble-time { font-size: 10px; color: #888780; margin-top: 3px; padding: 0 2px; }
+
+/* Typing indicator */
+.nk-typing { display: none; align-items: flex-start; gap: 6px; }
+.nk-typing.show { display: flex; }
+.nk-typing-bubble {
+  background: #f7f6f2; border: 1px solid #e0ded8;
+  border-radius: 14px 14px 14px 2px; padding: 10px 14px;
+  display: flex; gap: 4px; align-items: center;
+}
+.nk-typing-dot {
+  width: 6px; height: 6px; border-radius: 50%; background: #888780;
+  animation: nkDot 1.2s infinite;
+}
+.nk-typing-dot:nth-child(2) { animation-delay: .2s; }
+.nk-typing-dot:nth-child(3) { animation-delay: .4s; }
+@keyframes nkDot { 0%,80%,100%{transform:scale(.7);opacity:.4} 40%{transform:scale(1);opacity:1} }
+
+/* Input bar */
+.nk-input-bar {
+  padding: 10px 12px; border-top: 1px solid #e0ded8;
+  display: flex; align-items: flex-end; gap: 8px; flex-shrink: 0;
+}
+#nk-input {
+  flex: 1; border: 1.5px solid #e0ded8; border-radius: 20px;
+  padding: 9px 14px; font-size: 13px; font-family: inherit;
+  color: #1a1a18; background: #f7f6f2; outline: none; resize: none;
+  max-height: 100px; overflow-y: auto; line-height: 1.5;
+  transition: border-color .15s;
+}
+#nk-input:focus { border-color: #0F6E56; background: white; }
+#nk-send {
+  width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+  background: #0F6E56; border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .15s; align-self: flex-end;
+}
+#nk-send:hover { background: #085041; }
+#nk-send svg { width: 16px; height: 16px; stroke: white; fill: none; stroke-width: 2.5; }
+#nk-send:disabled { opacity: .5; cursor: not-allowed; }
+
+/* Resolved banner */
+.nk-resolved {
+  display: none; text-align: center; padding: 10px 14px;
+  font-size: 12px; color: #888780; border-top: 1px solid #e0ded8;
+  background: #f7f6f2; flex-shrink: 0;
+}
+.nk-resolved.show { display: block; }
+
+@media (max-width: 400px) {
+  #nk-chat-panel { width: calc(100vw - 16px); right: 8px; bottom: 80px; }
+}
+</style>
+
+<!-- Toggle button -->
+<button id="nk-chat-btn" onclick="nkToggle()" aria-label="Open chat support">
+  <svg id="nk-icon-chat" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+  <svg id="nk-icon-close" viewBox="0 0 24 24" style="display:none"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+  <span class="nk-badge" id="nk-visitor-badge"></span>
+</button>
+
+<!-- Chat panel -->
+<div id="nk-chat-panel">
+  <div class="nk-head">
+    <div class="nk-head-left">
+      <div class="nk-head-avatar">
+        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      </div>
+      <div>
+        <div class="nk-head-title">NyumbaKisumu</div>
+        <div class="nk-head-sub" id="nk-status-line">We usually reply within a few minutes</div>
+      </div>
+    </div>
+    <button class="nk-head-close" onclick="nkToggle()" aria-label="Close chat">✕</button>
+  </div>
+
+  <div class="nk-msgs" id="nk-msgs">
+    <!-- Greeting injected by JS -->
+  </div>
+
+  <div class="nk-resolved" id="nk-resolved-banner">
+    ✓ This conversation has been resolved. Start a new message below to reopen it.
+  </div>
+
+  <div class="nk-input-bar">
+    <textarea id="nk-input" rows="1" placeholder="Type a message…" oninput="nkAutoResize(this)" onkeydown="nkKeyDown(event)"></textarea>
+    <button id="nk-send" onclick="nkSend()" aria-label="Send message" disabled>
+      <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+    </button>
+  </div>
+</div>
+
+<script>
+(function () {
+  const NK_URL = 'https://vliuuloyfhyxcsuchpss.supabase.co';
+  const NK_KEY = 'sb_publishable_oIIcecf3wzKMual5K24Z8Q_zmxVfgsx';
+
+  // Re-use existing db client if available, otherwise create one
+  const nkDb = (typeof supabase !== 'undefined' && typeof db !== 'undefined')
+    ? db
+    : supabase.createClient(NK_URL, NK_KEY);
+
+  let nkSessionId = null;
+  let nkOpen = false;
+  let nkChannel = null;
+  let nkMessages = [];
+  let nkNewFromAdmin = 0;
+
+  const QUICK_REPLIES = [
+    'How do I list my apartment?',
+    'Is listing free?',
+    'What areas do you cover?',
+  ];
+
+  // ── Session key (persisted in localStorage) ──
+  function getOrCreateKey() {
+    let key = localStorage.getItem('nk_chat_key');
+    if (!key) {
+      key = 'nk_' + Date.now() + '_' + Math.random().toString(36).slice(2, 9);
+      localStorage.setItem('nk_chat_key', key);
+    }
+    return key;
+  }
+
+  // ── Init ──
+  async function nkInit() {
+    const key = getOrCreateKey();
+
+    // Try to find existing session
+    const { data: existing } = await nkDb
+      .from('chat_sessions')
+      .select('*')
+      .eq('session_key', key)
+      .single();
+
+    if (existing) {
+      nkSessionId = existing.id;
+      await loadMessages();
+    } else {
+      // Create new session lazily (on first message send)
+      renderGreeting();
+    }
+
+    subscribeRealtime();
+  }
+
+  async function ensureSession() {
+    if (nkSessionId) return;
+    const key = getOrCreateKey();
+    const { data } = await nkDb.from('chat_sessions').insert({
+      session_key: key,
+      page: window.location.pathname,
+    }).select().single();
+    if (data) nkSessionId = data.id;
+  }
+
+  // ── Load existing messages ──
+  async function loadMessages() {
+    const { data } = await nkDb
+      .from('chat_messages')
+      .select('*')
+      .eq('session_id', nkSessionId)
+      .order('created_at', { ascending: true });
+
+    nkMessages = data || [];
+    renderMessages();
+  }
+
+  // ── Render greeting (first time) ──
+  function renderGreeting() {
+    const msgsEl = document.getElementById('nk-msgs');
+    msgsEl.innerHTML = `
+      <div class="nk-greeting">
+        <strong>👋 Hi there!</strong>
+        Have a question about finding or listing an apartment in Kisumu? We're here to help — send us a message and we'll get back to you shortly.
+      </div>
+      <div class="nk-quick-replies" id="nk-qr-wrap">
+        ${QUICK_REPLIES.map(q => `<button class="nk-qr" onclick="nkQuickReply(this,'${q.replace(/'/g,"\\'")}')">
+          ${q}
+        </button>`).join('')}
+      </div>`;
+  }
+
+  // ── Render all messages ──
+  function renderMessages() {
+    const msgsEl = document.getElementById('nk-msgs');
+    if (!nkMessages.length) { renderGreeting(); return; }
+
+    msgsEl.innerHTML = nkMessages.map(m => bubbleHtml(m)).join('');
+    appendTypingIndicator();
+    scrollBottom();
+  }
+
+  function bubbleHtml(m) {
+    const time = new Date(m.created_at).toLocaleTimeString('en-KE', { hour: '2-digit', minute: '2-digit' });
+    return `<div class="nk-bubble-wrap ${m.sender}">
+      <div class="nk-bubble ${m.sender}">${escHtml(m.body)}</div>
+      <div class="nk-bubble-time">${time}</div>
+    </div>`;
+  }
+
+  function appendTypingIndicator() {
+    const msgsEl = document.getElementById('nk-msgs');
+    msgsEl.insertAdjacentHTML('beforeend', `
+      <div class="nk-typing" id="nk-typing">
+        <div class="nk-typing-bubble">
+          <div class="nk-typing-dot"></div>
+          <div class="nk-typing-dot"></div>
+          <div class="nk-typing-dot"></div>
+        </div>
+      </div>`);
+  }
+
+  function appendBubble(m) {
+    const typing = document.getElementById('nk-typing');
+    const html = bubbleHtml(m);
+    if (typing) {
+      typing.insertAdjacentHTML('beforebegin', html);
+    } else {
+      document.getElementById('nk-msgs').insertAdjacentHTML('beforeend', html);
+    }
+    scrollBottom();
+  }
+
+  function scrollBottom() {
+    const el = document.getElementById('nk-msgs');
+    if (el) el.scrollTop = el.scrollHeight;
+  }
+
+  // ── Realtime subscription ──
+  function subscribeRealtime() {
+    if (nkChannel) nkChannel.unsubscribe();
+    nkChannel = nkDb
+      .channel('nk-chat-visitor')
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'chat_messages',
+        filter: nkSessionId ? `session_id=eq.${nkSessionId}` : undefined,
+      }, (payload) => {
+        const msg = payload.new;
+        // Only process messages for our session
+        if (msg.session_id !== nkSessionId) return;
+        // Don't double-add messages we sent ourselves
+        if (nkMessages.find(m => m.id === msg.id)) return;
+        nkMessages.push(msg);
+        appendBubble(msg);
+
+        if (msg.sender === 'admin') {
+          updateStatusLine('Admin is online');
+          if (!nkOpen) {
+            nkNewFromAdmin++;
+            showVisitorBadge(nkNewFromAdmin);
+          }
+        }
+      })
+      .on('postgres_changes', {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'chat_sessions',
+        filter: nkSessionId ? `id=eq.${nkSessionId}` : undefined,
+      }, (payload) => {
+        if (payload.new.is_resolved) {
+          document.getElementById('nk-resolved-banner').classList.add('show');
+          updateStatusLine('Conversation resolved');
+        }
+      })
+      .subscribe();
+  }
+
+  // ── Send message ──
+  async function nkSend() {
+    const input = document.getElementById('nk-input');
+    const body = input.value.trim();
+    if (!body) return;
+
+    input.value = '';
+    nkAutoResize(input);
+    document.getElementById('nk-send').disabled = true;
+
+    // Remove quick replies once user sends
+    const qr = document.getElementById('nk-qr-wrap');
+    if (qr) qr.remove();
+
+    await ensureSession();
+
+    const { data: msg } = await nkDb.from('chat_messages').insert({
+      session_id: nkSessionId,
+      sender: 'visitor',
+      body,
+    }).select().single();
+
+    if (msg) {
+      nkMessages.push(msg);
+      appendBubble(msg);
+      // Re-subscribe now that we have a session ID (if first message)
+      subscribeRealtime();
+    }
+
+    // Update session last_msg_at + increment admin unread
+    await nkDb.from('chat_sessions').update({
+      last_msg_at: new Date().toISOString(),
+      unread_admin: (await getUnreadCount()) + 1,
+    }).eq('id', nkSessionId);
+
+    document.getElementById('nk-send').disabled = false;
+    input.focus();
+  }
+
+  async function getUnreadCount() {
+    const { data } = await nkDb
+      .from('chat_sessions')
+      .select('unread_admin')
+      .eq('id', nkSessionId)
+      .single();
+    return data?.unread_admin || 0;
+  }
+
+  function nkQuickReply(btn, text) {
+    document.getElementById('nk-input').value = text;
+    document.getElementById('nk-send').disabled = false;
+    nkSend();
+  }
+
+  // ── Toggle panel ──
+  function nkToggle() {
+    nkOpen = !nkOpen;
+    const panel = document.getElementById('nk-chat-panel');
+    const iconChat  = document.getElementById('nk-icon-chat');
+    const iconClose = document.getElementById('nk-icon-close');
+
+    panel.classList.toggle('open', nkOpen);
+    iconChat.style.display  = nkOpen ? 'none' : 'block';
+    iconClose.style.display = nkOpen ? 'block' : 'none';
+
+    if (nkOpen) {
+      nkNewFromAdmin = 0;
+      showVisitorBadge(0);
+      scrollBottom();
+      document.getElementById('nk-input').focus();
+    }
+  }
+
+  function showVisitorBadge(n) {
+    const badge = document.getElementById('nk-visitor-badge');
+    badge.style.display = n > 0 ? 'flex' : 'none';
+    badge.textContent = n;
+  }
+
+  function updateStatusLine(text) {
+    document.getElementById('nk-status-line').textContent = text;
+  }
+
+  // ── Input helpers ──
+  function nkAutoResize(el) {
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 100) + 'px';
+    document.getElementById('nk-send').disabled = !el.value.trim();
+  }
+
+  function nkKeyDown(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      nkSend();
+    }
+  }
+
+  function escHtml(str) {
+    return String(str || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/\n/g, '<br>');
+  }
+
+  // Expose globals for onclick handlers
+  window.nkToggle      = nkToggle;
+  window.nkSend        = nkSend;
+  window.nkAutoResize  = nkAutoResize;
+  window.nkKeyDown     = nkKeyDown;
+  window.nkQuickReply  = nkQuickReply;
+
+  // Boot
+  nkInit();
+})();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  (function () {
+    const SUPABASE_URL = 'https://vliuuloyfhyxcsuchpss.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_oIIcecf3wzKMual5K24Z8Q_zmxVfgsx';
+    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    let sid = localStorage.getItem('nk_sid');
+    if (!sid) {
+      sid = (crypto.randomUUID ? crypto.randomUUID() : Date.now() + '-' + Math.random().toString(36).slice(2));
+      localStorage.setItem('nk_sid', sid);
+    }
+
+    sb.from('page_views').insert({
+      path: location.pathname,
+      referrer: document.referrer || null,
+      user_agent: navigator.userAgent,
+      session_id: sid
+    });
+  })();
+</script>
+</body>
+</html>

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Confirm your email — NyumbaKisumu</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f7f6f2;font-family:'Helvetica Neue',Arial,sans-serif;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f7f6f2;padding:32px 16px;">
+  <tr>
+    <td align="center">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:480px;background-color:#ffffff;border-radius:16px;overflow:hidden;border:1px solid #e0ded8;">
+
+        <!-- Header -->
+        <tr>
+          <td style="background-color:#085041;padding:32px 32px 28px;text-align:center;">
+            <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 auto 12px;">
+              <tr>
+                <td style="width:40px;height:40px;background-color:#0F6E56;border-radius:9px;text-align:center;vertical-align:middle;">
+                  <span style="color:#ffffff;font-size:18px;line-height:40px;">🏠</span>
+                </td>
+              </tr>
+            </table>
+            <span style="font-family:Georgia,'Times New Roman',serif;font-size:20px;color:#ffffff;font-weight:700;letter-spacing:.2px;">NyumbaKisumu</span>
+          </td>
+        </tr>
+
+        <!-- Body -->
+        <tr>
+          <td style="padding:40px 36px 8px;">
+            <h1 style="margin:0 0 12px;font-family:Georgia,'Times New Roman',serif;font-size:24px;color:#1a1a18;font-weight:700;line-height:1.3;">
+              Confirm your email address
+            </h1>
+            <p style="margin:0 0 28px;font-size:15px;line-height:1.65;color:#4a4a46;">
+              Thanks for creating a NyumbaKisumu seller account. Click the button below to verify your email and unlock your dashboard — you'll be able to post listings, receive enquiries, and manage payments right away.
+            </p>
+          </td>
+        </tr>
+
+        <!-- CTA button -->
+        <tr>
+          <td style="padding:0 36px 32px;text-align:center;">
+            <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 auto;">
+              <tr>
+                <td style="border-radius:10px;background-color:#0F6E56;">
+                  <a href="{{ .ConfirmationURL }}" target="_blank"
+                     style="display:inline-block;padding:14px 36px;font-size:15px;font-weight:600;color:#ffffff;text-decoration:none;border-radius:10px;">
+                    Confirm email address
+                  </a>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <!-- Fallback link -->
+        <tr>
+          <td style="padding:0 36px 32px;">
+            <p style="margin:0 0 6px;font-size:12px;color:#888780;line-height:1.6;">
+              Button not working? Copy and paste this link into your browser:
+            </p>
+            <p style="margin:0;font-size:12px;word-break:break-all;">
+              <a href="{{ .ConfirmationURL }}" style="color:#0F6E56;text-decoration:underline;">{{ .ConfirmationURL }}</a>
+            </p>
+          </td>
+        </tr>
+
+        <!-- Divider -->
+        <tr>
+          <td style="padding:0 36px;">
+            <div style="height:1px;background-color:#e0ded8;"></div>
+          </td>
+        </tr>
+
+        <!-- Security note -->
+        <tr>
+          <td style="padding:24px 36px 36px;">
+            <p style="margin:0;font-size:12px;line-height:1.7;color:#888780;">
+              If you didn't create an account with NyumbaKisumu, you can safely ignore this email — no account will be created. This link will expire in 24 hours for your security.
+            </p>
+          </td>
+        </tr>
+
+      </table>
+
+      <!-- Footer -->
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:480px;margin-top:24px;">
+        <tr>
+          <td style="text-align:center;padding:0 16px;">
+            <p style="margin:0 0 4px;font-size:12px;color:#888780;">
+              NyumbaKisumu · Kisumu, Maseno &amp; Luanda
+            </p>
+            <p style="margin:0;font-size:11px;color:#aaa8a0;">
+              No agents. No commission. Just your listing in front of real buyers.
+            </p>
+          </td>
+        </tr>
+      </table>
+
+    </td>
+  </tr>
+</table>
+</body>
+</html>

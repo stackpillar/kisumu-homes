@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Post a Listing — NyumbaKisumu</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --green:#0F6E56; --green-light:#E1F5EE; --green-mid:#1D9E75; --green-dark:#085041;
+      --gold:#BA7517; --gold-light:#FAEEDA;
+      --red:#C53030; --red-light:#FFF5F5;
+      --text:#1a1a18; --text-2:#4a4a46; --text-3:#888780;
+      --border:#e0ded8; --surface:#f7f6f2; --white:#ffffff;
+      --radius:10px; --radius-lg:16px;
+    }
+    html { scroll-behavior:smooth; }
+    body { font-family:'Inter',sans-serif; color:var(--text); background:var(--surface); font-size:15px; line-height:1.6; }
+    a { text-decoration:none; color:inherit; }
+    button { font-family:inherit; cursor:pointer; border:none; }
+    input,select,textarea { font-family:inherit; }
+
+    nav { position:sticky; top:0; z-index:100; display:flex; align-items:center; justify-content:space-between; padding:0 32px; height:64px; background:var(--white); border-bottom:1px solid var(--border); }
+    .logo { display:flex; align-items:center; gap:10px; font-family:'Playfair Display',serif; font-size:20px; color:var(--green-dark); }
+    .logo-icon { width:34px; height:34px; background:var(--green); border-radius:8px; display:flex; align-items:center; justify-content:center; }
+    .logo-icon svg { width:18px; height:18px; fill:none; stroke:white; stroke-width:2; stroke-linecap:round; }
+    .nav-right { display:flex; align-items:center; gap:12px; }
+    .nav-link { font-size:14px; color:var(--text-2); padding:8px 14px; border-radius:var(--radius); transition:background .15s; }
+    .nav-link:hover { background:var(--surface); }
+
+    .page-wrap { max-width:860px; margin:0 auto; padding:40px 24px 80px; }
+
+    .steps-bar { display:flex; align-items:center; margin-bottom:40px; }
+    .step-item { display:flex; align-items:center; gap:10px; flex:1; }
+    .step-item:last-child { flex:0; }
+    .step-dot { width:32px; height:32px; border-radius:50%; border:2px solid var(--border); background:white; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:600; color:var(--text-3); flex-shrink:0; transition:all .3s; }
+    .step-dot.active { border-color:var(--green); background:var(--green); color:white; }
+    .step-dot.done { border-color:var(--green); background:var(--green-light); color:var(--green); }
+    .step-dot.done::after { content:'✓'; }
+    .step-dot.done span { display:none; }
+    .step-label { font-size:13px; color:var(--text-3); white-space:nowrap; }
+    .step-label.active { color:var(--green); font-weight:600; }
+    .step-line { flex:1; height:1px; background:var(--border); margin:0 12px; }
+    .step-line.done { background:var(--green); }
+
+    .form-card { background:white; border-radius:var(--radius-lg); border:1px solid var(--border); padding:32px; margin-bottom:20px; }
+    .form-card h2 { font-size:18px; font-weight:600; color:var(--text); margin-bottom:6px; }
+    .form-card p.hint { font-size:13px; color:var(--text-3); margin-bottom:24px; }
+
+    .field { margin-bottom:20px; }
+    .field:last-child { margin-bottom:0; }
+    .field label { display:block; font-size:13px; font-weight:600; color:var(--text-2); margin-bottom:6px; }
+    .field label .req { color:var(--red); margin-left:2px; }
+    .field label .opt { font-size:11px; font-weight:400; color:var(--text-3); margin-left:4px; }
+    .field input,.field select,.field textarea { width:100%; padding:10px 14px; border:1.5px solid var(--border); border-radius:var(--radius); font-size:14px; color:var(--text); background:var(--surface); outline:none; transition:border-color .15s, background .15s; }
+    .field input:focus,.field select:focus,.field textarea:focus { border-color:var(--green); background:white; }
+    .field input.error,.field select.error,.field textarea.error { border-color:var(--red); background:var(--red-light); }
+    .field textarea { resize:vertical; min-height:100px; line-height:1.6; }
+    .field-hint { font-size:12px; color:var(--text-3); margin-top:5px; }
+    .field-error { font-size:12px; color:var(--red); margin-top:5px; display:none; }
+    .field-error.show { display:block; }
+
+    .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+    .grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; }
+
+    .cat-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+    .cat-option { border:2px solid var(--border); border-radius:var(--radius-lg); padding:16px; cursor:pointer; transition:all .2s; text-align:center; background:white; }
+    .cat-option:hover { border-color:var(--green-mid); }
+    .cat-option.selected { border-color:var(--green); background:var(--green-light); }
+    .cat-option-icon { font-size:28px; margin-bottom:8px; }
+    .cat-option-title { font-size:14px; font-weight:600; color:var(--text); margin-bottom:3px; }
+    .cat-option-desc { font-size:12px; color:var(--text-3); line-height:1.4; }
+    .cat-option.selected .cat-option-title { color:var(--green-dark); }
+
+    .toggle-group { display:flex; border:1.5px solid var(--border); border-radius:var(--radius); overflow:hidden; }
+    .toggle-opt { flex:1; padding:10px; text-align:center; font-size:14px; font-weight:500; color:var(--text-3); cursor:pointer; transition:all .15s; background:white; user-select:none; }
+    .toggle-opt:hover { background:var(--surface); }
+    .toggle-opt.active { background:var(--green); color:white; }
+
+    .photo-drop { border:2px dashed var(--border); border-radius:var(--radius-lg); padding:36px 24px; text-align:center; cursor:pointer; transition:all .2s; background:var(--surface); }
+    .photo-drop:hover,.photo-drop.drag-over { border-color:var(--green); background:var(--green-light); }
+    .photo-drop svg { width:40px; height:40px; stroke:var(--text-3); fill:none; stroke-width:1.5; margin:0 auto 12px; display:block; }
+    .photo-drop p { font-size:14px; color:var(--text-2); margin-bottom:4px; }
+    .photo-drop span { font-size:12px; color:var(--text-3); }
+    .photo-drop input[type="file"] { display:none; }
+    .photo-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(110px,1fr)); gap:10px; margin-top:16px; }
+    .photo-thumb { position:relative; aspect-ratio:1; border-radius:8px; overflow:hidden; border:1.5px solid var(--border); }
+    .photo-thumb img { width:100%; height:100%; object-fit:cover; }
+    .photo-thumb .remove-btn { position:absolute; top:4px; right:4px; width:22px; height:22px; background:rgba(0,0,0,0.6); color:white; border-radius:50%; font-size:14px; line-height:1; display:flex; align-items:center; justify-content:center; cursor:pointer; }
+    .photo-thumb .remove-btn:hover { background:var(--red); }
+    .photo-thumb .cover-badge { position:absolute; bottom:4px; left:4px; background:var(--green); color:white; font-size:10px; font-weight:600; padding:2px 6px; border-radius:4px; }
+    .photo-thumb .set-cover { position:absolute; bottom:4px; left:4px; background:rgba(0,0,0,0.5); color:white; font-size:10px; padding:2px 6px; border-radius:4px; cursor:pointer; display:none; }
+    .photo-thumb:hover .set-cover { display:block; }
+    .upload-progress { margin-top:8px; height:4px; background:var(--border); border-radius:2px; overflow:hidden; display:none; }
+    .upload-progress-bar { height:100%; background:var(--green); border-radius:2px; transition:width .3s; width:0%; }
+
+    .trial-banner { border:2px solid var(--green); border-radius:var(--radius-lg); padding:20px; margin-bottom:16px; cursor:pointer; transition:all .2s; background:var(--green-light); display:none; }
+    .trial-banner.selected { background:var(--green); }
+    .trial-banner.selected h3,.trial-banner.selected p { color:white; }
+    .trial-banner h3 { font-size:15px; font-weight:700; color:var(--green-dark); margin-bottom:4px; }
+    .trial-banner p { font-size:13px; color:var(--green); }
+
+    .pricing-options { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+    .pricing-option { border:2px solid var(--border); border-radius:var(--radius-lg); padding:20px; cursor:pointer; transition:all .2s; background:white; position:relative; }
+    .pricing-option:hover { border-color:var(--green-mid); }
+    .pricing-option.selected { border-color:var(--green); background:var(--green-light); }
+    .pricing-option .pop-badge { position:absolute; top:-10px; left:50%; transform:translateX(-50%); background:var(--gold); color:white; font-size:11px; font-weight:600; padding:2px 12px; border-radius:20px; white-space:nowrap; }
+    .pricing-option h3 { font-size:15px; font-weight:600; color:var(--text); margin-bottom:4px; }
+    .pricing-option .price-tag { font-size:22px; font-weight:700; color:var(--green-dark); margin-bottom:10px; }
+    .pricing-option .price-tag span { font-size:13px; font-weight:400; color:var(--text-3); }
+    .pricing-option ul { list-style:none; padding:0; }
+    .pricing-option ul li { font-size:13px; color:var(--text-2); padding:3px 0; display:flex; align-items:center; gap:7px; }
+    .pricing-option ul li::before { content:'✓'; color:var(--green); font-weight:700; font-size:12px; }
+    .pricing-option.featured-opt { border-color:var(--gold); }
+    .pricing-option.featured-opt.selected { border-color:var(--gold); background:var(--gold-light); }
+
+    .summary-row { display:flex; justify-content:space-between; align-items:flex-start; padding:10px 0; border-bottom:1px solid var(--border); font-size:14px; gap:12px; }
+    .summary-row:last-child { border-bottom:none; font-weight:600; font-size:15px; color:var(--green-dark); }
+    .summary-row span:first-child { color:var(--text-2); flex-shrink:0; }
+    .summary-row strong { text-align:right; }
+
+    .form-actions { display:flex; gap:12px; justify-content:space-between; align-items:center; margin-top:24px; }
+    .btn-back { padding:11px 22px; border-radius:var(--radius); border:1.5px solid var(--border); background:white; font-size:14px; font-weight:500; color:var(--text-2); transition:all .15s; cursor:pointer; }
+    .btn-back:hover { border-color:var(--text-2); color:var(--text); }
+    .btn-next { padding:11px 28px; border-radius:var(--radius); background:var(--green); color:white; font-size:14px; font-weight:600; transition:background .15s; display:flex; align-items:center; gap:8px; cursor:pointer; border:none; }
+    .btn-next:hover { background:var(--green-dark); }
+    .btn-submit { padding:13px 32px; border-radius:var(--radius); background:var(--green); color:white; font-size:15px; font-weight:600; transition:background .15s; display:flex; align-items:center; gap:8px; cursor:pointer; border:none; }
+    .btn-submit:hover { background:var(--green-dark); }
+    .btn-submit:disabled,.btn-next:disabled { opacity:.6; cursor:not-allowed; }
+
+    .success-screen { text-align:center; padding:60px 24px; display:none; }
+    .success-icon { width:72px; height:72px; background:var(--green-light); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 24px; }
+    .success-icon svg { width:36px; height:36px; stroke:var(--green); fill:none; stroke-width:2.5; }
+    .success-screen h2 { font-family:'Playfair Display',serif; font-size:28px; color:var(--text); margin-bottom:10px; }
+    .success-screen p { font-size:15px; color:var(--text-2); max-width:440px; margin:0 auto 28px; line-height:1.7; }
+    .success-actions { display:flex; justify-content:center; gap:12px; flex-wrap:wrap; }
+
+    .toast { position:fixed; bottom:24px; right:24px; z-index:9999; background:var(--text); color:white; padding:12px 20px; border-radius:var(--radius); font-size:14px; transform:translateY(80px); opacity:0; transition:all .3s; max-width:340px; line-height:1.5; }
+    .toast.show { transform:translateY(0); opacity:1; }
+    .toast.error { background:var(--red); }
+    .toast.success { background:var(--green-dark); }
+
+    .modal-overlay { position:fixed; inset:0; background:rgba(15,15,12,0.6); display:none; align-items:center; justify-content:center; z-index:1000; padding:20px; }
+    .modal-overlay.show { display:flex; }
+    .modal-box { background:white; border-radius:var(--radius-lg); max-width:480px; width:100%; padding:28px; max-height:92vh; overflow-y:auto; position:relative; box-shadow:0 20px 60px rgba(0,0,0,0.25); }
+    .modal-close-x { position:absolute; top:14px; right:14px; width:30px; height:30px; border-radius:50%; background:var(--surface); color:var(--text-2); font-size:18px; line-height:1; display:flex; align-items:center; justify-content:center; cursor:pointer; border:none; }
+    .modal-close-x:hover { background:var(--border); }
+    .modal-box h2 { font-size:18px; font-weight:600; margin-bottom:4px; padding-right:32px; }
+    .modal-hint { font-size:13px; color:var(--text-3); margin-bottom:18px; line-height:1.6; }
+    .pay-amount-display { font-size:32px; font-weight:700; color:var(--green-dark); margin-bottom:20px; }
+    .pay-amount-display span { font-size:14px; font-weight:400; color:var(--text-3); }
+
+    .pay-tabs { display:flex; border:1.5px solid var(--border); border-radius:var(--radius); overflow:hidden; margin-bottom:22px; }
+    .pay-tab { flex:1; padding:11px; text-align:center; font-size:14px; font-weight:600; color:var(--text-3); cursor:pointer; background:white; transition:all .15s; }
+    .pay-tab.active { background:var(--green); color:white; }
+    .pay-panel { display:none; }
+    .pay-panel.active { display:block; }
+
+    .stk-steps { margin-bottom:20px; }
+    .stk-step { display:flex; gap:12px; align-items:flex-start; margin-bottom:12px; }
+    .stk-step-num { width:24px; height:24px; border-radius:50%; background:var(--green); color:white; font-size:12px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px; }
+    .stk-step p { font-size:13px; color:var(--text-2); line-height:1.5; }
+    .stk-step strong { color:var(--text); }
+
+    .stk-status { display:none; align-items:center; gap:10px; border-radius:var(--radius); padding:12px 14px; font-size:13px; margin:14px 0; }
+    .stk-status.pending { display:flex; background:var(--green-light); color:var(--green-dark); }
+    .stk-status.success { display:flex; background:#d1fae5; color:#065f46; }
+    .stk-status.error   { display:flex; background:var(--red-light); color:var(--red); }
+    .stk-spin { width:16px; height:16px; border:2px solid var(--green); border-top-color:transparent; border-radius:50%; animation:spin .7s linear infinite; flex-shrink:0; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+
+    .manual-divider { display:flex; align-items:center; gap:10px; font-size:12px; color:var(--text-3); margin:18px 0; }
+    .manual-divider::before,.manual-divider::after { content:''; flex:1; height:1px; background:var(--border); }
+
+    .bank-details { background:var(--surface); border-radius:var(--radius); padding:16px; margin-bottom:18px; border:1px solid var(--border); }
+    .bank-details h4 { font-size:13px; font-weight:700; color:var(--text); margin-bottom:12px; text-transform:uppercase; letter-spacing:.04em; }
+    .bank-row { display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid var(--border); font-size:13px; }
+    .bank-row:last-child { border-bottom:none; }
+    .bank-row span:first-child { color:var(--text-3); }
+    .bank-row strong { color:var(--text); font-weight:600; }
+
+    .verify-section { margin-bottom:12px; }
+    .verify-section label { display:block; font-size:13px; font-weight:600; color:var(--text-2); margin-bottom:6px; }
+    .verify-section input { width:100%; padding:10px 14px; border:1.5px solid var(--border); border-radius:var(--radius); font-size:14px; color:var(--text); background:var(--surface); outline:none; transition:border-color .15s; letter-spacing:.04em; }
+    .verify-section input:focus { border-color:var(--green); background:white; }
+
+    .btn-pay-primary { width:100%; padding:13px; border-radius:var(--radius); background:var(--green); color:white; font-size:15px; font-weight:600; margin-top:8px; transition:background .15s; border:none; cursor:pointer; }
+    .btn-pay-primary:hover { background:var(--green-dark); }
+    .btn-pay-primary:disabled { opacity:.6; cursor:not-allowed; }
+
+    .pay-note { font-size:12px; color:var(--text-3); background:var(--surface); border-radius:var(--radius); padding:10px 12px; margin-top:16px; line-height:1.6; }
+    .skip-link { display:block; text-align:center; margin-top:16px; font-size:13px; color:var(--text-3); cursor:pointer; padding:6px; }
+    .skip-link:hover { color:var(--text-2); text-decoration:underline; }
+
+    .auth-banner { background:var(--green-light); border:1px solid var(--green); border-radius:var(--radius-lg); padding:20px 24px; text-align:center; margin-bottom:24px; display:none; }
+    .auth-banner p { font-size:14px; color:var(--green-dark); margin-bottom:12px; }
+    .auth-banner a { background:var(--green); color:white; padding:9px 20px; border-radius:var(--radius); font-size:14px; font-weight:600; display:inline-block; }
+
+    @media(max-width:640px) {
+      nav { padding:0 16px; }
+      .page-wrap { padding:24px 16px 60px; }
+      .form-card { padding:20px 16px; }
+      .grid-2,.grid-3 { grid-template-columns:1fr; }
+      .cat-grid { grid-template-columns:1fr; }
+      .pricing-options { grid-template-columns:1fr; }
+      .steps-bar .step-label { display:none; }
+      .modal-box { padding:22px 18px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="logo">
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    </div>
+    NyumbaKisumu
+  </a>
+  <div class="nav-right">
+    <a href="listings.html" class="nav-link">Browse listings</a>
+  </div>
+</nav>
+
+<div class="toast" id="toast"></div>
+
+<div class="page-wrap">
+
+  <div class="auth-banner" id="auth-banner">
+    <p>You need to be signed in to post a listing.</p>
+    <a href="login.html?next=post-listing.html">Sign in or create a free account →</a>
+  </div>
+
+  <div class="steps-bar" id="steps-bar">
+    <div class="step-item">
+      <div class="step-dot active" id="dot-1"><span>1</span></div>
+      <div class="step-label active" id="lbl-1">Property details</div>
+    </div>
+    <div class="step-line" id="line-1"></div>
+    <div class="step-item">
+      <div class="step-dot" id="dot-2"><span>2</span></div>
+      <div class="step-label" id="lbl-2">Photos</div>
+    </div>
+    <div class="step-line" id="line-2"></div>
+    <div class="step-item">
+      <div class="step-dot" id="dot-3"><span>3</span></div>
+      <div class="step-label" id="lbl-3">Pricing plan</div>
+    </div>
+    <div class="step-line" id="line-3"></div>
+    <div class="step-item">
+      <div class="step-dot" id="dot-4"><span>4</span></div>
+      <div class="step-label" id="lbl-4">Review & submit</div>
+    </div>
+  </div>
+
+  <!-- STEP 1 -->
+  <div id="step-1">
+    <div class="form-card">
+      <h2>What type of property are you listing?</h2>
+      <p class="hint">Choose the category that best describes your apartment</p>
+      <div class="cat-grid">
+        <div class="cat-option selected" data-cat="student" onclick="selectCat(this)">
+          <div class="cat-option-icon">🎓</div>
+          <div class="cat-option-title">Student housing</div>
+          <div class="cat-option-desc">Bedsitters, single rooms, shared flats near campuses</div>
+        </div>
+        <div class="cat-option" data-cat="standard" onclick="selectCat(this)">
+          <div class="cat-option-icon">🏠</div>
+          <div class="cat-option-title">Standard apartment</div>
+          <div class="cat-option-desc">1–3 bedroom apartments for families and professionals</div>
+        </div>
+        <div class="cat-option" data-cat="luxury" onclick="selectCat(this)">
+          <div class="cat-option-icon">✨</div>
+          <div class="cat-option-title">Luxury / premium</div>
+          <div class="cat-option-desc">High-end apartments in Milimani, Riat Hills and similar</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <h2>Basic information</h2>
+      <p class="hint">Give buyers a clear, accurate picture of your property</p>
+      <div class="field">
+        <label>Listing title <span class="req">*</span></label>
+        <input type="text" id="title" placeholder="e.g. Spacious 2-bedroom flat in Milimani with parking" maxlength="120"/>
+        <div class="field-hint">Be specific — good titles get more enquiries</div>
+        <div class="field-error" id="err-title">Please enter a title (at least 6 characters)</div>
+      </div>
+      <div class="field">
+        <label>Description <span class="req">*</span></label>
+        <textarea id="description" placeholder="Describe the apartment — size, features, what's nearby, security, water supply, condition…" rows="5"></textarea>
+        <div class="field-error" id="err-desc">Please add a description</div>
+      </div>
+      <div class="grid-2">
+        <div class="field">
+          <label>Sale or rent <span class="req">*</span></label>
+          <div class="toggle-group">
+            <div class="toggle-opt active" id="type-sale" onclick="setType('sale')">For sale</div>
+            <div class="toggle-opt" id="type-rent" onclick="setType('rent')">To let / rent</div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Price (KES) <span class="req">*</span> <span class="opt" id="price-suffix">total asking price</span></label>
+          <input type="number" id="price" placeholder="e.g. 4500000" min="0"/>
+          <div class="field-error" id="err-price">Please enter a price</div>
+        </div>
+      </div>
+      <div class="grid-3">
+        <div class="field">
+          <label>Bedrooms <span class="req">*</span></label>
+          <select id="bedrooms">
+            <option value="">Select</option>
+            <option value="0">Bedsitter / studio</option>
+            <option value="1">1 bedroom</option>
+            <option value="2">2 bedrooms</option>
+            <option value="3">3 bedrooms</option>
+            <option value="4">4 bedrooms</option>
+            <option value="5">5+ bedrooms</option>
+          </select>
+          <div class="field-error" id="err-bed">Please select number of bedrooms</div>
+        </div>
+        <div class="field">
+          <label>Bathrooms <span class="opt">optional</span></label>
+          <select id="bathrooms">
+            <option value="">Select</option>
+            <option value="1">1 bathroom</option>
+            <option value="2">2 bathrooms</option>
+            <option value="3">3 bathrooms</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Floor area <span class="opt">optional</span></label>
+          <input type="number" id="size" placeholder="e.g. 85" min="0"/>
+          <div class="field-hint">Square metres (m²)</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;cursor:pointer">
+        <input type="checkbox" id="furnished" style="width:18px;height:18px;accent-color:var(--green);cursor:pointer"/>
+        <label for="furnished" style="font-size:14px;color:var(--text-2);cursor:pointer">This apartment is furnished</label>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <h2>Location</h2>
+      <p class="hint">Accurate location details help buyers find your apartment faster</p>
+      <div class="grid-2">
+        <div class="field">
+          <label>Area <span class="req">*</span></label>
+          <select id="area">
+            <option value="">Select area</option>
+            <optgroup label="Kisumu">
+              <option value="Milimani">Milimani</option>
+              <option value="Kisumu CBD">Kisumu CBD</option>
+              <option value="Kondele">Kondele</option>
+              <option value="Riat Hills">Riat Hills</option>
+              <option value="Mamboleo">Mamboleo</option>
+              <option value="Nyalenda">Nyalenda</option>
+              <option value="Obunga">Obunga</option>
+              <option value="Manyatta">Manyatta</option>
+            </optgroup>
+            <optgroup label="Near Maseno University">
+              <option value="Maseno">Maseno</option>
+              <option value="Sega">Sega</option>
+              <option value="Kombewa">Kombewa</option>
+            </optgroup>
+            <optgroup label="Luanda & surroundings">
+              <option value="Luanda">Luanda Town</option>
+              <option value="Matibabu">Matibabu</option>
+              <option value="Ahero">Ahero</option>
+            </optgroup>
+          </select>
+          <div class="field-error" id="err-area">Please select an area</div>
+        </div>
+        <div class="field">
+          <label>Sub-area / estate <span class="opt">optional</span></label>
+          <input type="text" id="sub_area" placeholder="e.g. Near Maseno University Gate"/>
+        </div>
+      </div>
+      <div class="field">
+        <label>Street address or landmark <span class="opt">optional</span></label>
+        <input type="text" id="address" placeholder="e.g. Off Obote Road, near Mega City Mall"/>
+        <div class="field-hint">Exact address is shared only after a buyer enquires</div>
+      </div>
+      <div class="field">
+        <label>Your contact phone <span class="req">*</span></label>
+        <input type="tel" id="phone" placeholder="e.g. 0712 345 678"/>
+        <div class="field-hint">Buyers will call or WhatsApp this number</div>
+        <div class="field-error" id="err-phone">Please enter a valid phone number</div>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <span style="font-size:13px;color:var(--text-3)">Step 1 of 4</span>
+      <button class="btn-next" onclick="goStep(2)">Next: Add photos →</button>
+    </div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div id="step-2" style="display:none">
+    <div class="form-card">
+      <h2>Add photos</h2>
+      <p class="hint">Listings with photos get 5× more enquiries. Add up to 10 — the first becomes the cover.</p>
+      <div class="photo-drop" id="photo-drop" onclick="document.getElementById('file-input').click()" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="dropFiles(event)">
+        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <p>Click to upload or drag photos here</p>
+        <span>JPG, PNG or WEBP — up to 30MB each, max 10 photos</span>
+        <input type="file" id="file-input" accept="image/*" multiple onchange="handleFiles(this.files)"/>
+      </div>
+      <div class="upload-progress" id="upload-progress"><div class="upload-progress-bar" id="upload-bar"></div></div>
+      <div class="photo-grid" id="photo-grid"></div>
+      <p id="photo-count" style="font-size:13px;color:var(--text-3);margin-top:12px">No photos added yet</p>
+    </div>
+    <div class="form-actions">
+      <button class="btn-back" onclick="goStep(1)">← Back</button>
+      <div style="display:flex;align-items:center;gap:12px">
+        <span style="font-size:13px;color:var(--text-3)">Step 2 of 4</span>
+        <button class="btn-next" onclick="goStep(3)">Next: Choose plan →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 3 -->
+  <div id="step-3" style="display:none">
+    <div class="form-card">
+      <h2>Choose your listing plan</h2>
+      <p class="hint">Both paid plans give your listing full visibility on NyumbaKisumu</p>
+
+      <div class="trial-banner" id="plan-trial" onclick="selectPlan('trial')">
+        <h3>🎉 You're a first-time lister — your listing is FREE for 7 days</h3>
+        <p>Since this is your first listing, you don't need to pay anything. Tap this option to publish it now using your free 7-day listing — it will automatically expire after 7 days unless you upgrade. Or choose a paid plan below instead for longer visibility from day one.</p>
+      </div>
+
+      <div class="pricing-options">
+        <div class="pricing-option selected" id="plan-basic" onclick="selectPlan('basic')">
+          <h3>Standard listing</h3>
+          <div class="price-tag">KES 800 <span>one-time</span></div>
+          <ul>
+            <li>Listed for 60 days</li>
+            <li>Up to 10 photos</li>
+            <li>Buyer enquiry form</li>
+            <li>Appears in search results</li>
+          </ul>
+        </div>
+        <div class="pricing-option featured-opt" id="plan-featured" onclick="selectPlan('featured')">
+          <div class="pop-badge">Most enquiries</div>
+          <h3>Featured listing</h3>
+          <div class="price-tag">KES 2,500 <span>one-time</span></div>
+          <ul>
+            <li>Listed for 90 days</li>
+            <li>Featured badge on your card</li>
+            <li>Top placement in search</li>
+            <li>Highlighted on homepage</li>
+            <li>Priority in area pages</li>
+          </ul>
+        </div>
+      </div>
+
+      <div style="background:var(--green-light);border-radius:var(--radius);padding:14px 16px;margin-top:20px;font-size:13px;color:var(--green-dark)" id="payment-info-box">
+        <strong>Payment:</strong> If you choose a paid plan, an M-Pesa prompt will be sent straight to your phone to pay our Paybill. You can also pay manually via Paybill, or skip and pay later — your listing is reviewed regardless.
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn-back" onclick="goStep(2)">← Back</button>
+      <div style="display:flex;align-items:center;gap:12px">
+        <span style="font-size:13px;color:var(--text-3)">Step 3 of 4</span>
+        <button class="btn-next" onclick="goStep(4)">Review listing →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 4 -->
+  <div id="step-4" style="display:none">
+    <div class="form-card">
+      <h2>Review your listing</h2>
+      <p class="hint">Check everything before submitting — you can edit after posting too</p>
+      <div id="review-content"></div>
+    </div>
+    <div class="form-card">
+      <h2>Order summary</h2>
+      <div id="order-summary"></div>
+      <div style="margin-top:20px;padding:14px 16px;background:var(--surface);border-radius:var(--radius);font-size:13px;color:var(--text-2);line-height:1.6">
+        By submitting you confirm that your listing information is accurate and you are authorised to list this property. Your listing is saved immediately and reviewed by our team before appearing publicly.
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn-back" onclick="goStep(3)">← Back</button>
+      <button class="btn-submit" id="submit-btn" onclick="submitListing()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        Submit listing →
+      </button>
+    </div>
+  </div>
+
+  <!-- SUCCESS -->
+  <div class="success-screen" id="success-screen">
+    <div class="success-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+    <h2>Listing submitted!</h2>
+    <p id="success-message">Your apartment has been saved and is pending review. It will appear publicly once our team approves it.</p>
+    <div class="success-actions">
+      <a href="dashboard.html" style="padding:11px 22px;background:var(--green);color:white;border-radius:var(--radius);font-size:14px;font-weight:600">View my listings</a>
+      <a href="index.html" style="padding:11px 22px;border:1.5px solid var(--border);border-radius:var(--radius);font-size:14px;font-weight:500;color:var(--text-2)">Back to home</a>
+    </div>
+  </div>
+</div>
+
+<!-- PAYMENT MODAL -->
+<div class="modal-overlay" id="payment-modal">
+  <div class="modal-box">
+    <button class="modal-close-x" onclick="skipPayment()">×</button>
+    <h2>Complete payment</h2>
+    <p class="modal-hint">Your listing is already saved and pending review. Payment is optional — our admin team can approve with or without it.</p>
+    <div class="pay-amount-display" id="pay-amount-display">KES 800 <span>one-time listing fee</span></div>
+
+    <div class="pay-tabs">
+      <div class="pay-tab active" id="tab-mpesa" onclick="switchPayTab('mpesa')">M-Pesa STK Push</div>
+      <div class="pay-tab" id="tab-bank" onclick="switchPayTab('bank')">Pay Manually (Paybill)</div>
+    </div>
+
+    <!-- M-PESA -->
+    <div class="pay-panel active" id="panel-mpesa">
+      <div class="stk-steps">
+        <div class="stk-step">
+          <div class="stk-step-num">1</div>
+          <p>Enter your M-Pesa number and tap <strong>"Send M-Pesa Prompt"</strong> — a payment request appears on your phone.</p>
+        </div>
+        <div class="stk-step">
+          <div class="stk-step-num">2</div>
+          <p>Enter your <strong>M-Pesa PIN</strong> to approve payment of <strong id="stk-amount-label">KES 800</strong> to our Paybill.</p>
+        </div>
+        <div class="stk-step">
+          <div class="stk-step-num">3</div>
+          <p>You'll receive an <strong>M-Pesa SMS</strong>. Your listing will be automatically confirmed once payment is detected.</p>
+        </div>
+      </div>
+
+      <div style="margin-bottom:14px">
+        <label style="display:block;font-size:13px;font-weight:600;color:var(--text-2);margin-bottom:6px">M-Pesa phone number</label>
+        <input type="tel" id="mpesa-phone" placeholder="e.g. 0712 345 678" style="width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:var(--radius);font-size:14px;color:var(--text);background:var(--surface);outline:none;transition:border-color .15s"/>
+      </div>
+
+      <button class="btn-pay-primary" id="stk-btn" onclick="sendStkPush()">
+        📱 Send M-Pesa Prompt
+      </button>
+
+      <div class="stk-status" id="stk-status">
+        <div class="stk-spin" id="stk-spin"></div>
+        <span id="stk-status-text">Sending prompt to your phone…</span>
+      </div>
+
+      <div class="manual-divider">or enter your M-Pesa code manually</div>
+
+      <div class="verify-section">
+        <label>M-Pesa transaction code (from your confirmation SMS)</label>
+        <input type="text" id="mpesa-code" placeholder="e.g. QFT7H8K2LM" style="text-transform:uppercase"/>
+      </div>
+      <button class="btn-pay-primary" onclick="confirmManualPayment('mpesa')" style="margin-top:0">
+        ✓ Verify M-Pesa Payment
+      </button>
+    </div>
+
+    <!-- PAYBILL (MANUAL) -->
+    <div class="pay-panel" id="panel-bank">
+      <div class="bank-details">
+        <h4>M-Pesa Paybill — Payment Details</h4>
+        <div class="bank-row"><span>Paybill number</span><strong>522522</strong></div>
+        <div class="bank-row"><span>Account number</span><strong>1298476615</strong></div>
+        <div class="bank-row"><span>Bank</span><strong>KCB Bank Kenya</strong></div>
+        <div class="bank-row"><span>Amount</span><strong id="bank-amount-label">KES 800</strong></div>
+      </div>
+      <div style="font-size:13px;color:var(--text-2);margin-bottom:14px;padding:10px 12px;background:var(--surface);border-radius:var(--radius)">
+        On your phone, go to <strong>M-Pesa → Lipa na M-Pesa → Paybill</strong>, enter the Paybill and account numbers above with the exact amount, then enter the M-Pesa confirmation code you receive below. We'll verify within a few hours.
+      </div>
+      <div class="verify-section">
+        <label>M-Pesa transaction code (from your confirmation SMS)</label>
+        <input type="text" id="bank-ref" placeholder="e.g. QFT7H8K2LM" style="text-transform:uppercase"/>
+      </div>
+      <button class="btn-pay-primary" onclick="confirmManualPayment('paybill')" style="margin-top:8px">
+        ✓ Verify Paybill Payment
+      </button>
+    </div>
+
+    <div class="pay-note">💡 Already paid or prefer to pay later? Skip below — your listing stays pending and our team will review it anytime.</div>
+    <span class="skip-link" onclick="skipPayment()">Skip for now — pay later →</span>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://vliuuloyfhyxcsuchpss.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_oIIcecf3wzKMual5K24Z8Q_zmxVfgsx';
+const EDGE_URL     = `${SUPABASE_URL}/functions/v1`;
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const TRIAL_DAYS = 7; // first listing is free for this many days
+
+let currentStep      = 1;
+let selectedCat      = 'student';
+let priceType        = 'sale';
+let selectedPlan     = 'basic';
+let photos           = [];
+let coverIndex       = 0;
+let currentListingId = null;
+let currentPlanPrice = 0;
+let trialEligible    = false;
+let currentUser      = null;
+let checkoutRequestId = null;
+let paymentPollTimer  = null;
+
+// ── Init ──
+async function init() {
+  const { data: { session } } = await db.auth.getSession();
+  if (session) {
+    currentUser = session.user;
+    document.getElementById('auth-banner').style.display = 'none';
+    await checkTrialEligibility();
+    // Pre-fill phone
+    const { data: profile } = await db.from('profiles').select('phone').eq('id', currentUser.id).single();
+    if (profile?.phone) {
+      const p = profile.phone.startsWith('254') ? '0' + profile.phone.slice(3) : profile.phone;
+      document.getElementById('phone').value = p;
+    }
+  } else {
+    document.getElementById('auth-banner').style.display = 'block';
+  }
+}
+
+async function checkTrialEligibility() {
+  if (!currentUser) return;
+  try {
+    const { count } = await db.from('listings')
+      .select('id', { count: 'exact', head: true })
+      .eq('seller_id', currentUser.id);
+    trialEligible = (count || 0) === 0;
+    if (trialEligible) {
+      document.getElementById('plan-trial').style.display = 'block';
+      selectPlan('trial'); // default first-time listers straight onto their free listing
+    }
+  } catch(e) { trialEligible = false; }
+}
+
+function showToast(msg, type = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast ${type} show`;
+  setTimeout(() => t.className = 'toast', 4000);
+}
+
+function selectCat(el) {
+  document.querySelectorAll('.cat-option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedCat = el.dataset.cat;
+}
+
+function setType(type) {
+  priceType = type;
+  document.getElementById('type-sale').classList.toggle('active', type === 'sale');
+  document.getElementById('type-rent').classList.toggle('active', type === 'rent');
+  document.getElementById('price-suffix').textContent = type === 'sale' ? 'total asking price' : 'per month';
+}
+
+function selectPlan(plan) {
+  if (plan === 'trial' && !trialEligible) return;
+  selectedPlan = plan;
+  document.getElementById('plan-basic').classList.toggle('selected', plan === 'basic');
+  document.getElementById('plan-featured').classList.toggle('selected', plan === 'featured');
+  const trial = document.getElementById('plan-trial');
+  if (trial) trial.classList.toggle('selected', plan === 'trial');
+}
+
+function getPlanPrice() {
+  if (selectedPlan === 'trial')    return 0;
+  if (selectedPlan === 'featured') return 2500;
+  return 800;
+}
+
+// ── Photo handling ──
+function dragOver(e)  { e.preventDefault(); document.getElementById('photo-drop').classList.add('drag-over'); }
+function dragLeave()  { document.getElementById('photo-drop').classList.remove('drag-over'); }
+function dropFiles(e) { e.preventDefault(); dragLeave(); handleFiles(e.dataTransfer.files); }
+
+async function handleFiles(files) {
+  const remaining = 10 - photos.length;
+  if (remaining <= 0) { showToast('Maximum 10 photos allowed', 'error'); return; }
+  const toAdd = Array.from(files).slice(0, remaining);
+  for (const file of toAdd) {
+    if (!file.type.startsWith('image/')) continue;
+    if (file.size > 30 * 1024 * 1024) { showToast(`${file.name} is too large (max 30MB)`, 'error'); continue; }
+    showToast('Processing photo…', '');
+    const processed = await standardizeImage(file);
+    photos.push({ file: processed, previewUrl: URL.createObjectURL(processed) });
+  }
+  renderPhotoGrid();
+}
+
+async function standardizeImage(file) {
+  if (file.size <= 2 * 1024 * 1024) return file;
+  return new Promise(resolve => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      let { width, height } = img;
+      const MAX = 2000;
+      if (width > MAX || height > MAX) {
+        const r = Math.min(MAX/width, MAX/height);
+        width = Math.round(width * r); height = Math.round(height * r);
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = width; canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx.imageSmoothingQuality = 'high';
+      ctx.drawImage(img, 0, 0, width, height);
+      canvas.toBlob(blob => resolve(new File([blob], file.name.replace(/\.\w+$/, '.jpg'), { type: 'image/jpeg' })), 'image/jpeg', 0.92);
+    };
+    img.onerror = () => resolve(file);
+    img.src = url;
+  });
+}
+
+function renderPhotoGrid() {
+  document.getElementById('photo-count').textContent = photos.length
+    ? `${photos.length} photo${photos.length > 1 ? 's' : ''} added — hover to set cover`
+    : 'No photos added yet';
+  document.getElementById('photo-grid').innerHTML = photos.map((p, i) => `
+    <div class="photo-thumb">
+      <img src="${p.previewUrl}" alt="Photo ${i+1}"/>
+      <button class="remove-btn" onclick="removePhoto(${i})">×</button>
+      ${i === coverIndex ? '<span class="cover-badge">Cover</span>' : `<span class="set-cover" onclick="setCover(${i})">Set cover</span>`}
+    </div>`).join('');
+}
+
+function removePhoto(i) { URL.revokeObjectURL(photos[i].previewUrl); photos.splice(i, 1); if (coverIndex >= photos.length) coverIndex = 0; renderPhotoGrid(); }
+function setCover(i) { coverIndex = i; renderPhotoGrid(); }
+
+// ── Navigation ──
+function goStep(n) {
+  if (n > currentStep && !validateStep(currentStep)) return;
+  document.getElementById(`step-${currentStep}`).style.display = 'none';
+  currentStep = n;
+  document.getElementById(`step-${n}`).style.display = 'block';
+  updateStepUI();
+  if (n === 4) renderReview();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function updateStepUI() {
+  for (let i = 1; i <= 4; i++) {
+    document.getElementById(`dot-${i}`).className = 'step-dot' + (i < currentStep ? ' done' : i === currentStep ? ' active' : '');
+    document.getElementById(`dot-${i}`).innerHTML = i < currentStep ? '' : `<span>${i}</span>`;
+    document.getElementById(`lbl-${i}`).className = 'step-label' + (i === currentStep ? ' active' : '');
+    const line = document.getElementById(`line-${i}`);
+    if (line) line.className = 'step-line' + (i < currentStep ? ' done' : '');
+  }
+}
+
+function validateStep(step) {
+  if (step !== 1) return true;
+  let ok = true;
+  [
+    ['title',       'err-title',  v => v.trim().length > 5],
+    ['description', 'err-desc',   v => v.trim().length > 10],
+    ['price',       'err-price',  v => v && parseFloat(v) > 0],
+    ['bedrooms',    'err-bed',    v => v !== ''],
+    ['area',        'err-area',   v => v !== ''],
+    ['phone',       'err-phone',  v => v.replace(/\s/g,'').length >= 9],
+  ].forEach(([id, errId, test]) => {
+    const el = document.getElementById(id);
+    const err = document.getElementById(errId);
+    const valid = test(el.value);
+    el.classList.toggle('error', !valid);
+    err.classList.toggle('show', !valid);
+    if (!valid) ok = false;
+  });
+  if (!ok) showToast('Please fill in all required fields', 'error');
+  return ok;
+}
+
+function renderReview() {
+  const f = {
+    title:       document.getElementById('title').value,
+    description: document.getElementById('description').value,
+    price:       Number(document.getElementById('price').value),
+    bedrooms:    document.getElementById('bedrooms').value,
+    bathrooms:   document.getElementById('bathrooms').value,
+    size:        document.getElementById('size').value,
+    area:        document.getElementById('area').value,
+    sub_area:    document.getElementById('sub_area').value,
+    address:     document.getElementById('address').value,
+    phone:       document.getElementById('phone').value,
+    furnished:   document.getElementById('furnished').checked,
+  };
+  document.getElementById('review-content').innerHTML = `
+    <div class="summary-row"><span>Category</span><strong>${selectedCat.charAt(0).toUpperCase()+selectedCat.slice(1)}</strong></div>
+    <div class="summary-row"><span>Title</span><strong>${f.title}</strong></div>
+    <div class="summary-row"><span>Type</span><strong>${priceType === 'sale' ? 'For sale' : 'To let / rent'}</strong></div>
+    <div class="summary-row"><span>Price</span><strong>KES ${f.price.toLocaleString('en-KE')}${priceType === 'rent' ? '/month' : ''}</strong></div>
+    <div class="summary-row"><span>Bedrooms</span><strong>${f.bedrooms === '0' ? 'Bedsitter/studio' : f.bedrooms + ' bedroom(s)'}</strong></div>
+    ${f.bathrooms ? `<div class="summary-row"><span>Bathrooms</span><strong>${f.bathrooms}</strong></div>` : ''}
+    ${f.size ? `<div class="summary-row"><span>Floor area</span><strong>${f.size} m²</strong></div>` : ''}
+    <div class="summary-row"><span>Furnished</span><strong>${f.furnished ? 'Yes' : 'No'}</strong></div>
+    <div class="summary-row"><span>Area</span><strong>${f.area}${f.sub_area ? ' — ' + f.sub_area : ''}</strong></div>
+    ${f.address ? `<div class="summary-row"><span>Address</span><strong>${f.address}</strong></div>` : ''}
+    <div class="summary-row"><span>Contact phone</span><strong>${f.phone}</strong></div>
+    <div class="summary-row"><span>Photos</span><strong>${photos.length} photo(s) added</strong></div>`;
+  const planPrice = getPlanPrice();
+  const planLabel = selectedPlan === 'trial' ? `🎉 Free ${TRIAL_DAYS}-day listing (first-time lister)` : selectedPlan === 'featured' ? 'Featured listing (90 days)' : 'Standard listing (60 days)';
+  document.getElementById('order-summary').innerHTML = `
+    <div class="summary-row"><span>Plan</span><span>${planLabel}</span></div>
+    <div class="summary-row"><span>Total</span><span>${planPrice ? 'KES ' + planPrice.toLocaleString('en-KE') + ' (pay now or later)' : 'FREE — no payment needed'}</span></div>`;
+}
+
+async function uploadPhotos(listingId) {
+  const uploaded = [];
+  if (!photos.length) return uploaded;
+  const prog = document.getElementById('upload-progress');
+  const bar  = document.getElementById('upload-bar');
+  prog.style.display = 'block';
+  for (let i = 0; i < photos.length; i++) {
+    const { file } = photos[i];
+    const path = `${listingId}/${Date.now()}-${i}.jpg`;
+    const { error } = await db.storage.from('listing-photos').upload(path, file, { cacheControl:'3600', upsert:false });
+    if (error) { console.error('Upload error:', error); continue; }
+    const { data: urlData } = db.storage.from('listing-photos').getPublicUrl(path);
+    uploaded.push({ url: urlData.publicUrl, is_cover: i === coverIndex, position: i });
+    bar.style.width = `${Math.round(((i+1)/photos.length)*100)}%`;
+  }
+  prog.style.display = 'none';
+  return uploaded;
+}
+
+// ── Submit listing ──
+async function submitListing() {
+  if (!currentUser) {
+    showToast('Please sign in first', 'error');
+    setTimeout(() => window.location.href = 'login.html?next=post-listing.html', 1500);
+    return;
+  }
+
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> Submitting…`;
+
+  try {
+    const isTrial = selectedPlan === 'trial' && trialEligible;
+    const listingData = {
+      title:            document.getElementById('title').value.trim(),
+      description:      document.getElementById('description').value.trim(),
+      price:            parseFloat(document.getElementById('price').value),
+      price_type:       priceType,
+      bedrooms:         parseInt(document.getElementById('bedrooms').value) || 0,
+      bathrooms:        parseInt(document.getElementById('bathrooms').value) || null,
+      size_sqm:         parseFloat(document.getElementById('size').value) || null,
+      furnished:        document.getElementById('furnished').checked,
+      area:             document.getElementById('area').value,
+      sub_area:         document.getElementById('sub_area').value.trim() || null,
+      address:          document.getElementById('address').value.trim() || null,
+      category:         selectedCat,
+      is_featured:      selectedPlan === 'featured',
+      is_trial:         isTrial,
+      trial_expires_at: isTrial ? new Date(Date.now() + TRIAL_DAYS*24*60*60*1000).toISOString() : null,
+      status:           'pending',
+      payment_status:   isTrial ? 'trial' : 'unpaid',
+      seller_id:        currentUser.id,
+      views:            0,
+    };
+
+    const { data: listing, error } = await db.from('listings').insert(listingData).select().single();
+    if (error) throw error;
+
+    currentListingId = listing.id;
+    currentPlanPrice = getPlanPrice();
+
+    if (photos.length) {
+      const uploaded = await uploadPhotos(listing.id);
+      if (uploaded.length) {
+        await db.from('listing_photos').insert(uploaded.map(u => ({ ...u, listing_id: listing.id })));
+      }
+    }
+
+    if (isTrial) {
+      document.getElementById('success-message').textContent =
+        `Your free ${TRIAL_DAYS}-day listing has been saved and is pending review. No payment is needed — once approved, it will be live for ${TRIAL_DAYS} days before it expires.`;
+      finishSubmission();
+    } else {
+      openPaymentModal();
+    }
+
+  } catch(err) {
+    console.error('Submit error:', err);
+    showToast(`Error: ${err.message || 'Something went wrong. Please try again.'}`, 'error');
+    btn.disabled = false;
+    btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Submit listing →`;
+  }
+}
+
+// ── Payment modal ──
+function openPaymentModal() {
+  const amt = `KES ${currentPlanPrice.toLocaleString('en-KE')}`;
+  document.getElementById('pay-amount-display').innerHTML = `${amt} <span>one-time listing fee</span>`;
+  document.getElementById('stk-amount-label').textContent = amt;
+  document.getElementById('bank-amount-label').textContent = amt;
+  document.getElementById('mpesa-phone').value = document.getElementById('phone').value || '';
+  document.getElementById('mpesa-code').value  = '';
+  document.getElementById('bank-ref').value    = '';
+  setStatusHidden();
+  document.getElementById('stk-btn').disabled = false;
+  document.getElementById('stk-btn').textContent = '📱 Send M-Pesa Prompt';
+  switchPayTab('mpesa');
+  document.getElementById('payment-modal').classList.add('show');
+}
+
+function switchPayTab(tab) {
+  ['mpesa','bank'].forEach(t => {
+    document.getElementById(`tab-${t}`).classList.toggle('active', t === tab);
+    document.getElementById(`panel-${t}`).classList.toggle('active', t === tab);
+  });
+}
+
+function setStatusHidden() {
+  const s = document.getElementById('stk-status');
+  s.className = 'stk-status';
+}
+function setStatusPending(msg) {
+  const s = document.getElementById('stk-status');
+  s.className = 'stk-status pending';
+  document.getElementById('stk-spin').style.display = 'block';
+  document.getElementById('stk-status-text').textContent = msg;
+}
+function setStatusSuccess(msg) {
+  const s = document.getElementById('stk-status');
+  s.className = 'stk-status success';
+  document.getElementById('stk-spin').style.display = 'none';
+  document.getElementById('stk-status-text').textContent = msg;
+}
+function setStatusError(msg) {
+  const s = document.getElementById('stk-status');
+  s.className = 'stk-status error';
+  document.getElementById('stk-spin').style.display = 'none';
+  document.getElementById('stk-status-text').textContent = msg;
+}
+
+// ── REAL STK Push via Edge Function ──
+async function sendStkPush() {
+  const phone = document.getElementById('mpesa-phone').value.trim();
+  if (phone.replace(/\s/g,'').length < 9) {
+    showToast('Enter a valid M-Pesa phone number', 'error');
+    return;
+  }
+
+  const btn = document.getElementById('stk-btn');
+  btn.disabled = true;
+  btn.textContent = 'Sending…';
+  setStatusPending('Sending prompt to your phone…');
+
+  try {
+    // Get auth token to pass with Edge Function call
+    const { data: { session } } = await db.auth.getSession();
+    const token = session?.access_token || '';
+
+    const res = await fetch(`${EDGE_URL}/mpesa-stk-push`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+        'apikey': SUPABASE_KEY,
+      },
+      body: JSON.stringify({
+        listingId:  currentListingId,
+        phone,
+        amount:     currentPlanPrice,
+        sellerId:   currentUser?.id,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok || data.error) {
+      throw new Error(data.error || 'STK push failed');
+    }
+
+    checkoutRequestId = data.checkoutRequestId;
+    setStatusPending('Prompt sent! Enter your M-Pesa PIN on your phone…');
+    btn.textContent = '📱 Resend Prompt';
+    btn.disabled = false;
+
+    // Poll for payment confirmation every 5 seconds for up to 2 minutes
+    startPaymentPolling();
+
+  } catch(err) {
+    console.error('STK error:', err);
+    setStatusError(`Could not send prompt: ${err.message}. Enter your M-Pesa code manually below.`);
+    btn.textContent = '📱 Retry Send Prompt';
+    btn.disabled = false;
+  }
+}
+
+// ── Poll Supabase for payment confirmation ──
+function startPaymentPolling() {
+  if (paymentPollTimer) clearInterval(paymentPollTimer);
+  let attempts = 0;
+  paymentPollTimer = setInterval(async () => {
+    attempts++;
+    if (attempts > 24) { // 2 minutes
+      clearInterval(paymentPollTimer);
+      setStatusError('Payment not detected. Please enter your M-Pesa code below to confirm manually.');
+      return;
+    }
+    try {
+      const { data: payment } = await db
+        .from('payments')
+        .select('status, mpesa_ref')
+        .eq('listing_id', currentListingId)
+        .single();
+
+      if (payment?.status === 'confirmed') {
+        clearInterval(paymentPollTimer);
+        setStatusSuccess(`✓ Payment confirmed! M-Pesa ref: ${payment.mpesa_ref}`);
+        showToast('Payment confirmed — your listing is being reviewed ✓', 'success');
+        setTimeout(finishSubmission, 2000);
+      }
+    } catch(e) { /* continue polling */ }
+  }, 5000);
+}
+
+// ── Manual payment confirmation ──
+async function confirmManualPayment(method) {
+  const codeEl = method === 'mpesa' ? document.getElementById('mpesa-code') : document.getElementById('bank-ref');
+  const code   = codeEl.value.trim().toUpperCase();
+  if (!code) {
+    showToast(method === 'mpesa' ? 'Please enter your M-Pesa code' : 'Please enter your M-Pesa transaction code', 'error');
+    return;
+  }
+
+  document.querySelectorAll('#payment-modal .btn-pay-primary').forEach(b => b.disabled = true);
+
+  try {
+    await db.from('listings').update({ payment_status: 'submitted', payment_method: method }).eq('id', currentListingId);
+    await db.from('payments').insert({
+      listing_id: currentListingId,
+      seller_id:  currentUser?.id || null,
+      amount:     currentPlanPrice,
+      method,
+      reference:  code,
+      status:     'pending_verification',
+    });
+    showToast('Payment details received — our team will verify shortly ✓', 'success');
+    document.getElementById('success-message').textContent =
+      `Your listing is saved and pending review. Your ${method === 'mpesa' ? 'M-Pesa' : 'Paybill'} payment (ref: ${code}) has been recorded and will be verified by our team.`;
+  } catch(err) {
+    console.error('Payment record error:', err);
+    showToast('Listing saved. Payment recording failed — contact support.', 'error');
+  }
+
+  finishSubmission();
+}
+
+function skipPayment() { finishSubmission(); }
+
+function finishSubmission() {
+  if (paymentPollTimer) clearInterval(paymentPollTimer);
+  document.getElementById('payment-modal').classList.remove('show');
+  document.getElementById('step-4').style.display = 'none';
+  document.getElementById('steps-bar').style.display = 'none';
+  document.getElementById('success-screen').style.display = 'block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA' && currentStep < 4
+      && !document.getElementById('payment-modal').classList.contains('show')) {
+    goStep(currentStep + 1);
+  }
+});
+
+init();
+</script>
+</body>
+</html>

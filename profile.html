@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Profile — NyumbaKisumu</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --green:        #0F6E56;
+      --green-light:  #E1F5EE;
+      --green-mid:    #1D9E75;
+      --green-dark:   #085041;
+      --gold:         #BA7517;
+      --gold-light:   #FAEEDA;
+      --text:         #1a1a18;
+      --text-2:       #4a4a46;
+      --text-3:       #888780;
+      --border:       #e0ded8;
+      --border-focus: #0F6E56;
+      --surface:      #f7f6f2;
+      --surface-2:    #f0efe9;
+      --white:        #ffffff;
+      --red:          #c0392b;
+      --red-light:    #fdecea;
+      --amber:        #d97706;
+      --amber-light:  #fef3c7;
+      --radius:       10px;
+      --radius-lg:    16px;
+      --radius-xl:    20px;
+      --shadow:       0 1px 3px rgba(0,0,0,0.07), 0 4px 14px rgba(0,0,0,0.05);
+      --shadow-lg:    0 8px 32px rgba(0,0,0,0.10);
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; color: var(--text); background: var(--surface); font-size: 15px; line-height: 1.6; min-height: 100vh; }
+    a { text-decoration: none; color: inherit; }
+    button { font-family: inherit; cursor: pointer; border: none; background: none; }
+    input, textarea, select { font-family: inherit; }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      height: 64px; padding: 0 32px;
+      background: var(--white); border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .logo { display: flex; align-items: center; gap: 10px; font-family: 'Playfair Display', serif; font-size: 20px; color: var(--green-dark); }
+    .logo-icon { width: 34px; height: 34px; background: var(--green); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+    .logo-icon svg { width: 18px; height: 18px; fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; }
+    .nav-right { display: flex; align-items: center; gap: 10px; }
+    .nav-link { font-size: 14px; color: var(--text-2); padding: 8px 14px; border-radius: var(--radius); transition: background .15s; }
+    .nav-link:hover { background: var(--surface); }
+    .nav-btn { font-size: 14px; font-weight: 500; padding: 9px 18px; border-radius: var(--radius); background: var(--green); color: #fff; transition: background .15s; }
+    .nav-btn:hover { background: var(--green-dark); }
+
+    /* ── PAGE SHELL ── */
+    .page { max-width: 980px; margin: 0 auto; padding: 40px 24px 80px; }
+
+    /* ── PAGE HEADER ── */
+    .page-header { margin-bottom: 36px; }
+    .page-header-eyebrow {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 12px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase;
+      color: var(--green); margin-bottom: 8px;
+    }
+    .page-header-eyebrow svg { width: 13px; height: 13px; stroke: var(--green); fill: none; stroke-width: 2.5; }
+    .page-header h1 { font-family: 'Playfair Display', serif; font-size: clamp(24px, 3vw, 32px); color: var(--text); margin-bottom: 6px; }
+    .page-header p { font-size: 14px; color: var(--text-3); }
+
+    /* ── TWO-COL LAYOUT ── */
+    .layout { display: grid; grid-template-columns: 240px 1fr; gap: 28px; align-items: start; }
+
+    /* ── SIDEBAR NAV ── */
+    .sidebar-nav {
+      background: var(--white); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); overflow: hidden;
+      position: sticky; top: 84px;
+    }
+    .sidebar-nav-header {
+      padding: 20px 20px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .avatar-wrap { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+    .avatar {
+      width: 64px; height: 64px; border-radius: 50%;
+      background: var(--green-dark); color: #fff;
+      font-size: 22px; font-weight: 700; font-family: 'Playfair Display', serif;
+      display: flex; align-items: center; justify-content: center;
+      position: relative; cursor: pointer; flex-shrink: 0;
+    }
+    .avatar-edit-badge {
+      position: absolute; bottom: 0; right: 0;
+      width: 22px; height: 22px; border-radius: 50%;
+      background: var(--green); border: 2px solid var(--white);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .avatar-edit-badge svg { width: 11px; height: 11px; stroke: #fff; fill: none; stroke-width: 2.5; }
+    .avatar-name { font-size: 14px; font-weight: 600; color: var(--text); text-align: center; }
+    .avatar-email { font-size: 12px; color: var(--text-3); text-align: center; word-break: break-all; }
+
+    .sidebar-nav ul { list-style: none; padding: 8px; }
+    .sidebar-nav li a, .sidebar-nav li button {
+      display: flex; align-items: center; gap: 10px;
+      width: 100%; padding: 10px 14px; border-radius: var(--radius);
+      font-size: 14px; color: var(--text-2); font-weight: 500;
+      transition: all .15s; text-align: left;
+    }
+    .sidebar-nav li a:hover, .sidebar-nav li button:hover { background: var(--surface); color: var(--text); }
+    .sidebar-nav li a.active { background: var(--green-light); color: var(--green-dark); }
+    .sidebar-nav li a svg, .sidebar-nav li button svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; flex-shrink: 0; }
+    .sidebar-nav .divider { height: 1px; background: var(--border); margin: 6px 8px; }
+    .sidebar-nav .danger-link { color: var(--red) !important; }
+    .sidebar-nav .danger-link:hover { background: var(--red-light) !important; }
+
+    /* ── MAIN CONTENT ── */
+    .main-content { display: flex; flex-direction: column; gap: 20px; }
+
+    /* ── CARDS ── */
+    .card {
+      background: var(--white); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); overflow: hidden;
+    }
+    .card-header {
+      padding: 22px 28px 18px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .card-header-left { display: flex; align-items: center; gap: 12px; }
+    .card-header-icon {
+      width: 38px; height: 38px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .card-header-icon.green { background: var(--green-light); }
+    .card-header-icon.gold  { background: var(--gold-light); }
+    .card-header-icon.red   { background: var(--red-light); }
+    .card-header-icon.amber { background: var(--amber-light); }
+    .card-header-icon svg { width: 18px; height: 18px; fill: none; stroke-width: 2; }
+    .card-header-icon.green svg { stroke: var(--green); }
+    .card-header-icon.gold  svg { stroke: var(--gold); }
+    .card-header-icon.red   svg { stroke: var(--red); }
+    .card-header-icon.amber svg { stroke: var(--amber); }
+    .card-title { font-size: 15px; font-weight: 600; color: var(--text); }
+    .card-sub { font-size: 13px; color: var(--text-3); margin-top: 1px; }
+    .card-body { padding: 26px 28px; }
+
+    /* ── STATUS BANNER ── */
+    .status-banner {
+      display: none; align-items: flex-start; gap: 12px;
+      padding: 14px 18px; border-radius: var(--radius);
+      font-size: 14px; margin-bottom: 22px; line-height: 1.5;
+    }
+    .status-banner.success { display: flex; background: var(--green-light); color: var(--green-dark); border: 1px solid #9FE1CB; }
+    .status-banner.error   { display: flex; background: var(--red-light);   color: var(--red);        border: 1px solid #f5c6c2; }
+    .status-banner.warning { display: flex; background: var(--amber-light); color: #78350f;            border: 1px solid #fcd34d; }
+    .status-banner svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; flex-shrink: 0; margin-top: 1px; }
+    .status-banner p { margin: 0; }
+
+    /* ── FORM ROWS ── */
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 18px; }
+    .form-group { margin-bottom: 18px; }
+    .form-group:last-child { margin-bottom: 0; }
+    label { display: block; font-size: 13px; font-weight: 500; color: var(--text-2); margin-bottom: 6px; }
+    .label-row { display: flex; justify-content: space-between; align-items: center; }
+    .label-hint { font-size: 12px; color: var(--text-3); font-weight: 400; }
+
+    .input-wrap { position: relative; }
+    .input-icon {
+      position: absolute; left: 13px; top: 50%; transform: translateY(-50%);
+      width: 16px; height: 16px; pointer-events: none; flex-shrink: 0;
+    }
+    .input-icon svg { width: 16px; height: 16px; stroke: var(--text-3); fill: none; stroke-width: 2; display: block; }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="tel"],
+    textarea,
+    select {
+      width: 100%; padding: 11px 14px 11px 40px;
+      border: 1.5px solid var(--border); border-radius: var(--radius);
+      font-size: 14px; color: var(--text); background: var(--white);
+      outline: none; transition: border-color .15s, box-shadow .15s;
+      appearance: none;
+    }
+    input:focus, textarea:focus, select:focus {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px rgba(15,110,86,.09);
+    }
+    input.has-error { border-color: var(--red); }
+    input.has-error:focus { box-shadow: 0 0 0 3px rgba(192,57,43,.09); }
+    input[readonly] { background: var(--surface); color: var(--text-3); cursor: not-allowed; }
+    .field-error { font-size: 12px; color: var(--red); margin-top: 5px; display: none; }
+    .field-error.show { display: block; }
+    .field-hint { font-size: 12px; color: var(--text-3); margin-top: 5px; }
+
+    /* password eye toggle */
+    .pw-toggle {
+      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+      padding: 4px; color: var(--text-3); transition: color .15s; border-radius: 4px;
+    }
+    .pw-toggle:hover { color: var(--text); }
+    .pw-toggle svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; display: block; }
+
+    /* ── PASSWORD STRENGTH ── */
+    .pw-strength { margin-top: 8px; }
+    .pw-strength-track { height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; margin-bottom: 5px; }
+    .pw-strength-bar { height: 100%; width: 0; border-radius: 2px; transition: width .35s, background .35s; }
+    .pw-strength-row { display: flex; justify-content: space-between; align-items: center; }
+    .pw-strength-label { font-size: 12px; color: var(--text-3); }
+    .pw-rules { display: grid; grid-template-columns: 1fr 1fr; gap: 5px 12px; margin-top: 10px; }
+    .pw-rule { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-3); transition: color .2s; }
+    .pw-rule svg { width: 13px; height: 13px; stroke: var(--border); fill: none; stroke-width: 2.5; flex-shrink: 0; transition: stroke .2s; }
+    .pw-rule.met { color: var(--green); }
+    .pw-rule.met svg { stroke: var(--green); }
+
+    /* ── SAVE BUTTON ── */
+    .save-row { display: flex; align-items: center; justify-content: space-between; padding-top: 20px; border-top: 1px solid var(--border); margin-top: 4px; }
+    .save-row-hint { font-size: 13px; color: var(--text-3); }
+    .btn-save {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--green); color: #fff;
+      font-size: 14px; font-weight: 600; padding: 11px 26px; border-radius: var(--radius);
+      transition: background .15s; min-width: 130px; justify-content: center;
+    }
+    .btn-save:hover:not(:disabled) { background: var(--green-dark); }
+    .btn-save:disabled { opacity: .6; cursor: not-allowed; }
+    .btn-save .spinner { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,.3); border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; display: none; }
+    .btn-save.loading .spinner { display: block; }
+    .btn-save.loading .btn-label { display: none; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── VERIFY BADGE ── */
+    .verify-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 20px;
+    }
+    .verify-badge.verified   { background: var(--green-light); color: var(--green-dark); }
+    .verify-badge.unverified { background: var(--amber-light);  color: #78350f; }
+    .verify-badge svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 2.5; }
+
+    /* ── DANGER ZONE ── */
+    .danger-zone-body { padding: 22px 28px; }
+    .danger-item {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 20px; padding: 16px 0; border-bottom: 1px solid var(--border);
+    }
+    .danger-item:last-child { border-bottom: none; padding-bottom: 0; }
+    .danger-item-text strong { font-size: 14px; font-weight: 600; color: var(--text); display: block; margin-bottom: 2px; }
+    .danger-item-text span { font-size: 13px; color: var(--text-3); }
+    .btn-danger {
+      flex-shrink: 0; font-size: 13px; font-weight: 600; padding: 9px 18px;
+      border-radius: var(--radius); border: 1.5px solid var(--red);
+      color: var(--red); background: transparent; transition: all .15s;
+    }
+    .btn-danger:hover { background: var(--red-light); }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+      z-index: 500; display: none; align-items: center; justify-content: center;
+      padding: 24px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--white); border-radius: var(--radius-xl);
+      width: 100%; max-width: 440px; padding: 32px;
+      box-shadow: var(--shadow-lg); animation: modal-in .2s ease;
+    }
+    @keyframes modal-in { from { opacity: 0; transform: scale(.95) translateY(8px); } to { opacity: 1; transform: none; } }
+    .modal-icon { width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; margin-bottom: 18px; }
+    .modal-icon.red   { background: var(--red-light); }
+    .modal-icon.amber { background: var(--amber-light); }
+    .modal-icon svg { width: 24px; height: 24px; stroke-width: 2; fill: none; }
+    .modal-icon.red svg   { stroke: var(--red); }
+    .modal-icon.amber svg { stroke: var(--amber); }
+    .modal h3 { font-family: 'Playfair Display', serif; font-size: 20px; margin-bottom: 8px; }
+    .modal p  { font-size: 14px; color: var(--text-2); margin-bottom: 22px; line-height: 1.6; }
+    .modal-actions { display: flex; gap: 10px; }
+    .btn-modal-cancel {
+      flex: 1; padding: 11px; border-radius: var(--radius);
+      font-size: 14px; font-weight: 500; color: var(--text-2);
+      border: 1.5px solid var(--border); transition: all .15s;
+    }
+    .btn-modal-cancel:hover { border-color: var(--text-3); }
+    .btn-modal-confirm {
+      flex: 1; padding: 11px; border-radius: var(--radius);
+      font-size: 14px; font-weight: 600; color: #fff;
+      background: var(--red); transition: background .15s;
+    }
+    .btn-modal-confirm:hover { background: #9b2c2c; }
+    .modal-input-wrap { margin-bottom: 20px; }
+    .modal-input-wrap label { font-size: 13px; font-weight: 500; color: var(--text-2); display: block; margin-bottom: 6px; }
+    .modal-input-wrap input { width: 100%; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: var(--radius); font-size: 14px; outline: none; }
+    .modal-input-wrap input:focus { border-color: var(--red); box-shadow: 0 0 0 3px rgba(192,57,43,.09); }
+
+    /* ── NOTIFICATION PREFS ── */
+    .notif-list { display: flex; flex-direction: column; gap: 0; }
+    .notif-item {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--border);
+    }
+    .notif-item:last-child { border-bottom: none; }
+    .notif-text strong { font-size: 14px; font-weight: 600; color: var(--text); display: block; }
+    .notif-text span { font-size: 13px; color: var(--text-3); }
+    /* toggle switch */
+    .toggle { position: relative; width: 44px; height: 24px; flex-shrink: 0; }
+    .toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
+    .toggle-track {
+      position: absolute; inset: 0; border-radius: 12px;
+      background: var(--border); cursor: pointer; transition: background .2s;
+    }
+    .toggle input:checked + .toggle-track { background: var(--green); }
+    .toggle-thumb {
+      position: absolute; top: 3px; left: 3px;
+      width: 18px; height: 18px; border-radius: 50%;
+      background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+      transition: transform .2s; pointer-events: none;
+    }
+    .toggle input:checked ~ .toggle-thumb { transform: translateX(20px); }
+
+    /* ── ACCOUNT STATS ── */
+    .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; }
+    .stat-cell {
+      text-align: center; padding: 20px 16px;
+      border-right: 1px solid var(--border);
+    }
+    .stat-cell:last-child { border-right: none; }
+    .stat-val { font-size: 22px; font-weight: 700; color: var(--green-dark); }
+    .stat-lbl { font-size: 12px; color: var(--text-3); margin-top: 3px; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 800px) {
+      .layout { grid-template-columns: 1fr; }
+      .sidebar-nav { position: static; display: flex; overflow-x: auto; }
+      .sidebar-nav-header { display: none; }
+      .sidebar-nav ul { display: flex; gap: 4px; padding: 8px; white-space: nowrap; }
+      .sidebar-nav .divider { display: none; }
+      .sidebar-nav li a, .sidebar-nav li button { padding: 8px 14px; }
+      .form-row { grid-template-columns: 1fr; }
+      nav { padding: 0 16px; }
+      .page { padding: 24px 16px 60px; }
+      .card-header, .card-body, .danger-zone-body { padding-left: 20px; padding-right: 20px; }
+      .save-row { flex-direction: column; align-items: stretch; gap: 12px; }
+      .save-row-hint { display: none; }
+      .btn-save { width: 100%; }
+      .stats-row { grid-template-columns: 1fr 1fr; }
+      .stat-cell:nth-child(2) { border-right: none; }
+      .stat-cell:nth-child(3) { border-right: none; border-top: 1px solid var(--border); grid-column: 1 / -1; }
+      .pw-rules { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 480px) {
+      .modal { padding: 24px 20px; }
+      .nav-right .nav-link { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── NAVBAR ── -->
+<nav>
+  <a href="index.html" class="logo">
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    </div>
+    NyumbaKisumu
+  </a>
+  <div class="nav-right">
+    <a href="dashboard.html" class="nav-link">← Dashboard</a>
+    <a href="post-listing.html" class="nav-btn">List apartment</a>
+  </div>
+</nav>
+
+<!-- ── PAGE ── -->
+<div class="page">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div class="page-header-eyebrow">
+      <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Account settings
+    </div>
+    <h1>My Profile</h1>
+    <p>Manage your personal details, contact info, and security settings.</p>
+  </div>
+
+  <div class="layout">
+
+    <!-- ── SIDEBAR ── -->
+    <div class="sidebar-nav">
+      <div class="sidebar-nav-header">
+        <div class="avatar-wrap">
+          <div class="avatar" id="nav-avatar">
+            —
+            <div class="avatar-edit-badge">
+              <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </div>
+          </div>
+          <div class="avatar-name" id="nav-name">Loading…</div>
+          <div class="avatar-email" id="nav-email">—</div>
+        </div>
+      </div>
+      <ul>
+        <li><a href="#personal" class="active" onclick="scrollToSection('personal',this)">
+          <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Personal info
+        </a></li>
+        <li><a href="#contact" onclick="scrollToSection('contact',this)">
+          <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.12 1.2 2 2 0 012.11 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>
+          Contact & phone
+        </a></li>
+        <li><a href="#security" onclick="scrollToSection('security',this)">
+          <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+          Password
+        </a></li>
+        <li><a href="#notifications" onclick="scrollToSection('notifications',this)">
+          <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+          Notifications
+        </a></li>
+        <li><div class="divider"></div></li>
+        <li><a href="dashboard.html">
+          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          Dashboard
+        </a></li>
+        <li><button class="danger-link" onclick="confirmSignOut()">
+          <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Sign out
+        </button></li>
+      </ul>
+    </div>
+
+    <!-- ── MAIN CONTENT ── -->
+    <div class="main-content">
+
+      <!-- Account overview stats -->
+      <div class="card">
+        <div class="stats-row" id="stats-row">
+          <div class="stat-cell"><div class="stat-val" id="stat-listings">—</div><div class="stat-lbl">Active listings</div></div>
+          <div class="stat-cell"><div class="stat-val" id="stat-enquiries">—</div><div class="stat-lbl">Enquiries received</div></div>
+          <div class="stat-cell"><div class="stat-val" id="stat-member">—</div><div class="stat-lbl">Member since</div></div>
+        </div>
+      </div>
+
+      <!-- ── PERSONAL INFO ── -->
+      <div class="card" id="personal">
+        <div class="card-header">
+          <div class="card-header-left">
+            <div class="card-header-icon green">
+              <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </div>
+            <div>
+              <div class="card-title">Personal information</div>
+              <div class="card-sub">Your name as it appears to buyers</div>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div id="personal-banner" class="status-banner">
+            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            <p id="personal-banner-msg"></p>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="first-name">First name</label>
+              <div class="input-wrap">
+                <div class="input-icon"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+                <input type="text" id="first-name" placeholder="e.g. Amara" autocomplete="given-name"/>
+              </div>
+              <div class="field-error" id="err-first-name">Please enter your first name.</div>
+            </div>
+            <div class="form-group">
+              <label for="last-name">Last name</label>
+              <div class="input-wrap">
+                <div class="input-icon"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+                <input type="text" id="last-name" placeholder="e.g. Odhiambo" autocomplete="family-name"/>
+              </div>
+              <div class="field-error" id="err-last-name">Please enter your last name.</div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="bio">Short bio <span class="label-hint">(optional)</span></label>
+            <div class="input-wrap">
+              <div class="input-icon" style="top:14px;transform:none"><svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></div>
+              <textarea id="bio" placeholder="e.g. Property owner with 3 apartments in Milimani and Maseno." style="min-height:72px; padding-top:11px; resize:vertical"></textarea>
+            </div>
+            <div class="field-hint">Shown on your listings. Keep it brief and factual.</div>
+          </div>
+          <div class="save-row">
+            <span class="save-row-hint">Changes apply to all your listings immediately.</span>
+            <button class="btn-save" id="btn-save-personal" onclick="savePersonal()">
+              <div class="spinner"></div>
+              <span class="btn-label">Save name</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── CONTACT & EMAIL ── -->
+      <div class="card" id="contact">
+        <div class="card-header">
+          <div class="card-header-left">
+            <div class="card-header-icon gold">
+              <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.12 1.2 2 2 0 012.11 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>
+            </div>
+            <div>
+              <div class="card-title">Contact & email</div>
+              <div class="card-sub">How buyers and we reach you</div>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div id="contact-banner" class="status-banner">
+            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            <p id="contact-banner-msg"></p>
+          </div>
+
+          <div class="form-group">
+            <div class="label-row">
+              <label for="email">Email address</label>
+              <span class="verify-badge" id="email-verified-badge">
+                <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                Verified
+              </span>
+            </div>
+            <div class="input-wrap">
+              <div class="input-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
+              <input type="email" id="email" placeholder="you@example.com" autocomplete="email"/>
+            </div>
+            <div class="field-hint">Changing your email will send a verification link to the new address.</div>
+            <div class="field-error" id="err-email">Please enter a valid email address.</div>
+          </div>
+
+          <div class="form-group">
+            <label for="phone">M-Pesa / WhatsApp number</label>
+            <div class="input-wrap">
+              <div class="input-icon"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.12 1.2 2 2 0 012.11 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg></div>
+              <input type="tel" id="phone" placeholder="07XX XXX XXX" autocomplete="tel"/>
+            </div>
+            <div class="field-hint">Used for M-Pesa payments and shown to buyers on WhatsApp button.</div>
+            <div class="field-error" id="err-phone">Please enter a valid Kenyan phone number (07XX XXX XXX).</div>
+          </div>
+
+          <div class="save-row">
+            <span class="save-row-hint">Email changes require re-verification.</span>
+            <button class="btn-save" id="btn-save-contact" onclick="saveContact()">
+              <div class="spinner"></div>
+              <span class="btn-label">Save contact</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── PASSWORD ── -->
+      <div class="card" id="security">
+        <div class="card-header">
+          <div class="card-header-left">
+            <div class="card-header-icon amber">
+              <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+            </div>
+            <div>
+              <div class="card-title">Change password</div>
+              <div class="card-sub">Use a strong password you don't use elsewhere</div>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div id="security-banner" class="status-banner">
+            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            <p id="security-banner-msg"></p>
+          </div>
+
+          <div class="form-group">
+            <label for="pw-current">Current password</label>
+            <div class="input-wrap">
+              <div class="input-icon"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
+              <input type="password" id="pw-current" placeholder="Enter current password" autocomplete="current-password"/>
+              <button class="pw-toggle" onclick="togglePw('pw-current',this)" type="button" aria-label="Show password">
+                <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
+            <div class="field-error" id="err-pw-current">Please enter your current password.</div>
+          </div>
+
+          <div class="form-group">
+            <label for="pw-new">New password</label>
+            <div class="input-wrap">
+              <div class="input-icon"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
+              <input type="password" id="pw-new" placeholder="At least 8 characters" autocomplete="new-password" oninput="checkStrength(this.value)"/>
+              <button class="pw-toggle" onclick="togglePw('pw-new',this)" type="button" aria-label="Show password">
+                <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
+            <div class="pw-strength">
+              <div class="pw-strength-track"><div class="pw-strength-bar" id="pw-bar"></div></div>
+              <div class="pw-strength-row">
+                <div class="pw-strength-label" id="pw-label">Enter a new password</div>
+              </div>
+              <div class="pw-rules">
+                <div class="pw-rule" id="rule-len"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>At least 8 characters</div>
+                <div class="pw-rule" id="rule-upper"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Uppercase letter</div>
+                <div class="pw-rule" id="rule-num"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>A number</div>
+                <div class="pw-rule" id="rule-sym"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>A symbol (!@#…)</div>
+              </div>
+            </div>
+            <div class="field-error" id="err-pw-new">Password must be at least 8 characters.</div>
+          </div>
+
+          <div class="form-group">
+            <label for="pw-confirm">Confirm new password</label>
+            <div class="input-wrap">
+              <div class="input-icon"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
+              <input type="password" id="pw-confirm" placeholder="Repeat new password" autocomplete="new-password"/>
+              <button class="pw-toggle" onclick="togglePw('pw-confirm',this)" type="button" aria-label="Show password">
+                <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
+            <div class="field-error" id="err-pw-confirm">Passwords do not match.</div>
+          </div>
+
+          <div class="save-row">
+            <span class="save-row-hint">You'll stay signed in after changing your password.</span>
+            <button class="btn-save" id="btn-save-pw" onclick="savePassword()">
+              <div class="spinner"></div>
+              <span class="btn-label">Update password</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── NOTIFICATIONS ── -->
+      <div class="card" id="notifications">
+        <div class="card-header">
+          <div class="card-header-left">
+            <div class="card-header-icon green">
+              <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+            </div>
+            <div>
+              <div class="card-title">Notification preferences</div>
+              <div class="card-sub">Choose how we contact you</div>
+            </div>
+          </div>
+        </div>
+        <div class="card-body" style="padding-top:8px; padding-bottom:8px">
+          <div id="notif-banner" class="status-banner" style="margin-top:16px">
+            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            <p id="notif-banner-msg"></p>
+          </div>
+          <div class="notif-list">
+            <div class="notif-item">
+              <div class="notif-text">
+                <strong>New enquiry received</strong>
+                <span>Email when a buyer sends you a message about a listing.</span>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" id="notif-enquiry" checked onchange="saveNotifPref()"/>
+                <div class="toggle-track"></div>
+                <div class="toggle-thumb"></div>
+              </label>
+            </div>
+            <div class="notif-item">
+              <div class="notif-text">
+                <strong>Listing approved</strong>
+                <span>Email when your submitted listing goes live.</span>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" id="notif-approved" checked onchange="saveNotifPref()"/>
+                <div class="toggle-track"></div>
+                <div class="toggle-thumb"></div>
+              </label>
+            </div>
+            <div class="notif-item">
+              <div class="notif-text">
+                <strong>Listing expiring soon</strong>
+                <span>Reminder 3 days before your listing expires.</span>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" id="notif-expiry" checked onchange="saveNotifPref()"/>
+                <div class="toggle-track"></div>
+                <div class="toggle-thumb"></div>
+              </label>
+            </div>
+            <div class="notif-item">
+              <div class="notif-text">
+                <strong>Platform updates</strong>
+                <span>Occasional product news and feature announcements.</span>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" id="notif-marketing" onchange="saveNotifPref()"/>
+                <div class="toggle-track"></div>
+                <div class="toggle-thumb"></div>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── DANGER ZONE ── -->
+      <div class="card" id="danger-zone" style="border-color:#f5c6c2">
+        <div class="card-header" style="border-color:#f5c6c2">
+          <div class="card-header-left">
+            <div class="card-header-icon red">
+              <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </div>
+            <div>
+              <div class="card-title" style="color:var(--red)">Danger zone</div>
+              <div class="card-sub">Irreversible actions — proceed carefully</div>
+            </div>
+          </div>
+        </div>
+        <div class="danger-zone-body">
+          <div class="danger-item">
+            <div class="danger-item-text">
+              <strong>Pause all listings</strong>
+              <span>Hide all your active listings from search results instantly. You can re-activate them anytime.</span>
+            </div>
+            <button class="btn-danger" onclick="openModal('modal-pause')">Pause all</button>
+          </div>
+          <div class="danger-item">
+            <div class="danger-item-text">
+              <strong>Delete account</strong>
+              <span>Permanently deletes your account, all listings, photos, and enquiry history. This cannot be undone.</span>
+            </div>
+            <button class="btn-danger" onclick="openModal('modal-delete')">Delete account</button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /main-content -->
+  </div><!-- /layout -->
+</div><!-- /page -->
+
+<!-- ── MODAL: PAUSE ALL ── -->
+<div class="modal-overlay" id="modal-pause">
+  <div class="modal">
+    <div class="modal-icon amber">
+      <svg viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+    </div>
+    <h3>Pause all listings?</h3>
+    <p>All your active listings will be hidden from search results and buyers immediately. They stay saved — you can reactivate them one by one from your dashboard.</p>
+    <div class="modal-actions">
+      <button class="btn-modal-cancel" onclick="closeModal('modal-pause')">Cancel</button>
+      <button class="btn-modal-confirm" style="background:var(--amber)" onclick="pauseAllListings()">Yes, pause all</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL: DELETE ACCOUNT ── -->
+<div class="modal-overlay" id="modal-delete">
+  <div class="modal">
+    <div class="modal-icon red">
+      <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+    </div>
+    <h3>Delete your account?</h3>
+    <p>This will permanently delete your account, all listings, all photos, and all enquiry history. <strong>This cannot be undone.</strong></p>
+    <div class="modal-input-wrap">
+      <label for="delete-confirm-input">Type <strong>DELETE</strong> to confirm</label>
+      <input type="text" id="delete-confirm-input" placeholder="DELETE" oninput="checkDeleteConfirm()"/>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-modal-cancel" onclick="closeModal('modal-delete')">Cancel</button>
+      <button class="btn-modal-confirm" id="btn-delete-confirm" disabled onclick="deleteAccount()">Delete forever</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL: SIGN OUT ── -->
+<div class="modal-overlay" id="modal-signout">
+  <div class="modal">
+    <div class="modal-icon amber">
+      <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+    </div>
+    <h3>Sign out?</h3>
+    <p>You'll be returned to the homepage. Your listings and settings are always saved.</p>
+    <div class="modal-actions">
+      <button class="btn-modal-cancel" onclick="closeModal('modal-signout')">Stay signed in</button>
+      <button class="btn-modal-confirm" style="background:var(--green)" onclick="doSignOut()">Sign out</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const SUPABASE_URL = 'https://vliuuloyfhyxcsuchpss.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_oIIcecf3wzKMual5K24Z8Q_zmxVfgsx';
+  const { createClient } = supabase;
+  const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  let currentUser = null;
+  let profileData = null;
+
+  // ─────────────────────────────────────────
+  // INIT — load user + profile
+  // ─────────────────────────────────────────
+  async function init() {
+    const { data: { session } } = await db.auth.getSession();
+    if (!session) { window.location.href = 'login.html'; return; }
+    currentUser = session.user;
+
+    // Load profile
+    const { data } = await db.from('profiles').select('*').eq('id', currentUser.id).single();
+    profileData = data || {};
+
+    populate();
+    loadStats();
+  }
+
+  function populate() {
+    const fullName = profileData.full_name || '';
+    const parts    = fullName.trim().split(' ');
+    const firstName = parts[0] || '';
+    const lastName  = parts.slice(1).join(' ') || '';
+    const email    = currentUser.email || '';
+    const phone    = profileData.phone || '';
+    const bio      = profileData.bio   || '';
+
+    document.getElementById('first-name').value = firstName;
+    document.getElementById('last-name').value  = lastName;
+    document.getElementById('bio').value        = bio;
+    document.getElementById('email').value      = email;
+    document.getElementById('phone').value      = phone;
+
+    // Sidebar avatar & info
+    const initials = ((firstName[0] || '') + (lastName[0] || '')).toUpperCase() || '?';
+    document.getElementById('nav-avatar').innerHTML =
+      initials + `<div class="avatar-edit-badge"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>`;
+    document.getElementById('nav-name').textContent  = fullName || 'Your name';
+    document.getElementById('nav-email').textContent = email;
+
+    // Email verification badge
+    const verified = currentUser.email_confirmed_at;
+    const badge = document.getElementById('email-verified-badge');
+    badge.className = `verify-badge ${verified ? 'verified' : 'unverified'}`;
+    badge.innerHTML = verified
+      ? `<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Verified`
+      : `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> Unverified`;
+
+    // Notification prefs
+    const prefs = profileData.notification_prefs || {};
+    document.getElementById('notif-enquiry').checked  = prefs.enquiry  !== false;
+    document.getElementById('notif-approved').checked = prefs.approved !== false;
+    document.getElementById('notif-expiry').checked   = prefs.expiry   !== false;
+    document.getElementById('notif-marketing').checked= prefs.marketing === true;
+  }
+
+  async function loadStats() {
+    const { count: listings } = await db.from('listings').select('*',{count:'exact',head:true}).eq('seller_id', currentUser.id).eq('status','active');
+    const { count: enquiries } = await db.from('enquiries').select('*',{count:'exact',head:true}).eq('seller_id', currentUser.id);
+    const joined = currentUser.created_at ? new Date(currentUser.created_at).toLocaleDateString('en-KE',{month:'short',year:'numeric'}) : '—';
+    document.getElementById('stat-listings').textContent  = listings  || 0;
+    document.getElementById('stat-enquiries').textContent = enquiries || 0;
+    document.getElementById('stat-member').textContent    = joined;
+  }
+
+  // ─────────────────────────────────────────
+  // SAVE PERSONAL
+  // ─────────────────────────────────────────
+  async function savePersonal() {
+    clearErrors(['err-first-name','err-last-name']);
+    const firstName = document.getElementById('first-name').value.trim();
+    const lastName  = document.getElementById('last-name').value.trim();
+    const bio       = document.getElementById('bio').value.trim();
+    let valid = true;
+    if (!firstName) { showErr('err-first-name'); showErr('first-name','input'); valid = false; }
+    if (!lastName)  { showErr('err-last-name');  showErr('last-name','input');  valid = false; }
+    if (!valid) return;
+
+    setLoading('btn-save-personal', true);
+    const fullName = `${firstName} ${lastName}`;
+    const { error } = await db.from('profiles').upsert({ id: currentUser.id, full_name: fullName, bio });
+    setLoading('btn-save-personal', false);
+    if (error) { showBanner('personal-banner','personal-banner-msg','error', 'Could not save — please try again.'); return; }
+    profileData.full_name = fullName; profileData.bio = bio;
+    document.getElementById('nav-name').textContent = fullName;
+    const initials = ((firstName[0]||'')+(lastName[0]||'')).toUpperCase();
+    document.getElementById('nav-avatar').innerHTML =
+      initials + `<div class="avatar-edit-badge"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>`;
+    showBanner('personal-banner','personal-banner-msg','success', 'Name updated successfully.');
+  }
+
+  // ─────────────────────────────────────────
+  // SAVE CONTACT
+  // ─────────────────────────────────────────
+  async function saveContact() {
+    clearErrors(['err-email','err-phone']);
+    const email = document.getElementById('email').value.trim();
+    const phone = document.getElementById('phone').value.trim();
+    let valid = true;
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showErr('err-email'); showErr('email','input'); valid = false; }
+    if (!phone || phone.replace(/\s/g,'').length < 9)          { showErr('err-phone'); showErr('phone','input'); valid = false; }
+    if (!valid) return;
+
+    setLoading('btn-save-contact', true);
+
+    // Update phone in profiles
+    const { error: profErr } = await db.from('profiles').upsert({ id: currentUser.id, phone, email });
+
+    // Update email in auth if changed
+    let authErr = null;
+    if (email !== currentUser.email) {
+      const { error } = await db.auth.updateUser({ email });
+      authErr = error;
+    }
+
+    setLoading('btn-save-contact', false);
+
+    if (profErr || authErr) {
+      showBanner('contact-banner','contact-banner-msg','error', (authErr||profErr).message || 'Could not save — please try again.');
+      return;
+    }
+
+    profileData.phone = phone;
+    document.getElementById('nav-email').textContent = email;
+
+    const msg = email !== currentUser.email
+      ? 'Phone saved. Check your new email for a verification link.'
+      : 'Contact details saved successfully.';
+    showBanner('contact-banner','contact-banner-msg','success', msg);
+  }
+
+  // ─────────────────────────────────────────
+  // SAVE PASSWORD
+  // ─────────────────────────────────────────
+  async function savePassword() {
+    clearErrors(['err-pw-current','err-pw-new','err-pw-confirm']);
+    const current  = document.getElementById('pw-current').value;
+    const newPw    = document.getElementById('pw-new').value;
+    const confirm  = document.getElementById('pw-confirm').value;
+    let valid = true;
+    if (!current)         { showErr('err-pw-current'); valid = false; }
+    if (newPw.length < 8) { showErr('err-pw-new');     valid = false; }
+    if (newPw !== confirm) { showErr('err-pw-confirm'); valid = false; }
+    if (!valid) return;
+
+    setLoading('btn-save-pw', true);
+
+    // Re-authenticate first
+    const { error: reAuthErr } = await db.auth.signInWithPassword({ email: currentUser.email, password: current });
+    if (reAuthErr) {
+      setLoading('btn-save-pw', false);
+      showBanner('security-banner','security-banner-msg','error','Current password is incorrect.');
+      return;
+    }
+
+    const { error } = await db.auth.updateUser({ password: newPw });
+    setLoading('btn-save-pw', false);
+
+    if (error) { showBanner('security-banner','security-banner-msg','error', error.message); return; }
+
+    document.getElementById('pw-current').value = '';
+    document.getElementById('pw-new').value     = '';
+    document.getElementById('pw-confirm').value = '';
+    document.getElementById('pw-bar').style.width = '0';
+    document.getElementById('pw-label').textContent = 'Enter a new password';
+    ['rule-len','rule-upper','rule-num','rule-sym'].forEach(id => document.getElementById(id).classList.remove('met'));
+
+    showBanner('security-banner','security-banner-msg','success','Password updated. You are still signed in.');
+  }
+
+  // ─────────────────────────────────────────
+  // NOTIFICATION PREFS
+  // ─────────────────────────────────────────
+  async function saveNotifPref() {
+    const prefs = {
+      enquiry:   document.getElementById('notif-enquiry').checked,
+      approved:  document.getElementById('notif-approved').checked,
+      expiry:    document.getElementById('notif-expiry').checked,
+      marketing: document.getElementById('notif-marketing').checked,
+    };
+    await db.from('profiles').upsert({ id: currentUser.id, notification_prefs: prefs });
+    showBanner('notif-banner','notif-banner-msg','success','Preferences saved.');
+    setTimeout(() => hideBanner('notif-banner'), 2500);
+  }
+
+  // ─────────────────────────────────────────
+  // DANGER ZONE
+  // ─────────────────────────────────────────
+  async function pauseAllListings() {
+    await db.from('listings').update({ status: 'paused' }).eq('seller_id', currentUser.id).eq('status','active');
+    closeModal('modal-pause');
+    showBanner('personal-banner','personal-banner-msg','warning','All listings paused. Re-activate them from your dashboard.');
+  }
+
+  function checkDeleteConfirm() {
+    const val = document.getElementById('delete-confirm-input').value;
+    document.getElementById('btn-delete-confirm').disabled = val !== 'DELETE';
+  }
+
+  async function deleteAccount() {
+    // Delete listings, photos, enquiries, profile — then sign out
+    await db.from('listings').delete().eq('seller_id', currentUser.id);
+    await db.from('profiles').delete().eq('id', currentUser.id);
+    await db.auth.signOut();
+    window.location.href = 'index.html';
+  }
+
+  // ─────────────────────────────────────────
+  // SIGN OUT
+  // ─────────────────────────────────────────
+  function confirmSignOut() { openModal('modal-signout'); }
+  async function doSignOut() {
+    await db.auth.signOut();
+    window.location.href = 'index.html';
+  }
+
+  // ─────────────────────────────────────────
+  // HELPERS
+  // ─────────────────────────────────────────
+  function setLoading(btnId, on) {
+    const btn = document.getElementById(btnId);
+    btn.disabled = on; btn.classList.toggle('loading', on);
+  }
+
+  function showErr(id, type) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (type === 'input') { el.classList.add('has-error'); return; }
+    el.classList.add('show');
+  }
+
+  function clearErrors(ids) {
+    ids.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.classList.remove('show');
+    });
+    document.querySelectorAll('input.has-error').forEach(i => i.classList.remove('has-error'));
+  }
+
+  function showBanner(bannerId, msgId, type, msg) {
+    const banner = document.getElementById(bannerId);
+    const msgEl  = document.getElementById(msgId);
+    banner.className = `status-banner ${type}`;
+    msgEl.textContent = msg;
+    banner.scrollIntoView({ behavior:'smooth', block:'nearest' });
+    if (type === 'success') setTimeout(() => hideBanner(bannerId), 4000);
+  }
+
+  function hideBanner(id) {
+    const el = document.getElementById(id);
+    if (el) el.className = 'status-banner';
+  }
+
+  function openModal(id)  { document.getElementById(id).classList.add('open');    document.body.style.overflow = 'hidden'; }
+  function closeModal(id) { document.getElementById(id).classList.remove('open'); document.body.style.overflow = ''; }
+  document.querySelectorAll('.modal-overlay').forEach(m => {
+    m.addEventListener('click', e => { if (e.target === m) closeModal(m.id); });
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.open').forEach(m => closeModal(m.id));
+  });
+
+  function togglePw(inputId, btn) {
+    const input = document.getElementById(inputId);
+    const show  = input.type === 'password';
+    input.type  = show ? 'text' : 'password';
+    btn.innerHTML = show
+      ? `<svg viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`
+      : `<svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+  }
+
+  function checkStrength(pw) {
+    const bar   = document.getElementById('pw-bar');
+    const label = document.getElementById('pw-label');
+    const rules = {
+      'rule-len':   pw.length >= 8,
+      'rule-upper': /[A-Z]/.test(pw),
+      'rule-num':   /[0-9]/.test(pw),
+      'rule-sym':   /[^A-Za-z0-9]/.test(pw),
+    };
+    let score = Object.values(rules).filter(Boolean).length;
+    Object.entries(rules).forEach(([id, met]) => document.getElementById(id).classList.toggle('met', met));
+    if (!pw) { bar.style.width = '0'; label.textContent = 'Enter a new password'; label.style.color = ''; return; }
+    const levels = [
+      { w:'25%', color:'#e74c3c', text:'Weak — add uppercase, numbers, or symbols' },
+      { w:'50%', color:'#e67e22', text:'Fair' },
+      { w:'75%', color:'#d97706', text:'Good' },
+      { w:'100%', color:'#16a34a', text:'Strong ✓' },
+    ];
+    const l = levels[score - 1] || levels[0];
+    bar.style.width = l.w; bar.style.background = l.color;
+    label.textContent = l.text; label.style.color = l.color;
+  }
+
+  function scrollToSection(id, el) {
+    event.preventDefault();
+    document.getElementById(id)?.scrollIntoView({ behavior:'smooth', block:'start' });
+    document.querySelectorAll('.sidebar-nav a').forEach(a => a.classList.remove('active'));
+    if (el) el.classList.add('active');
+  }
+
+  // Enter key submit per section
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Enter') return;
+    const t = e.target;
+    if (['first-name','last-name','bio'].includes(t.id)) savePersonal();
+    else if (['email','phone'].includes(t.id)) saveContact();
+    else if (['pw-current','pw-new','pw-confirm'].includes(t.id)) savePassword();
+  });
+
+  init();
+</script>
+</body>
+</html>

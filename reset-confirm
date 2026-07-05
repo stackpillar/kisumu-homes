@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Reset Password — NyumbaKisumu</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --green:#0F6E56;--green-light:#E1F5EE;--green-dark:#085041;
+      --text:#1a1a18;--text-2:#4a4a46;--text-3:#888780;
+      --border:#e0ded8;--surface:#f7f6f2;--white:#ffffff;
+      --red:#c0392b;--red-light:#fdecea;
+      --radius:10px;--radius-lg:16px;
+    }
+    body{
+      font-family:'Inter',sans-serif;color:var(--text);background:var(--surface);
+      min-height:100vh;display:flex;align-items:center;justify-content:center;
+      padding:24px;
+    }
+    a{text-decoration:none}
+    button{font-family:inherit;cursor:pointer;border:none}
+
+    .card{
+      background:var(--white);border-radius:var(--radius-lg);
+      border:1px solid var(--border);max-width:420px;width:100%;
+      padding:40px 36px;
+    }
+    .logo{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:28px;font-family:'Playfair Display',serif;font-size:18px;color:var(--green-dark)}
+    .logo-icon{width:30px;height:30px;background:var(--green);border-radius:7px;display:flex;align-items:center;justify-content:center}
+    .logo-icon svg{width:16px;height:16px;fill:none;stroke:white;stroke-width:2;stroke-linecap:round}
+
+    /* ── States ── */
+    #state-loading,#state-form,#state-success,#state-error{display:none;text-align:center}
+    #state-loading.active,#state-form.active,#state-success.active,#state-error.active{display:block}
+
+    .icon-wrap{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 22px}
+    .icon-wrap.success{background:var(--green-light)}
+    .icon-wrap.error{background:var(--red-light)}
+    .icon-wrap svg{width:28px;height:28px;fill:none;stroke-width:2.2}
+    .icon-wrap.success svg{stroke:var(--green)}
+    .icon-wrap.error svg{stroke:var(--red)}
+
+    .spin{width:30px;height:30px;border:3px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    h1{font-family:'Playfair Display',serif;font-size:21px;margin-bottom:8px;color:var(--text);text-align:center}
+    p.sub{font-size:13px;color:var(--text-3);line-height:1.7;margin-bottom:24px;text-align:center}
+
+    /* ── Form ── */
+    .form-group{margin-bottom:16px;text-align:left}
+    label{display:block;font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em}
+    .input-wrap{position:relative}
+    .input-wrap .icon{position:absolute;left:13px;top:50%;transform:translateY(-50%);width:16px;height:16px;stroke:var(--text-3);fill:none;stroke-width:2;pointer-events:none}
+    .input-wrap:focus-within .icon{stroke:var(--green)}
+    .input-wrap input{
+      width:100%;padding:11px 40px 11px 40px;border:1.5px solid var(--border);
+      border-radius:var(--radius);font-family:inherit;font-size:14px;color:var(--text);
+      background:var(--white);outline:none;transition:border-color .15s,box-shadow .15s;
+    }
+    .input-wrap input:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(15,110,86,0.08)}
+    .input-wrap input.error{border-color:var(--red)}
+    .field-error{font-size:12px;color:var(--red);margin-top:5px;display:none}
+    .field-error.show{display:block}
+
+    .pw-toggle{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;padding:4px;color:var(--text-3);border-radius:4px;transition:color .15s}
+    .pw-toggle:hover{color:var(--text)}
+    .pw-toggle svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;display:block}
+
+    .pw-strength{margin-top:6px}
+    .pw-strength-bar{height:3px;border-radius:2px;background:var(--border);overflow:hidden;margin-bottom:4px}
+    .pw-strength-fill{height:100%;border-radius:2px;transition:width .3s,background .3s;width:0%}
+    .pw-strength-label{font-size:11px;color:var(--text-3)}
+
+    .alert{display:none;align-items:flex-start;gap:10px;padding:12px 14px;border-radius:var(--radius);font-size:13px;margin-bottom:18px;text-align:left}
+    .alert.error{display:flex;background:var(--red-light);color:var(--red);border:1px solid #f5c6c2}
+    .alert svg{width:16px;height:16px;flex-shrink:0;margin-top:1px;fill:none;stroke:currentColor;stroke-width:2}
+
+    .btn{
+      width:100%;padding:13px;background:var(--green);color:white;
+      font-size:15px;font-weight:600;border-radius:var(--radius);
+      transition:background .15s;display:flex;align-items:center;justify-content:center;gap:8px;
+    }
+    .btn:hover:not(:disabled){background:var(--green-dark)}
+    .btn:disabled{opacity:.65;cursor:not-allowed}
+    .btn-spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite;display:none}
+    .btn.loading .btn-spinner{display:block}
+    .btn.loading .btn-text{display:none}
+
+    .btn-outline{
+      display:inline-flex;align-items:center;gap:8px;width:100%;justify-content:center;
+      background:transparent;color:var(--text-2);border:1.5px solid var(--border);
+      padding:11px 26px;border-radius:var(--radius);font-size:13px;font-weight:500;
+      margin-top:10px;transition:all .15s;
+    }
+    .btn-outline:hover{border-color:var(--green);color:var(--green)}
+
+    .btn-green-link{
+      display:inline-flex;align-items:center;gap:8px;
+      background:var(--green);color:white;padding:12px 28px;
+      border-radius:var(--radius);font-size:14px;font-weight:600;transition:background .15s;
+    }
+    .btn-green-link:hover{background:var(--green-dark)}
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <a href="index.html" class="logo">
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    </div>
+    NyumbaKisumu
+  </a>
+
+  <!-- LOADING — verifying the reset link -->
+  <div id="state-loading" class="active">
+    <div class="spin" style="margin-bottom:20px"></div>
+    <h1>Verifying your reset link…</h1>
+    <p class="sub">Just a moment.</p>
+  </div>
+
+  <!-- FORM — set new password -->
+  <div id="state-form">
+    <h1>Set a new password</h1>
+    <p class="sub">Choose a strong password for your NyumbaKisumu account.</p>
+
+    <div class="alert" id="form-alert">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <span id="form-alert-msg"></span>
+    </div>
+
+    <div class="form-group">
+      <label for="new-password">New password</label>
+      <div class="input-wrap">
+        <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+        <input type="password" id="new-password" placeholder="At least 8 characters" autocomplete="new-password" oninput="checkPwStrength(this.value)"/>
+        <button class="pw-toggle" type="button" onclick="togglePw('new-password',this)" aria-label="Toggle password visibility">
+          <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+      <div class="pw-strength">
+        <div class="pw-strength-bar"><div class="pw-strength-fill" id="pw-fill"></div></div>
+        <div class="pw-strength-label" id="pw-label"></div>
+      </div>
+      <div class="field-error" id="err-new-pw">Password must be at least 8 characters</div>
+    </div>
+
+    <div class="form-group">
+      <label for="confirm-password">Confirm new password</label>
+      <div class="input-wrap">
+        <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+        <input type="password" id="confirm-password" placeholder="Re-enter your new password" autocomplete="new-password"/>
+        <button class="pw-toggle" type="button" onclick="togglePw('confirm-password',this)" aria-label="Toggle password visibility">
+          <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+      <div class="field-error" id="err-confirm-pw">Passwords do not match</div>
+    </div>
+
+    <button class="btn" id="btn-update" onclick="doUpdatePassword()">
+      <div class="btn-spinner"></div>
+      <span class="btn-text">Update password</span>
+    </button>
+  </div>
+
+  <!-- SUCCESS -->
+  <div id="state-success">
+    <div class="icon-wrap success">
+      <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <h1>Password updated!</h1>
+    <p class="sub">Your password has been changed successfully. You can now sign in with your new password.</p>
+    <a href="login.html" class="btn-green-link" style="width:100%;justify-content:center">
+      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="white" stroke-width="2.2"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+      Sign in to your account
+    </a>
+  </div>
+
+  <!-- ERROR -->
+  <div id="state-error">
+    <div class="icon-wrap error">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    </div>
+    <h1>Link expired or invalid</h1>
+    <p class="sub" id="error-msg">This password reset link is no longer valid. It may have already been used, or more than an hour has passed since it was sent. Please request a new one.</p>
+    <a href="login.html" class="btn-green-link" style="width:100%;justify-content:center">Request a new reset link</a>
+  </div>
+
+</div>
+
+<script>
+  const SUPABASE_URL = 'https://vliuuloyfhyxcsuchpss.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_oIIcecf3wzKMual5K24Z8Q_zmxVfgsx';
+  const { createClient } = supabase;
+  const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  function showState(id) {
+    document.querySelectorAll('#state-loading,#state-form,#state-success,#state-error').forEach(el => el.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  // ── Password visibility toggle ──
+  function togglePw(inputId, btn) {
+    const input = document.getElementById(inputId);
+    const show = input.type === 'password';
+    input.type = show ? 'text' : 'password';
+    btn.innerHTML = show
+      ? `<svg viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`
+      : `<svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+  }
+
+  // ── Password strength ──
+  function checkPwStrength(pw) {
+    const fill = document.getElementById('pw-fill');
+    const label = document.getElementById('pw-label');
+    if (!pw) { fill.style.width = '0'; label.textContent = ''; return; }
+    let score = 0;
+    if (pw.length >= 8) score++;
+    if (/[A-Z]/.test(pw)) score++;
+    if (/[0-9]/.test(pw)) score++;
+    if (/[^A-Za-z0-9]/.test(pw)) score++;
+    const levels = [
+      { w:'25%', c:'#e74c3c', t:'Weak — add numbers or symbols' },
+      { w:'50%', c:'#e67e22', t:'Fair — try a longer password' },
+      { w:'75%', c:'#f39c12', t:'Good' },
+      { w:'100%', c:'#27ae60', t:'Strong ✓' },
+    ];
+    const l = levels[Math.max(score-1,0)];
+    fill.style.width = l.w; fill.style.background = l.c;
+    label.textContent = l.t; label.style.color = l.c;
+  }
+
+  function fieldError(inputId, errId, show) {
+    document.getElementById(inputId)?.classList.toggle('error', show);
+    document.getElementById(errId)?.classList.toggle('show', show);
+  }
+
+  function showAlert(message) {
+    const el = document.getElementById('form-alert');
+    el.className = 'alert error';
+    document.getElementById('form-alert-msg').textContent = message;
+  }
+
+  // ── Verify the reset link / establish recovery session ──
+  // Supabase puts tokens in the URL hash (#access_token=...&type=recovery)
+  // The JS client auto-parses this into a session when the page loads.
+  async function verifyResetLink() {
+    // Check for an error in the URL first (expired/used link)
+    const hashParams = new URLSearchParams(window.location.hash.replace('#', '?'));
+    const queryParams = new URLSearchParams(window.location.search);
+    const errorDesc = hashParams.get('error_description') || queryParams.get('error_description');
+
+    if (errorDesc) {
+      document.getElementById('error-msg').textContent = decodeURIComponent(errorDesc.replace(/\+/g, ' '));
+      showState('state-error');
+      return;
+    }
+
+    // Give Supabase a moment to process the hash into a session
+    let { data } = await db.auth.getSession();
+
+    if (!data.session) {
+      // Retry once after a short delay — hash parsing can take a tick
+      await new Promise(r => setTimeout(r, 1000));
+      const retry = await db.auth.getSession();
+      data = retry.data;
+    }
+
+    if (!data.session) {
+      showState('state-error');
+      return;
+    }
+
+    // Valid recovery session — show the new password form
+    showState('state-form');
+  }
+
+  // ── Submit new password ──
+  async function doUpdatePassword() {
+    fieldError('new-password','err-new-pw',false);
+    fieldError('confirm-password','err-confirm-pw',false);
+    document.getElementById('form-alert').className = 'alert';
+
+    const pw = document.getElementById('new-password').value;
+    const confirm = document.getElementById('confirm-password').value;
+    let ok = true;
+
+    if (pw.length < 8) { fieldError('new-password','err-new-pw',true); ok = false; }
+    if (pw !== confirm) { fieldError('confirm-password','err-confirm-pw',true); ok = false; }
+    if (!ok) return;
+
+    const btn = document.getElementById('btn-update');
+    btn.disabled = true; btn.classList.add('loading');
+
+    const { error } = await db.auth.updateUser({ password: pw });
+
+    btn.disabled = false; btn.classList.remove('loading');
+
+    if (error) {
+      showAlert(error.message || 'Could not update password. Please try requesting a new reset link.');
+      return;
+    }
+
+    showState('state-success');
+  }
+
+  // ── Enter key submits the form ──
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && document.getElementById('state-form').classList.contains('active')) {
+      doUpdatePassword();
+    }
+  });
+
+  verifyResetLink();
+</script>
+</body>
+</html>
