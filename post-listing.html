@@ -31,6 +31,17 @@
     .nav-link { font-size:14px; color:var(--text-2); padding:8px 14px; border-radius:var(--radius); transition:background .15s; }
     .nav-link:hover { background:var(--surface); }
 
+    .trial-strip {
+      display:none;
+      background:linear-gradient(90deg, var(--green-dark), var(--green));
+      color:white; text-align:center; padding:11px 16px; font-size:13px; font-weight:600;
+      position:sticky; top:64px; z-index:90; letter-spacing:.01em;
+    }
+    .trial-strip strong { color:#FFE9B8; }
+    .trial-strip .spots-tag {
+      background:rgba(255,255,255,0.2); padding:3px 11px; border-radius:20px; margin-left:8px; font-weight:700; font-size:12px;
+    }
+
     .page-wrap { max-width:860px; margin:0 auto; padding:40px 24px 80px; }
 
     .steps-bar { display:flex; align-items:center; margin-bottom:40px; }
@@ -49,6 +60,28 @@
     .form-card { background:white; border-radius:var(--radius-lg); border:1px solid var(--border); padding:32px; margin-bottom:20px; }
     .form-card h2 { font-size:18px; font-weight:600; color:var(--text); margin-bottom:6px; }
     .form-card p.hint { font-size:13px; color:var(--text-3); margin-bottom:24px; }
+
+    .trial-intro-card {
+      display:none;
+      border:2px solid var(--green);
+      background:linear-gradient(135deg, var(--green-light), #ffffff);
+    }
+    .trial-intro-top { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:14px; flex-wrap:wrap; }
+    .trial-intro-card h2 { font-size:19px; color:var(--green-dark); margin-bottom:8px; }
+    .trial-intro-card > p.hint { color:var(--green); margin-bottom:16px; }
+    .trial-ribbon { background:var(--gold); color:white; font-size:11px; font-weight:700; padding:4px 12px; border-radius:20px; letter-spacing:.03em; }
+    .trial-intro-spots { font-size:12px; font-weight:700; color:var(--gold); background:var(--gold-light); padding:4px 12px; border-radius:20px; }
+    .trial-steps { display:flex; flex-direction:column; gap:12px; margin-bottom:16px; }
+    .trial-step { display:flex; gap:12px; align-items:flex-start; }
+    .trial-step-num { width:24px; height:24px; border-radius:50%; background:var(--green); color:white; font-size:12px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px; }
+    .trial-step p { font-size:13.5px; color:var(--text-2); line-height:1.55; }
+    .trial-step strong { color:var(--text); }
+    .trial-intro-note {
+      font-size:13px; color:var(--green-dark); background:rgba(255,255,255,0.6);
+      border:1px dashed var(--green); border-radius:var(--radius); padding:10px 12px; display:none;
+    }
+    .trial-intro-note.show { display:block; }
+    .trial-intro-note a { color:var(--green-dark); font-weight:700; text-decoration:underline; }
 
     .field { margin-bottom:20px; }
     .field:last-child { margin-bottom:0; }
@@ -97,11 +130,22 @@
     .upload-progress { margin-top:8px; height:4px; background:var(--border); border-radius:2px; overflow:hidden; display:none; }
     .upload-progress-bar { height:100%; background:var(--green); border-radius:2px; transition:width .3s; width:0%; }
 
-    .trial-banner { border:2px solid var(--green); border-radius:var(--radius-lg); padding:20px; margin-bottom:16px; cursor:pointer; transition:all .2s; background:var(--green-light); display:none; }
-    .trial-banner.selected { background:var(--green); }
-    .trial-banner.selected h3,.trial-banner.selected p { color:white; }
-    .trial-banner h3 { font-size:15px; font-weight:700; color:var(--green-dark); margin-bottom:4px; }
-    .trial-banner p { font-size:13px; color:var(--green); }
+    .trial-banner {
+      border:2px solid var(--green); border-radius:var(--radius-lg); padding:22px; margin-bottom:8px;
+      cursor:pointer; transition:all .2s; background:linear-gradient(135deg, var(--green-light), #ffffff);
+      display:none; position:relative;
+    }
+    .trial-banner.selected { background:linear-gradient(135deg, var(--green), var(--green-dark)); border-color:var(--green-dark); }
+    .trial-banner.selected h3, .trial-banner.selected p, .trial-banner.selected .trial-spots { color:white; }
+    .trial-banner-top { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px; flex-wrap:wrap; }
+    .trial-applied-check { font-size:12px; font-weight:700; color:var(--green-dark); background:white; padding:4px 10px; border-radius:20px; display:none; align-items:center; gap:4px; }
+    .trial-banner.selected .trial-applied-check { display:inline-flex; }
+    .trial-banner h3 { font-size:16px; font-weight:700; color:var(--green-dark); margin-bottom:6px; }
+    .trial-banner p { font-size:13px; color:var(--green); line-height:1.55; margin-bottom:10px; }
+    .trial-spots { font-size:12px; font-weight:700; color:var(--gold); }
+
+    .upgrade-divider { display:none; align-items:center; gap:10px; font-size:12px; color:var(--text-3); margin:20px 0 16px; }
+    .upgrade-divider::before,.upgrade-divider::after { content:''; flex:1; height:1px; background:var(--border); }
 
     .pricing-options { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
     .pricing-option { border:2px solid var(--border); border-radius:var(--radius-lg); padding:20px; cursor:pointer; transition:all .2s; background:white; position:relative; }
@@ -116,6 +160,15 @@
     .pricing-option ul li::before { content:'✓'; color:var(--green); font-weight:700; font-size:12px; }
     .pricing-option.featured-opt { border-color:var(--gold); }
     .pricing-option.featured-opt.selected { border-color:var(--gold); background:var(--gold-light); }
+
+    .trial-applied-banner {
+      display:none; align-items:center; gap:14px;
+      background:linear-gradient(135deg, var(--green), var(--green-dark)); color:white;
+      border-radius:var(--radius-lg); padding:18px 22px; margin-bottom:20px;
+    }
+    .trial-applied-banner .icon { font-size:28px; flex-shrink:0; }
+    .trial-applied-banner strong { display:block; font-size:15px; margin-bottom:2px; }
+    .trial-applied-banner span.sub { font-size:13px; color:rgba(255,255,255,0.85); }
 
     .summary-row { display:flex; justify-content:space-between; align-items:flex-start; padding:10px 0; border-bottom:1px solid var(--border); font-size:14px; gap:12px; }
     .summary-row:last-child { border-bottom:none; font-weight:600; font-size:15px; color:var(--green-dark); }
@@ -199,6 +252,35 @@
     .auth-banner p { font-size:14px; color:var(--green-dark); margin-bottom:12px; }
     .auth-banner a { background:var(--green); color:white; padding:9px 20px; border-radius:var(--radius); font-size:14px; font-weight:600; display:inline-block; }
 
+    /* ── Draggable trial promo widget ── */
+    .trial-floatie {
+      position:fixed; top:96px; left:20px; z-index:500; width:230px;
+      display:none;
+      background:linear-gradient(135deg, var(--green), var(--green-dark));
+      color:white; border-radius:16px; box-shadow:0 10px 30px rgba(0,0,0,0.25);
+      user-select:none;
+    }
+    .trial-floatie.show { display:block; }
+    .trial-floatie-handle {
+      position:absolute; top:6px; left:8px; cursor:grab; font-size:15px; color:rgba(255,255,255,0.55);
+      padding:5px 7px; line-height:1; touch-action:none; letter-spacing:2px;
+    }
+    .trial-floatie-handle:active { cursor:grabbing; }
+    .trial-floatie-close {
+      position:absolute; top:6px; right:6px; width:22px; height:22px; border-radius:50%;
+      background:rgba(255,255,255,0.15); color:white; border:none; font-size:14px; cursor:pointer;
+      display:flex; align-items:center; justify-content:center; z-index:2;
+    }
+    .trial-floatie-close:hover { background:rgba(255,255,255,0.3); }
+    .trial-floatie-body {
+      display:flex; align-items:center; gap:10px; padding:22px 14px 14px 32px; text-decoration:none; color:white;
+    }
+    .trial-floatie-emoji { font-size:22px; flex-shrink:0; }
+    .trial-floatie-copy { display:flex; flex-direction:column; font-size:12.5px; line-height:1.4; }
+    .trial-floatie-copy strong { font-size:13.5px; }
+    .trial-floatie-copy .floatie-spots { display:block; font-size:11px; color:#FFE9B8; font-weight:600; margin-top:2px; }
+    .trial-floatie-arrow { margin-left:auto; font-size:16px; flex-shrink:0; }
+
     @media(max-width:640px) {
       nav { padding:0 16px; }
       .page-wrap { padding:24px 16px 60px; }
@@ -208,6 +290,8 @@
       .pricing-options { grid-template-columns:1fr; }
       .steps-bar .step-label { display:none; }
       .modal-box { padding:22px 18px; }
+      .trial-strip { top:64px; font-size:12px; padding:9px 12px; }
+      .trial-floatie { left:12px; top:auto; bottom:90px; width:200px; }
     }
   </style>
 </head>
@@ -224,6 +308,11 @@
     <a href="listings.html" class="nav-link">Browse listings</a>
   </div>
 </nav>
+
+<div class="trial-strip" id="trial-strip">
+  🎉 <strong>Free 7-Day Trial</strong> for first-time sellers
+  <span class="spots-tag" id="strip-spots">Limited spots</span>
+</div>
 
 <div class="toast" id="toast"></div>
 
@@ -258,6 +347,36 @@
 
   <!-- STEP 1 -->
   <div id="step-1">
+
+    <!-- ── Trial intro — the very first thing every visitor sees ── -->
+    <div class="form-card trial-intro-card" id="trial-intro-card">
+      <div class="trial-intro-top">
+        <span class="trial-ribbon">🔥 LAUNCH OFFER</span>
+        <span class="trial-intro-spots" id="intro-spots-text">Limited spots</span>
+      </div>
+      <h2>🎉 Are you a first-time lister? Your listing is FREE for 7 days</h2>
+      <p class="hint">We just launched NyumbaKisumu and want real sellers to try it before paying anything. Here's exactly how it works:</p>
+      <div class="trial-steps">
+        <div class="trial-step">
+          <span class="trial-step-num">1</span>
+          <p>Fill out your listing below as normal — there's nothing extra to do or enter.</p>
+        </div>
+        <div class="trial-step">
+          <span class="trial-step-num">2</span>
+          <p>Because this is your <strong>first listing</strong>, the free 7-day plan will already be selected for you at the pricing step — no M-Pesa, no card, nothing to pay.</p>
+        </div>
+        <div class="trial-step">
+          <span class="trial-step-num">3</span>
+          <p>Submit as usual. Once our team approves it, your listing goes live immediately — completely free.</p>
+        </div>
+        <div class="trial-step">
+          <span class="trial-step-num">4</span>
+          <p>It stays live for <strong>7 days</strong>, then automatically expires unless you choose to upgrade to a paid plan.</p>
+        </div>
+      </div>
+      <div class="trial-intro-note" id="trial-intro-note"></div>
+    </div>
+
     <div class="form-card">
       <h2>What type of property are you listing?</h2>
       <p class="hint">Choose the category that best describes your apartment</p>
@@ -425,13 +544,20 @@
   <!-- STEP 3 -->
   <div id="step-3" style="display:none">
     <div class="form-card">
-      <h2>Choose your listing plan</h2>
-      <p class="hint">Both paid plans give your listing full visibility on NyumbaKisumu</p>
+      <h2>Your listing plan</h2>
+      <p class="hint" id="plan-hint">Both paid plans give your listing full visibility on NyumbaKisumu</p>
 
       <div class="trial-banner" id="plan-trial" onclick="selectPlan('trial')">
-        <h3>🎉 You're a first-time lister — your listing is FREE for 7 days</h3>
-        <p>Since this is your first listing, you don't need to pay anything. Tap this option to publish it now using your free 7-day listing — it will automatically expire after 7 days unless you upgrade. Or choose a paid plan below instead for longer visibility from day one.</p>
+        <div class="trial-banner-top">
+          <span class="trial-ribbon">🔥 NEW — LAUNCH OFFER</span>
+          <span class="trial-applied-check">✓ Applied to your listing</span>
+        </div>
+        <h3>🎉 Your first listing is FREE for 7 days</h3>
+        <p id="banner-copy">As a first-time seller, we've automatically applied a free 7-day listing to your account — no M-Pesa, no card, nothing to enter.</p>
+        <div class="trial-spots" id="banner-spots-text">Limited spots available — first come, first served</div>
       </div>
+
+      <div class="upgrade-divider" id="upgrade-divider">or upgrade for longer visibility from day one</div>
 
       <div class="pricing-options">
         <div class="pricing-option selected" id="plan-basic" onclick="selectPlan('basic')">
@@ -480,6 +606,15 @@
     </div>
     <div class="form-card">
       <h2>Order summary</h2>
+
+      <div class="trial-applied-banner" id="trial-applied-banner">
+        <div class="icon">🎉</div>
+        <div>
+          <strong>Free 7-Day Trial Applied</strong>
+          <span class="sub">You will not be charged anything for this listing — it goes live for 7 days once approved.</span>
+        </div>
+      </div>
+
       <div id="order-summary"></div>
       <div style="margin-top:20px;padding:14px 16px;background:var(--surface);border-radius:var(--radius);font-size:13px;color:var(--text-2);line-height:1.6">
         By submitting you confirm that your listing information is accurate and you are authorised to list this property. Your listing is saved immediately and reviewed by our team before appearing publicly.
@@ -519,7 +654,6 @@
       <div class="pay-tab" id="tab-bank" onclick="switchPayTab('bank')">Pay Manually (Paybill)</div>
     </div>
 
-    <!-- M-PESA -->
     <div class="pay-panel active" id="panel-mpesa">
       <div class="stk-steps">
         <div class="stk-step">
@@ -561,7 +695,6 @@
       </button>
     </div>
 
-    <!-- PAYBILL (MANUAL) -->
     <div class="pay-panel" id="panel-bank">
       <div class="bank-details">
         <h4>M-Pesa Paybill — Payment Details</h4>
@@ -587,6 +720,21 @@
   </div>
 </div>
 
+<!-- ── Draggable trial promo widget ── -->
+<div class="trial-floatie" id="trial-floatie">
+  <div class="trial-floatie-handle" id="trial-floatie-handle" title="Drag me">⠿⠿</div>
+  <button class="trial-floatie-close" onclick="dismissTrialFloatie()" aria-label="Dismiss">×</button>
+  <a href="post-listing.html" class="trial-floatie-body">
+    <span class="trial-floatie-emoji">🎉</span>
+    <span class="trial-floatie-copy">
+      <strong>First-time sellers</strong>
+      <span>7 days FREE</span>
+      <span class="floatie-spots" id="floatie-spots"></span>
+    </span>
+    <span class="trial-floatie-arrow">→</span>
+  </a>
+</div>
+
 <script>
 const SUPABASE_URL = 'https://vliuuloyfhyxcsuchpss.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_oIIcecf3wzKMual5K24Z8Q_zmxVfgsx';
@@ -594,29 +742,27 @@ const EDGE_URL     = `${SUPABASE_URL}/functions/v1`;
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const TRIAL_DAYS = 7; // first listing is free for this many days
+const TRIAL_DAYS = 7;
 
-let currentStep      = 1;
-let selectedCat      = 'student';
-let priceType        = 'sale';
-let selectedPlan     = 'basic';
-let photos           = [];
-let coverIndex       = 0;
-let currentListingId = null;
-let currentPlanPrice = 0;
-let trialEligible    = false;
-let currentUser      = null;
+let currentStep       = 1;
+let selectedCat       = 'student';
+let priceType         = 'sale';
+let selectedPlan      = 'basic';
+let photos            = [];
+let coverIndex        = 0;
+let currentListingId  = null;
+let currentPlanPrice  = 0;
+let trialEligible     = null;  // true = confirmed eligible, false = confirmed not eligible, null = unknown (not logged in yet)
+let trialSlotsLeft    = 0;
+let currentUser       = null;
 let checkoutRequestId = null;
 let paymentPollTimer  = null;
 
-// ── Init ──
 async function init() {
   const { data: { session } } = await db.auth.getSession();
   if (session) {
     currentUser = session.user;
     document.getElementById('auth-banner').style.display = 'none';
-    await checkTrialEligibility();
-    // Pre-fill phone
     const { data: profile } = await db.from('profiles').select('phone').eq('id', currentUser.id).single();
     if (profile?.phone) {
       const p = profile.phone.startsWith('254') ? '0' + profile.phone.slice(3) : profile.phone;
@@ -625,20 +771,73 @@ async function init() {
   } else {
     document.getElementById('auth-banner').style.display = 'block';
   }
+  // Trial visibility runs regardless of login — everyone gets to see the offer exists
+  await checkTrialAvailability();
 }
 
-async function checkTrialEligibility() {
-  if (!currentUser) return;
+// ── Trial availability: sitewide slots always checked; personal eligibility only
+// once logged in. Anonymous visitors still see the offer, with a nudge to sign in.
+async function checkTrialAvailability() {
   try {
-    const { count } = await db.from('listings')
-      .select('id', { count: 'exact', head: true })
-      .eq('seller_id', currentUser.id);
-    trialEligible = (count || 0) === 0;
-    if (trialEligible) {
-      document.getElementById('plan-trial').style.display = 'block';
-      selectPlan('trial'); // default first-time listers straight onto their free listing
+    const { data: slotsLeft } = await db.rpc('get_trial_slots_left');
+    trialSlotsLeft = typeof slotsLeft === 'number' ? slotsLeft : 0;
+  } catch(e) {
+    console.error('Could not read trial slots:', e);
+    trialSlotsLeft = 0;
+  }
+
+  if (trialSlotsLeft <= 0) return; // launch offer is over sitewide — nothing to show anyone
+
+  if (currentUser) {
+    try {
+      const { count: myListingsCount } = await db.from('listings')
+        .select('id', { count: 'exact', head: true })
+        .eq('seller_id', currentUser.id);
+      trialEligible = (myListingsCount || 0) === 0;
+    } catch(e) {
+      console.error('Could not check listing history:', e);
+      trialEligible = null;
     }
-  } catch(e) { trialEligible = false; }
+  } else {
+    trialEligible = null; // unknown until they sign in
+  }
+
+  showTrialUI();
+}
+
+function showTrialUI() {
+  const spotsLabel = `Only ${trialSlotsLeft} free spot${trialSlotsLeft === 1 ? '' : 's'} left`;
+
+  if (trialEligible === false) {
+    // Logged in, but already used their first listing — this offer doesn't apply to them
+    return;
+  }
+
+  document.getElementById('trial-strip').style.display = 'block';
+  document.getElementById('strip-spots').textContent = spotsLabel;
+
+  document.getElementById('trial-intro-card').style.display = 'block';
+  document.getElementById('intro-spots-text').textContent = spotsLabel;
+
+  document.getElementById('plan-trial').style.display = 'block';
+  document.getElementById('upgrade-divider').style.display = 'flex';
+
+  const note = document.getElementById('trial-intro-note');
+
+  if (trialEligible === true) {
+    document.getElementById('plan-hint').textContent = 'Good news — you qualify for our launch free trial 🎉';
+    document.getElementById('banner-spots-text').textContent = `${spotsLabel} at launch — first come, first served`;
+    note.classList.remove('show');
+    selectPlan('trial'); // auto-apply now that we know for sure
+  } else {
+    // Anonymous — invite them, but eligibility can't be confirmed until they sign in
+    document.getElementById('plan-hint').textContent = 'First-time sellers qualify for our launch free trial 🎉';
+    document.getElementById('banner-copy').textContent =
+      'First-time sellers get a free 7-day listing — no M-Pesa, no card. Sign in or create a free account to check your eligibility and claim it.';
+    document.getElementById('banner-spots-text').textContent = `${spotsLabel} — sign in to claim yours`;
+    note.innerHTML = `New here? <a href="login.html?next=post-listing.html">Sign in or create a free account</a> to check your eligibility and claim this instantly.`;
+    note.classList.add('show');
+  }
 }
 
 function showToast(msg, type = '') {
@@ -662,7 +861,14 @@ function setType(type) {
 }
 
 function selectPlan(plan) {
-  if (plan === 'trial' && !trialEligible) return;
+  if (plan === 'trial') {
+    if (trialEligible === null) {
+      showToast('Please sign in to claim your free trial', '');
+      setTimeout(() => window.location.href = 'login.html?next=post-listing.html', 900);
+      return;
+    }
+    if (trialEligible !== true) return;
+  }
   selectedPlan = plan;
   document.getElementById('plan-basic').classList.toggle('selected', plan === 'basic');
   document.getElementById('plan-featured').classList.toggle('selected', plan === 'featured');
@@ -676,7 +882,6 @@ function getPlanPrice() {
   return 800;
 }
 
-// ── Photo handling ──
 function dragOver(e)  { e.preventDefault(); document.getElementById('photo-drop').classList.add('drag-over'); }
 function dragLeave()  { document.getElementById('photo-drop').classList.remove('drag-over'); }
 function dropFiles(e) { e.preventDefault(); dragLeave(); handleFiles(e.dataTransfer.files); }
@@ -735,7 +940,6 @@ function renderPhotoGrid() {
 function removePhoto(i) { URL.revokeObjectURL(photos[i].previewUrl); photos.splice(i, 1); if (coverIndex >= photos.length) coverIndex = 0; renderPhotoGrid(); }
 function setCover(i) { coverIndex = i; renderPhotoGrid(); }
 
-// ── Navigation ──
 function goStep(n) {
   if (n > currentStep && !validateStep(currentStep)) return;
   document.getElementById(`step-${currentStep}`).style.display = 'none';
@@ -805,8 +1009,14 @@ function renderReview() {
     ${f.address ? `<div class="summary-row"><span>Address</span><strong>${f.address}</strong></div>` : ''}
     <div class="summary-row"><span>Contact phone</span><strong>${f.phone}</strong></div>
     <div class="summary-row"><span>Photos</span><strong>${photos.length} photo(s) added</strong></div>`;
+
+  const isTrial = selectedPlan === 'trial' && trialEligible === true;
+  document.getElementById('trial-applied-banner').style.display = isTrial ? 'flex' : 'none';
+
   const planPrice = getPlanPrice();
-  const planLabel = selectedPlan === 'trial' ? `🎉 Free ${TRIAL_DAYS}-day listing (first-time lister)` : selectedPlan === 'featured' ? 'Featured listing (90 days)' : 'Standard listing (60 days)';
+  const planLabel = isTrial
+    ? `🎉 Free ${TRIAL_DAYS}-day launch trial (first-time seller)`
+    : selectedPlan === 'featured' ? 'Featured listing (90 days)' : 'Standard listing (60 days)';
   document.getElementById('order-summary').innerHTML = `
     <div class="summary-row"><span>Plan</span><span>${planLabel}</span></div>
     <div class="summary-row"><span>Total</span><span>${planPrice ? 'KES ' + planPrice.toLocaleString('en-KE') + ' (pay now or later)' : 'FREE — no payment needed'}</span></div>`;
@@ -831,7 +1041,6 @@ async function uploadPhotos(listingId) {
   return uploaded;
 }
 
-// ── Submit listing ──
 async function submitListing() {
   if (!currentUser) {
     showToast('Please sign in first', 'error');
@@ -844,7 +1053,7 @@ async function submitListing() {
   btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> Submitting…`;
 
   try {
-    const isTrial = selectedPlan === 'trial' && trialEligible;
+    const isTrial = selectedPlan === 'trial' && trialEligible === true;
     const listingData = {
       title:            document.getElementById('title').value.trim(),
       description:      document.getElementById('description').value.trim(),
@@ -896,7 +1105,6 @@ async function submitListing() {
   }
 }
 
-// ── Payment modal ──
 function openPaymentModal() {
   const amt = `KES ${currentPlanPrice.toLocaleString('en-KE')}`;
   document.getElementById('pay-amount-display').innerHTML = `${amt} <span>one-time listing fee</span>`;
@@ -942,7 +1150,6 @@ function setStatusError(msg) {
   document.getElementById('stk-status-text').textContent = msg;
 }
 
-// ── REAL STK Push via Edge Function ──
 async function sendStkPush() {
   const phone = document.getElementById('mpesa-phone').value.trim();
   if (phone.replace(/\s/g,'').length < 9) {
@@ -956,7 +1163,6 @@ async function sendStkPush() {
   setStatusPending('Sending prompt to your phone…');
 
   try {
-    // Get auth token to pass with Edge Function call
     const { data: { session } } = await db.auth.getSession();
     const token = session?.access_token || '';
 
@@ -976,17 +1182,13 @@ async function sendStkPush() {
     });
 
     const data = await res.json();
-
-    if (!res.ok || data.error) {
-      throw new Error(data.error || 'STK push failed');
-    }
+    if (!res.ok || data.error) throw new Error(data.error || 'STK push failed');
 
     checkoutRequestId = data.checkoutRequestId;
     setStatusPending('Prompt sent! Enter your M-Pesa PIN on your phone…');
     btn.textContent = '📱 Resend Prompt';
     btn.disabled = false;
 
-    // Poll for payment confirmation every 5 seconds for up to 2 minutes
     startPaymentPolling();
 
   } catch(err) {
@@ -997,13 +1199,12 @@ async function sendStkPush() {
   }
 }
 
-// ── Poll Supabase for payment confirmation ──
 function startPaymentPolling() {
   if (paymentPollTimer) clearInterval(paymentPollTimer);
   let attempts = 0;
   paymentPollTimer = setInterval(async () => {
     attempts++;
-    if (attempts > 24) { // 2 minutes
+    if (attempts > 24) {
       clearInterval(paymentPollTimer);
       setStatusError('Payment not detected. Please enter your M-Pesa code below to confirm manually.');
       return;
@@ -1025,7 +1226,6 @@ function startPaymentPolling() {
   }, 5000);
 }
 
-// ── Manual payment confirmation ──
 async function confirmManualPayment(method) {
   const codeEl = method === 'mpesa' ? document.getElementById('mpesa-code') : document.getElementById('bank-ref');
   const code   = codeEl.value.trim().toUpperCase();
@@ -1076,6 +1276,84 @@ document.addEventListener('keydown', e => {
 });
 
 init();
+</script>
+
+<!-- ── Draggable widget behaviour: shared across pages, keyed to same localStorage ── -->
+<script>
+(function() {
+  const floatie = document.getElementById('trial-floatie');
+  const handle  = document.getElementById('trial-floatie-handle');
+  if (!floatie || !handle) return;
+
+  const DISMISS_KEY = 'nk_trial_floatie_dismissed';
+  const POS_KEY = 'nk_trial_floatie_pos';
+
+  if (localStorage.getItem(DISMISS_KEY)) return; // user closed it before — respect that everywhere
+
+  try {
+    const saved = JSON.parse(localStorage.getItem(POS_KEY) || 'null');
+    if (saved && typeof saved.left === 'number' && typeof saved.top === 'number') {
+      floatie.style.left = Math.min(saved.left, window.innerWidth - 240) + 'px';
+      floatie.style.top  = Math.min(saved.top, window.innerHeight - 100) + 'px';
+      floatie.style.right = 'auto';
+      floatie.style.bottom = 'auto';
+    }
+  } catch(e) {}
+
+  let dragging = false, startX, startY, startLeft, startTop, moved = false;
+
+  function clamp(val, min, max) { return Math.min(Math.max(val, min), max); }
+
+  function onPointerDown(e) {
+    dragging = true;
+    moved = false;
+    const rect = floatie.getBoundingClientRect();
+    startLeft = rect.left; startTop = rect.top;
+    startX = e.clientX; startY = e.clientY;
+    floatie.style.right = 'auto'; floatie.style.bottom = 'auto';
+    floatie.style.left = startLeft + 'px';
+    floatie.style.top  = startTop + 'px';
+    document.addEventListener('pointermove', onPointerMove);
+    document.addEventListener('pointerup', onPointerUp);
+    e.preventDefault();
+  }
+
+  function onPointerMove(e) {
+    if (!dragging) return;
+    const dx = e.clientX - startX, dy = e.clientY - startY;
+    if (Math.abs(dx) > 3 || Math.abs(dy) > 3) moved = true;
+    const newLeft = clamp(startLeft + dx, 4, window.innerWidth - floatie.offsetWidth - 4);
+    const newTop  = clamp(startTop + dy, 4, window.innerHeight - floatie.offsetHeight - 4);
+    floatie.style.left = newLeft + 'px';
+    floatie.style.top  = newTop + 'px';
+  }
+
+  function onPointerUp() {
+    dragging = false;
+    document.removeEventListener('pointermove', onPointerMove);
+    document.removeEventListener('pointerup', onPointerUp);
+    const rect = floatie.getBoundingClientRect();
+    localStorage.setItem(POS_KEY, JSON.stringify({ left: rect.left, top: rect.top }));
+  }
+
+  handle.addEventListener('pointerdown', onPointerDown);
+
+  window.dismissTrialFloatie = function() {
+    floatie.classList.remove('show');
+    localStorage.setItem(DISMISS_KEY, '1');
+  };
+
+  // Only reveal it once we know the launch offer is still live
+  (async () => {
+    try {
+      const { data: slotsLeft } = await db.rpc('get_trial_slots_left');
+      const n = typeof slotsLeft === 'number' ? slotsLeft : 0;
+      if (n <= 0) return;
+      document.getElementById('floatie-spots').textContent = `Only ${n} spot${n === 1 ? '' : 's'} left`;
+      floatie.classList.add('show');
+    } catch(e) { /* fail silently — stays hidden */ }
+  })();
+})();
 </script>
 </body>
 </html>
