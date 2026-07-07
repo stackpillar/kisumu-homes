@@ -166,6 +166,7 @@
     .badge.standard { background: var(--surface); color: var(--text-3); }
     .badge.paid     { background: var(--green-light); color: var(--green-dark); }
     .badge.unpaid   { background: var(--red-light); color: var(--red); }
+    .badge.trial    { background: var(--blue-light); color: var(--blue); }
     .badge::before  { content: ''; width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
 
     /* ACTION BUTTONS — desktop */
@@ -389,6 +390,7 @@
     <button class="nav-item" data-view="enquiries" onclick="showView('enquiries')">
       <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
       Enquiries
+      <span class="nav-badge" id="nav-badge-enquiries">—</span>
     </button>
     <div class="nav-section-label" style="margin-top:8px">Comms</div>
     <a href="admin-chat.html" class="nav-item" id="nav-livechat">
@@ -606,13 +608,25 @@
     <!-- ENQUIRIES -->
     <div class="view" id="view-enquiries">
       <div class="card">
-        <div class="card-header"><span class="card-title">Buyer enquiries</span></div>
-        <div class="table-wrap">
+        <div class="card-header">
+          <span class="card-title">Enquiries & chats</span>
+          <span style="font-size:12px;color:var(--text-3)" id="enquiries-count"></span>
+        </div>
+        <div class="tab-bar">
+          <button class="tab-btn active" id="etab-all"      onclick="setEnqTab('all')">All <span class="count" id="etc-all">—</span></button>
+          <button class="tab-btn"        id="etab-enquiry"  onclick="setEnqTab('enquiry')">Buyer enquiries <span class="count" id="etc-enquiry">—</span></button>
+          <button class="tab-btn"        id="etab-message"  onclick="setEnqTab('message')">Listing messages <span class="count" id="etc-message">—</span></button>
+          <button class="tab-btn"        id="etab-site_chat" onclick="setEnqTab('site_chat')">Site chat <span class="count" id="etc-site_chat">—</span></button>
+          <button class="tab-btn"        id="etab-seller_chat" onclick="setEnqTab('seller_chat')">Seller support <span class="count" id="etc-seller_chat">—</span></button>
+        </div>
+        <p style="padding:0 22px 14px;font-size:12px;color:var(--text-3)">Every buyer enquiry, buyer↔seller message, and support chat on the platform shows up here for moderation.</p>
+        <div class="table-wrap mobile-hide">
           <table>
-            <thead><tr><th>Buyer</th><th>Listing</th><th>Phone</th><th>Message</th><th>Date</th></tr></thead>
-            <tbody id="enquiries-body"><tr class="skeleton-row"><td colspan="5"><div class="skel"></div></td></tr></tbody>
+            <thead><tr><th>Type</th><th>Person</th><th>Related to</th><th>Message</th><th>Date</th><th>Action</th></tr></thead>
+            <tbody id="enquiries-body"><tr class="skeleton-row"><td colspan="6"><div class="skel"></div></td></tr></tbody>
           </table>
         </div>
+        <div class="mobile-card-list" id="enquiries-mobile"></div>
       </div>
     </div>
 
@@ -702,6 +716,15 @@
       <button class="btn-modal cancel" onclick="closeConfirmModal()">Cancel</button>
       <button class="btn-modal reject" id="confirm-action-btn">Confirm</button>
     </div>
+  </div>
+</div>
+
+<!-- INQUIRY THREAD MODAL -->
+<div class="modal-overlay" id="inquiry-modal" onclick="handleOverlayClick(event,'inquiry-modal')">
+  <div class="modal" style="max-width:520px">
+    <div class="modal-header"><h3 id="inquiry-modal-title">Conversation</h3><button class="modal-close" onclick="closeInquiryModal()">×</button></div>
+    <div class="modal-body" id="inquiry-modal-body"></div>
+    <div class="modal-footer" id="inquiry-modal-footer"></div>
   </div>
 </div>
 
@@ -968,9 +991,12 @@
     tbody.innerHTML = data.map(l => {
       const cover = (l.listing_photos||[]).find(p=>p.is_cover)||(l.listing_photos||[])[0];
       const thumb = cover ? `<img src="${esc(cover.url)}" alt=""/>` : `<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>`;
-      const payClass = l.payment_status==='paid'?'paid':l.payment_status==='submitted'?'pending':'unpaid';
+      const payClass = l.payment_status==='paid'?'paid':l.payment_status==='trial'?'trial':l.payment_status==='submitted'?'pending':'unpaid';
       const menuItems = [
-        ...(l.status==='pending'?[{label:'✓ Approve', cls:'success', fn:`approveListing('${l.id}')`}]:[]),
+        ...(l.status==='pending'?[
+          {label:'✓ Approve', cls:'success', fn:`approveListing('${l.id}')`},
+          {label:'✕ Reject',  cls:'danger',  fn:`rejectListing('${l.id}')`},
+        ]:[]),
         ...(l.status==='active'&&!l.is_featured?[{label:'★ Feature', cls:'gold', fn:`featureListing('${l.id}')`}]:[]),
         {label:'View details', cls:'', fn:`openListingModal('${l.id}')`},
         {label:'Edit listing',  cls:'', fn:`openEditListingModal('${l.id}')`},
@@ -994,7 +1020,7 @@
         <td>${fmtDate(l.created_at)}</td>
         <td>
           <div class="action-btns">
-            ${l.status==='pending'?`<button class="action-btn approve" onclick="approveListing('${l.id}')">Approve</button>`:''}
+            ${l.status==='pending'?`<button class="action-btn approve" onclick="approveListing('${l.id}')">Approve</button><button class="action-btn reject" onclick="rejectListing('${l.id}')">Reject</button>`:''}
             ${l.status==='active'&&!l.is_featured?`<button class="action-btn feature" onclick="featureListing('${l.id}')">Feature</button>`:''}
             <button class="action-btn view"   onclick="openEditListingModal('${l.id}')">Edit</button>
             <button class="action-btn view"   onclick="openListingModal('${l.id}')">View</button>
@@ -1012,7 +1038,7 @@
     mobileEl.innerHTML = data.map(l => {
       const cover = (l.listing_photos||[]).find(p=>p.is_cover)||(l.listing_photos||[])[0];
       const thumb = cover ? `<img src="${esc(cover.url)}" alt=""/>` : `<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>`;
-      const payClass = l.payment_status==='paid'?'paid':l.payment_status==='submitted'?'pending':'unpaid';
+      const payClass = l.payment_status==='paid'?'paid':l.payment_status==='trial'?'trial':l.payment_status==='submitted'?'pending':'unpaid';
       return `<div class="mobile-card">
         <div class="mobile-card-header">
           <div class="thumb-img" style="width:52px;height:42px">${thumb}</div>
@@ -1029,7 +1055,7 @@
           <div class="mobile-card-row"><span>Posted</span><span>${fmtDate(l.created_at)}</span></div>
         </div>
         <div class="mobile-card-actions">
-          ${l.status==='pending'?`<button class="action-btn approve" onclick="approveListing('${l.id}')">Approve</button>`:''}
+          ${l.status==='pending'?`<button class="action-btn approve" onclick="approveListing('${l.id}')">Approve</button><button class="action-btn reject" onclick="rejectListing('${l.id}')">Reject</button>`:''}
           <button class="action-btn view" onclick="openListingModal('${l.id}')">View</button>
           <button class="action-btn view" onclick="openEditListingModal('${l.id}')">Edit</button>
           ${l.is_disabled
@@ -1088,7 +1114,7 @@
   // ─── Listing actions (all take an ID, look up from store) ───
   function approveListing(id) {
     const l = _listings[id]; if(!l) return;
-    if (l.payment_status!=='paid') {
+    if (l.payment_status!=='paid' && l.payment_status!=='trial') {
       openConfirm({title:'Approve unpaid listing?', message:`"${l.title}" hasn't been confirmed as paid (${l.payment_status||'unpaid'}). You can approve anyway.`, warningText:'⚠ This listing will go live without a confirmed payment.', confirmText:'Approve anyway', confirmClass:'approve', onConfirm:()=>doApprove(id,l.title)});
     } else { doApprove(id,l.title); }
   }
@@ -1255,8 +1281,9 @@
       <div class="field"><label>Area</label><div class="val">${esc(l.area)}${l.sub_area?' — '+esc(l.sub_area):''}</div></div>
       <div class="field"><label>Bedrooms</label><div class="val">${l.bedrooms==0?'Bedsitter/studio':(l.bedrooms+' bedroom(s)')}</div></div>
       <div class="field"><label>Furnished</label><div class="val">${l.furnished?'Yes':'No'}</div></div>
-      <div class="field"><label>Plan</label><div class="val">${l.is_featured?'Featured (KES 2,500)':'Standard (KES 800)'}</div></div>
-      <div class="field"><label>Payment</label><div class="val"><span class="badge ${l.payment_status==='paid'?'paid':'unpaid'}">${l.payment_status||'unpaid'}</span></div></div>
+      <div class="field"><label>Plan</label><div class="val">${l.payment_status==='trial'?'7-day free trial':(l.is_featured?'Featured (KES 2,500)':'Standard (KES 800)')}</div></div>
+      <div class="field"><label>Payment</label><div class="val"><span class="badge ${l.payment_status==='paid'?'paid':l.payment_status==='trial'?'trial':'unpaid'}">${l.payment_status==='trial'?'trial':(l.payment_status||'unpaid')}</span></div></div>
+      ${l.trial_expires_at?`<div class="field"><label>Trial expires</label><div class="val">${fmtDate(l.trial_expires_at)}</div></div>`:''}
       <div class="field"><label>Listing ID</label><div class="val mono">${l.id}</div></div>
       <div class="field"><label>Posted</label><div class="val">${fmtDate(l.created_at)}</div></div>
       ${l.description?`<div class="field"><label>Description</label><div class="val" style="font-size:13px;color:var(--text-2);line-height:1.6">${esc(l.description)}</div></div>`:''}`;
@@ -1584,23 +1611,211 @@ async function messageSellerInChat(sellerId, sellerName) {
     logAction('delete_profile','profile',id,''); toast('Profile deleted','success'); loadUsers();
   }
 
-  // ─── ENQUIRIES ───
+  // ─── ENQUIRIES / CHATS (unified moderation feed) ───
+  // Pulls together three separate sources so nothing buyers or sellers
+  // say to each other happens outside the admin's view:
+  //   1. `enquiries`      — the listing enquiry form buyers submit
+  //   2. `messages`       — buyer↔seller chat threads tied to a listing
+  //   3. `chat_sessions`  — the site-wide live chat widget + seller support chat
+  let _enqItems = [];
+  let enqTab = 'all';
+  const _enqThreads = {}; // id -> full thread array, for the "View" modal
+
   async function loadEnquiries() {
-    const tbody = document.getElementById('enquiries-body');
-    tbody.innerHTML = `<tr class="skeleton-row"><td colspan="5"><div class="skel"></div></td></tr>`.repeat(4);
-    const {data,error} = await db.from('enquiries').select('*, listings(title, area)').order('created_at',{ascending:false}).limit(100);
-    if(error||!data?.length){
-      tbody.innerHTML = `<tr><td colspan="5"><div class="table-loading"><p>No enquiries yet</p></div></td></tr>`;
+    const tbody    = document.getElementById('enquiries-body');
+    const mobileEl = document.getElementById('enquiries-mobile');
+    tbody.innerHTML    = `<tr class="skeleton-row"><td colspan="6"><div class="skel"></div></td></tr>`.repeat(4);
+    mobileEl.innerHTML = '';
+
+    const [{data: enqData}, {data: msgData}, {data: chatData}] = await Promise.all([
+      db.from('enquiries').select('*, listings(title, area)').order('created_at',{ascending:false}).limit(200),
+      db.from('messages').select('*, listings(title, area, seller_id)').order('created_at',{ascending:true}).limit(500),
+      db.from('chat_sessions').select('*').order('last_msg_at',{ascending:false}).limit(200),
+    ]);
+
+    const items = [];
+
+    // 1. Buyer enquiries — one row each
+    (enqData||[]).forEach(e => {
+      items.push({
+        type:'enquiry', id:'enq-'+e.id, unread: !e.admin_read_at,
+        name: e.buyer_name || 'Unknown buyer', contact: e.buyer_phone || e.buyer_email || '',
+        related: e.listings?.title ? `${e.listings.title} · ${e.listings.area||''}` : '—',
+        preview: e.message || '', date: e.created_at,
+      });
+      _enqThreads['enq-'+e.id] = { kind:'enquiry', rawId:e.id, name:e.buyer_name, contact:e.buyer_phone||e.buyer_email, related:e.listings?.title||'—', body:e.message||'' };
+    });
+
+    // 2. Listing messages — grouped into buyer↔seller threads
+    const threadMap = new Map();
+    (msgData||[]).forEach(m => {
+      const key = `msg-${m.listing_id}__${m.buyer_token || m.buyer_phone || 'anon'}`;
+      if (!threadMap.has(key)) threadMap.set(key, []);
+      threadMap.get(key).push(m);
+    });
+    threadMap.forEach((msgs, key) => {
+      msgs.sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
+      const last = msgs[msgs.length-1];
+      const unread = msgs.some(m => !m.admin_read_at);
+      items.push({
+        type:'message', id:key, unread,
+        name: last.buyer_name || 'Buyer', contact: last.buyer_phone || '',
+        related: last.listings?.title ? `${last.listings.title} · ${last.listings.area||''}` : '—',
+        preview: (last.sender==='seller'?'Seller: ':'Buyer: ') + (last.content || last.message || ''),
+        date: last.created_at,
+      });
+      _enqThreads[key] = { kind:'message', name:last.buyer_name||'Buyer', contact:last.buyer_phone||'', related:last.listings?.title||'—', messages:msgs };
+    });
+
+    // 3. Chat sessions — live site chat + seller support chat (view-only pointer into admin-chat.html;
+    //    unread_admin here is the SAME field admin-chat.html already manages — we only read it, never reset it,
+    //    so opening this feed never interferes with Live Chat's own read tracking)
+    (chatData||[]).forEach(c => {
+      const isSeller = c.session_type === 'seller';
+      items.push({
+        type: isSeller ? 'seller_chat' : 'site_chat',
+        id:'chat-'+c.id, unread: (c.unread_admin||0) > 0,
+        name: c.visitor_name || (isSeller ? 'Seller' : 'Site visitor'),
+        contact:'', related: c.page || '—',
+        preview: c.is_resolved ? '(resolved conversation)' : `(${c.unread_admin||0} unread from them)`,
+        date: c.last_msg_at || c.created_at,
+        sessionId: c.id,
+      });
+    });
+
+    items.sort((a,b)=> new Date(b.date) - new Date(a.date));
+    _enqItems = items;
+
+    // Tab counts
+    const counts = { all: items.length, enquiry:0, message:0, site_chat:0, seller_chat:0 };
+    items.forEach(i => { if (counts[i.type] !== undefined) counts[i.type]++; });
+    Object.entries(counts).forEach(([k,v]) => { const el=document.getElementById('etc-'+k); if(el) el.textContent = v; });
+    const enqNavBadge = document.getElementById('nav-badge-enquiries');
+    if (enqNavBadge) enqNavBadge.textContent = counts.all;
+
+    renderEnquiriesTable();
+  }
+
+  function setEnqTab(tab) {
+    enqTab = tab;
+    document.querySelectorAll('#view-enquiries .tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('etab-'+tab)?.classList.add('active');
+    renderEnquiriesTable();
+  }
+
+  const ENQ_TYPE_LABEL = { enquiry:'Enquiry', message:'Listing chat', site_chat:'Site chat', seller_chat:'Seller support' };
+  const ENQ_TYPE_BADGE_CLASS = { enquiry:'active', message:'featured', site_chat:'pending', seller_chat:'unpaid' };
+
+  function renderEnquiriesTable() {
+    const tbody    = document.getElementById('enquiries-body');
+    const mobileEl = document.getElementById('enquiries-mobile');
+    const filtered = enqTab==='all' ? _enqItems : _enqItems.filter(i => i.type===enqTab);
+
+    document.getElementById('enquiries-count').textContent = `${filtered.length} item${filtered.length!==1?'s':''}`;
+
+    if (!filtered.length) {
+      tbody.innerHTML    = `<tr><td colspan="6"><div class="table-loading"><p>Nothing here yet</p></div></td></tr>`;
+      mobileEl.innerHTML = `<div class="table-loading"><p>Nothing here yet</p></div>`;
       return;
     }
-    tbody.innerHTML = data.map(e => `<tr>
-      <td><div style="font-weight:500">${esc(e.buyer_name)}</div><div style="font-size:11px;color:var(--text-3)">${esc(e.buyer_email||'')}</div></td>
-      <td>${esc(e.listings?.title||'—')}<br/><span style="font-size:11px;color:var(--text-3)">${esc(e.listings?.area||'')}</span></td>
-      <td>${esc(e.buyer_phone)}</td>
-      <td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text-2)">${esc(e.message||'—')}</td>
-      <td>${fmtDate(e.created_at)}</td>
-    </tr>`).join('');
+
+    tbody.innerHTML = filtered.map(i => {
+      const actionBtn = (i.type==='site_chat'||i.type==='seller_chat')
+        ? `<button class="action-btn message" onclick="window.open('admin-chat.html?session=${i.sessionId}','_blank')">Open chat</button>`
+        : `<button class="action-btn view" onclick="openInquiryModal('${i.id}')">View</button>`;
+      const unreadDot = i.unread ? `<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--red);margin-right:7px;flex-shrink:0"></span>` : '';
+      return `<tr>
+        <td><span class="badge ${ENQ_TYPE_BADGE_CLASS[i.type]}">${ENQ_TYPE_LABEL[i.type]}</span></td>
+        <td><div style="font-weight:${i.unread?700:500};display:flex;align-items:center">${unreadDot}${esc(i.name)}</div>${i.contact?`<div style="font-size:11px;color:var(--text-3)">${esc(i.contact)}</div>`:''}</td>
+        <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(i.related)}</td>
+        <td style="max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text-2)">${esc(i.preview||'—')}</td>
+        <td>${fmtDate(i.date)}</td>
+        <td>${actionBtn}</td>
+      </tr>`;
+    }).join('');
+
+    mobileEl.innerHTML = filtered.map(i => {
+      const actionBtn = (i.type==='site_chat'||i.type==='seller_chat')
+        ? `<button class="action-btn message" style="flex:1" onclick="window.open('admin-chat.html?session=${i.sessionId}','_blank')">Open chat</button>`
+        : `<button class="action-btn view" style="flex:1" onclick="openInquiryModal('${i.id}')">View</button>`;
+      const unreadDot = i.unread ? `<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--red);margin-right:6px;flex-shrink:0"></span>` : '';
+      return `<div class="mobile-card">
+        <div class="mobile-card-header">
+          <div style="flex:1;min-width:0">
+            <div style="font-weight:${i.unread?700:600};font-size:13px;display:flex;align-items:center">${unreadDot}${esc(i.name)}</div>
+            <div style="font-size:11px;color:var(--text-3)">${esc(i.related)}</div>
+          </div>
+          <span class="badge ${ENQ_TYPE_BADGE_CLASS[i.type]}">${ENQ_TYPE_LABEL[i.type]}</span>
+        </div>
+        <div class="mobile-card-body">
+          <div class="mobile-card-row"><span>Message</span><span style="text-align:right;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(i.preview||'—')}</span></div>
+          <div class="mobile-card-row"><span>Date</span><span>${fmtDate(i.date)}</span></div>
+        </div>
+        <div class="mobile-card-actions">${actionBtn}</div>
+      </div>`;
+    }).join('');
   }
+
+  // ─── Mark an enquiry/message item as read (called when the admin opens an individual thread) ───
+  async function markInquiryRead(id) {
+    const t = _enqThreads[id]; if (!t) return;
+    if (t.kind === 'enquiry') {
+      await db.from('enquiries').update({ admin_read_at: new Date().toISOString() }).eq('id', t.rawId);
+    } else if (t.kind === 'message') {
+      const unreadIds = (t.messages||[]).filter(m => !m.admin_read_at).map(m => m.id);
+      if (unreadIds.length) await db.from('messages').update({ admin_read_at: new Date().toISOString() }).in('id', unreadIds);
+    }
+    const item = _enqItems.find(i => i.id === id);
+    if (item) item.unread = false;
+    renderEnquiriesTable();
+    loadEnquiriesBadge();
+  }
+
+  // ─── Mark EVERYTHING currently in the feed as read the moment the Enquiries
+  // tab is opened. Only enquiries/messages that arrive AFTER this point will
+  // badge up again — chat_sessions.unread_admin is left untouched since that's
+  // Live Chat's own read-tracking, not ours to reset. ───
+  async function markAllEnquiriesRead() {
+    const nowIso = new Date().toISOString();
+    await Promise.all([
+      db.from('enquiries').update({ admin_read_at: nowIso }).is('admin_read_at', null),
+      db.from('messages').update({ admin_read_at: nowIso }).is('admin_read_at', null),
+    ]);
+    _enqItems.forEach(i => { if (i.type === 'enquiry' || i.type === 'message') i.unread = false; });
+    renderEnquiriesTable();
+    loadEnquiriesBadge();
+  }
+
+  // ─── Thread view modal (enquiry text or full listing-chat thread) ───
+  function openInquiryModal(id) {
+    const t = _enqThreads[id]; if (!t) return;
+    document.getElementById('inquiry-modal-title').textContent = t.related || 'Conversation';
+    let body = '';
+    if (t.kind === 'enquiry') {
+      body = `
+        <div class="field"><label>From</label><div class="val">${esc(t.name)}${t.contact?' · '+esc(t.contact):''}</div></div>
+        <div class="field"><label>Listing</label><div class="val">${esc(t.related)}</div></div>
+        <div class="field"><label>Message</label><div class="val" style="font-size:13px;color:var(--text-2);line-height:1.6">${esc(t.body||'—')}</div></div>`;
+    } else {
+      body = `
+        <div class="field"><label>Between</label><div class="val">${esc(t.name)}${t.contact?' · '+esc(t.contact):''} and the seller</div></div>
+        <div class="field"><label>Listing</label><div class="val">${esc(t.related)}</div></div>
+        <div class="field"><label>Full conversation</label>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-top:6px">
+            ${t.messages.map(m => `
+              <div style="align-self:${m.sender==='seller'?'flex-end':'flex-start'};max-width:85%">
+                <div style="font-size:11px;color:var(--text-3);margin-bottom:2px">${m.sender==='seller'?'Seller':'Buyer'} · ${new Date(m.created_at).toLocaleString('en-KE')}</div>
+                <div style="background:${m.sender==='seller'?'var(--green-light)':'var(--surface)'};border-radius:10px;padding:8px 12px;font-size:13px;color:var(--text-2)">${esc(m.content||m.message||'')}</div>
+              </div>`).join('')}
+          </div>
+        </div>`;
+    }
+    document.getElementById('inquiry-modal-body').innerHTML = body;
+    document.getElementById('inquiry-modal-footer').innerHTML = `<button class="btn-modal cancel" onclick="closeInquiryModal()">Close</button>`;
+    document.getElementById('inquiry-modal').classList.add('open');
+    markInquiryRead(id); // only fires for enquiry/message kinds — chat items never call openInquiryModal
+  }
+  function closeInquiryModal() { document.getElementById('inquiry-modal').classList.remove('open'); }
 
   // ─── ANALYTICS ───
   async function loadAnalytics() {
@@ -1707,7 +1922,7 @@ async function messageSellerInChat(sellerId, sellerName) {
     if(v==='recycle-bin')  loadRecycleBin();
     if(v==='payments')     loadPayments();
     if(v==='users')        loadUsers();
-    if(v==='enquiries')    loadEnquiries();
+    if(v==='enquiries')    loadEnquiries().then(markAllEnquiriesRead);
     if(v==='analytics')    loadAnalytics();
     if(v==='activity-log') loadActivityLog();
   }
@@ -1732,12 +1947,26 @@ async function messageSellerInChat(sellerId, sellerName) {
 
   async function doLogout() { await db.auth.signOut(); window.location.href='login.html'; }
 
+  // ─── Enquiries badge (counts only UNREAD items — clears as you view them) ───
+  async function loadEnquiriesBadge() {
+    const [{count:enqUnread}, {count:msgUnread}, {data:chatRows}] = await Promise.all([
+      db.from('enquiries').select('*',{count:'exact',head:true}).is('admin_read_at', null),
+      db.from('messages').select('*',{count:'exact',head:true}).is('admin_read_at', null),
+      db.from('chat_sessions').select('unread_admin').eq('is_resolved', false),
+    ]);
+    const chatUnread = (chatRows||[]).reduce((s,r)=>s+(r.unread_admin||0),0);
+    const total = (enqUnread||0) + (msgUnread||0) + chatUnread;
+    const el = document.getElementById('nav-badge-enquiries');
+    if (el) el.textContent = total;
+  }
+
   // ─── INIT ───
   async function init() {
     await checkAuth();
     loadOverview();
     loadChatBadge();
     subscribeChatBadge();
+    loadEnquiriesBadge();
   }
   init();
 </script>
