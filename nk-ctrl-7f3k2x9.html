@@ -1655,13 +1655,15 @@ async function messageSellerInChat(sellerId, sellerName) {
     });
     threadMap.forEach((msgs, key) => {
       msgs.sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
-      const last = msgs[msgs.length-1];
-      const unread = msgs.some(m => !m.admin_read_at);
+      const buyerMsgs = msgs.filter(m => m.sender === 'buyer');
+      if (!buyerMsgs.length) return; // seller-only thread (no buyer message yet) — nothing to surface
+      const last = buyerMsgs[buyerMsgs.length-1]; // last BUYER message drives the preview/date, not seller replies
+      const unread = buyerMsgs.some(m => !m.admin_read_at);
       items.push({
         type:'message', id:key, unread,
         name: last.buyer_name || 'Buyer', contact: last.buyer_phone || '',
         related: last.listings?.title ? `${last.listings.title} · ${last.listings.area||''}` : '—',
-        preview: (last.sender==='seller'?'Seller: ':'Buyer: ') + (last.content || last.message || ''),
+        preview: last.content || last.message || '',
         date: last.created_at,
       });
       _enqThreads[key] = { kind:'message', name:last.buyer_name||'Buyer', contact:last.buyer_phone||'', related:last.listings?.title||'—', messages:msgs };
@@ -1762,7 +1764,7 @@ async function messageSellerInChat(sellerId, sellerName) {
     if (t.kind === 'enquiry') {
       await db.from('enquiries').update({ admin_read_at: new Date().toISOString() }).eq('id', t.rawId);
     } else if (t.kind === 'message') {
-      const unreadIds = (t.messages||[]).filter(m => !m.admin_read_at).map(m => m.id);
+      const unreadIds = (t.messages||[]).filter(m => m.sender === 'buyer' && !m.admin_read_at).map(m => m.id);
       if (unreadIds.length) await db.from('messages').update({ admin_read_at: new Date().toISOString() }).in('id', unreadIds);
     }
     const item = _enqItems.find(i => i.id === id);
@@ -1779,7 +1781,7 @@ async function messageSellerInChat(sellerId, sellerName) {
     const nowIso = new Date().toISOString();
     await Promise.all([
       db.from('enquiries').update({ admin_read_at: nowIso }).is('admin_read_at', null),
-      db.from('messages').update({ admin_read_at: nowIso }).is('admin_read_at', null),
+      db.from('messages').update({ admin_read_at: nowIso }).eq('sender', 'buyer').is('admin_read_at', null),
     ]);
     _enqItems.forEach(i => { if (i.type === 'enquiry' || i.type === 'message') i.unread = false; });
     renderEnquiriesTable();
@@ -1951,7 +1953,7 @@ async function messageSellerInChat(sellerId, sellerName) {
   async function loadEnquiriesBadge() {
     const [{count:enqUnread}, {count:msgUnread}, {data:chatRows}] = await Promise.all([
       db.from('enquiries').select('*',{count:'exact',head:true}).is('admin_read_at', null),
-      db.from('messages').select('*',{count:'exact',head:true}).is('admin_read_at', null),
+      db.from('messages').select('*',{count:'exact',head:true}).eq('sender','buyer').is('admin_read_at', null),
       db.from('chat_sessions').select('unread_admin').eq('is_resolved', false),
     ]);
     const chatUnread = (chatRows||[]).reduce((s,r)=>s+(r.unread_admin||0),0);
