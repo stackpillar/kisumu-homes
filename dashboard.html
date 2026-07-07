@@ -90,6 +90,9 @@
     .status-disabled{background:var(--red-light);color:var(--red)}
 
     .disabled-note{font-size:11px;color:var(--red);background:var(--red-light);border-radius:6px;padding:6px 9px;margin-top:6px;line-height:1.5;max-width:300px}
+    .trial-note{font-size:11px;color:var(--blue,#185FA5);background:#E6F1FB;border-radius:6px;padding:6px 9px;margin-top:6px;line-height:1.5;max-width:320px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+    .trial-note .upgrade-link{color:var(--green-dark);font-weight:700;text-decoration:underline;cursor:pointer}
+    .trial-note.urgent{color:var(--red);background:var(--red-light)}
     .icon-btn.locked{opacity:.45;cursor:not-allowed}
     .icon-btn.locked:hover{border-color:var(--border);color:var(--text-2);background:white}
 
@@ -1041,10 +1044,29 @@ function renderChart() {
 function renderQuickListings() {
   const el=document.getElementById('quick-listings');
   if(!allListings.length){el.innerHTML=`<div style="text-align:center;padding:20px 0;color:var(--text-3);font-size:13px">No listings yet. <a href="post-listing.html" style="color:var(--green);font-weight:500">Post one →</a></div>`;return;}
-  el.innerHTML=allListings.slice(0,5).map(l=>{const cover=(l.listing_photos||[]).find(p=>p.is_cover)||(l.listing_photos||[])[0];const img=cover?`<img src="${cover.url}" alt=""/>`:`<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>`;const d=getListingStatusDisplay(l);return `<div class="quick-listing"><div class="quick-img">${img}</div><div style="flex:1;min-width:0"><div class="quick-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(l.title)}</div><div class="quick-meta" style="${l.is_disabled?'color:var(--red)':''}">${l.area} · ${d.label}</div></div><div class="quick-price">KES ${Number(l.price).toLocaleString('en-KE')}${l.price_type==='rent'?'/mo':''}</div></div>`;}).join('');
+  el.innerHTML=allListings.slice(0,5).map(l=>{const cover=(l.listing_photos||[]).find(p=>p.is_cover)||(l.listing_photos||[])[0];const img=cover?`<img src="${cover.url}" alt=""/>`:`<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>`;const d=getListingStatusDisplay(l);const trialDays=getTrialDaysLeft(l);const trialTxt=trialDays!==null?` · Trial: ${trialDays}d left`:'';return `<div class="quick-listing"><div class="quick-img">${img}</div><div style="flex:1;min-width:0"><div class="quick-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(l.title)}</div><div class="quick-meta" style="${l.is_disabled?'color:var(--red)':''}">${l.area} · ${d.label}${trialTxt}</div></div><div class="quick-price">KES ${Number(l.price).toLocaleString('en-KE')}${l.price_type==='rent'?'/mo':''}</div></div>`;}).join('');
 }
 
 function filterListings(status,el){listingFilter=status;document.querySelectorAll('#page-listings .filter-pill').forEach(p=>p.classList.remove('active'));el.classList.add('active');renderListingsTable();}
+
+// ── Trial helpers ──
+// Returns days left in a listing's 7-day free trial, or null if it isn't on a trial.
+function getTrialDaysLeft(l) {
+  if (l.payment_status !== 'trial' && !l.is_trial) return null;
+  if (!l.trial_expires_at) return null;
+  const diffMs = new Date(l.trial_expires_at) - new Date();
+  return Math.max(0, Math.ceil(diffMs / 86400000));
+}
+
+// Opens the Live Support widget and sends a pre-filled upgrade request on the seller's behalf.
+function requestTrialUpgrade(title) {
+  if (!lswOpen) lswToggle();
+  const msg = `Hi, I'd like to upgrade my listing "${title}" from the free trial to a paid plan (Standard or Featured). Could you help me with payment?`;
+  setTimeout(() => {
+    const input = document.getElementById('lsw-input');
+    if (input) { input.value = msg; lswSend(); }
+  }, 400);
+}
 
 function renderListingsTable() {
   const q=(document.getElementById('listing-search')?.value||'').toLowerCase();
@@ -1058,8 +1080,12 @@ function renderListingsTable() {
     const uc=threads.filter(t=>t.listing_id===l.id).reduce((s,t)=>s+(t.unread_count||0),0);
     const posted=new Date(l.created_at).toLocaleDateString('en-KE',{day:'numeric',month:'short',year:'numeric'});
     const d=getListingStatusDisplay(l);
+    const trialDays=getTrialDaysLeft(l);
+    const trialNote = trialDays!==null
+      ? `<div class="trial-note${trialDays<=2?' urgent':''}">🕐 Free trial — ${trialDays} day${trialDays!==1?'s':''} left <span class="upgrade-link" onclick="requestTrialUpgrade('${escAttr(l.title)}')">Upgrade now</span></div>`
+      : '';
     return `<tr>
-      <td><div class="listing-name-cell"><div class="listing-thumb">${img}</div><div><div class="listing-title-text">${escHtml(l.title)}</div><div class="listing-area-text">${l.area}${l.sub_area?' · '+l.sub_area:''}</div>${d.banner?`<div class="disabled-note">${d.banner}</div>`:''}</div></div></td>
+      <td><div class="listing-name-cell"><div class="listing-thumb">${img}</div><div><div class="listing-title-text">${escHtml(l.title)}</div><div class="listing-area-text">${l.area}${l.sub_area?' · '+l.sub_area:''}</div>${d.banner?`<div class="disabled-note">${d.banner}</div>`:''}${trialNote}</div></div></td>
       <td><div class="listing-price-text">KES ${Number(l.price).toLocaleString('en-KE')}${l.price_type==='rent'?'/mo':''}</div><div class="listing-price-sub">${l.price_type==='rent'?'Monthly rent':'For sale'}</div></td>
       <td><span class="status ${d.cls}">${d.label}</span></td>
       <td><span style="font-size:13px;font-weight:600;color:${mc>0?'var(--green-dark)':'var(--text-3)'}">${mc}${uc>0?` <span style="color:var(--red);font-size:11px">(${uc} new)</span>`:''}</span></td>
