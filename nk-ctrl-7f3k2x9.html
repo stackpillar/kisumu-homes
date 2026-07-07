@@ -1452,7 +1452,7 @@ async function loadUsers() {
         </div></td>
         <td>${esc(u.phone || '—')}</td>
         <td>${u.listingCount}</td>
-        <td>${u.is_disabled ? '<span class="badge rejected">disabled</span>' : '<span class="badge active">active</span>'}</td>
+        <td>${u.is_disabled ? '<span class="badge rejected">suspended</span>' : '<span class="badge active">active</span>'}</td>
         <td>${fmtDate(u.created_at)}</td>
         <td>
           <div class="action-btns">
@@ -1461,6 +1461,9 @@ async function loadUsers() {
             <button class="action-btn message" onclick="messageSellerInChat('${u.id}','${esc(u.full_name || 'Seller')}')">
               Message${msgBadge(u.unreadFromSeller)}
             </button>
+            ${u.is_disabled
+              ? `<button class="action-btn approve" onclick="enableProfile('${u.id}')">Reinstate</button>`
+              : `<button class="action-btn reject" onclick="disableProfileFlow('${u.id}')">Suspend</button>`}
           </div>
           ${mobileMenu(u.id, [
             { label: 'Manage profile', cls: '',     fn: `openProfileModal('${u.id}')` },
@@ -1469,6 +1472,9 @@ async function loadUsers() {
                 ? `Message (${u.unreadFromSeller} new)`
                 : 'Send message',
               cls: 'blue', fn: `messageSellerInChat('${u.id}','${esc(u.full_name || 'Seller')}')` },
+            u.is_disabled
+              ? { label: 'Reinstate account', cls: 'success', fn: `enableProfile('${u.id}')` }
+              : { label: 'Suspend account',   cls: 'danger',  fn: `disableProfileFlow('${u.id}')` },
           ])}
         </td>
       </tr>`;
@@ -1483,7 +1489,7 @@ async function loadUsers() {
             <div style="font-weight:600;font-size:13px">${esc(u.full_name || '—')}</div>
             <div style="font-size:11px;color:var(--text-3)">${esc(u.email || '')} · ${u.listingCount} listing(s)</div>
           </div>
-          ${u.is_disabled ? '<span class="badge rejected">disabled</span>' : '<span class="badge active">active</span>'}
+          ${u.is_disabled ? '<span class="badge rejected">suspended</span>' : '<span class="badge active">active</span>'}
         </div>
         <div class="mobile-card-body">
           <div class="mobile-card-row"><span>Phone</span><span>${esc(u.phone || '—')}</span></div>
@@ -1498,6 +1504,9 @@ async function loadUsers() {
           <button class="action-btn message" onclick="messageSellerInChat('${u.id}','${esc(u.full_name || 'Seller')}')">
             Message${msgBadge(u.unreadFromSeller)}
           </button>
+          ${u.is_disabled
+            ? `<button class="action-btn approve" onclick="enableProfile('${u.id}')">Reinstate</button>`
+            : `<button class="action-btn reject" onclick="disableProfileFlow('${u.id}')">Suspend</button>`}
         </div>
       </div>`;
     }).join('');
@@ -1536,7 +1545,7 @@ async function messageSellerInChat(sellerId, sellerName) {
     editingProfileId = u.id;
     document.getElementById('profile-modal-title').textContent = u.full_name||'Seller profile';
     document.getElementById('profile-modal-body').innerHTML = `
-      ${u.is_disabled?`<div class="confirm-warning" style="margin-bottom:14px">Account disabled${u.disabled_reason?': '+esc(u.disabled_reason):''}</div>`:''}
+      ${u.is_disabled?`<div class="confirm-warning" style="margin-bottom:14px">Account suspended${u.disabled_reason?': '+esc(u.disabled_reason):''}</div>`:''}
       <div class="field"><label>Full name</label><input type="text" id="pf-full_name" value="${esc(u.full_name||'')}"/></div>
       <div class="field"><label>Phone</label><input type="text" id="pf-phone" value="${esc(u.phone||'')}"/></div>
       <div class="field"><label>Email</label><input type="text" id="pf-email" value="${esc(u.email||'')}"/></div>
@@ -1549,8 +1558,8 @@ async function messageSellerInChat(sellerId, sellerName) {
     document.getElementById('profile-modal-footer').innerHTML = `
       <button class="btn-modal cancel"  onclick="closeProfileModal()">Cancel</button>
       ${u.is_disabled
-        ? `<button class="btn-modal approve" onclick="enableProfile('${u.id}')">Enable account</button>`
-        : `<button class="btn-modal reject"  onclick="disableProfileFlow('${u.id}')">Disable account</button>`}
+        ? `<button class="btn-modal approve" onclick="enableProfile('${u.id}')">Reinstate account</button>`
+        : `<button class="btn-modal reject"  onclick="disableProfileFlow('${u.id}')">Suspend account</button>`}
       <button class="btn-modal reject"  onclick="deleteProfileFlow('${u.id}')">Delete permanently</button>
       <button class="btn-modal approve" onclick="saveProfileEdit()">Save changes</button>`;
     document.getElementById('profile-modal').classList.add('open');
@@ -1575,22 +1584,22 @@ async function messageSellerInChat(sellerId, sellerName) {
     const u = _users[id];
     closeProfileModal();
     openConfirm({
-      title:'Disable seller account?',
-      message:`${u?.full_name||'This seller'} will no longer be able to log in or post listings.`,
-      requireReason:true, reasonLabel:'Reason (internal note)',
-      confirmText:'Disable account', confirmClass:'reject',
+      title:'Suspend seller account?',
+      message:`${u?.full_name||'This seller'} will no longer be able to log in or post listings. Use this for impostor accounts or policy violations.`,
+      requireReason:true, reasonLabel:'Reason (shown to seller)',
+      confirmText:'Suspend account', confirmClass:'reject',
       onConfirm:(reason)=>doDisableProfile(id,reason)
     });
   }
   async function doDisableProfile(id,reason) {
     const {error}=await db.from('profiles').update({is_disabled:true,disabled_reason:reason}).eq('id',id);
     if(error){toast('Error','error');return;}
-    logAction('disable_profile','profile',id,reason); toast('Account disabled','success'); loadUsers();
+    logAction('suspend_profile','profile',id,reason); toast('Account suspended','success'); loadUsers();
   }
   async function enableProfile(id) {
     const {error}=await db.from('profiles').update({is_disabled:false,disabled_reason:null}).eq('id',id);
     if(error){toast('Error','error');return;}
-    logAction('enable_profile','profile',id,''); toast('Account re-enabled ✓','success');
+    logAction('reinstate_profile','profile',id,''); toast('Account reinstated ✓','success');
     closeProfileModal(); loadUsers();
   }
   function deleteProfileFlow(id) {
