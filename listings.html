@@ -177,9 +177,10 @@
     .card-img-placeholder { display: flex; flex-direction: column; align-items: center; gap: 6px; color: var(--text-3); }
     .card-img-placeholder svg { width: 32px; height: 32px; opacity: .3; stroke: currentColor; fill: none; stroke-width: 1.5; }
     .badge-featured { position: absolute; top: 10px; left: 10px; background: var(--gold); color: white; font-size: 10px; font-weight: 600; padding: 3px 9px; border-radius: 20px; }
-    .badge-cat { position: absolute; top: 10px; right: 10px; font-size: 10px; font-weight: 600; padding: 3px 9px; border-radius: 20px; }
+    .badge-cat { position: absolute; top: 10px; right: 10px; font-size: 10px; font-weight: 600; padding: 3px 9px; border-radius: 20px; text-transform: capitalize; }
     .badge-cat.student { background: var(--green); color: white; }
     .badge-cat.luxury { background: var(--gold-light); color: var(--gold); border: 1px solid var(--gold); }
+    .badge-cat.commercial { background: #EAEEF7; color: #2A3B7A; border: 1px solid #B9C6EA; }
     .card-body { padding: 14px 16px; }
     .card-area { font-size: 11px; font-weight: 600; color: var(--green); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
     .card-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 3px; line-height: 1.35; }
@@ -261,7 +262,6 @@
     NyumbaKisumu
   </a>
   <div class="nav-links">
-    <a href="index.html" class="nav-link">Home</a>
     <a href="listings.html" class="nav-link" style="color:var(--green);font-weight:500">Browse</a>
     <a href="how-it-works.html" class="nav-link">How it works</a>
     <a href="about.html" class="nav-link">About us</a>
@@ -281,7 +281,6 @@
 
 <!-- ── MOBILE NAV ── -->
 <div class="mobile-nav" id="mobile-nav">
-  <a href="index.html" class="nav-link">Home</a>
   <a href="listings.html">Browse listings</a>
   <a href="how-it-works.html">How it works</a>
   <a href="about.html" class="nav-link">About us</a>
@@ -298,7 +297,7 @@
 <!-- ── PAGE HEADER ── -->
 <div class="page-header">
   <h1 id="page-title">Browse listings</h1>
-  <p id="page-desc">Apartments for sale and rent across Kisumu, Maseno, and Luanda</p>
+  <p id="page-desc">Apartments, shops, and offices for sale and rent across Kisumu, Maseno, and Luanda</p>
   <div class="header-search">
     <input type="text" id="search-q" placeholder="Search by keyword, area, or street name…"/>
     <button onclick="applyFilters()">Search</button>
@@ -336,13 +335,15 @@
         <div class="filter-pill" data-val="student" onclick="setPill(this,'cat-pills')">Student</div>
         <div class="filter-pill" data-val="standard" onclick="setPill(this,'cat-pills')">Standard</div>
         <div class="filter-pill" data-val="luxury" onclick="setPill(this,'cat-pills')">Luxury</div>
+        <div class="filter-pill" data-val="commercial" onclick="setPill(this,'cat-pills')">Commercial</div>
       </div>
     </div>
 
     <!-- Area -->
     <div class="filter-section">
       <span class="filter-label">Area</span>
-      <div class="check-list" id="area-checks">
+      <div id="area-checks">
+      <div class="check-list" id="area-checks-visible">
         <label class="check-item"><input type="checkbox" value="Milimani" onchange="applyFilters()"/><label>Milimani</label></label>
         <label class="check-item"><input type="checkbox" value="Kisumu CBD" onchange="applyFilters()"/><label>Kisumu CBD</label></label>
         <label class="check-item"><input type="checkbox" value="Kondele" onchange="applyFilters()"/><label>Kondele</label></label>
@@ -351,6 +352,25 @@
         <label class="check-item"><input type="checkbox" value="Maseno" onchange="applyFilters()"/><label>Maseno</label></label>
         <label class="check-item"><input type="checkbox" value="Luanda" onchange="applyFilters()"/><label>Luanda</label></label>
         <label class="check-item"><input type="checkbox" value="Ahero" onchange="applyFilters()"/><label>Ahero</label></label>
+      </div>
+      <div class="check-list" id="area-checks-more" style="display:none; margin-top:6px">
+        <label class="check-item"><input type="checkbox" value="Car Wash" onchange="applyFilters()"/><label>Car Wash</label></label>
+        <label class="check-item"><input type="checkbox" value="Dunga" onchange="applyFilters()"/><label>Dunga</label></label>
+        <label class="check-item"><input type="checkbox" value="Elgon View" onchange="applyFilters()"/><label>Elgon View</label></label>
+        <label class="check-item"><input type="checkbox" value="Kanyakwar" onchange="applyFilters()"/><label>Kanyakwar</label></label>
+        <label class="check-item"><input type="checkbox" value="Kibos" onchange="applyFilters()"/><label>Kibos</label></label>
+        <label class="check-item"><input type="checkbox" value="Kibuye" onchange="applyFilters()"/><label>Kibuye</label></label>
+        <label class="check-item"><input type="checkbox" value="Kombewa" onchange="applyFilters()"/><label>Kombewa</label></label>
+        <label class="check-item"><input type="checkbox" value="Manyatta" onchange="applyFilters()"/><label>Manyatta</label></label>
+        <label class="check-item"><input type="checkbox" value="Matibabu" onchange="applyFilters()"/><label>Matibabu</label></label>
+        <label class="check-item"><input type="checkbox" value="Migosi" onchange="applyFilters()"/><label>Migosi</label></label>
+        <label class="check-item"><input type="checkbox" value="Nyalenda" onchange="applyFilters()"/><label>Nyalenda</label></label>
+        <label class="check-item"><input type="checkbox" value="Nyamasaria" onchange="applyFilters()"/><label>Nyamasaria</label></label>
+        <label class="check-item"><input type="checkbox" value="Obunga" onchange="applyFilters()"/><label>Obunga</label></label>
+        <label class="check-item"><input type="checkbox" value="Otonglo" onchange="applyFilters()"/><label>Otonglo</label></label>
+        <label class="check-item"><input type="checkbox" value="Sega" onchange="applyFilters()"/><label>Sega</label></label>
+      </div>
+      <button type="button" id="area-more-toggle" onclick="toggleMoreAreas()" style="background:none;color:var(--green);font-size:12px;font-weight:500;margin-top:8px;padding:0">Show all 23 areas ▾</button>
       </div>
     </div>
 
@@ -371,7 +391,7 @@
     </div>
 
     <!-- Bedrooms -->
-    <div class="filter-section">
+    <div class="filter-section" id="bedrooms-filter-section">
       <span class="filter-label">Bedrooms</span>
       <div class="pill-group" id="bed-pills">
         <div class="filter-pill active" data-val="" onclick="setPill(this,'bed-pills')">Any</div>
@@ -446,6 +466,15 @@
   let totalCount = 0;
   let debounceTimer = null;
 
+  // ── Toggle showing all 23 areas vs the top 8 ──
+  function toggleMoreAreas() {
+    const more = document.getElementById('area-checks-more');
+    const btn = document.getElementById('area-more-toggle');
+    const isHidden = more.style.display === 'none';
+    more.style.display = isHidden ? '' : 'none';
+    btn.textContent = isHidden ? 'Show fewer areas ▴' : 'Show all 23 areas ▾';
+  }
+
   // ── Read URL params on load ──
   function readUrlParams() {
     const p = new URLSearchParams(window.location.search);
@@ -454,6 +483,9 @@
       document.querySelectorAll('#area-checks input').forEach(cb => {
         if (cb.value === p.get('area')) cb.checked = true;
       });
+      if (document.querySelector(`#area-checks-more input[value="${p.get('area')}"]`)) {
+        toggleMoreAreas();
+      }
     }
     if (p.get('category')) {
       document.querySelectorAll('#cat-pills .filter-pill').forEach(pill => {
@@ -471,7 +503,20 @@
   function setPill(el, groupId) {
     document.querySelectorAll(`#${groupId} .filter-pill`).forEach(p => p.classList.remove('active'));
     el.classList.add('active');
+    if (groupId === 'cat-pills') toggleBedroomsFilter(el.dataset.val);
     applyFilters();
+  }
+
+  // ── Hide bedroom filter for commercial category (shops/offices aren't bedroom-based) ──
+  function toggleBedroomsFilter(cat) {
+    const section = document.getElementById('bedrooms-filter-section');
+    if (!section) return;
+    if (cat === 'commercial') {
+      setPill(document.querySelector('#bed-pills .filter-pill[data-val=""]'), 'bed-pills');
+      section.style.display = 'none';
+    } else {
+      section.style.display = '';
+    }
   }
 
   // ── Price preset ──
@@ -715,6 +760,7 @@
 
   // ── Init ──
   readUrlParams();
+  toggleBedroomsFilter(document.querySelector('#cat-pills .filter-pill.active')?.dataset.val || '');
   applyFilters();
 </script>
 
