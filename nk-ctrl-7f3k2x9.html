@@ -1585,8 +1585,8 @@ async function messageSellerInChat(sellerId, sellerName) {
     closeProfileModal();
     openConfirm({
       title:'Suspend seller account?',
-      message:`${u?.full_name||'This seller'} will no longer be able to log in or post listings. Use this for impostor accounts or policy violations.`,
-      requireReason:true, reasonLabel:'Reason (shown to seller)',
+      message:`${u?.full_name||'This seller'} will still be able to log in, but will see an "Account Under Investigation" screen and nothing else. All of their listings are hidden from buyers immediately (visible only to admins) and they cannot post new listings until reinstated. Use this for impostor accounts or suspicious activity.`,
+      requireReason:true, reasonLabel:'Internal note — not shown to the seller',
       confirmText:'Suspend account', confirmClass:'reject',
       onConfirm:(reason)=>doDisableProfile(id,reason)
     });
