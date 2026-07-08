@@ -339,42 +339,24 @@
     #loading-screen p{font-size:14px;color:rgba(255,255,255,0.6)}
     .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:99}
 
-    /* ══ ACCOUNT SUSPENSION OVERLAY ══ */
-    .suspend-overlay{
-      position:fixed;inset:0;z-index:10000;
-      background:linear-gradient(160deg,#7a1f1f 0%,#3f0d0d 100%);
-      display:none;align-items:center;justify-content:center;
-      padding:24px;overflow-y:auto;
+    /* ══ SUSPENDED / UNDER-REVIEW SCREEN ══ */
+    #suspended-screen{
+      position:fixed;inset:0;background:var(--surface);z-index:9998;
+      display:none;align-items:center;justify-content:center;padding:24px;
     }
-    .suspend-overlay.show{display:flex}
-    .suspend-card{
-      background:var(--white);border-radius:var(--radius-lg);
-      max-width:480px;width:100%;padding:40px 36px 32px;
-      text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.45);
-      margin:auto;
+    #suspended-screen .suspended-card{
+      max-width:460px;width:100%;text-align:center;
+      background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);
+      padding:44px 34px;box-shadow:var(--shadow-lg);
     }
-    .suspend-icon{
-      width:72px;height:72px;border-radius:50%;background:var(--red-light);
-      display:flex;align-items:center;justify-content:center;margin:0 auto 18px;
+    #suspended-screen .suspended-icon{
+      width:68px;height:68px;border-radius:50%;background:var(--red-light);
+      display:flex;align-items:center;justify-content:center;margin:0 auto 22px;
     }
-    .suspend-icon svg{width:34px;height:34px;stroke:var(--red);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-    .suspend-card h1{font-family:'Playfair Display',serif;font-size:21px;color:var(--text);margin-bottom:12px;line-height:1.4}
-    .suspend-status{
-      display:inline-block;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
-      background:var(--red-light);color:var(--red);padding:4px 14px;border-radius:20px;margin-bottom:14px;
-    }
-    .suspend-card p{font-size:13.5px;color:var(--text-2);line-height:1.7;margin-bottom:8px}
-    .suspend-reason-box{
-      background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
-      padding:12px 16px;font-size:13px;color:var(--text-2);text-align:left;margin:16px 0;line-height:1.6;
-    }
-    .suspend-reason-box strong{display:block;color:var(--text);font-size:11px;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
-    .suspend-noemail{
-      font-size:12px;color:var(--amber);background:var(--amber-light);border-radius:8px;
-      padding:10px 14px;margin:16px 0;line-height:1.7;text-align:left;
-    }
-    .suspend-actions{display:flex;flex-direction:column;gap:10px;margin-top:20px}
-    .suspend-actions .btn{justify-content:center}
+    #suspended-screen h2{font-family:'Playfair Display',serif;font-size:21px;color:var(--text);margin-bottom:14px}
+    #suspended-screen p{font-size:13.5px;color:var(--text-2);line-height:1.75;margin-bottom:14px}
+    #suspended-screen p.emphasis{font-weight:600;color:var(--text)}
+    #suspended-screen .suspended-footer{font-size:11px;color:var(--text-3);margin-top:18px}
 
     /* ══ LIVE SUPPORT WIDGET ══ */
     .lsw-fab{
@@ -535,40 +517,29 @@
   <p>Loading your dashboard…</p>
 </div>
 
+<!-- ══ SUSPENDED / UNDER-REVIEW SCREEN ══
+     Shown instead of the whole dashboard whenever profiles.is_disabled = true.
+     No listings, messages, enquiries, payments, or the support widget are ever
+     loaded or rendered for a suspended seller — this screen is all they see. -->
+<div id="suspended-screen">
+  <div class="suspended-card">
+    <div class="suspended-icon">
+      <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="#c0392b" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+    </div>
+    <h2>Account Under Investigation</h2>
+    <p>Your account has been placed under a security review due to suspicious activity. All of your listings have been hidden from buyers and you will not be able to post new listings while this review is in progress.</p>
+    <p class="emphasis">Please do not email us about this — the review will be completed soon and the outcome will be sent to your account.</p>
+    <button class="btn btn-outline btn-lg" style="width:100%;justify-content:center" onclick="doSignOut()">Sign out</button>
+    <div class="suspended-footer">NyumbaKisumu · Account Security</div>
+  </div>
+</div>
+
 <div class="toast" id="toast">
   <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
   <span id="toast-msg"></span>
 </div>
 
 <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
-
-<!-- ══ ACCOUNT SUSPENSION OVERLAY ══ -->
-<!-- Shown instead of the dashboard whenever profiles.is_disabled = true for this seller.
-     The dashboard (.shell) is never rendered while this is up, so listings, messages,
-     enquiries, payments, and "new listing" are all completely inaccessible — only the
-     Live Support chat (rendered outside this overlay) still works, so the seller can
-     reach the admin without needing email. -->
-<div class="suspend-overlay" id="suspend-overlay">
-  <div class="suspend-card">
-    <div class="suspend-icon">
-      <svg viewBox="0 0 24 24"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
-    </div>
-    <span class="suspend-status" id="suspend-status-label">Account Suspended</span>
-    <h1>Your account is under a security check</h1>
-    <p>We've temporarily limited access to your account due to suspicious activity. Your listings have been hidden from the public site and are only visible to our admin team while this review is underway.</p>
-    <div class="suspend-reason-box" id="suspend-reason-box" style="display:none">
-      <strong>Note from admin</strong>
-      <span id="suspend-reason-text"></span>
-    </div>
-    <div class="suspend-noemail">
-      ⚠ Please do not email us about this. The review is already in progress — the outcome will be sent directly to your account once it's resolved.
-    </div>
-    <div class="suspend-actions">
-      <button class="btn btn-primary btn-lg" onclick="lswToggle()">Message support</button>
-      <button class="btn btn-outline" onclick="doSignOut()">Sign out</button>
-    </div>
-  </div>
-</div>
 
 <div class="shell" id="app-shell" style="display:none">
 
@@ -1002,38 +973,23 @@ async function init() {
     document.getElementById('topbar-date').textContent = new Date().toLocaleDateString('en-KE',{ weekday:'long', day:'numeric', month:'long', year:'numeric' });
     await loadProfile();
 
-    // ── Watch our own profile row so a suspension (or reinstatement) applied
-    // by the admin while we're logged in takes effect immediately, without
-    // requiring the seller to manually refresh the page. ──
-    db.channel('own-profile-watch-' + currentUser.id)
-      .on('postgres_changes', {
-        event: 'UPDATE', schema: 'public', table: 'profiles', filter: `id=eq.${currentUser.id}`
-      }, payload => {
-        if (!!payload.new.is_disabled !== !!currentProfile?.is_disabled) location.reload();
-      }).subscribe();
-
-    document.getElementById('loading-screen').style.display = 'none';
-
-    // ── SUSPENSION GATE ──
-    // If this seller's account has been suspended by an admin, we stop right
-    // here: the dashboard shell is never populated or shown, so listings,
-    // messages, enquiries, and payments all stay completely inaccessible.
-    // The Live Support widget is initialized regardless, so the seller can
-    // still reach the admin team without needing to email anyone.
-    if (currentProfile && currentProfile.is_disabled) {
-      document.getElementById('suspend-status-label').textContent =
-        currentProfile.suspend_status === 'investigation' ? 'Account Under Investigation' : 'Account Suspended';
-      if (currentProfile.disabled_reason) {
-        document.getElementById('suspend-reason-box').style.display = 'block';
-        document.getElementById('suspend-reason-text').textContent = currentProfile.disabled_reason;
-      }
-      document.getElementById('suspend-overlay').classList.add('show');
-      lswInit().catch(err => console.error('LSW init error:', err));
+    // ── Suspended / under-investigation accounts ──
+    // The seller can still log in, but sees ONLY the suspension screen.
+    // We deliberately never call loadAllData(), never render listings/
+    // messages/enquiries/payments, and never initialize the support
+    // widget — nothing about their account or listings is fetched or
+    // shown beyond this point.
+    if (currentProfile?.is_disabled) {
+      document.getElementById('loading-screen').style.display = 'none';
+      document.getElementById('suspended-screen').style.display = 'flex';
+      document.getElementById('lsw-fab').style.display = 'none';
+      document.getElementById('lsw-popup').style.display = 'none';
       return;
     }
 
     await loadAllData();
     renderOverview();
+    document.getElementById('loading-screen').style.display = 'none';
     document.getElementById('app-shell').style.display = 'flex';
     msgPollTimer = setInterval(pollNewMessages, 30000);
     lswInit().catch(err => console.error('LSW init error:', err));
