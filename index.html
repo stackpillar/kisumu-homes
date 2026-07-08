@@ -143,13 +143,21 @@
     .trust-item svg { width: 16px; height: 16px; stroke: var(--green); fill: none; stroke-width: 2; flex-shrink: 0; }
 
     /* ── Area pills ── */
-    .area-pills { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 28px; }
+    .area-pills { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 28px; align-items: center; }
     .pill {
       font-size: 13px; padding: 6px 16px; border-radius: 20px; border: 1.5px solid var(--border);
       background: white; color: var(--text-2); cursor: pointer; transition: all .15s; font-weight: 500;
     }
     .pill:hover { border-color: var(--green); color: var(--green); }
     .pill.active { background: var(--green); color: white; border-color: var(--green); }
+    .pill-select {
+      font-size: 13px; padding: 6px 28px 6px 16px; border-radius: 20px; border: 1.5px solid var(--border);
+      background-color: white; color: var(--text-2); cursor: pointer; font-weight: 500; font-family: inherit;
+      outline: none; appearance: none; -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234a4a46' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 8px center; background-size: 14px;
+    }
+    .pill-select:hover { border-color: var(--green); color: var(--green); }
 
     /* ── Listings grid ── */
     .listings-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
@@ -175,6 +183,11 @@
       background: var(--green); color: white; font-size: 11px; font-weight: 600;
       padding: 3px 10px; border-radius: 20px;
     }
+    .badge-commercial {
+      position: absolute; top: 10px; right: 10px;
+      background: var(--gold); color: white; font-size: 11px; font-weight: 600;
+      padding: 3px 10px; border-radius: 20px;
+    }
     .card-body { padding: 16px; }
     .card-area { font-size: 11px; font-weight: 600; color: var(--green); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 5px; }
     .card-title { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 4px; line-height: 1.3; }
@@ -192,23 +205,27 @@
     .cat-card.student { background: var(--green-light); border-color: #9FE1CB; }
     .cat-card.standard { background: #EAF3DE; border-color: #C0DD97; }
     .cat-card.luxury { background: var(--gold-light); border-color: #FAC775; }
+    .cat-card.commercial { background: #EAEEF7; border-color: #B9C6EA; }
     .cat-icon { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 14px; }
     .cat-card.student .cat-icon { background: #9FE1CB; }
     .cat-card.standard .cat-icon { background: #C0DD97; }
     .cat-card.luxury .cat-icon { background: #FAC775; }
+    .cat-card.commercial .cat-icon { background: #B9C6EA; }
     .cat-icon svg { width: 22px; height: 22px; stroke-width: 1.8; fill: none; }
     .cat-card.student .cat-icon svg { stroke: var(--green-dark); }
     .cat-card.standard .cat-icon svg { stroke: #27500A; }
     .cat-card.luxury .cat-icon svg { stroke: var(--gold); }
+    .cat-card.commercial .cat-icon svg { stroke: #2A3B7A; }
     .cat-title { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
     .cat-card.student .cat-title { color: var(--green-dark); }
     .cat-card.standard .cat-title { color: #27500A; }
     .cat-card.luxury .cat-title { color: #633806; }
+    .cat-card.commercial .cat-title { color: #2A3B7A; }
     .cat-desc { font-size: 13px; color: var(--text-2); margin-bottom: 10px; }
     .cat-count { font-size: 12px; font-weight: 600; color: var(--text-3); }
 
-    /* ── Areas ── */
-    .areas { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+    /* ── Areas (two rows of six on desktop, tapering down on smaller screens) ── */
+    .areas { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; }
     .area-card { border-radius: var(--radius); padding: 20px 16px; background: white; border: 1px solid var(--border); cursor: pointer; transition: all .15s; text-align: center; }
     .area-card:hover { border-color: var(--green); background: var(--green-light); }
     .area-card-name { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
@@ -269,6 +286,7 @@
       .footer-top { grid-template-columns: 2fr 1fr 1fr; }
       .footer-top > *:nth-child(4),
       .footer-top > *:nth-child(5) { display: none; }
+      .areas { grid-template-columns: repeat(4, 1fr); }
     }
     @media (max-width: 768px) {
       nav { padding: 0 16px; }
@@ -281,12 +299,14 @@
       .footer-top > *:nth-child(4),
       .footer-top > *:nth-child(5) { display: block; }
       .cta-banner { padding: 32px 24px; }
+      .areas { grid-template-columns: repeat(3, 1fr); }
     }
     @media (max-width: 480px) {
       .footer-top { grid-template-columns: 1fr; }
       .search-box { flex-direction: column; }
       .search-box select, .search-box input, .search-box button { width: 100%; }
       .footer-bottom { flex-direction: column; align-items: flex-start; gap: 8px; }
+      .areas { grid-template-columns: repeat(2, 1fr); }
     }
   </style>
 </head>
@@ -301,7 +321,6 @@
     NyumbaKisumu
   </a>
   <div class="nav-links">
-    <a href="index.html" class="nav-link">Home</a>
 <a href="listings.html" class="nav-link">Browse</a>
     <a href="how-it-works.html" class="nav-link">How it works</a>
     <a href="about.html" class="nav-link">About us</a>
@@ -323,7 +342,6 @@
 
 <!-- Mobile nav -->
 <div class="mobile-nav" id="mobile-nav">
-  <a href="index.html" class="nav-link">Home</a>
   <a href="listings.html">Browse listings</a>
   <a href="how-it-works.html">How it works</a>
   <a href="about.html" class="nav-link">About us</a>
@@ -342,19 +360,34 @@
 <section class="hero">
   <div class="hero-eyebrow">Kisumu · Maseno · Luanda</div>
   <h1>Find your next home<br>in <span>Western Kenya</span></h1>
-  <p class="hero-sub">Student bedsitters near Maseno University to spacious family apartments in Milimani — find and list properties without agents.</p>
+  <p class="hero-sub">Student bedsitters, family apartments, and shops or offices in Kisumu CBD — find and list residential and commercial property without agents.</p>
 
   <div class="search-box">
     <select id="search-area">
       <option value="">All areas</option>
-      <option value="Milimani">Milimani</option>
-      <option value="Kisumu CBD">Kisumu CBD</option>
-      <option value="Kondele">Kondele</option>
-      <option value="Riat Hills">Riat Hills</option>
-      <option value="Mamboleo">Mamboleo</option>
-      <option value="Maseno">Maseno</option>
-      <option value="Luanda">Luanda</option>
       <option value="Ahero">Ahero</option>
+      <option value="Car Wash">Car Wash</option>
+      <option value="Dunga">Dunga</option>
+      <option value="Elgon View">Elgon View</option>
+      <option value="Kanyakwar">Kanyakwar</option>
+      <option value="Kibos">Kibos</option>
+      <option value="Kibuye">Kibuye</option>
+      <option value="Kisumu CBD">Kisumu CBD</option>
+      <option value="Kombewa">Kombewa</option>
+      <option value="Kondele">Kondele</option>
+      <option value="Luanda">Luanda</option>
+      <option value="Mamboleo">Mamboleo</option>
+      <option value="Manyatta">Manyatta</option>
+      <option value="Maseno">Maseno</option>
+      <option value="Matibabu">Matibabu</option>
+      <option value="Migosi">Migosi</option>
+      <option value="Milimani">Milimani</option>
+      <option value="Nyalenda">Nyalenda</option>
+      <option value="Nyamasaria">Nyamasaria</option>
+      <option value="Obunga">Obunga</option>
+      <option value="Otonglo">Otonglo</option>
+      <option value="Riat Hills">Riat Hills</option>
+      <option value="Sega">Sega</option>
     </select>
     <select id="search-type">
       <option value="">Sale or rent</option>
@@ -371,7 +404,7 @@
       <div class="hero-stat-lbl">Active listings</div>
     </div>
     <div class="hero-stat">
-      <div class="hero-stat-val">8</div>
+      <div class="hero-stat-val">23</div>
       <div class="hero-stat-lbl">Areas covered</div>
     </div>
     <div class="hero-stat">
@@ -432,6 +465,14 @@
       <div class="cat-desc">High-end apartments and penthouses in Milimani and Riat Hills</div>
       <div class="cat-count" id="count-luxury">Loading…</div>
     </div>
+    <div class="cat-card commercial" onclick="filterCategory('commercial')">
+      <div class="cat-icon">
+        <svg viewBox="0 0 24 24"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6M9 11h.01M15 11h.01M9 7h.01M15 7h.01"/></svg>
+      </div>
+      <div class="cat-title">Shops & offices</div>
+      <div class="cat-desc">Retail shops, offices, and business spaces in Kisumu CBD and other areas</div>
+      <div class="cat-count" id="count-commercial">Loading…</div>
+    </div>
   </div>
 </section>
 
@@ -464,6 +505,26 @@
     <div class="pill" onclick="filterArea('Kisumu CBD', this)">Kisumu CBD</div>
     <div class="pill" onclick="filterArea('Luanda', this)">Luanda</div>
     <div class="pill" onclick="filterArea('Riat Hills', this)">Riat Hills</div>
+    <select class="pill-select" id="more-areas-pill" onchange="if(this.value){filterArea(this.value, null); this.selectedIndex=0;}">
+      <option value="">More areas ▾</option>
+      <option value="Mamboleo">Mamboleo</option>
+      <option value="Ahero">Ahero</option>
+      <option value="Nyalenda">Nyalenda</option>
+      <option value="Manyatta">Manyatta</option>
+      <option value="Obunga">Obunga</option>
+      <option value="Kibos">Kibos</option>
+      <option value="Car Wash">Car Wash</option>
+      <option value="Elgon View">Elgon View</option>
+      <option value="Migosi">Migosi</option>
+      <option value="Nyamasaria">Nyamasaria</option>
+      <option value="Kanyakwar">Kanyakwar</option>
+      <option value="Otonglo">Otonglo</option>
+      <option value="Kibuye">Kibuye</option>
+      <option value="Dunga">Dunga</option>
+      <option value="Sega">Sega</option>
+      <option value="Kombewa">Kombewa</option>
+      <option value="Matibabu">Matibabu</option>
+    </select>
   </div>
   <div id="latest-listings">
     <div class="loading-grid">
@@ -482,13 +543,17 @@
   </div>
   <div class="areas">
     <div class="area-card" onclick="goArea('Milimani')"><div class="area-card-name">Milimani</div><div class="area-card-count">Kisumu's premier estate</div></div>
-    <div class="area-card" onclick="goArea('Kisumu CBD')"><div class="area-card-name">Kisumu CBD</div><div class="area-card-count">Central business district</div></div>
+    <div class="area-card" onclick="goArea('Kisumu CBD')"><div class="area-card-name">Kisumu CBD</div><div class="area-card-count">Shops, offices & residences</div></div>
     <div class="area-card" onclick="goArea('Kondele')"><div class="area-card-name">Kondele</div><div class="area-card-count">Affordable & accessible</div></div>
     <div class="area-card" onclick="goArea('Riat Hills')"><div class="area-card-name">Riat Hills</div><div class="area-card-count">Scenic hillside views</div></div>
     <div class="area-card" onclick="goArea('Mamboleo')"><div class="area-card-name">Mamboleo</div><div class="area-card-count">Growing suburb</div></div>
+    <div class="area-card" onclick="goArea('Nyalenda')"><div class="area-card-name">Nyalenda</div><div class="area-card-count">Busy residential estate</div></div>
+    <div class="area-card" onclick="goArea('Manyatta')"><div class="area-card-name">Manyatta</div><div class="area-card-count">Central & convenient</div></div>
+    <div class="area-card" onclick="goArea('Kibos')"><div class="area-card-name">Kibos</div><div class="area-card-count">Quiet, near industry</div></div>
+    <div class="area-card" onclick="goArea('Car Wash')"><div class="area-card-name">Car Wash</div><div class="area-card-count">Popular local hub</div></div>
+    <div class="area-card" onclick="goArea('Elgon View')"><div class="area-card-name">Elgon View</div><div class="area-card-count">Established estate</div></div>
     <div class="area-card" onclick="goArea('Maseno')"><div class="area-card-name">Maseno</div><div class="area-card-count">Near Maseno University</div></div>
     <div class="area-card" onclick="goArea('Luanda')"><div class="area-card-name">Luanda</div><div class="area-card-count">North of Kisumu</div></div>
-    <div class="area-card" onclick="goArea('Ahero')"><div class="area-card-name">Ahero</div><div class="area-card-count">Along Kisumu–Nairobi road</div></div>
   </div>
 </section>
 
@@ -496,8 +561,8 @@
 <section class="section">
   <div class="cta-banner">
     <div>
-      <h2>Selling or renting out your apartment?</h2>
-      <p>List your property and reach thousands of buyers and tenants across Kisumu, Maseno, and Luanda — no agent needed.</p>
+      <h2>Selling or renting out your apartment or business space?</h2>
+      <p>List your property — residential or commercial — and reach thousands of buyers and tenants across Kisumu, Maseno, and Luanda — no agent needed.</p>
     </div>
     <div class="cta-actions">
       <a href="post-listing.html" class="btn-white">List your apartment</a>
@@ -518,7 +583,7 @@
           </div>
           NyumbaKisumu
         </div>
-        <p class="footer-tagline">The easiest way to find and list apartments in Kisumu, Maseno, and Luanda — without agents or commissions.</p>
+        <p class="footer-tagline">The easiest way to find and list apartments, shops, and offices in Kisumu, Maseno, and Luanda — without agents or commissions.</p>
         <div class="footer-social">
           <a href="https://wa.me/254700000000" target="_blank" rel="noopener" title="WhatsApp">
             <svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
@@ -536,6 +601,7 @@
         <a href="listings.html?category=student">Student housing</a>
         <a href="listings.html?category=standard">Standard</a>
         <a href="listings.html?category=luxury">Luxury</a>
+        <a href="listings.html?category=commercial">Shops & offices</a>
         <a href="listings.html?type=rent">To let</a>
         <a href="listings.html?type=sale">For sale</a>
       </div>
@@ -625,6 +691,7 @@
         ${listing.is_featured ? '<span class="badge-featured">Featured</span>' : ''}
         <div class="nk-heart-overlay">${NKSaved.buildHeartBtn(listing.id)}</div>
         ${listing.category === 'student' ? '<span class="badge-student">Student</span>' : ''}
+        ${listing.category === 'commercial' ? '<span class="badge-commercial">Commercial</span>' : ''}
       </div>
         <div class="card-body">
           <div class="card-area">${listing.area}${listing.sub_area ? ' · ' + listing.sub_area : ''}</div>
@@ -683,7 +750,7 @@
 
   // ── Load counts ──
   async function loadCounts() {
-    const cats = ['student', 'standard', 'luxury'];
+    const cats = ['student', 'standard', 'luxury', 'commercial'];
     for (const cat of cats) {
       const { count } = await db.from('listings').select('*', { count: 'exact', head: true }).eq('status', 'active').eq('category', cat);
       const el = document.getElementById('count-' + cat);
@@ -694,7 +761,7 @@
     if (stat) stat.textContent = total || '0';
   }
 
-  // ── Filter by area pill ──
+  // ── Filter by area pill (also handles the "More areas" dropdown, since it just calls this with el=null) ──
   function filterArea(area, el) {
     currentArea = area;
     document.querySelectorAll('#area-pills .pill').forEach(p => p.classList.remove('active'));
@@ -806,7 +873,6 @@
   }
 })();
 </script>
-
 <style>
 /* ── Widget shell ── */
 #nk-chat-btn {
@@ -911,7 +977,7 @@
 .nk-typing.show { display: flex; }
 .nk-typing-bubble {
   background: #f7f6f2; border: 1px solid #e0ded8;
-  border-radius: 14px 14px 14px 2px; padding: 10px 14px;
+  border-radius: 14px 14px 14px 4px; padding: 10px 14px;
   display: flex; gap: 4px; align-items: center;
 }
 .nk-typing-dot {
