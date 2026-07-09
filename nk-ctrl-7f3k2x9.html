@@ -167,6 +167,11 @@
     .badge.paid     { background: var(--green-light); color: var(--green-dark); }
     .badge.unpaid   { background: var(--red-light); color: var(--red); }
     .badge.trial    { background: var(--blue-light); color: var(--blue); }
+    .badge.commercial { background: var(--gold-light); color: var(--gold); }
+    .badge.open       { background: var(--red-light); color: var(--red); }
+    .badge.reviewing  { background: var(--gold-light); color: var(--gold); }
+    .badge.resolved   { background: var(--green-light); color: var(--green-dark); }
+    .badge.dismissed  { background: var(--surface); color: var(--text-3); }
     .badge::before  { content: ''; width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
 
     /* ACTION BUTTONS — desktop */
@@ -392,6 +397,17 @@
       Enquiries
       <span class="nav-badge" id="nav-badge-enquiries">—</span>
     </button>
+    <div class="nav-section-label" style="margin-top:8px">Safety &amp; trust</div>
+    <button class="nav-item" data-view="reports" onclick="showView('reports')">
+      <svg viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+      Reports
+      <span class="nav-badge" id="nav-badge-reports">—</span>
+    </button>
+    <button class="nav-item" data-view="reviews" onclick="showView('reviews')">
+      <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      Reviews
+      <span class="nav-badge gold" id="nav-badge-reviews">—</span>
+    </button>
     <div class="nav-section-label" style="margin-top:8px">Comms</div>
     <a href="admin-chat.html" class="nav-item" id="nav-livechat">
       <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
@@ -519,15 +535,21 @@
         <div class="filters-row">
           <select class="filter-select" id="filter-area" onchange="loadAllListings()">
             <option value="">All areas</option>
-            <option>Milimani</option><option>Kisumu CBD</option><option>Kondele</option>
-            <option>Riat Hills</option><option>Maseno</option><option>Luanda</option>
-            <option>Mamboleo</option><option>Ahero</option>
+            <option>Ahero</option><option>Car Wash</option><option>Dunga</option>
+            <option>Elgon View</option><option>Kanyakwar</option><option>Kibos</option>
+            <option>Kibuye</option><option>Kisumu CBD</option><option>Kombewa</option>
+            <option>Kondele</option><option>Luanda</option><option>Mamboleo</option>
+            <option>Manyatta</option><option>Maseno</option><option>Matibabu</option>
+            <option>Migosi</option><option>Milimani</option><option>Nyalenda</option>
+            <option>Nyamasaria</option><option>Obunga</option><option>Otonglo</option>
+            <option>Riat Hills</option><option>Sega</option>
           </select>
           <select class="filter-select" id="filter-cat" onchange="loadAllListings()">
             <option value="">All categories</option>
             <option value="student">Student</option>
             <option value="standard">Standard</option>
             <option value="luxury">Luxury</option>
+            <option value="commercial">Commercial</option>
           </select>
           <input class="filter-search" id="filter-search" type="text" placeholder="Search title or area…" oninput="debouncedLoad()"/>
         </div>
@@ -630,6 +652,53 @@
       </div>
     </div>
 
+    <!-- REPORTS -->
+    <div class="view" id="view-reports">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Reports</span>
+          <span style="font-size:12px;color:var(--text-3)" id="reports-count"></span>
+        </div>
+        <div class="tab-bar">
+          <button class="tab-btn active" id="rtab-open"       onclick="setReportTab('open')">Open <span class="count" id="rtc-open">—</span></button>
+          <button class="tab-btn"        id="rtab-reviewing"  onclick="setReportTab('reviewing')">Reviewing <span class="count" id="rtc-reviewing">—</span></button>
+          <button class="tab-btn"        id="rtab-resolved"   onclick="setReportTab('resolved')">Resolved <span class="count" id="rtc-resolved">—</span></button>
+          <button class="tab-btn"        id="rtab-dismissed"  onclick="setReportTab('dismissed')">Dismissed <span class="count" id="rtc-dismissed">—</span></button>
+          <button class="tab-btn"        id="rtab-all"        onclick="setReportTab('all')">All <span class="count" id="rtc-all">—</span></button>
+        </div>
+        <p style="padding:0 22px 14px;font-size:12px;color:var(--text-3)">Buyers and sellers can flag a listing, a seller, or the platform itself as suspicious. Every report shows the full listing and seller record — nothing is auto-hidden, so review each one before acting.</p>
+        <div class="table-wrap mobile-hide">
+          <table>
+            <thead><tr><th>Target</th><th>Seller</th><th>Reason</th><th>Reporter</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
+            <tbody id="reports-body"><tr class="skeleton-row"><td colspan="7"><div class="skel"></div></td></tr></tbody>
+          </table>
+        </div>
+        <div class="mobile-card-list" id="reports-mobile"></div>
+      </div>
+    </div>
+
+    <!-- REVIEWS -->
+    <div class="view" id="view-reviews">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Reviews</span>
+          <span style="font-size:12px;color:var(--text-3)" id="reviews-count"></span>
+        </div>
+        <div class="tab-bar">
+          <button class="tab-btn active" id="revtab-platform" onclick="setReviewTab('platform')">Platform reviews <span class="count" id="revtc-platform">—</span></button>
+          <button class="tab-btn"        id="revtab-seller"   onclick="setReviewTab('seller')">Seller reviews <span class="count" id="revtc-seller">—</span></button>
+        </div>
+        <p style="padding:0 22px 14px;font-size:12px;color:var(--text-3)">Platform reviews come from buyers and sellers rating NyumbaKisumu itself — the team can respond to those directly. Seller reviews are buyers rating a specific seller after a successful contact; sellers respond to those from their own dashboard.</p>
+        <div class="table-wrap mobile-hide">
+          <table>
+            <thead><tr><th>Rating</th><th>Reviewer</th><th>Target</th><th>Comment</th><th>Response</th><th>Date</th><th>Action</th></tr></thead>
+            <tbody id="reviews-body"><tr class="skeleton-row"><td colspan="7"><div class="skel"></div></td></tr></tbody>
+          </table>
+        </div>
+        <div class="mobile-card-list" id="reviews-mobile"></div>
+      </div>
+    </div>
+
     <!-- ANALYTICS -->
     <div class="view" id="view-analytics">
       <div class="stat-grid" style="grid-template-columns:repeat(3,1fr)">
@@ -725,6 +794,30 @@
     <div class="modal-header"><h3 id="inquiry-modal-title">Conversation</h3><button class="modal-close" onclick="closeInquiryModal()">×</button></div>
     <div class="modal-body" id="inquiry-modal-body"></div>
     <div class="modal-footer" id="inquiry-modal-footer"></div>
+  </div>
+</div>
+
+<!-- REPORT DETAIL MODAL -->
+<div class="modal-overlay" id="report-modal" onclick="handleOverlayClick(event,'report-modal')">
+  <div class="modal" style="max-width:520px">
+    <div class="modal-header"><h3 id="report-modal-title">Report details</h3><button class="modal-close" onclick="closeReportModal()">×</button></div>
+    <div class="modal-body" id="report-modal-body"></div>
+    <div class="modal-footer" id="report-modal-footer"></div>
+  </div>
+</div>
+
+<!-- REVIEW RESPONSE MODAL -->
+<div class="modal-overlay" id="review-respond-modal" onclick="handleOverlayClick(event,'review-respond-modal')">
+  <div class="modal" style="max-width:460px">
+    <div class="modal-header"><h3>Respond to review</h3><button class="modal-close" onclick="closeReviewRespondModal()">×</button></div>
+    <div class="modal-body">
+      <div class="field"><label>Review</label><div class="val" id="review-respond-original" style="font-size:13px;color:var(--text-2);line-height:1.6"></div></div>
+      <div class="field"><label>Your response (public)</label><textarea id="review-respond-text" rows="4" placeholder="Thank the reviewer, address their concern, or explain what's changing…"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-modal cancel" onclick="closeReviewRespondModal()">Cancel</button>
+      <button class="btn-modal approve" onclick="submitReviewResponse()">Post response</button>
+    </div>
   </div>
 </div>
 
@@ -1313,7 +1406,7 @@
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
         <div class="field"><label>Area</label><input type="text" id="el-area" value="${esc(l.area||'')}"/></div>
-        <div class="field"><label>Category</label><select id="el-category"><option value="student" ${l.category==='student'?'selected':''}>Student</option><option value="standard" ${l.category==='standard'?'selected':''}>Standard</option><option value="luxury" ${l.category==='luxury'?'selected':''}>Luxury</option></select></div>
+        <div class="field"><label>Category</label><select id="el-category"><option value="student" ${l.category==='student'?'selected':''}>Student</option><option value="standard" ${l.category==='standard'?'selected':''}>Standard</option><option value="luxury" ${l.category==='luxury'?'selected':''}>Luxury</option><option value="commercial" ${l.category==='commercial'?'selected':''}>Commercial</option></select></div>
       </div>
       <div class="field"><label>Sub-area</label><input type="text" id="el-sub_area" value="${esc(l.sub_area||'')}"/></div>
       <div class="field"><label>Address</label><input type="text" id="el-address" value="${esc(l.address||'')}"/></div>
@@ -1594,13 +1687,18 @@ async function messageSellerInChat(sellerId, sellerName) {
   async function doDisableProfile(id,reason) {
     const {error}=await db.from('profiles').update({is_disabled:true,disabled_reason:reason}).eq('id',id);
     if(error){toast('Error','error');return;}
-    logAction('suspend_profile','profile',id,reason); toast('Account suspended','success'); loadUsers();
+    logAction('suspend_profile','profile',id,reason); toast('Account suspended','success');
+    if (u => _users[id]) { const u=_users[id]; if(u){ u.is_disabled=true; u.disabled_reason=reason; } }
+    if (currentView==='users') loadUsers();
+    if (currentView==='reports') renderReportsTable();
   }
   async function enableProfile(id) {
     const {error}=await db.from('profiles').update({is_disabled:false,disabled_reason:null}).eq('id',id);
     if(error){toast('Error','error');return;}
     logAction('reinstate_profile','profile',id,''); toast('Account reinstated ✓','success');
-    closeProfileModal(); loadUsers();
+    const u=_users[id]; if(u){ u.is_disabled=false; u.disabled_reason=null; }
+    closeProfileModal(); if (currentView==='users') loadUsers();
+    if (currentView==='reports') renderReportsTable();
   }
   function deleteProfileFlow(id) {
     const u = _users[id];
@@ -1828,6 +1926,397 @@ async function messageSellerInChat(sellerId, sellerName) {
   }
   function closeInquiryModal() { document.getElementById('inquiry-modal').classList.remove('open'); }
 
+  // ════════════════════════════════════
+  // REPORTS — buyers/sellers flagging scams, impostors, or the platform
+  // Every report resolves to the FULL listing (photo, price, status, date
+  // listed) and the FULL seller record (name, phone, email, joined date,
+  // suspension state) — plus a repeat-offender count — so an admin never
+  // has to go hunting across other tabs to act on a report.
+  // ════════════════════════════════════
+  let _reports = [];
+  let reportTab = 'open';
+  const _reportTargetsCache = { listing:{}, seller:{} };
+  let _reportSellerCountsApprox = {};
+
+  const REPORT_REASON_LABEL = {
+    fake_listing:'Fake listing', scam_attempt:'Scam / money upfront',
+    wrong_info:'Details don\'t match', offensive:'Offensive content', other:'Other'
+  };
+
+  async function loadReports() {
+    const tbody    = document.getElementById('reports-body');
+    const mobileEl = document.getElementById('reports-mobile');
+    tbody.innerHTML    = `<tr class="skeleton-row"><td colspan="7"><div class="skel"></div></td></tr>`.repeat(4);
+    mobileEl.innerHTML = '';
+
+    const { data, error } = await db.from('reports').select('*').order('created_at',{ascending:false}).limit(300);
+    if (error || !data) {
+      tbody.innerHTML    = `<tr><td colspan="7"><div class="table-loading"><p>Could not load reports</p></div></td></tr>`;
+      mobileEl.innerHTML = `<div class="table-loading"><p>Could not load reports</p></div>`;
+      return;
+    }
+    _reports = data;
+
+    // Resolve FULL listing + FULL seller records — not just a name — since
+    // reports.target_id can't be a typed foreign key (it points at different
+    // tables depending on target_type). We fetch the whole row so the modal
+    // and table can show everything an admin needs to track the seller.
+    const listingIds      = [...new Set(data.filter(r=>r.target_type==='listing' && r.target_id).map(r=>r.target_id))];
+    const directSellerIds = [...new Set(data.filter(r=>r.target_type==='seller'  && r.target_id).map(r=>r.target_id))];
+
+    _reportTargetsCache.listing = {};
+    _reportTargetsCache.seller  = {};
+
+    if (listingIds.length) {
+      const { data: ls } = await db.from('listings').select('*, listing_photos(*), profiles(*)').in('id', listingIds);
+      (ls||[]).forEach(l => {
+        _reportTargetsCache.listing[l.id] = l;
+        _listings[l.id] = l; // populate the shared store so recycleListing/deactivateListing/openListingModal work straight from a report
+        if (l.profiles) {
+          _reportTargetsCache.seller[l.profiles.id] = l.profiles;
+          _users[l.profiles.id] = l.profiles; // populate the shared store so openProfileModal/disableProfileFlow work straight from a report
+        }
+      });
+    }
+    if (directSellerIds.length) {
+      const { data: ps } = await db.from('profiles').select('*').in('id', directSellerIds);
+      (ps||[]).forEach(p => { _reportTargetsCache.seller[p.id] = p; _users[p.id] = p; });
+    }
+
+    // Cheap "repeat offender" signal computed from the reports we already
+    // have loaded (no extra query) — the modal fetches an exact, DB-backed
+    // count separately when opened.
+    const counts2 = {};
+    data.forEach(r => {
+      const seller = reportTargetSeller(r);
+      if (seller) counts2[seller.id] = (counts2[seller.id]||0) + 1;
+    });
+    _reportSellerCountsApprox = counts2;
+
+    const counts = { open:0, reviewing:0, resolved:0, dismissed:0, all:data.length };
+    data.forEach(r => { if (counts[r.status]!==undefined) counts[r.status]++; });
+    Object.entries(counts).forEach(([k,v]) => { const el=document.getElementById('rtc-'+k); if(el) el.textContent=v; });
+
+    renderReportsTable();
+  }
+
+  function setReportTab(tab) {
+    reportTab = tab;
+    document.querySelectorAll('#view-reports .tab-btn').forEach(b=>b.classList.remove('active'));
+    document.getElementById('rtab-'+tab)?.classList.add('active');
+    renderReportsTable();
+  }
+
+  function reportTargetLabel(r) {
+    if (r.target_type === 'listing') return _reportTargetsCache.listing[r.target_id]?.title || 'Listing (deleted or unknown)';
+    if (r.target_type === 'seller')  return _reportTargetsCache.seller[r.target_id]?.full_name  || 'Seller (unknown)';
+    if (r.target_type === 'system')  return 'NyumbaKisumu platform';
+    return 'Other';
+  }
+  function reportTargetSeller(r) {
+    if (r.target_type === 'seller')  return _reportTargetsCache.seller[r.target_id] || null;
+    if (r.target_type === 'listing') return _reportTargetsCache.listing[r.target_id]?.profiles || null;
+    return null;
+  }
+
+  function renderReportsTable() {
+    const filtered = reportTab==='all' ? _reports : _reports.filter(r=>r.status===reportTab);
+    document.getElementById('reports-count').textContent = `${filtered.length} report${filtered.length!==1?'s':''}`;
+    const tbody    = document.getElementById('reports-body');
+    const mobileEl = document.getElementById('reports-mobile');
+
+    if (!filtered.length) {
+      tbody.innerHTML    = `<tr><td colspan="7"><div class="table-loading"><p>Nothing here</p></div></td></tr>`;
+      mobileEl.innerHTML = `<div class="table-loading"><p>Nothing here</p></div>`;
+      return;
+    }
+
+    tbody.innerHTML = filtered.map(r => {
+      const listing = r.target_type==='listing' ? _reportTargetsCache.listing[r.target_id] : null;
+      const seller  = reportTargetSeller(r);
+      const repeatCount = seller ? (_reportSellerCountsApprox[seller.id]||1) : 0;
+      const cover = listing ? ((listing.listing_photos||[]).find(p=>p.is_cover)||(listing.listing_photos||[])[0]) : null;
+      const thumb = cover ? `<img src="${esc(cover.url)}" alt=""/>` : `<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>`;
+      return `<tr>
+        <td><div class="listing-thumb">
+          ${listing?`<div class="thumb-img">${thumb}</div>`:''}
+          <div class="listing-info">
+            <div class="listing-title">${esc(reportTargetLabel(r))}</div>
+            <div class="listing-meta">${esc(r.target_type)}${listing?' · '+esc(listing.area||''):''}${listing?' · listed '+fmtDate(listing.created_at):''}</div>
+          </div>
+        </div></td>
+        <td>
+          ${seller?`<div style="font-weight:500">${esc(seller.full_name||'—')}</div><div class="listing-meta">${esc(seller.phone||'—')}</div>`:'<span style="color:var(--text-3)">—</span>'}
+          ${repeatCount>1?`<div style="margin-top:3px"><span class="badge rejected">${repeatCount} reports</span></div>`:''}
+          ${seller?.is_disabled?`<div style="margin-top:3px"><span class="badge rejected">suspended</span></div>`:''}
+        </td>
+        <td>${esc(REPORT_REASON_LABEL[r.reason]||r.reason)}<div class="listing-meta" style="max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r.details||'')}</div></td>
+        <td>${esc(r.reporter_name||'Anonymous')}</td>
+        <td><span class="badge ${r.status}">${r.status}</span></td>
+        <td>${fmtDate(r.created_at)}</td>
+        <td>
+          <div class="action-btns">
+            <button class="action-btn view" onclick="openReportModal('${r.id}')">View details</button>
+            ${seller && !seller.is_disabled?`<button class="action-btn reject" onclick="quickSuspendSeller('${seller.id}')">Suspend seller</button>`:''}
+          </div>
+          ${mobileMenu(r.id,[
+            {label:'View full details', cls:'', fn:`openReportModal('${r.id}')`},
+            ...(seller && !seller.is_disabled?[{label:'Suspend seller', cls:'danger', fn:`quickSuspendSeller('${seller.id}')`}]:[]),
+            ...(listing?[{label:'Open listing page', cls:'', fn:`window.open('listing.html?id=${listing.id}','_blank')`}]:[]),
+          ])}
+        </td>
+      </tr>`;
+    }).join('');
+
+    mobileEl.innerHTML = filtered.map(r => {
+      const listing = r.target_type==='listing' ? _reportTargetsCache.listing[r.target_id] : null;
+      const seller  = reportTargetSeller(r);
+      const repeatCount = seller ? (_reportSellerCountsApprox[seller.id]||1) : 0;
+      return `<div class="mobile-card">
+        <div class="mobile-card-header">
+          <div style="flex:1;min-width:0">
+            <div style="font-weight:600;font-size:13px">${esc(reportTargetLabel(r))}</div>
+            <div style="font-size:11px;color:var(--text-3)">${esc(r.target_type)}${seller?' · '+esc(seller.full_name||''):''}</div>
+          </div>
+          <span class="badge ${r.status}">${r.status}</span>
+        </div>
+        <div class="mobile-card-body">
+          <div class="mobile-card-row"><span>Reason</span><span>${esc(REPORT_REASON_LABEL[r.reason]||r.reason)}</span></div>
+          <div class="mobile-card-row"><span>Details</span><span style="text-align:right;max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r.details||'—')}</span></div>
+          ${repeatCount>1?`<div class="mobile-card-row"><span>Pattern</span><span style="color:var(--red);font-weight:700">${repeatCount} reports on this seller</span></div>`:''}
+          <div class="mobile-card-row"><span>Date</span><span>${fmtDate(r.created_at)}</span></div>
+        </div>
+        <div class="mobile-card-actions">
+          <button class="action-btn view" style="flex:1" onclick="openReportModal('${r.id}')">View details</button>
+          ${seller && !seller.is_disabled?`<button class="action-btn reject" style="flex:1" onclick="quickSuspendSeller('${seller.id}')">Suspend seller</button>`:''}
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  function quickSuspendSeller(sellerId) { disableProfileFlow(sellerId); }
+
+  async function openReportModal(id) {
+    const r = _reports.find(x=>x.id===id); if(!r) return;
+    const listing = r.target_type==='listing' ? _reportTargetsCache.listing[r.target_id] : null;
+    const seller  = reportTargetSeller(r);
+
+    document.getElementById('report-modal-title').textContent = `Report — ${r.target_type}`;
+
+    let html = `
+      <div class="field"><label>Status</label><div class="val"><span class="badge ${r.status}">${r.status}</span></div></div>
+      <div class="field"><label>Reason</label><div class="val">${esc(REPORT_REASON_LABEL[r.reason]||r.reason)}</div></div>
+      <div class="field"><label>Details from reporter</label><div class="val" style="font-size:13px;color:var(--text-2);line-height:1.6">${esc(r.details||'—')}</div></div>
+      <div class="field"><label>Reporter</label><div class="val">${esc(r.reporter_name||'Anonymous')}${r.reporter_contact?' · '+esc(r.reporter_contact):''}</div></div>
+      <div class="field"><label>Submitted</label><div class="val">${new Date(r.created_at).toLocaleString('en-KE')}</div></div>`;
+
+    if (listing) {
+      const cover = (listing.listing_photos||[]).find(p=>p.is_cover)||(listing.listing_photos||[])[0];
+      html += `
+      <hr style="border:none;border-top:1px solid var(--border);margin:16px 0"/>
+      <div class="field"><label>Reported listing</label>
+        <div class="val" style="display:flex;gap:10px;align-items:center">
+          <div class="thumb-img" style="width:56px;height:44px">${cover?`<img src="${esc(cover.url)}" alt=""/>`:''}</div>
+          <div><div style="font-weight:600">${esc(listing.title)}</div><div style="font-size:12px;color:var(--text-3)">${esc(listing.area||'')}${listing.sub_area?', '+esc(listing.sub_area):''}</div></div>
+        </div>
+      </div>
+      <div class="field"><label>Price</label><div class="val">${fmtPrice(listing.price)}${listing.price_type==='rent'?' /month':''}</div></div>
+      <div class="field"><label>Listing status</label><div class="val"><span class="badge ${listing.status}">${listing.status}</span> ${listing.is_disabled?'<span class="badge rejected">disabled</span>':''}</div></div>
+      <div class="field"><label>Date listed</label><div class="val">${fmtDate(listing.created_at)}</div></div>
+      <div class="field"><label>Listing ID</label><div class="val mono">${listing.id}</div></div>`;
+    } else if (r.target_type==='listing') {
+      html += `<div class="field" style="margin-top:12px"><label>Reported listing</label><div class="val">Listing not found — it may already have been deleted</div></div>`;
+    }
+
+    if (seller) {
+      html += `
+      <hr style="border:none;border-top:1px solid var(--border);margin:16px 0"/>
+      <div class="field"><label>Seller name</label><div class="val">${esc(seller.full_name||'—')}</div></div>
+      <div class="field"><label>Seller phone</label><div class="val">${esc(seller.phone||'—')}</div></div>
+      <div class="field"><label>Seller email</label><div class="val">${esc(seller.email||'—')}</div></div>
+      <div class="field"><label>Seller since</label><div class="val">${fmtDate(seller.created_at)}</div></div>
+      <div class="field"><label>Account status</label><div class="val">${seller.is_disabled?`<span class="badge rejected">suspended</span>${seller.disabled_reason?' — '+esc(seller.disabled_reason):''}`:'<span class="badge active">active</span>'}</div></div>
+      <div class="field"><label>Total reports involving this seller</label><div class="val" style="font-weight:700;color:var(--red)"><span id="rd-total-reports">Checking…</span></div></div>
+      <div class="field"><label>Seller profile ID</label><div class="val mono">${seller.id}</div></div>`;
+    } else {
+      html += `<div class="field" style="margin-top:12px"><label>Seller</label><div class="val">No seller record linked to this report</div></div>`;
+    }
+
+    html += `<div class="field" style="margin-top:16px"><label>Admin notes (internal only)</label><textarea id="report-admin-notes" rows="3" placeholder="Investigation notes — never shown to buyers or sellers">${esc(r.admin_notes||'')}</textarea></div>`;
+
+    document.getElementById('report-modal-body').innerHTML = html;
+
+    document.getElementById('report-modal-footer').innerHTML = `
+      ${listing?`<button class="btn-modal cancel" onclick="window.open('listing.html?id=${listing.id}','_blank')">View listing</button>`:''}
+      ${seller?`<button class="btn-modal cancel" onclick="closeReportModal(); openProfileModal('${seller.id}')">View seller profile</button>`:''}
+      ${seller && !seller.is_disabled?`<button class="btn-modal reject" onclick="closeReportModal(); disableProfileFlow('${seller.id}')">Suspend seller</button>`:''}
+      ${listing && !listing.is_disabled?`<button class="btn-modal reject" onclick="closeReportModal(); recycleListing('${listing.id}')">Recycle listing</button>`:''}
+      <button class="btn-modal cancel"  onclick="setReportStatus('${r.id}','dismissed')">Dismiss</button>
+      <button class="btn-modal reject"  onclick="setReportStatus('${r.id}','reviewing')">Mark reviewing</button>
+      <button class="btn-modal approve" onclick="setReportStatus('${r.id}','resolved')">Mark resolved</button>
+      <button class="btn-modal cancel"  onclick="closeReportModal()">Close</button>`;
+
+    document.getElementById('report-modal').classList.add('open');
+
+    if (seller) {
+      const total = await getSellerTotalReportCount(seller.id);
+      const el = document.getElementById('rd-total-reports');
+      if (el) el.textContent = `${total} report${total!==1?'s':''} across all their listings and activity`;
+    }
+  }
+  function closeReportModal() { document.getElementById('report-modal').classList.remove('open'); }
+
+  // Exact, DB-backed count of every report tied to a seller — either
+  // directly (target_type='seller') or via any of their listings
+  // (target_type='listing' where the listing belongs to them). This is
+  // the number that matters for spotting a repeat scammer.
+  async function getSellerTotalReportCount(sellerId) {
+    const { data: sellerListings } = await db.from('listings').select('id').eq('seller_id', sellerId);
+    const listingIds = (sellerListings||[]).map(l=>l.id);
+    let total = 0;
+    if (listingIds.length) {
+      const { count } = await db.from('reports').select('*',{count:'exact',head:true}).eq('target_type','listing').in('target_id', listingIds);
+      total += count||0;
+    }
+    const { count: directCount } = await db.from('reports').select('*',{count:'exact',head:true}).eq('target_type','seller').eq('target_id', sellerId);
+    total += directCount||0;
+    return total;
+  }
+
+  async function setReportStatus(id, status) {
+    const notesEl = document.getElementById('report-admin-notes');
+    const notes = notesEl ? notesEl.value.trim() : null;
+    const updates = { status, admin_notes: notes || null };
+    if (status==='resolved' || status==='dismissed') updates.resolved_at = new Date().toISOString();
+    const { error } = await db.from('reports').update(updates).eq('id', id);
+    if (error) { toast('Error: '+error.message,'error'); return; }
+    logAction('update_report','report',id,status);
+    toast(`Report marked ${status}`,'success');
+    closeReportModal();
+    loadReports();
+    loadReportsBadge();
+  }
+
+  async function loadReportsBadge() {
+    const { count } = await db.from('reports').select('*',{count:'exact',head:true}).eq('status','open');
+    const el = document.getElementById('nav-badge-reports');
+    if (el) el.textContent = count || 0;
+  }
+
+  // ════════════════════════════════════
+  // REVIEWS — platform reviews (admin responds) + seller reviews (read-only
+  // here; sellers respond to their own from their dashboard)
+  // ════════════════════════════════════
+  let _reviews = [];
+  let reviewTab = 'platform';
+  let editingReviewId = null;
+
+  async function loadReviews() {
+    const tbody    = document.getElementById('reviews-body');
+    const mobileEl = document.getElementById('reviews-mobile');
+    tbody.innerHTML    = `<tr class="skeleton-row"><td colspan="7"><div class="skel"></div></td></tr>`.repeat(4);
+    mobileEl.innerHTML = '';
+
+    const { data, error } = await db
+      .from('reviews')
+      .select('*, target_seller:profiles!target_seller_id(full_name), listings(title)')
+      .order('created_at',{ascending:false})
+      .limit(300);
+
+    if (error || !data) {
+      tbody.innerHTML    = `<tr><td colspan="7"><div class="table-loading"><p>Could not load reviews</p></div></td></tr>`;
+      mobileEl.innerHTML = `<div class="table-loading"><p>Could not load reviews</p></div>`;
+      return;
+    }
+    _reviews = data;
+    document.getElementById('revtc-platform').textContent = data.filter(r=>r.review_type==='platform').length;
+    document.getElementById('revtc-seller').textContent   = data.filter(r=>r.review_type==='seller').length;
+    renderReviewsTable();
+  }
+
+  function setReviewTab(tab) {
+    reviewTab = tab;
+    document.querySelectorAll('#view-reviews .tab-btn').forEach(b=>b.classList.remove('active'));
+    document.getElementById('revtab-'+tab)?.classList.add('active');
+    renderReviewsTable();
+  }
+
+  function renderReviewsTable() {
+    const filtered = _reviews.filter(r=>r.review_type===reviewTab);
+    document.getElementById('reviews-count').textContent = `${filtered.length} review${filtered.length!==1?'s':''}`;
+    const tbody    = document.getElementById('reviews-body');
+    const mobileEl = document.getElementById('reviews-mobile');
+
+    if (!filtered.length) {
+      tbody.innerHTML    = `<tr><td colspan="7"><div class="table-loading"><p>No reviews yet</p></div></td></tr>`;
+      mobileEl.innerHTML = `<div class="table-loading"><p>No reviews yet</p></div>`;
+      return;
+    }
+
+    const stars = n => '<span style="color:var(--gold)">' + '★'.repeat(n) + '</span><span style="color:var(--border)">' + '★'.repeat(5-n) + '</span>';
+
+    tbody.innerHTML = filtered.map(r => {
+      const target = r.review_type==='platform' ? 'NyumbaKisumu' : (r.target_seller?.full_name || '—');
+      const canRespond = r.review_type==='platform';
+      return `<tr>
+        <td style="white-space:nowrap;font-size:13px">${stars(r.rating)}</td>
+        <td>${esc(r.reviewer_name||(r.reviewer_role==='seller'?'Seller':'Buyer'))}<div class="listing-meta" style="text-transform:capitalize">${esc(r.reviewer_role)}</div></td>
+        <td>${esc(target)}${r.listings?.title?`<div class="listing-meta">${esc(r.listings.title)}</div>`:''}</td>
+        <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r.comment||'—')}</td>
+        <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.response_text?esc(r.response_text):'<span style="color:var(--text-3)">No response</span>'}</td>
+        <td>${fmtDate(r.created_at)}</td>
+        <td>${canRespond?`<button class="action-btn view" onclick="openReviewRespondModal('${r.id}')">${r.response_text?'Edit response':'Respond'}</button>`:'<span style="color:var(--text-3);font-size:12px">Seller responds</span>'}</td>
+      </tr>`;
+    }).join('');
+
+    mobileEl.innerHTML = filtered.map(r => {
+      const target = r.review_type==='platform' ? 'NyumbaKisumu' : (r.target_seller?.full_name || '—');
+      const canRespond = r.review_type==='platform';
+      return `<div class="mobile-card">
+        <div class="mobile-card-header">
+          <div style="flex:1;min-width:0">
+            <div style="font-size:13px">${stars(r.rating)}</div>
+            <div style="font-size:11px;color:var(--text-3)">${esc(r.reviewer_name||'Anonymous')} · ${esc(target)}</div>
+          </div>
+        </div>
+        <div class="mobile-card-body">
+          <div class="mobile-card-row"><span>Comment</span><span style="text-align:right;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r.comment||'—')}</span></div>
+          <div class="mobile-card-row"><span>Response</span><span>${r.response_text?'Sent':'None'}</span></div>
+          <div class="mobile-card-row"><span>Date</span><span>${fmtDate(r.created_at)}</span></div>
+        </div>
+        ${canRespond?`<div class="mobile-card-actions"><button class="action-btn view" style="flex:1" onclick="openReviewRespondModal('${r.id}')">${r.response_text?'Edit response':'Respond'}</button></div>`:''}
+      </div>`;
+    }).join('');
+  }
+
+  function openReviewRespondModal(id) {
+    const r = _reviews.find(x=>x.id===id); if(!r) return;
+    editingReviewId = id;
+    document.getElementById('review-respond-original').textContent = r.comment || '(No comment left — rating only)';
+    document.getElementById('review-respond-text').value = r.response_text || '';
+    document.getElementById('review-respond-modal').classList.add('open');
+  }
+  function closeReviewRespondModal() { document.getElementById('review-respond-modal').classList.remove('open'); editingReviewId=null; }
+
+  async function submitReviewResponse() {
+    const text = document.getElementById('review-respond-text').value.trim();
+    if (!text) { toast('Please write a response first','error'); return; }
+    const { error } = await db.from('reviews').update({
+      response_text: text, responded_by: currentUser?.id||null, responded_at: new Date().toISOString()
+    }).eq('id', editingReviewId);
+    if (error) { toast('Error: '+error.message,'error'); return; }
+    logAction('respond_review','review',editingReviewId,text);
+    toast('Response posted ✓','success');
+    closeReviewRespondModal();
+    loadReviews();
+  }
+
+  async function loadReviewsBadge() {
+    const { count } = await db.from('reviews').select('*',{count:'exact',head:true}).eq('review_type','platform').is('response_text', null);
+    const el = document.getElementById('nav-badge-reviews');
+    if (el) el.textContent = count || 0;
+  }
+
   // ─── ANALYTICS ───
   async function loadAnalytics() {
     const {count:total} = await db.from('page_views').select('*',{count:'exact',head:true});
@@ -1920,6 +2409,7 @@ async function messageSellerInChat(sellerId, sellerName) {
   const viewTitles = {
     overview:'Dashboard', listings:'All listings', 'recycle-bin':'Recycle bin',
     payments:'Payments', users:'Sellers', enquiries:'Enquiries',
+    reports:'Reports', reviews:'Reviews',
     analytics:'Site visits', 'activity-log':'Activity log'
   };
   function showView(v) {
@@ -1934,6 +2424,8 @@ async function messageSellerInChat(sellerId, sellerName) {
     if(v==='payments')     loadPayments();
     if(v==='users')        loadUsers();
     if(v==='enquiries')    loadEnquiries().then(markAllEnquiriesRead);
+    if(v==='reports')      loadReports();
+    if(v==='reviews')      loadReviews();
     if(v==='analytics')    loadAnalytics();
     if(v==='activity-log') loadActivityLog();
   }
@@ -1955,6 +2447,12 @@ async function messageSellerInChat(sellerId, sellerName) {
     document.getElementById('filter-search').value = val;
     loadAllListings();
   }, 500);
+
+  function filterByUser(name) {
+    showView('listings');
+    document.getElementById('filter-search').value = name;
+    loadAllListings();
+  }
 
   async function doLogout() { await db.auth.signOut(); window.location.href='login.html'; }
 
@@ -1978,6 +2476,8 @@ async function messageSellerInChat(sellerId, sellerName) {
     loadChatBadge();
     subscribeChatBadge();
     loadEnquiriesBadge();
+    loadReportsBadge();
+    loadReviewsBadge();
   }
   init();
 </script>
