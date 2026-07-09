@@ -99,7 +99,7 @@
     .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
     .grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; }
 
-    .cat-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+    .cat-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
     .cat-option { border:2px solid var(--border); border-radius:var(--radius-lg); padding:16px; cursor:pointer; transition:all .2s; text-align:center; background:white; }
     .cat-option:hover { border-color:var(--green-mid); }
     .cat-option.selected { border-color:var(--green); background:var(--green-light); }
@@ -293,6 +293,9 @@
       .trial-strip { top:64px; font-size:12px; padding:9px 12px; }
       .trial-floatie { left:12px; top:auto; bottom:90px; width:200px; }
     }
+    @media(max-width:820px) and (min-width:641px) {
+      .cat-grid { grid-template-columns:repeat(2,1fr); }
+    }
   </style>
 </head>
 <body>
@@ -379,7 +382,7 @@
 
     <div class="form-card">
       <h2>What type of property are you listing?</h2>
-      <p class="hint">Choose the category that best describes your apartment</p>
+      <p class="hint">Choose the category that best describes your property</p>
       <div class="cat-grid">
         <div class="cat-option selected" data-cat="student" onclick="selectCat(this)">
           <div class="cat-option-icon">🎓</div>
@@ -395,6 +398,11 @@
           <div class="cat-option-icon">✨</div>
           <div class="cat-option-title">Luxury / premium</div>
           <div class="cat-option-desc">High-end apartments in Milimani, Riat Hills and similar</div>
+        </div>
+        <div class="cat-option" data-cat="commercial" onclick="selectCat(this)">
+          <div class="cat-option-icon">🏢</div>
+          <div class="cat-option-title">Shop / office</div>
+          <div class="cat-option-desc">Retail shops, offices and business spaces, e.g. in Kisumu CBD</div>
         </div>
       </div>
     </div>
@@ -468,7 +476,7 @@
       <div class="grid-2">
         <div class="field">
           <label>Area <span class="req">*</span></label>
-          <select id="area">
+          <select id="area" onchange="handleAreaChange()">
             <option value="">Select area</option>
             <optgroup label="Kisumu">
               <option value="Milimani">Milimani</option>
@@ -479,6 +487,15 @@
               <option value="Nyalenda">Nyalenda</option>
               <option value="Obunga">Obunga</option>
               <option value="Manyatta">Manyatta</option>
+              <option value="Kanyakwar">Kanyakwar</option>
+              <option value="Kibos">Kibos</option>
+              <option value="Kibuye">Kibuye</option>
+              <option value="Migosi">Migosi</option>
+              <option value="Nyamasaria">Nyamasaria</option>
+              <option value="Otonglo">Otonglo</option>
+              <option value="Car Wash">Car Wash</option>
+              <option value="Elgon View">Elgon View</option>
+              <option value="Dunga">Dunga</option>
             </optgroup>
             <optgroup label="Near Maseno University">
               <option value="Maseno">Maseno</option>
@@ -490,13 +507,20 @@
               <option value="Matibabu">Matibabu</option>
               <option value="Ahero">Ahero</option>
             </optgroup>
+            <option value="__other__">Other — my area isn't listed</option>
           </select>
           <div class="field-error" id="err-area">Please select an area</div>
         </div>
-        <div class="field">
+        <div class="field" id="sub_area-field">
           <label>Sub-area / estate <span class="opt">optional</span></label>
           <input type="text" id="sub_area" placeholder="e.g. Near Maseno University Gate"/>
         </div>
+      </div>
+      <div class="field" id="area_custom-field" style="display:none">
+        <label>Type your area <span class="req">*</span></label>
+        <input type="text" id="area_custom" placeholder="e.g. Nyahera"/>
+        <div class="field-hint">Not seeing your area in the list above? Type it in here instead.</div>
+        <div class="field-error" id="err-area-custom">Please type in your area</div>
       </div>
       <div class="field">
         <label>Street address or landmark <span class="opt">optional</span></label>
@@ -860,6 +884,25 @@ function setType(type) {
   document.getElementById('price-suffix').textContent = type === 'sale' ? 'total asking price' : 'per month';
 }
 
+// ── Area select: reveal the free-text "type your own" field when the
+//    "Other — my area isn't listed" option is chosen, so sellers whose
+//    area is missing from the dropdown can still fill in the Area field. ──
+function handleAreaChange() {
+  const val = document.getElementById('area').value;
+  const customField = document.getElementById('area_custom-field');
+  const isOther = val === '__other__';
+  customField.style.display = isOther ? 'block' : 'none';
+  if (!isOther) {
+    document.getElementById('area_custom').value = '';
+    document.getElementById('area_custom').classList.remove('error');
+    document.getElementById('err-area-custom').classList.remove('show');
+  }
+}
+
+function dragOver(e)  { e.preventDefault(); document.getElementById('photo-drop').classList.add('drag-over'); }
+function dragLeave()  { document.getElementById('photo-drop').classList.remove('drag-over'); }
+function dropFiles(e) { e.preventDefault(); dragLeave(); handleFiles(e.dataTransfer.files); }
+
 function selectPlan(plan) {
   if (plan === 'trial') {
     if (trialEligible === null) {
@@ -881,10 +924,6 @@ function getPlanPrice() {
   if (selectedPlan === 'featured') return 2500;
   return 800;
 }
-
-function dragOver(e)  { e.preventDefault(); document.getElementById('photo-drop').classList.add('drag-over'); }
-function dragLeave()  { document.getElementById('photo-drop').classList.remove('drag-over'); }
-function dropFiles(e) { e.preventDefault(); dragLeave(); handleFiles(e.dataTransfer.files); }
 
 async function handleFiles(files) {
   const remaining = 10 - photos.length;
@@ -960,6 +999,14 @@ function updateStepUI() {
   }
 }
 
+// ── Resolves the actual area text to use everywhere (review, submit, summary):
+//    the selected dropdown value, or the freehand text if "Other" was chosen. ──
+function getEffectiveArea() {
+  const val = document.getElementById('area').value;
+  if (val === '__other__') return document.getElementById('area_custom').value.trim();
+  return val;
+}
+
 function validateStep(step) {
   if (step !== 1) return true;
   let ok = true;
@@ -978,6 +1025,17 @@ function validateStep(step) {
     err.classList.toggle('show', !valid);
     if (!valid) ok = false;
   });
+
+  // If "Other — my area isn't listed" was chosen, the typed-in area is required too
+  if (document.getElementById('area').value === '__other__') {
+    const customEl = document.getElementById('area_custom');
+    const customErr = document.getElementById('err-area-custom');
+    const validCustom = customEl.value.trim().length > 0;
+    customEl.classList.toggle('error', !validCustom);
+    customErr.classList.toggle('show', !validCustom);
+    if (!validCustom) ok = false;
+  }
+
   if (!ok) showToast('Please fill in all required fields', 'error');
   return ok;
 }
@@ -990,7 +1048,7 @@ function renderReview() {
     bedrooms:    document.getElementById('bedrooms').value,
     bathrooms:   document.getElementById('bathrooms').value,
     size:        document.getElementById('size').value,
-    area:        document.getElementById('area').value,
+    area:        getEffectiveArea(),
     sub_area:    document.getElementById('sub_area').value,
     address:     document.getElementById('address').value,
     phone:       document.getElementById('phone').value,
@@ -1063,7 +1121,7 @@ async function submitListing() {
       bathrooms:        parseInt(document.getElementById('bathrooms').value) || null,
       size_sqm:         parseFloat(document.getElementById('size').value) || null,
       furnished:        document.getElementById('furnished').checked,
-      area:             document.getElementById('area').value,
+      area:             getEffectiveArea(),
       sub_area:         document.getElementById('sub_area').value.trim() || null,
       address:          document.getElementById('address').value.trim() || null,
       category:         selectedCat,
