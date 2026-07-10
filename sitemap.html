@@ -1,422 +1,46 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Sitemap — NyumbaKisumu</title>
-  <meta name="description" content="Full sitemap of NyumbaKisumu — find every page on our apartment listing platform for Kisumu, Maseno, and Luanda."/>
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet"/>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --green:#0F6E56;--green-light:#E1F5EE;--green-dark:#085041;--green-mid:#1D9E75;
-      --text:#1a1a18;--text-2:#4a4a46;--text-3:#888780;
-      --border:#e0ded8;--surface:#f7f6f2;--white:#ffffff;
-      --radius:10px;--radius-lg:16px;
-    }
-    html { scroll-behavior: smooth; }
-    body { font-family:'Inter',sans-serif;color:var(--text);background:var(--surface);font-size:15px;line-height:1.6; }
-    a { text-decoration:none;color:inherit; }
-    button { font-family:inherit;cursor:pointer;border:none; }
+-- Add occupied_at column to listings table
+ALTER TABLE listings 
+ADD COLUMN IF NOT EXISTS occupied_at TIMESTAMPTZ DEFAULT NULL;
 
-    /* ── Navbar ── */
-    nav {
-      position:sticky;top:0;z-index:100;
-      display:flex;align-items:center;justify-content:space-between;
-      padding:0 32px;height:64px;
-      background:var(--white);border-bottom:1px solid var(--border);
-    }
-    .logo { display:flex;align-items:center;gap:10px;font-family:'Playfair Display',serif;font-size:20px;color:var(--green-dark); }
-    .logo-icon { width:34px;height:34px;background:var(--green);border-radius:8px;display:flex;align-items:center;justify-content:center; }
-    .logo-icon svg { width:18px;height:18px;fill:none;stroke:white;stroke-width:2;stroke-linecap:round; }
-    .nav-links { display:flex;align-items:center;gap:6px; }
-    .nav-link { font-size:14px;color:var(--text-2);padding:8px 14px;border-radius:var(--radius);transition:background .15s; }
-    .nav-link:hover { background:var(--surface); }
-    .btn-primary { display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:500;padding:9px 18px;border-radius:var(--radius);background:var(--green);color:white;transition:background .15s; }
-    .btn-primary:hover { background:var(--green-dark); }
-    .mobile-menu-btn { display:none;padding:6px;border-radius:6px;background:none;border:none;cursor:pointer; }
-    .mobile-menu-btn svg { width:22px;height:22px;stroke:var(--text);fill:none;stroke-width:2;display:block; }
-    .mobile-nav { display:none;position:fixed;top:64px;left:0;right:0;background:var(--white);border-bottom:1px solid var(--border);padding:16px;z-index:99;flex-direction:column;gap:4px;box-shadow:0 8px 24px rgba(0,0,0,.1); }
-    .mobile-nav.open { display:flex; }
-    .mobile-nav a { font-size:15px;color:var(--text-2);padding:10px 14px;border-radius:var(--radius); }
-    .mobile-nav a:hover { background:var(--surface); }
-    .mobile-nav .btn-primary { text-align:center;justify-content:center;margin-top:8px; }
+-- Add is_trial column (for free trial listings)
+ALTER TABLE listings
+ADD COLUMN IF NOT EXISTS is_trial BOOLEAN DEFAULT FALSE;
 
-    /* ── Hero ── */
-    .hero {
-      background:var(--green-dark);padding:56px 32px 64px;
-      text-align:center;position:relative;overflow:hidden;
-    }
-    .hero::before {
-      content:'';position:absolute;inset:0;
-      background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-    }
-    .hero-eyebrow { display:inline-block;background:rgba(255,255,255,0.1);color:#9FE1CB;font-size:12px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;padding:5px 14px;border-radius:20px;margin-bottom:18px;position:relative; }
-    .hero h1 { font-family:'Playfair Display',serif;font-size:clamp(28px,4vw,40px);color:white;margin-bottom:12px;position:relative; }
-    .hero p { font-size:15px;color:rgba(255,255,255,0.6);position:relative;max-width:440px;margin:0 auto; }
+-- Add trial_expires_at column
+ALTER TABLE listings
+ADD COLUMN IF NOT EXISTS trial_expires_at TIMESTAMPTZ DEFAULT NULL;
 
-    /* ── Main layout ── */
-    .page-wrap { max-width:1000px;margin:0 auto;padding:56px 24px 80px;display:grid;grid-template-columns:220px 1fr;gap:48px;align-items:start; }
+-- Add payment_status column
+ALTER TABLE listings
+ADD COLUMN IF NOT EXISTS payment_status TEXT DEFAULT 'unpaid';
 
-    /* ── Sticky TOC ── */
-    .toc { position:sticky;top:80px; }
-    .toc-title { font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text-3);margin-bottom:14px; }
-    .toc-list { list-style:none;display:flex;flex-direction:column;gap:2px; }
-    .toc-list li a { display:block;font-size:13px;color:var(--text-2);padding:7px 10px;border-radius:var(--radius);border-left:2px solid transparent;transition:all .15s; }
-    .toc-list li a:hover { background:var(--green-light);color:var(--green);border-left-color:var(--green); }
-    .toc-list li a.active { background:var(--green-light);color:var(--green-dark);border-left-color:var(--green);font-weight:500; }
+-- Add disabled_reason column (for admin suspensions)
+ALTER TABLE listings
+ADD COLUMN IF NOT EXISTS disabled_reason TEXT DEFAULT NULL;
 
-    /* ── Sitemap content ── */
-    .sitemap-group { margin-bottom:48px;scroll-margin-top:84px; }
-    .sitemap-group:last-child { margin-bottom:0; }
-    .group-header { display:flex;align-items:center;gap:12px;margin-bottom:20px; }
-    .group-icon { width:38px;height:38px;border-radius:9px;background:var(--green-light);display:flex;align-items:center;justify-content:center;flex-shrink:0; }
-    .group-icon svg { width:18px;height:18px;stroke:var(--green);fill:none;stroke-width:1.8; }
-    .group-title { font-family:'Playfair Display',serif;font-size:20px;color:var(--text); }
-    .group-count { font-size:12px;color:var(--text-3);margin-left:auto; }
+-- Add recycle_bin column (soft delete by admin)
+ALTER TABLE listings
+ADD COLUMN IF NOT EXISTS recycle_bin BOOLEAN DEFAULT FALSE;
 
-    .pages-grid { display:grid;grid-template-columns:1fr 1fr;gap:10px; }
-    .page-card {
-      display:flex;align-items:center;gap:12px;
-      background:var(--white);border:1px solid var(--border);border-radius:var(--radius);
-      padding:14px 16px;transition:all .15s;
-    }
-    .page-card:hover { border-color:var(--green);background:var(--green-light);transform:translateY(-1px); }
-    .page-card:hover .page-arrow { color:var(--green); }
-    .page-card-icon { width:32px;height:32px;border-radius:7px;background:var(--surface);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s; }
-    .page-card:hover .page-card-icon { background:rgba(15,110,86,0.15); }
-    .page-card-icon svg { width:15px;height:15px;stroke:var(--text-3);fill:none;stroke-width:2;transition:stroke .15s; }
-    .page-card:hover .page-card-icon svg { stroke:var(--green); }
-    .page-card-info { flex:1;min-width:0; }
-    .page-card-name { font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px; }
-    .page-card-desc { font-size:11px;color:var(--text-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
-    .page-arrow { font-size:14px;color:var(--text-3);flex-shrink:0;transition:color .15s; }
+-- Add purge_at column (when admin-deleted listings get fully removed)
+ALTER TABLE listings
+ADD COLUMN IF NOT EXISTS purge_at TIMESTAMPTZ DEFAULT NULL;
 
-    /* Divider */
-    .group-divider { height:1px;background:var(--border);margin-bottom:48px; }
+-- Update RLS policy so occupied/disabled listings don't show publicly
+DROP POLICY IF EXISTS "Public can view active listings" ON listings;
 
-    /* ── Footer ── */
-    footer { background:var(--text);color:rgba(255,255,255,0.55);padding:56px 32px 28px; }
-    .footer-inner { max-width:1040px;margin:0 auto; }
-    .footer-top { display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;margin-bottom:48px; }
-    .footer-logo { font-family:'Playfair Display',serif;font-size:20px;color:white;display:flex;align-items:center;gap:10px;margin-bottom:12px; }
-    .footer-logo-icon { width:28px;height:28px;background:var(--green);border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
-    .footer-logo-icon svg { width:14px;height:14px;fill:none;stroke:white;stroke-width:2; }
-    .footer-tagline { font-size:13px;line-height:1.8;color:rgba(255,255,255,0.45);max-width:220px; }
-    .footer-col h4 { font-size:11px;font-weight:700;color:white;margin-bottom:14px;letter-spacing:.1em;text-transform:uppercase; }
-    .footer-col a { display:block;font-size:13px;color:rgba(255,255,255,0.45);margin-bottom:9px;transition:color .15s; }
-    .footer-col a:hover { color:white; }
-    .footer-divider { height:1px;background:rgba(255,255,255,0.08);margin-bottom:22px; }
-    .footer-bottom { display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px; }
-    .footer-bottom p { font-size:12px;color:rgba(255,255,255,0.3); }
-    .footer-bottom-links { display:flex;gap:18px; }
-    .footer-bottom-links a { font-size:12px;color:rgba(255,255,255,0.3);transition:color .15s; }
-    .footer-bottom-links a:hover { color:white; }
+CREATE POLICY "Public can view active listings" ON listings
+  FOR SELECT
+  USING (
+    status = 'active'
+    AND is_disabled = FALSE
+    AND recycle_bin = FALSE
+    AND (status != 'occupied')
+  );
 
-    @media(max-width:860px) {
-      .page-wrap { grid-template-columns:1fr;gap:0; }
-      .toc { display:none; }
-      .pages-grid { grid-template-columns:1fr; }
-      nav { padding:0 16px; }
-      .nav-links { display:none; }
-      .mobile-menu-btn { display:flex; }
-      .footer-top { grid-template-columns:1fr 1fr;gap:28px; }
-    }
-    @media(max-width:480px) {
-      .footer-top { grid-template-columns:1fr; }
-      .hero { padding:40px 16px 48px; }
-    }
-  </style>
-</head>
-<body>
+-- Sellers can still see their own listings regardless of status
+DROP POLICY IF EXISTS "Sellers can view own listings" ON listings;
 
-<!-- ── NAVBAR ── -->
-<nav>
-  <a href="index.html" class="logo">
-    <div class="logo-icon">
-      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-    </div>
-    NyumbaKisumu
-  </a>
-  <div class="nav-links">
-    <a href="index.html" class="nav-link">Home</a>
-    <a href="listings.html" class="nav-link">Browse</a>
-    <a href="how-it-works.html" class="nav-link">How it works</a>
-    <a href="about.html" class="nav-link">About us</a>
-    <a href="contact.html" class="nav-link">Contact</a>
-    <a href="login.html" class="nav-link" id="nav-account-link">Sign in</a>
-    <a href="post-listing.html" class="btn-primary">List your apartment</a>
-  </div>
-  <button class="mobile-menu-btn" onclick="toggleMobileMenu()" aria-label="Open menu">
-    <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-  </button>
-</nav>
-<div class="mobile-nav" id="mobile-nav">
-  <a href="index.html">Home</a>
-  <a href="listings.html">Browse listings</a>
-  <a href="how-it-works.html">How it works</a>
-  <a href="about.html">About us</a>
-  <a href="contact.html">Contact</a>
-  <a href="login.html">Sign in</a>
-  <a href="post-listing.html" class="btn-primary">List your apartment</a>
-</div>
-
-<!-- ── HERO ── -->
-<section class="hero">
-  <div class="hero-eyebrow">All pages</div>
-  <h1>Sitemap</h1>
-  <p>Every page on NyumbaKisumu — browse by category or jump straight to what you need.</p>
-</section>
-
-<!-- ── MAIN ── -->
-<div class="page-wrap">
-
-  <!-- Sticky TOC -->
-  <aside class="toc">
-    <div class="toc-title">Jump to</div>
-    <ul class="toc-list">
-      <li><a href="#public">Public pages</a></li>
-      <li><a href="#browse">Browse & listings</a></li>
-      <li><a href="#seller">Seller pages</a></li>
-      <li><a href="#account">Account & auth</a></li>
-      <li><a href="#legal">Legal & info</a></li>
-    </ul>
-  </aside>
-
-  <!-- Sitemap content -->
-  <main>
-
-    <!-- PUBLIC PAGES -->
-    <div class="sitemap-group" id="public">
-      <div class="group-header">
-        <div class="group-icon"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
-        <div class="group-title">Public pages</div>
-        <span class="group-count">5 pages</span>
-      </div>
-      <div class="pages-grid">
-        <a href="index.html" class="page-card">
-          <div class="page-card-icon"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
-          <div class="page-card-info"><div class="page-card-name">Homepage</div><div class="page-card-desc">Featured listings, search, areas</div></div>
-          <span class="page-arrow">→</span>
-        </a>
-        <a href="how-it-works.html" class="page-card">
-          <div class="page-card-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
-          <div class="page-card-info"><div class="page-card-name">How it works</div><div class="page-card-desc">Guide for buyers and sellers</div></div>
-          <span class="page-arrow">→</span>
-        </a>
-        <a href="about.html" class="page-card">
-          <div class="page-card-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></div>
-          <div class="page-card-info"><div class="page-card-name">About us</div><div class="page-card-desc">Our story, mission, and values</div></div>
-          <span class="page-arrow">→</span>
-        </a>
-        <a href="contact.html" class="page-card">
-          <div class="page-card-icon"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
-          <div class="page-card-info"><div class="page-card-name">Contact us</div><div class="page-card-desc">Get in touch with our team</div></div>
-          <span class="page-arrow">→</span>
-        </a>
-        <a href="pricing.html" class="page-card">
-          <div class="page-card-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div>
-          <div class="page-card-info"><div class="page-card-name">Pricing</div><div class="page-card-desc">Listing fee plans — KES 800 & 2,500</div></div>
-          <span class="page-arrow">→</span>
-        </a>
-      </div>
-    </div>
-    <div class="group-divider"></div>
-
-    <!-- BROWSE & LISTINGS -->
-    <div class="sitemap-group" id="browse">
-      <div class="group-header">
-        <div class="group-icon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
-        <div class="group-title">Browse & listings</div>
-        <span class="group-count">3 pages</span>
-      </div>
-      <div class="pages-grid">
-        <a href="listings.html" class="page-card">
-          <div class="page-card-icon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
-          <div class="page-card-info"><div class="page-card-name">Browse all listings</div><div class="page-card-desc">Search, filter by area and category</div></div>
-          <span class="page-arrow">→</span>
-        </a>
-        <a href="listing.html" class="page-card">
-          <div class="page-card-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
-          <div class="page-card-info"><div class="page-card-name">Listing detail</div><div class="page-card-desc">Photos, specs, contact seller</div></div>
-          <span class="page-arrow">→</span>
-        </a>
-        <a href="saved.html" class="page-card">
-          <div class="page-card-icon"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg></div>
-          <div class="page-card-info"><div class="page-card-name">Saved listings</div><div class="page-card-desc">Your shortlisted apartments</div></div>
-          <span class="page-arrow">→</span>
-        </a>
-      </div>
-    </div>
-    <div class="group-divider"></div>
-
-    <!-- SELLER PAGES -->
-    <div class="sitemap-group" id="seller">
-      <div class="group-header">
-        <div class="group-icon"><svg viewBox="0 0 24 24"><path d="M20 7H4a2 2 0 00-2 2v6a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg></div>
-        <div class="group-title">Seller pages</div>
-        <span class="group-count">3 pages</span>
-      </div>
-      <div class="pages-grid">
-        <a href="post-listing.html" class="page-card">
-          <div class="page-card-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
-          <div class="page-card-info"><div class="page-card-name">Post a listing</div><div class="page-card-desc">4-step form to go live today</div></div>
-          <span class="page-arrow">→</span>
-        </a>
-        <a href="dashboard.html" class="page-card">
-          <div class="page-card-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></div>
-          <div class="page-card-info"><div class="page-card-name">Seller dashboard</div><div class="page-card-desc">Manage listings, messages, payments</div></div>
-          <span class="page-arrow">→</span>
-        </a>
-        <a href="profile.html" class="page-card">
-          <div class="page-card-icon"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
-          <div class="page-card-info"><div class="page-card-name">Profile settings</div><div class="page-card-desc">Edit name, phone, password</div></div>
-          <span class="page-arrow">→</span>
-        </a>
-      </div>
-    </div>
-    <div class="group-divider"></div>
-
-    <!-- ACCOUNT & AUTH -->
-    <div class="sitemap-group" id="account">
-      <div class="group-header">
-        <div class="group-icon"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
-        <div class="group-title">Account & auth</div>
-        <span class="group-count">3 pages</span>
-      </div>
-      <div class="pages-grid">
-        <a href="login.html" class="page-card">
-          <div class="page-card-icon"><svg viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg></div>
-          <div class="page-card-info"><div class="page-card-name">Sign in / Register</div><div class="page-card-desc">Login, create account, reset password</div></div>
-          <span class="page-arrow">→</span>
-        </a>
-        <a href="verify-email.html" class="page-card">
-          <div class="page-card-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
-          <div class="page-card-info"><div class="page-card-name">Verify email</div><div class="page-card-desc">Confirm your account after signup</div></div>
-          <span class="page-arrow">→</span>
-        </a>
-        <a href="reset-confirm.html" class="page-card">
-          <div class="page-card-icon"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
-          <div class="page-card-info"><div class="page-card-name">Reset password</div><div class="page-card-desc">Set a new password from email link</div></div>
-          <span class="page-arrow">→</span>
-        </a>
-      </div>
-    </div>
-    <div class="group-divider"></div>
-
-    <!-- LEGAL & INFO -->
-    <div class="sitemap-group" id="legal">
-      <div class="group-header">
-        <div class="group-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div>
-        <div class="group-title">Legal & info</div>
-        <span class="group-count">4 pages</span>
-      </div>
-      <div class="pages-grid">
-        <a href="terms.html" class="page-card">
-          <div class="page-card-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
-          <div class="page-card-info"><div class="page-card-name">Terms of service</div><div class="page-card-desc">Platform rules and user agreement</div></div>
-          <span class="page-arrow">→</span>
-        </a>
-        <a href="privacy.html" class="page-card">
-          <div class="page-card-icon"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
-          <div class="page-card-info"><div class="page-card-name">Privacy policy</div><div class="page-card-desc">How we handle your data</div></div>
-          <span class="page-arrow">→</span>
-        </a>
-        <a href="sitemap.html" class="page-card" style="border-color:var(--green);background:var(--green-light)">
-          <div class="page-card-icon" style="background:rgba(15,110,86,0.15)"><svg viewBox="0 0 24 24" style="stroke:var(--green)"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18"/></svg></div>
-          <div class="page-card-info"><div class="page-card-name" style="color:var(--green)">Sitemap</div><div class="page-card-desc">You are here</div></div>
-          <span class="page-arrow" style="color:var(--green)">✓</span>
-        </a>
-        <a href="404.html" class="page-card">
-          <div class="page-card-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
-          <div class="page-card-info"><div class="page-card-name">404 — Not found</div><div class="page-card-desc">Custom page for broken links</div></div>
-          <span class="page-arrow">→</span>
-        </a>
-      </div>
-    </div>
-
-  </main>
-</div>
-
-<!-- ── FOOTER ── -->
-<footer>
-  <div class="footer-inner">
-    <div class="footer-top">
-      <div>
-        <div class="footer-logo">
-          <div class="footer-logo-icon">
-            <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-          </div>
-          NyumbaKisumu
-        </div>
-        <p class="footer-tagline">Find and list apartments in Kisumu, Maseno, and Luanda — no agents, no commission.</p>
-      </div>
-      <div class="footer-col">
-        <h4>Browse</h4>
-        <a href="listings.html">All listings</a>
-        <a href="listings.html?category=student">Student housing</a>
-        <a href="listings.html?category=standard">Standard</a>
-        <a href="listings.html?category=luxury">Luxury</a>
-      </div>
-      <div class="footer-col">
-        <h4>Platform</h4>
-        <a href="post-listing.html">List a property</a>
-        <a href="pricing.html">Pricing</a>
-        <a href="how-it-works.html">How it works</a>
-        <a href="login.html">Seller login</a>
-      </div>
-      <div class="footer-col">
-        <h4>Company</h4>
-        <a href="about.html">About us</a>
-        <a href="contact.html">Contact us</a>
-        <a href="terms.html">Terms of service</a>
-        <a href="privacy.html">Privacy policy</a>
-      </div>
-    </div>
-    <div class="footer-divider"></div>
-    <div class="footer-bottom">
-      <p>© 2025 NyumbaKisumu. All rights reserved. Built for Western Kenya.</p>
-      <div class="footer-bottom-links">
-        <a href="terms.html">Terms</a>
-        <a href="privacy.html">Privacy</a>
-        <a href="sitemap.html">Sitemap</a>
-      </div>
-    </div>
-  </div>
-</footer>
-
-<script>
-  const SUPABASE_URL = 'https://vliuuloyfhyxcsuchpss.supabase.co';
-  const SUPABASE_KEY = 'sb_publishable_oIIcecf3wzKMual5K24Z8Q_zmxVfgsx';
-  const { createClient } = supabase;
-  const db = createClient(SUPABASE_URL, SUPABASE_KEY);
-
-  function toggleMobileMenu() {
-    document.getElementById('mobile-nav').classList.toggle('open');
-  }
-  document.addEventListener('click', e => {
-    const nav = document.getElementById('mobile-nav');
-    const btn = document.querySelector('.mobile-menu-btn');
-    if (nav.classList.contains('open') && !nav.contains(e.target) && !btn.contains(e.target)) nav.classList.remove('open');
-  });
-
-  // Auth swap
-  (async function() {
-    const { data: { session } } = await db.auth.getSession();
-    const link = document.getElementById('nav-account-link');
-    if (session && link) { link.textContent = 'My account'; link.href = 'dashboard.html'; }
-  })();
-
-  // TOC active highlight on scroll
-  const groups = document.querySelectorAll('.sitemap-group[id]');
-  const tocLinks = document.querySelectorAll('.toc-list a');
-  window.addEventListener('scroll', () => {
-    let current = '';
-    groups.forEach(g => { if (window.scrollY >= g.offsetTop - 100) current = g.id; });
-    tocLinks.forEach(a => { a.classList.toggle('active', a.getAttribute('href') === '#' + current); });
-  });
-</script>
-</body>
-</html>
+CREATE POLICY "Sellers can view own listings" ON listings
+  FOR SELECT
+  USING (auth.uid() = seller_id);
