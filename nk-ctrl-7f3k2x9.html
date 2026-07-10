@@ -510,6 +510,7 @@
             <div class="quick-row"><span>Student</span><span id="cat-student">—</span></div>
             <div class="quick-row"><span>Standard</span><span id="cat-standard">—</span></div>
             <div class="quick-row"><span>Luxury</span><span id="cat-luxury">—</span></div>
+            <div class="quick-row"><span>Commercial</span><span id="cat-commercial">—</span></div>
           </div>
         </div>
       </div>
@@ -969,9 +970,10 @@
       .sort((a,b)=>b.count-a.count)
       .map(r=>`<div class="quick-row"><span>${esc(r.area)}</span><span>${r.count}</span></div>`).join('');
 
-    for (const cat of ['student','standard','luxury']) {
+    for (const cat of ['student','standard','luxury','commercial']) {
       const {count} = await db.from('listings').select('*',{count:'exact',head:true}).eq('category',cat).eq('status','active').eq('recycle_bin',false);
-      document.getElementById('cat-'+cat).textContent = count||0;
+      const el = document.getElementById('cat-'+cat);
+      if (el) el.textContent = count||0;
     }
 
     loadPendingPreview();
@@ -2185,8 +2187,11 @@ async function messageSellerInChat(sellerId, sellerName) {
 
   async function setReportStatus(id, status) {
     const notesEl = document.getElementById('report-admin-notes');
-    const notes = notesEl ? notesEl.value.trim() : null;
-    const updates = { status, admin_notes: notes || null };
+    // Only include admin_notes in the update when the modal's textarea is actually
+    // present (i.e. the modal is open) — otherwise leave existing notes untouched,
+    // since this can now also be triggered directly from a row/menu button.
+    const updates = { status };
+    if (notesEl) updates.admin_notes = notesEl.value.trim() || null;
     if (status==='resolved' || status==='dismissed') updates.resolved_at = new Date().toISOString();
     const { error } = await db.from('reports').update(updates).eq('id', id);
     if (error) { toast('Error: '+error.message,'error'); return; }
