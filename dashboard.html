@@ -24,8 +24,6 @@
     button{font-family:inherit;cursor:pointer;border:none;background:none}
     input,textarea,select{font-family:inherit}
     .shell{display:flex;min-height:100vh}
-
-    /* Sidebar */
     .sidebar{width:var(--sidebar-w);flex-shrink:0;background:var(--green-dark);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100;transition:transform .25s}
     .sidebar-logo{height:var(--topbar-h);display:flex;align-items:center;padding:0 20px;gap:10px;border-bottom:1px solid rgba(255,255,255,0.08);flex-shrink:0}
     .sidebar-logo-icon{width:32px;height:32px;background:var(--green-mid);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
@@ -45,8 +43,6 @@
     .sidebar-avatar{width:32px;height:32px;border-radius:50%;background:var(--green-mid);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:white;flex-shrink:0}
     .sidebar-user-name{font-size:13px;font-weight:600;color:white}
     .sidebar-user-email{font-size:11px;color:rgba(255,255,255,0.4);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:140px}
-
-    /* Topbar */
     .topbar{position:fixed;top:0;left:var(--sidebar-w);right:0;height:var(--topbar-h);background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 28px;z-index:90}
     .topbar-left{display:flex;align-items:center;gap:14px}
     .topbar-title{font-size:16px;font-weight:600;color:var(--text)}
@@ -54,14 +50,10 @@
     .topbar-right{display:flex;align-items:center;gap:10px}
     .hamburger{display:none;flex-direction:column;gap:4px;cursor:pointer;padding:6px;border-radius:6px;background:none;border:none}
     .hamburger span{display:block;width:18px;height:2px;background:var(--text-2);border-radius:1px}
-
-    /* Main */
     .main{margin-left:var(--sidebar-w);padding-top:var(--topbar-h);min-height:100vh;width:100%}
     .page{display:none;padding:28px}
     .page.active{display:block}
     #page-messages{padding:0}
-
-    /* Buttons */
     .btn{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:500;padding:8px 16px;border-radius:var(--radius);transition:all .15s;cursor:pointer;border:none}
     .btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2}
     .btn-primary{background:var(--green);color:white}
@@ -75,12 +67,9 @@
     .btn:disabled{opacity:.55;cursor:not-allowed}
     .spinner-sm{width:13px;height:13px;border:2px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite;display:inline-block}
     @keyframes spin{to{transform:rotate(360deg)}}
-
     .card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg)}
     .section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px}
     .section-head h2{font-size:17px;font-weight:600;color:var(--text)}
-
-    /* Status badges */
     .status{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;letter-spacing:.03em}
     .status::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0}
     .status-active{background:#d1fae5;color:#065f46}
@@ -90,23 +79,23 @@
     .status-expired{background:#f3f4f6;color:#6b7280}
     .status-disabled{background:var(--red-light);color:var(--red)}
     .status-occupied{background:#EDE9FE;color:#5b21b6}
-
     .disabled-note{font-size:11px;color:var(--red);background:var(--red-light);border-radius:6px;padding:6px 9px;margin-top:6px;line-height:1.5;max-width:300px}
     .occupied-note{font-size:11px;color:#5b21b6;background:#EDE9FE;border-radius:6px;padding:6px 9px;margin-top:6px;line-height:1.5;max-width:300px}
     .trial-note{font-size:11px;color:var(--blue,#185FA5);background:#E6F1FB;border-radius:6px;padding:6px 9px;margin-top:6px;line-height:1.5;max-width:320px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
     .trial-note .upgrade-link{color:var(--green-dark);font-weight:700;text-decoration:underline;cursor:pointer}
     .trial-note.urgent{color:var(--red);background:var(--red-light)}
-    .icon-btn.locked{opacity:.45;cursor:not-allowed}
+    .icon-btn{width:30px;height:30px;border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;border:1px solid var(--border);background:white;color:var(--text-2)}
+    .icon-btn svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2}
+    .icon-btn:hover{border-color:var(--green);color:var(--green);background:var(--green-light)}
+    .icon-btn.danger:hover{border-color:var(--red);color:var(--red);background:var(--red-light)}
+    .icon-btn.purple:hover{border-color:var(--purple);color:var(--purple);background:#EDE9FE}
+    .icon-btn.locked{opacity:.4;cursor:not-allowed;pointer-events:none}
     .icon-btn.locked:hover{border-color:var(--border);color:var(--text-2);background:white}
-
-    /* Toast */
     .toast{position:fixed;bottom:28px;right:28px;z-index:9999;background:var(--text);color:white;padding:12px 18px;border-radius:var(--radius);font-size:13px;font-weight:500;box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:10px;transform:translateY(80px);opacity:0;transition:all .25s;max-width:340px}
     .toast.show{transform:translateY(0);opacity:1}
     .toast.success{background:var(--green-dark)}
     .toast.error{background:var(--red)}
     .toast svg{width:15px;height:15px;stroke:white;fill:none;stroke-width:2.5;flex-shrink:0}
-
-    /* Modal */
     .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:500;display:none;align-items:center;justify-content:center;padding:20px}
     .modal-overlay.open{display:flex}
     .modal{background:var(--white);border-radius:var(--radius-lg);width:100%;max-width:520px;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg);animation:modalIn .2s ease}
@@ -117,8 +106,6 @@
     .modal-close:hover{background:var(--surface)}
     .modal-body{padding:24px}
     .modal-foot{padding:16px 24px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end}
-
-    /* Forms */
     .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
     .form-group{margin-bottom:16px}
     .form-group:last-child{margin-bottom:0}
@@ -126,8 +113,6 @@
     .form-group input,.form-group select,.form-group textarea{width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:var(--radius);font-size:13px;color:var(--text);background:var(--white);outline:none;transition:border-color .15s}
     .form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(15,110,86,0.08)}
     .form-group textarea{min-height:100px;resize:vertical}
-
-    /* Toggle switch */
     .toggle-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border)}
     .toggle-row:last-child{border-bottom:none}
     .toggle-label strong{display:block;font-size:13px;font-weight:600;color:var(--text)}
@@ -138,8 +123,6 @@
     .switch-track::after{content:'';position:absolute;width:16px;height:16px;background:white;border-radius:50%;top:3px;left:3px;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,0.2)}
     .switch input:checked + .switch-track{background:var(--green)}
     .switch input:checked + .switch-track::after{transform:translateX(18px)}
-
-    /* Stats */
     .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:28px}
     .stat-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px 22px;position:relative;overflow:hidden}
     .stat-card::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--green)}
@@ -153,8 +136,6 @@
     .stat-icon{position:absolute;top:18px;right:18px;width:36px;height:36px;border-radius:8px;background:var(--surface);display:flex;align-items:center;justify-content:center}
     .stat-icon svg{width:18px;height:18px;stroke:var(--text-3);fill:none;stroke-width:1.8}
     .overview-grid{display:grid;grid-template-columns:2fr 1fr;gap:20px}
-
-    /* Activity */
     .activity-feed{display:flex;flex-direction:column}
     .activity-item{display:flex;align-items:flex-start;gap:12px;padding:14px 0;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s}
     .activity-item:hover{background:var(--surface)}
@@ -168,8 +149,6 @@
     .activity-text{font-size:13px;color:var(--text-2);line-height:1.5;flex:1}
     .activity-text strong{color:var(--text);font-weight:600}
     .activity-time{font-size:11px;color:var(--text-3);white-space:nowrap}
-
-    /* Quick listings */
     .quick-listing{display:flex;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--border)}
     .quick-listing:last-child{border-bottom:none}
     .quick-img{width:52px;height:40px;border-radius:6px;background:var(--surface);flex-shrink:0;display:flex;align-items:center;justify-content:center;overflow:hidden}
@@ -178,8 +157,6 @@
     .quick-name{font-size:13px;font-weight:600;color:var(--text);line-height:1.3}
     .quick-meta{font-size:11px;color:var(--text-3)}
     .quick-price{font-size:13px;font-weight:700;color:var(--green-dark);white-space:nowrap;margin-left:auto}
-
-    /* Chart */
     .chart-bars{display:flex;align-items:flex-end;gap:6px;height:80px;padding:0 4px}
     .chart-bar{flex:1;border-radius:4px 4px 0 0;background:var(--green-light);transition:background .15s;cursor:default;position:relative;min-height:4px}
     .chart-bar:hover{background:var(--green-mid)}
@@ -187,8 +164,6 @@
     .chart-bar:hover .bar-tip{opacity:1}
     .chart-labels{display:flex;gap:6px;padding:6px 4px 0}
     .chart-label{flex:1;text-align:center;font-size:10px;color:var(--text-3)}
-
-    /* Listings table */
     .filter-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;align-items:center}
     .filter-pill{font-size:12px;padding:6px 14px;border-radius:20px;border:1.5px solid var(--border);background:white;color:var(--text-2);cursor:pointer;font-weight:500;transition:all .15s}
     .filter-pill:hover{border-color:var(--green);color:var(--green)}
@@ -210,19 +185,10 @@
     .listing-price-text{font-size:13px;font-weight:700;color:var(--green-dark)}
     .listing-price-sub{font-size:11px;color:var(--text-3)}
     .actions-cell{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
-    .icon-btn{width:30px;height:30px;border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;border:1px solid var(--border);background:white;color:var(--text-2)}
-    .icon-btn svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2}
-    .icon-btn:hover{border-color:var(--green);color:var(--green);background:var(--green-light)}
-    .icon-btn.danger:hover{border-color:var(--red);color:var(--red);background:var(--red-light)}
-    .icon-btn.purple:hover{border-color:var(--purple);color:var(--purple);background:#EDE9FE}
-
-    /* Empty state */
     .empty-state{text-align:center;padding:60px 20px;color:var(--text-3)}
     .empty-state svg{width:48px;height:48px;stroke:var(--border);fill:none;stroke-width:1.2;margin:0 auto 16px}
     .empty-state h3{font-size:16px;font-weight:600;color:var(--text-2);margin-bottom:6px}
     .empty-state p{font-size:13px;margin-bottom:20px}
-
-    /* Enquiries */
     .enquiry-list{display:flex;flex-direction:column;gap:12px}
     .enquiry-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px 20px;display:flex;gap:16px;align-items:flex-start;transition:box-shadow .15s}
     .enquiry-card:hover{box-shadow:var(--shadow)}
@@ -236,8 +202,6 @@
     .enquiry-listing-ref{font-size:11px;font-weight:600;color:var(--green);text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px}
     .enquiry-msg{font-size:13px;color:var(--text-2);line-height:1.6}
     .enquiry-actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
-
-    /* Messages inbox */
     .messages-layout{display:grid;grid-template-columns:320px 1fr;height:calc(100vh - var(--topbar-h));overflow:hidden}
     .thread-list{border-right:1px solid var(--border);background:var(--white);overflow-y:auto;display:flex;flex-direction:column}
     .thread-list-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
@@ -291,8 +255,6 @@
     .chat-send-btn:disabled{opacity:.5;cursor:not-allowed}
     .chat-send-btn svg{width:16px;height:16px;stroke:white;fill:none;stroke-width:2}
     .chat-wa-hint{font-size:11px;color:var(--text-3);padding:4px 20px 10px;background:var(--white);display:flex;align-items:center;gap:6px;border-top:1px solid var(--surface);flex-shrink:0}
-
-    /* Payments */
     .payments-table{width:100%;border-collapse:collapse}
     .payments-table th{text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text-3);padding:10px 16px;border-bottom:1px solid var(--border);background:var(--surface);white-space:nowrap}
     .payments-table td{padding:14px 16px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:middle}
@@ -302,8 +264,6 @@
     .pay-status.pending{background:var(--amber-light);color:var(--amber)}
     .pay-status.failed{background:var(--red-light);color:var(--red)}
     .pay-ref{font-size:11px;color:var(--text-3);font-family:monospace}
-
-    /* Receipt */
     .receipt-box{font-size:13px;color:var(--text)}
     .receipt-header{text-align:center;margin-bottom:18px;padding-bottom:14px;border-bottom:2px solid var(--green)}
     .receipt-logo{font-family:'Playfair Display',serif;font-size:20px;color:var(--green-dark);font-weight:700}
@@ -315,14 +275,7 @@
     .receipt-total{font-size:16px;padding-top:10px}
     .receipt-total span{color:var(--green-dark) !important;font-weight:800 !important}
     .receipt-footer{margin-top:18px;padding-top:14px;border-top:1px dashed var(--border);font-size:11px;color:var(--text-3);text-align:center;line-height:1.6}
-    @media print {
-      body * { visibility: hidden; }
-      #receipt-content, #receipt-content * { visibility: visible; }
-      #receipt-content { position: absolute; top:0; left:0; width:100%; padding:24px; }
-      .no-print { display:none !important; }
-    }
-
-    /* Settings */
+    @media print{body *{visibility:hidden}#receipt-content,#receipt-content *{visibility:visible}#receipt-content{position:absolute;top:0;left:0;width:100%;padding:24px}.no-print{display:none !important}}
     .settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
     .settings-section{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:22px 24px}
     .settings-section h3{font-size:14px;font-weight:600;color:var(--text);margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
@@ -335,164 +288,66 @@
     .danger-zone{background:var(--red-light);border:1px solid #f5c6c2;border-radius:var(--radius-lg);padding:20px 24px;margin-top:20px}
     .danger-zone h3{font-size:14px;font-weight:600;color:var(--red);margin-bottom:8px}
     .danger-zone p{font-size:13px;color:var(--text-2);margin-bottom:14px}
-
-    /* Loading screen */
     #loading-screen{position:fixed;inset:0;background:var(--green-dark);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;color:white;gap:16px}
     #loading-screen .spin{width:36px;height:36px;border:3px solid rgba(255,255,255,0.2);border-top-color:white;border-radius:50%;animation:spin .8s linear infinite}
     #loading-screen p{font-size:14px;color:rgba(255,255,255,0.6)}
     .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:99}
-
-    /* ══ SUSPENDED / UNDER-REVIEW SCREEN ══ */
-    #suspended-screen{
-      position:fixed;inset:0;background:var(--surface);z-index:9998;
-      display:none;align-items:center;justify-content:center;padding:24px;
-    }
-    #suspended-screen .suspended-card{
-      max-width:460px;width:100%;text-align:center;
-      background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);
-      padding:44px 34px;box-shadow:var(--shadow-lg);
-    }
-    #suspended-screen .suspended-icon{
-      width:68px;height:68px;border-radius:50%;background:var(--red-light);
-      display:flex;align-items:center;justify-content:center;margin:0 auto 22px;
-    }
+    #suspended-screen{position:fixed;inset:0;background:var(--surface);z-index:9998;display:none;align-items:center;justify-content:center;padding:24px}
+    #suspended-screen .suspended-card{max-width:460px;width:100%;text-align:center;background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:44px 34px;box-shadow:var(--shadow-lg)}
+    #suspended-screen .suspended-icon{width:68px;height:68px;border-radius:50%;background:var(--red-light);display:flex;align-items:center;justify-content:center;margin:0 auto 22px}
     #suspended-screen h2{font-family:'Playfair Display',serif;font-size:21px;color:var(--text);margin-bottom:14px}
     #suspended-screen p{font-size:13.5px;color:var(--text-2);line-height:1.75;margin-bottom:14px}
     #suspended-screen p.emphasis{font-weight:600;color:var(--text)}
     #suspended-screen .suspended-footer{font-size:11px;color:var(--text-3);margin-top:18px}
-
-    /* ══ LIVE SUPPORT WIDGET ══ */
-    .lsw-fab{
-      position:fixed;bottom:28px;right:28px;z-index:8000;
-      width:56px;height:56px;border-radius:50%;
-      background:var(--green);border:none;cursor:pointer;
-      box-shadow:0 4px 20px rgba(15,110,86,0.4);
-      display:flex;align-items:center;justify-content:center;
-      transition:transform .2s, background .2s;
-    }
+    .lsw-fab{position:fixed;bottom:28px;right:28px;z-index:8000;width:56px;height:56px;border-radius:50%;background:var(--green);border:none;cursor:pointer;box-shadow:0 4px 20px rgba(15,110,86,0.4);display:flex;align-items:center;justify-content:center;transition:transform .2s,background .2s}
     .lsw-fab:hover{background:var(--green-dark);transform:scale(1.07)}
     .lsw-fab svg{width:24px;height:24px;stroke:white;fill:none;stroke-width:2}
-
-    .lsw-fab-badge{
-      position:absolute;top:-3px;right:-3px;
-      min-width:18px;height:18px;border-radius:10px;
-      background:var(--red);border:2px solid white;
-      font-size:10px;font-weight:700;color:white;
-      display:none;align-items:center;justify-content:center;padding:0 4px;
-      font-family:'Inter',sans-serif;
-    }
+    .lsw-fab-badge{position:absolute;top:-3px;right:-3px;min-width:18px;height:18px;border-radius:10px;background:var(--red);border:2px solid white;font-size:10px;font-weight:700;color:white;display:none;align-items:center;justify-content:center;padding:0 4px;font-family:'Inter',sans-serif}
     .lsw-fab-badge.show{display:flex}
-
-    .lsw-popup{
-      position:fixed;bottom:98px;right:28px;z-index:8000;
-      width:340px;background:var(--white);
-      border-radius:var(--radius-lg);border:1px solid var(--border);
-      box-shadow:0 8px 40px rgba(0,0,0,0.16);
-      display:none;flex-direction:column;overflow:hidden;
-      max-height:calc(100vh - 130px);
-    }
+    .lsw-popup{position:fixed;bottom:98px;right:28px;z-index:8000;width:340px;background:var(--white);border-radius:var(--radius-lg);border:1px solid var(--border);box-shadow:0 8px 40px rgba(0,0,0,0.16);display:none;flex-direction:column;overflow:hidden;max-height:calc(100vh - 130px)}
     .lsw-popup.open{display:flex;animation:lswIn .22s ease}
     @keyframes lswIn{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:none}}
-
-    .lsw-head{
-      background:var(--green-dark);padding:14px 16px;
-      display:flex;align-items:center;gap:12px;flex-shrink:0;
-    }
-    .lsw-head-av{
-      width:40px;height:40px;border-radius:50%;
-      background:rgba(255,255,255,0.15);
-      display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative;
-    }
+    .lsw-head{background:var(--green-dark);padding:14px 16px;display:flex;align-items:center;gap:12px;flex-shrink:0}
+    .lsw-head-av{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative}
     .lsw-head-av svg{width:20px;height:20px;stroke:white;fill:none;stroke-width:2}
-    .lsw-head-av::after{
-      content:'';position:absolute;bottom:2px;right:2px;
-      width:10px;height:10px;border-radius:50%;
-      background:#22c55e;border:2px solid var(--green-dark);
-    }
+    .lsw-head-av::after{content:'';position:absolute;bottom:2px;right:2px;width:10px;height:10px;border-radius:50%;background:#22c55e;border:2px solid var(--green-dark)}
     .lsw-head-info{flex:1}
     .lsw-head-name{font-size:14px;font-weight:700;color:white}
     .lsw-head-status{font-size:11px;color:rgba(255,255,255,.7);display:flex;align-items:center;gap:5px;margin-top:2px}
     .lsw-head-status span{width:6px;height:6px;border-radius:50%;background:#22c55e;display:inline-block}
     .lsw-close{background:none;border:none;color:rgba(255,255,255,.7);cursor:pointer;font-size:22px;line-height:1;padding:0 2px;transition:color .15s}
     .lsw-close:hover{color:white}
-
-    .lsw-msgs{
-      flex:1;overflow-y:auto;padding:14px;gap:10px;
-      display:flex;flex-direction:column;
-      min-height:180px;max-height:300px;background:var(--surface);
-    }
+    .lsw-msgs{flex:1;overflow-y:auto;padding:14px;gap:10px;display:flex;flex-direction:column;min-height:180px;max-height:300px;background:var(--surface)}
     .lsw-msgs::-webkit-scrollbar{width:4px}
     .lsw-msgs::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
-
     .lsw-msg{display:flex;gap:8px;align-items:flex-end}
     .lsw-msg.from-admin{flex-direction:row}
     .lsw-msg.from-seller{flex-direction:row-reverse}
-    .lsw-msg-av{
-      width:26px;height:26px;border-radius:50%;flex-shrink:0;
-      display:flex;align-items:center;justify-content:center;
-      font-size:10px;font-weight:700;margin-bottom:2px;
-    }
-    .lsw-msg.from-admin  .lsw-msg-av{background:var(--green);color:white}
+    .lsw-msg-av{width:26px;height:26px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;margin-bottom:2px}
+    .lsw-msg.from-admin .lsw-msg-av{background:var(--green);color:white}
     .lsw-msg.from-seller .lsw-msg-av{background:var(--surface);color:var(--text-2);border:1px solid var(--border)}
-    .lsw-msg-bub{
-      max-width:76%;padding:9px 13px;border-radius:16px;
-      font-size:13px;line-height:1.5;word-break:break-word;
-    }
-    .lsw-msg.from-admin  .lsw-msg-bub{background:var(--white);color:var(--text);border:1px solid var(--border);border-bottom-left-radius:4px}
+    .lsw-msg-bub{max-width:76%;padding:9px 13px;border-radius:16px;font-size:13px;line-height:1.5;word-break:break-word}
+    .lsw-msg.from-admin .lsw-msg-bub{background:var(--white);color:var(--text);border:1px solid var(--border);border-bottom-left-radius:4px}
     .lsw-msg.from-seller .lsw-msg-bub{background:var(--green);color:white;border-bottom-right-radius:4px}
     .lsw-msg-time{font-size:10px;color:var(--text-3);margin-top:3px;padding:0 2px}
     .lsw-msg.from-seller .lsw-msg-time{text-align:right}
-
     .lsw-options{display:flex;flex-direction:column;gap:6px;margin-top:8px;padding:0 0 4px}
-    .lsw-option-btn{
-      text-align:left;padding:8px 12px;border-radius:10px;
-      border:1.5px solid var(--green);background:white;color:var(--green);
-      font-size:12px;font-weight:500;font-family:'Inter',sans-serif;
-      cursor:pointer;transition:all .15s;line-height:1.4;
-    }
+    .lsw-option-btn{text-align:left;padding:8px 12px;border-radius:10px;border:1.5px solid var(--green);background:white;color:var(--green);font-size:12px;font-weight:500;font-family:'Inter',sans-serif;cursor:pointer;transition:all .15s;line-height:1.4}
     .lsw-option-btn:hover{background:var(--green);color:white}
-
-    .lsw-typing-bub{
-      display:flex;gap:4px;padding:10px 14px;
-      background:var(--white);border:1px solid var(--border);
-      border-radius:16px 16px 16px 4px;align-items:center;
-    }
+    .lsw-typing-bub{display:flex;gap:4px;padding:10px 14px;background:var(--white);border:1px solid var(--border);border-radius:16px 16px 16px 4px;align-items:center}
     .lsw-dot{width:6px;height:6px;border-radius:50%;background:var(--text-3);animation:lswDot .9s infinite}
     .lsw-dot:nth-child(2){animation-delay:.15s}
     .lsw-dot:nth-child(3){animation-delay:.3s}
     @keyframes lswDot{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-5px)}}
-
-    .lsw-input-bar{
-      border-top:1px solid var(--border);padding:10px 12px;
-      display:flex;gap:8px;align-items:flex-end;flex-shrink:0;background:var(--white);
-    }
-    .lsw-input-bar textarea{
-      flex:1;border:1.5px solid var(--border);border-radius:18px;
-      padding:8px 13px;font-size:13px;font-family:inherit;resize:none;
-      outline:none;min-height:36px;max-height:100px;line-height:1.5;
-      color:var(--text);background:var(--surface);transition:border-color .15s;
-    }
+    .lsw-input-bar{border-top:1px solid var(--border);padding:10px 12px;display:flex;gap:8px;align-items:flex-end;flex-shrink:0;background:var(--white)}
+    .lsw-input-bar textarea{flex:1;border:1.5px solid var(--border);border-radius:18px;padding:8px 13px;font-size:13px;font-family:inherit;resize:none;outline:none;min-height:36px;max-height:100px;line-height:1.5;color:var(--text);background:var(--surface);transition:border-color .15s}
     .lsw-input-bar textarea:focus{border-color:var(--green);background:white}
     .lsw-input-bar textarea::placeholder{color:var(--text-3)}
-    .lsw-send{
-      width:36px;height:36px;border-radius:50%;background:var(--green);
-      border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;
-      flex-shrink:0;transition:background .15s;
-    }
+    .lsw-send{width:36px;height:36px;border-radius:50%;background:var(--green);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s}
     .lsw-send:hover{background:var(--green-dark)}
     .lsw-send svg{width:15px;height:15px;stroke:white;fill:none;stroke-width:2}
-
-    .lsw-footer{
-      padding:7px 14px;font-size:11px;color:var(--text-3);
-      text-align:center;border-top:1px solid var(--border);
-      background:var(--white);flex-shrink:0;
-    }
-
-    @media(max-width:600px){
-      .lsw-popup{width:calc(100vw - 24px);right:12px;bottom:84px}
-      .lsw-fab{bottom:16px;right:16px}
-    }
-
+    .lsw-footer{padding:7px 14px;font-size:11px;color:var(--text-3);text-align:center;border-top:1px solid var(--border);background:var(--white);flex-shrink:0}
+    @media(max-width:600px){.lsw-popup{width:calc(100vw - 24px);right:12px;bottom:84px}.lsw-fab{bottom:16px;right:16px}}
     @media(max-width:1100px){.overview-grid{grid-template-columns:1fr}.settings-grid{grid-template-columns:1fr}}
     @media(max-width:900px){
       .sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}.sidebar-overlay.open{display:block}
@@ -500,8 +355,6 @@
       .listings-table thead{display:none}.listings-table td{display:block;padding:6px 16px}
       .listings-table td:first-child{padding-top:14px}.listings-table td:last-child{padding-bottom:14px}
       .listings-table tr{display:block;border-bottom:1px solid var(--border)}
-
-      /* ── Mobile messages: show ONE pane at a time, toggled by JS ── */
       .messages-layout{grid-template-columns:1fr;position:relative}
       .messages-layout .thread-list{display:flex}
       .messages-layout .chat-pane{display:none}
@@ -520,10 +373,6 @@
   <p>Loading your dashboard…</p>
 </div>
 
-<!-- ══ SUSPENDED / UNDER-REVIEW SCREEN ══
-     Shown instead of the whole dashboard whenever profiles.is_disabled = true.
-     No listings, messages, enquiries, payments, or the support widget are ever
-     loaded or rendered for a suspended seller — this screen is all they see. -->
 <div id="suspended-screen">
   <div class="suspended-card">
     <div class="suspended-icon">
@@ -545,8 +394,6 @@
 <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
 
 <div class="shell" id="app-shell" style="display:none">
-
-  <!-- SIDEBAR -->
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-logo">
       <div class="sidebar-logo-icon">
@@ -557,36 +404,29 @@
     <nav class="sidebar-nav">
       <div class="nav-section-label">Main</div>
       <button class="nav-item active" id="nav-overview" onclick="showPage('overview')">
-        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-        Overview
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Overview
       </button>
       <button class="nav-item" id="nav-listings" onclick="showPage('listings')">
-        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-        My listings
+        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>My listings
         <span class="badge-count" id="nav-badge-listings">0</span>
       </button>
       <button class="nav-item" id="nav-messages" onclick="showAllMessages()">
-        <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-        Messages
+        <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Messages
         <span class="badge-count red" id="nav-badge-messages" style="display:none">0</span>
       </button>
       <button class="nav-item" id="nav-enquiries" onclick="showPage('enquiries')">
-        <svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
-        Enquiries
+        <svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>Enquiries
         <span class="badge-count" id="nav-badge-enquiries" style="display:none">0</span>
       </button>
       <button class="nav-item" id="nav-payments" onclick="showPage('payments')">
-        <svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-        Payments
+        <svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Payments
       </button>
       <div class="nav-section-label" style="margin-top:8px">Account</div>
       <button class="nav-item" id="nav-settings" onclick="showPage('settings')">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
-        Settings
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>Settings
       </button>
       <a href="index.html" class="nav-item">
-        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
-        View site
+        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>View site
       </a>
     </nav>
     <div class="sidebar-footer">
@@ -598,8 +438,7 @@
         </div>
       </div>
       <button class="nav-item" onclick="doSignOut()" style="margin-top:4px;color:rgba(255,255,255,0.5)">
-        <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-        Sign out
+        <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign out
       </button>
     </div>
   </aside>
@@ -615,55 +454,24 @@
       </div>
       <div class="topbar-right">
         <a href="post-listing.html" class="btn btn-primary">
-          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          New listing
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>New listing
         </a>
       </div>
     </div>
 
-    <!-- PAGE: OVERVIEW -->
+    <!-- OVERVIEW -->
     <div class="page active" id="page-overview">
       <div class="stat-grid">
-        <div class="stat-card">
-          <div class="stat-label">Active listings</div>
-          <div class="stat-val" id="stat-active">—</div>
-          <div class="stat-delta" id="stat-active-delta">of your total listings</div>
-          <div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></div>
-        </div>
-        <div class="stat-card gold">
-          <div class="stat-label">Total enquiries</div>
-          <div class="stat-val" id="stat-enquiries">—</div>
-          <div class="stat-delta" id="stat-enquiries-delta">buyers reached out</div>
-          <div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
-        </div>
-        <div class="stat-card amber">
-          <div class="stat-label">Unread messages</div>
-          <div class="stat-val" id="stat-new-enq">—</div>
-          <div class="stat-delta" id="stat-new-enq-delta">unread conversations</div>
-          <div class="stat-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg></div>
-        </div>
-        <div class="stat-card blue">
-          <div class="stat-label">Total paid</div>
-          <div class="stat-val" id="stat-paid">—</div>
-          <div class="stat-delta" id="stat-paid-delta">listing fees</div>
-          <div class="stat-icon"><svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div>
-        </div>
-        <div class="stat-card purple">
-          <div class="stat-label">Total views</div>
-          <div class="stat-val" id="stat-views">—</div>
-          <div class="stat-delta" id="stat-views-delta">across all listings</div>
-          <div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div>
-        </div>
+        <div class="stat-card"><div class="stat-label">Active listings</div><div class="stat-val" id="stat-active">—</div><div class="stat-delta" id="stat-active-delta">of your total listings</div><div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></div></div>
+        <div class="stat-card gold"><div class="stat-label">Total enquiries</div><div class="stat-val" id="stat-enquiries">—</div><div class="stat-delta" id="stat-enquiries-delta">buyers reached out</div><div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div></div>
+        <div class="stat-card amber"><div class="stat-label">Unread messages</div><div class="stat-val" id="stat-new-enq">—</div><div class="stat-delta" id="stat-new-enq-delta">unread conversations</div><div class="stat-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg></div></div>
+        <div class="stat-card blue"><div class="stat-label">Total paid</div><div class="stat-val" id="stat-paid">—</div><div class="stat-delta" id="stat-paid-delta">listing fees</div><div class="stat-icon"><svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div></div>
+        <div class="stat-card purple"><div class="stat-label">Total views</div><div class="stat-val" id="stat-views">—</div><div class="stat-delta" id="stat-views-delta">across all listings</div><div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div></div>
       </div>
       <div class="overview-grid">
         <div class="card" style="padding:20px 24px">
-          <div class="section-head">
-            <h2>Recent activity</h2>
-            <button class="btn btn-outline btn-sm" onclick="showAllMessages()">View messages</button>
-          </div>
-          <div class="activity-feed" id="activity-feed">
-            <div style="padding:20px 0;text-align:center;color:var(--text-3);font-size:13px">Loading activity…</div>
-          </div>
+          <div class="section-head"><h2>Recent activity</h2><button class="btn btn-outline btn-sm" onclick="showAllMessages()">View messages</button></div>
+          <div class="activity-feed" id="activity-feed"><div style="padding:20px 0;text-align:center;color:var(--text-3);font-size:13px">Loading activity…</div></div>
         </div>
         <div style="display:flex;flex-direction:column;gap:20px">
           <div class="card" style="padding:20px 22px">
@@ -672,24 +480,18 @@
             <div class="chart-labels" id="chart-labels"></div>
           </div>
           <div class="card" style="padding:20px 22px">
-            <div class="section-head">
-              <h2>Your listings</h2>
-              <button class="btn btn-outline btn-sm" onclick="showPage('listings')">Manage</button>
-            </div>
+            <div class="section-head"><h2>Your listings</h2><button class="btn btn-outline btn-sm" onclick="showPage('listings')">Manage</button></div>
             <div id="quick-listings"><div style="padding:10px 0;color:var(--text-3);font-size:13px">Loading…</div></div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- PAGE: MY LISTINGS -->
+    <!-- MY LISTINGS -->
     <div class="page" id="page-listings">
       <div class="section-head">
         <h2>My listings</h2>
-        <a href="post-listing.html" class="btn btn-primary">
-          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          Add listing
-        </a>
+        <a href="post-listing.html" class="btn btn-primary"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add listing</a>
       </div>
       <div class="filter-bar">
         <button class="filter-pill active" onclick="filterListings('all',this)">All</button>
@@ -704,53 +506,37 @@
       </div>
       <div class="card" style="overflow:hidden">
         <table class="listings-table">
-          <thead>
-            <tr><th>Property</th><th>Price</th><th>Status</th><th>Messages</th><th>Views</th><th>Posted</th><th>Actions</th></tr>
-          </thead>
-          <tbody id="listings-tbody">
-            <tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-3)">Loading listings…</td></tr>
-          </tbody>
+          <thead><tr><th>Property</th><th>Price</th><th>Status</th><th>Messages</th><th>Views</th><th>Posted</th><th>Actions</th></tr></thead>
+          <tbody id="listings-tbody"><tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-3)">Loading listings…</td></tr></tbody>
         </table>
       </div>
     </div>
 
-    <!-- PAGE: MESSAGES -->
+    <!-- MESSAGES -->
     <div class="page" id="page-messages">
       <div class="messages-layout" id="messages-layout">
         <div class="thread-list" id="thread-list">
-          <div class="thread-list-head">
-            <h3>Messages</h3>
-            <span id="msg-thread-count" style="font-size:12px;color:var(--text-3)"></span>
-          </div>
+          <div class="thread-list-head"><h3>Messages</h3><span id="msg-thread-count" style="font-size:12px;color:var(--text-3)"></span></div>
           <div id="thread-filter-chip" style="display:none;padding:8px 14px 0"></div>
-          <div class="thread-search">
-            <input type="text" placeholder="Search conversations…" id="thread-search-input" oninput="renderThreadList()"/>
-          </div>
-          <div id="thread-items" style="flex:1;overflow-y:auto">
-            <div style="padding:30px 20px;text-align:center;color:var(--text-3);font-size:13px">Loading…</div>
-          </div>
+          <div class="thread-search"><input type="text" placeholder="Search conversations…" id="thread-search-input" oninput="renderThreadList()"/></div>
+          <div id="thread-items" style="flex:1;overflow-y:auto"><div style="padding:30px 20px;text-align:center;color:var(--text-3);font-size:13px">Loading…</div></div>
         </div>
         <div class="chat-pane" id="chat-pane">
-          <div class="chat-pane-empty" id="chat-empty">
-            <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-            <p>Select a conversation to view messages</p>
-          </div>
+          <div class="chat-pane-empty" id="chat-empty"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg><p>Select a conversation to view messages</p></div>
           <div id="chat-active" style="display:none;flex-direction:column;flex:1;overflow:hidden">
             <div class="chat-header" id="chat-header"></div>
             <div class="chat-messages" id="chat-messages"></div>
             <div class="chat-wa-hint" id="chat-wa-hint"></div>
             <div class="chat-input-bar">
               <textarea id="chat-reply-input" placeholder="Type your reply…" rows="1" onkeydown="handleChatKeydown(event)" oninput="autoResizeTextarea(this)"></textarea>
-              <button class="chat-send-btn" id="chat-send-btn" onclick="sendChatReply()" title="Send reply">
-                <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-              </button>
+              <button class="chat-send-btn" id="chat-send-btn" onclick="sendChatReply()"><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- PAGE: ENQUIRIES -->
+    <!-- ENQUIRIES -->
     <div class="page" id="page-enquiries">
       <div class="section-head">
         <h2>Enquiries from buyers</h2>
@@ -759,48 +545,30 @@
           <button class="filter-pill" id="enq-filter-unread" onclick="filterEnquiries('unread',this)">Unread</button>
         </div>
       </div>
-      <div class="enquiry-list" id="enquiry-list">
-        <div style="text-align:center;padding:40px;color:var(--text-3);font-size:13px">Loading enquiries…</div>
-      </div>
+      <div class="enquiry-list" id="enquiry-list"><div style="text-align:center;padding:40px;color:var(--text-3);font-size:13px">Loading enquiries…</div></div>
     </div>
 
-    <!-- PAGE: PAYMENTS -->
+    <!-- PAYMENTS -->
     <div class="page" id="page-payments">
-      <div class="section-head">
-        <h2>Payment history</h2>
-        <div style="font-size:13px;color:var(--text-3)">All listing fee transactions</div>
-      </div>
+      <div class="section-head"><h2>Payment history</h2><div style="font-size:13px;color:var(--text-3)">All listing fee transactions</div></div>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px" id="payment-summary"></div>
       <div class="card" style="overflow:hidden">
         <table class="payments-table">
-          <thead>
-            <tr><th>Date</th><th>Listing</th><th>Reference</th><th>Amount</th><th>Status</th><th>Receipt</th></tr>
-          </thead>
-          <tbody id="payments-tbody">
-            <tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-3)">Loading…</td></tr>
-          </tbody>
+          <thead><tr><th>Date</th><th>Listing</th><th>Reference</th><th>Amount</th><th>Status</th><th>Receipt</th></tr></thead>
+          <tbody id="payments-tbody"><tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-3)">Loading…</td></tr></tbody>
         </table>
       </div>
     </div>
 
-    <!-- PAGE: SETTINGS -->
+    <!-- SETTINGS -->
     <div class="page" id="page-settings">
       <div class="section-head" style="margin-bottom:24px"><h2>Account settings</h2></div>
       <div class="settings-grid">
         <div class="settings-section">
           <h3><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile</h3>
-          <div class="profile-avatar-row">
-            <div class="profile-avatar-lg" id="settings-avatar">?</div>
-            <div class="profile-avatar-info">
-              <strong id="settings-fullname">—</strong>
-              <span id="settings-email-display">—</span>
-            </div>
-          </div>
+          <div class="profile-avatar-row"><div class="profile-avatar-lg" id="settings-avatar">?</div><div class="profile-avatar-info"><strong id="settings-fullname">—</strong><span id="settings-email-display">—</span></div></div>
           <p style="font-size:13px;color:var(--text-3);margin-bottom:18px;line-height:1.6">Edit your name, phone number, email address, and password from your dedicated profile page.</p>
-          <a href="profile.html" class="btn btn-primary btn-lg" style="width:100%;justify-content:center;text-decoration:none">
-            <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" width="15" height="15"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-            Edit profile &amp; password
-          </a>
+          <a href="profile.html" class="btn btn-primary btn-lg" style="width:100%;justify-content:center;text-decoration:none"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" width="15" height="15"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit profile &amp; password</a>
         </div>
         <div style="display:flex;flex-direction:column;gap:20px">
           <div class="settings-section">
@@ -818,17 +586,13 @@
       <div class="danger-zone">
         <h3>Danger zone</h3>
         <p>Deleting your account permanently removes all your listings, messages, and payment records. This cannot be undone.</p>
-        <a href="profile.html#danger-zone" class="btn btn-danger" style="text-decoration:none">
-          <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
-          Manage in profile
-        </a>
+        <a href="profile.html#danger-zone" class="btn btn-danger" style="text-decoration:none"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>Manage in profile</a>
       </div>
     </div>
+  </div>
+</div>
 
-  </div><!-- end .main -->
-</div><!-- end .shell -->
-
-<!-- EDIT LISTING MODAL -->
+<!-- EDIT MODAL -->
 <div class="modal-overlay" id="modal-edit">
   <div class="modal">
     <div class="modal-head"><h3>Edit listing</h3><div class="modal-close" onclick="closeModal('modal-edit')">✕</div></div>
@@ -844,33 +608,13 @@
         <div class="form-group"><label>Area</label>
           <select id="edit-area">
             <optgroup label="Kisumu">
-              <option value="Milimani">Milimani</option>
-              <option value="Kisumu CBD">Kisumu CBD</option>
-              <option value="Kondele">Kondele</option>
-              <option value="Riat Hills">Riat Hills</option>
-              <option value="Mamboleo">Mamboleo</option>
-              <option value="Nyalenda">Nyalenda</option>
-              <option value="Obunga">Obunga</option>
-              <option value="Manyatta">Manyatta</option>
-              <option value="Car Wash">Car Wash</option>
-              <option value="Dunga">Dunga</option>
-              <option value="Elgon View">Elgon View</option>
-              <option value="Kanyakwar">Kanyakwar</option>
-              <option value="Kibos">Kibos</option>
-              <option value="Kibuye">Kibuye</option>
-              <option value="Migosi">Migosi</option>
-              <option value="Nyamasaria">Nyamasaria</option>
-              <option value="Otonglo">Otonglo</option>
+              <option value="Milimani">Milimani</option><option value="Kisumu CBD">Kisumu CBD</option><option value="Kondele">Kondele</option><option value="Riat Hills">Riat Hills</option><option value="Mamboleo">Mamboleo</option><option value="Nyalenda">Nyalenda</option><option value="Obunga">Obunga</option><option value="Manyatta">Manyatta</option><option value="Car Wash">Car Wash</option><option value="Dunga">Dunga</option><option value="Elgon View">Elgon View</option><option value="Kanyakwar">Kanyakwar</option><option value="Kibos">Kibos</option><option value="Kibuye">Kibuye</option><option value="Migosi">Migosi</option><option value="Nyamasaria">Nyamasaria</option><option value="Otonglo">Otonglo</option>
             </optgroup>
             <optgroup label="Near Maseno University">
-              <option value="Maseno">Maseno</option>
-              <option value="Sega">Sega</option>
-              <option value="Kombewa">Kombewa</option>
+              <option value="Maseno">Maseno</option><option value="Sega">Sega</option><option value="Kombewa">Kombewa</option>
             </optgroup>
             <optgroup label="Luanda & surroundings">
-              <option value="Luanda">Luanda Town</option>
-              <option value="Matibabu">Matibabu</option>
-              <option value="Ahero">Ahero</option>
+              <option value="Luanda">Luanda Town</option><option value="Matibabu">Matibabu</option><option value="Ahero">Ahero</option>
             </optgroup>
           </select>
         </div>
@@ -894,19 +638,12 @@
   </div>
 </div>
 
-<!-- MARK AS OCCUPIED / SOLD MODAL -->
+<!-- OCCUPIED MODAL -->
 <div class="modal-overlay" id="modal-occupied">
   <div class="modal" style="max-width:420px">
     <div class="modal-head"><h3 id="occupied-modal-title">Mark as sold?</h3><div class="modal-close" onclick="closeModal('modal-occupied')">✕</div></div>
-    <div class="modal-body">
-      <p style="font-size:14px;color:var(--text-2);line-height:1.7" id="occupied-modal-copy">
-        This will hide <strong id="occupied-listing-name"></strong> from public search and listing pages immediately. It will still appear here in your dashboard, marked as sold, so you keep your messages and history. You can reactivate it later if the sale falls through.
-      </p>
-    </div>
-    <div class="modal-foot">
-      <button class="btn btn-outline" onclick="closeModal('modal-occupied')">Cancel</button>
-      <button class="btn btn-primary" id="btn-confirm-occupied" onclick="confirmOccupied()" style="background:#5b21b6">Yes, mark it</button>
-    </div>
+    <div class="modal-body"><p style="font-size:14px;color:var(--text-2);line-height:1.7" id="occupied-modal-copy">This will hide <strong id="occupied-listing-name"></strong> from public search immediately. It stays in your dashboard so you keep messages and history. You can reactivate it later.</p></div>
+    <div class="modal-foot"><button class="btn btn-outline" onclick="closeModal('modal-occupied')">Cancel</button><button class="btn btn-primary" id="btn-confirm-occupied" onclick="confirmOccupied()" style="background:#5b21b6">Yes, mark it</button></div>
   </div>
 </div>
 
@@ -929,10 +666,7 @@
     <div class="modal-head no-print"><h3>Payment receipt</h3><div class="modal-close" onclick="closeModal('modal-receipt')">✕</div></div>
     <div class="modal-body">
       <div id="receipt-content" class="receipt-box">
-        <div class="receipt-header">
-          <div class="receipt-logo">🏠 NyumbaKisumu</div>
-          <div class="receipt-sub">Payment Receipt</div>
-        </div>
+        <div class="receipt-header"><div class="receipt-logo">🏠 NyumbaKisumu</div><div class="receipt-sub">Payment Receipt</div></div>
         <div class="receipt-row"><span>Receipt No.</span><span id="rcpt-number">—</span></div>
         <div class="receipt-row"><span>Date</span><span id="rcpt-date">—</span></div>
         <div class="receipt-divider"></div>
@@ -954,34 +688,22 @@
   </div>
 </div>
 
-<!-- ══ LIVE SUPPORT WIDGET ══ -->
-<button class="lsw-fab" id="lsw-fab" onclick="lswToggle()" aria-label="Contact support">
+<!-- LIVE SUPPORT -->
+<button class="lsw-fab" id="lsw-fab" onclick="lswToggle()">
   <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
   <span class="lsw-fab-badge" id="lsw-fab-badge"></span>
 </button>
-
 <div class="lsw-popup" id="lsw-popup">
   <div class="lsw-head">
-    <div class="lsw-head-av">
-      <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-    </div>
-    <div class="lsw-head-info">
-      <div class="lsw-head-name">NyumbaKisumu Support</div>
-      <div class="lsw-head-status"><span></span>Online — we reply quickly</div>
-    </div>
+    <div class="lsw-head-av"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
+    <div class="lsw-head-info"><div class="lsw-head-name">NyumbaKisumu Support</div><div class="lsw-head-status"><span></span>Online — we reply quickly</div></div>
     <button class="lsw-close" onclick="lswToggle()">×</button>
   </div>
-
   <div class="lsw-msgs" id="lsw-msgs"></div>
-
   <div class="lsw-input-bar">
-    <textarea id="lsw-input" rows="1" placeholder="Type a message…"
-      oninput="lswResize(this)" onkeydown="lswKeydown(event)"></textarea>
-    <button class="lsw-send" onclick="lswSend()">
-      <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-    </button>
+    <textarea id="lsw-input" rows="1" placeholder="Type a message…" oninput="lswResize(this)" onkeydown="lswKeydown(event)"></textarea>
+    <button class="lsw-send" onclick="lswSend()"><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
   </div>
-
   <div class="lsw-footer">NyumbaKisumu · Seller Support</div>
 </div>
 
@@ -991,219 +713,135 @@ const SUPABASE_KEY = 'sb_publishable_oIIcecf3wzKMual5K24Z8Q_zmxVfgsx';
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-let currentUser    = null;
-let currentProfile = null;
-let allListings    = [];
-let allEnquiries   = [];
-let allPayments    = [];
-let allMessages    = [];
-let threads        = [];
-let activeThread   = null;
-let listingFilter  = 'all';
-let enquiryFilter  = 'all';
-let deleteTargetId = null;
-let occupiedTargetId = null;
-let replyTargetEnquiry = null;
-let msgPollTimer   = null;
-let threadListingFilter = null;
+let currentUser=null,currentProfile=null,allListings=[],allEnquiries=[],allPayments=[],allMessages=[],threads=[],activeThread=null,listingFilter='all',enquiryFilter='all',deleteTargetId=null,occupiedTargetId=null,replyTargetEnquiry=null,msgPollTimer=null,threadListingFilter=null;
 
-const AMENITY_KEYS = [
-  { key:'has_parking',      label:'Parking' },
-  { key:'has_water',        label:'Water supply' },
-  { key:'has_security',     label:'Security' },
-  { key:'has_wifi',         label:'WiFi ready' },
-  { key:'has_backup_power', label:'Backup power' },
-  { key:'has_gym',          label:'Gym' },
-  { key:'has_pool',         label:'Swimming pool' },
-  { key:'has_balcony',      label:'Balcony' },
-];
+const AMENITY_KEYS=[{key:'has_parking',label:'Parking'},{key:'has_water',label:'Water supply'},{key:'has_security',label:'Security'},{key:'has_wifi',label:'WiFi ready'},{key:'has_backup_power',label:'Backup power'},{key:'has_gym',label:'Gym'},{key:'has_pool',label:'Swimming pool'},{key:'has_balcony',label:'Balcony'}];
 
-async function init() {
-  try {
-    const { data: { session } } = await db.auth.getSession();
-    if (!session) { window.location.href = 'login.html'; return; }
-    currentUser = session.user;
-    document.getElementById('topbar-date').textContent = new Date().toLocaleDateString('en-KE',{ weekday:'long', day:'numeric', month:'long', year:'numeric' });
+async function init(){
+  try{
+    const{data:{session}}=await db.auth.getSession();
+    if(!session){window.location.href='login.html';return;}
+    currentUser=session.user;
+    document.getElementById('topbar-date').textContent=new Date().toLocaleDateString('en-KE',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
     await loadProfile();
-
-    // ── Suspended / under-investigation accounts ──
-    // The seller can still log in, but sees ONLY the suspension screen.
-    // We deliberately never call loadAllData(), never render listings/
-    // messages/enquiries/payments, and never initialize the support
-    // widget — nothing about their account or listings is fetched or
-    // shown beyond this point.
-    if (currentProfile?.is_disabled) {
-      document.getElementById('loading-screen').style.display = 'none';
-      document.getElementById('suspended-screen').style.display = 'flex';
-      document.getElementById('lsw-fab').style.display = 'none';
-      document.getElementById('lsw-popup').style.display = 'none';
+    if(currentProfile?.is_disabled){
+      document.getElementById('loading-screen').style.display='none';
+      document.getElementById('suspended-screen').style.display='flex';
+      document.getElementById('lsw-fab').style.display='none';
+      document.getElementById('lsw-popup').style.display='none';
       return;
     }
-
     await loadAllData();
     renderOverview();
-    document.getElementById('loading-screen').style.display = 'none';
-    document.getElementById('app-shell').style.display = 'flex';
-    msgPollTimer = setInterval(pollNewMessages, 30000);
-    lswInit().catch(err => console.error('LSW init error:', err));
-  } catch(err) {
-    console.error('Init error:', err);
-    window.location.href = 'login.html';
-  }
+    document.getElementById('loading-screen').style.display='none';
+    document.getElementById('app-shell').style.display='flex';
+    msgPollTimer=setInterval(pollNewMessages,30000);
+    lswInit().catch(err=>console.error('LSW init error:',err));
+  }catch(err){console.error('Init error:',err);window.location.href='login.html';}
 }
 
-async function loadProfile() {
-  const { data } = await db.from('profiles').select('*').eq('id', currentUser.id).single();
-  currentProfile = data;
-  const email    = currentUser.email || '';
-  const name     = (data && data.full_name) ? data.full_name : email.split('@')[0];
-  const initials = name.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase() || '?';
-  document.getElementById('sidebar-avatar').textContent   = initials;
-  document.getElementById('sidebar-name').textContent     = name;
-  document.getElementById('sidebar-email').textContent    = email;
-  document.getElementById('settings-avatar').textContent  = initials;
-  document.getElementById('settings-fullname').textContent = name;
-  document.getElementById('settings-email-display').textContent = email;
+async function loadProfile(){
+  const{data}=await db.from('profiles').select('*').eq('id',currentUser.id).single();
+  currentProfile=data;
+  const email=currentUser.email||'';
+  const name=(data&&data.full_name)?data.full_name:email.split('@')[0];
+  const initials=name.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase()||'?';
+  document.getElementById('sidebar-avatar').textContent=initials;
+  document.getElementById('sidebar-name').textContent=name;
+  document.getElementById('sidebar-email').textContent=email;
+  document.getElementById('settings-avatar').textContent=initials;
+  document.getElementById('settings-fullname').textContent=name;
+  document.getElementById('settings-email-display').textContent=email;
 }
 
-async function loadAllData() {
-  const { data: listingsData } = await db.from('listings').select('*, listing_photos(*)').eq('seller_id', currentUser.id).order('created_at', { ascending: false });
-  allListings = listingsData || [];
-  const ids = allListings.map(l => l.id);
-  if (ids.length) {
-    const { data: enqData } = await db.from('enquiries').select('*, listings(title, area)').in('listing_id', ids).order('created_at', { ascending: false });
-    allEnquiries = enqData || [];
-    const { data: msgData } = await db.from('messages').select('*').in('listing_id', ids).order('created_at', { ascending: true });
-    allMessages = msgData || [];
-  } else { allEnquiries = []; allMessages = []; }
-  const { data: payData } = await db.from('payments').select('*, listings(title)').eq('seller_id', currentUser.id).order('created_at', { ascending: false });
-  allPayments = payData || [];
-  buildThreads();
-  updateNavBadges();
+async function loadAllData(){
+  const{data:listingsData}=await db.from('listings').select('*, listing_photos(*)').eq('seller_id',currentUser.id).order('created_at',{ascending:false});
+  allListings=listingsData||[];
+  const ids=allListings.map(l=>l.id);
+  if(ids.length){
+    const{data:enqData}=await db.from('enquiries').select('*, listings(title, area)').in('listing_id',ids).order('created_at',{ascending:false});
+    allEnquiries=enqData||[];
+    const{data:msgData}=await db.from('messages').select('*').in('listing_id',ids).order('created_at',{ascending:true});
+    allMessages=msgData||[];
+  }else{allEnquiries=[];allMessages=[];}
+  const{data:payData}=await db.from('payments').select('*, listings(title)').eq('seller_id',currentUser.id).order('created_at',{ascending:false});
+  allPayments=payData||[];
+  buildThreads();updateNavBadges();
 }
 
-function buildThreads() {
-  const map = new Map();
-  allEnquiries.forEach(e => {
-    const key = `${e.listing_id}__${e.buyer_token || e.buyer_phone || e.id}`;
-    if (!map.has(key)) {
-      map.set(key, { key, listing_id:e.listing_id, buyer_token:e.buyer_token||null, buyer_name:e.buyer_name||'Unknown buyer', buyer_phone:e.buyer_phone||'', listing_title:e.listings?.title||'Listing', listing_area:e.listings?.area||'', messages:[{ id:'enq-'+e.id, sender:'buyer', message:e.message||'', created_at:e.created_at, read_at:e.read_at }], last_at:e.created_at, unread_count:e.read_at?0:1 });
-    }
-  });
-  allMessages.forEach(m => {
-    const key = `${m.listing_id}__${m.buyer_token || m.buyer_phone || ''}`;
-    if (map.has(key)) {
-      const t = map.get(key);
-      const isDupe = t.messages.some(x => x.id === 'enq-'+m.id || ((x.content||x.message)===(m.content||m.message) && Math.abs(new Date(x.created_at)-new Date(m.created_at))<2000));
-      if (!isDupe) t.messages.push(m);
-      if (new Date(m.created_at) > new Date(t.last_at)) t.last_at = m.created_at;
-      if (m.sender==='buyer' && !m.read_at) t.unread_count = (t.unread_count||0)+1;
-    } else {
-      const listing = allListings.find(l => l.id===m.listing_id);
-      map.set(key, { key, listing_id:m.listing_id, buyer_token:m.buyer_token||null, buyer_name:m.buyer_name||'Buyer', buyer_phone:m.buyer_phone||'', listing_title:listing?.title||'Listing', listing_area:listing?.area||'', messages:[m], last_at:m.created_at, unread_count:(m.sender==='buyer'&&!m.read_at)?1:0 });
-    }
-  });
-  threads = Array.from(map.values()).map(t => { t.messages.sort((a,b)=>new Date(a.created_at)-new Date(b.created_at)); return t; }).sort((a,b)=>new Date(b.last_at)-new Date(a.last_at));
+function buildThreads(){
+  const map=new Map();
+  allEnquiries.forEach(e=>{const key=`${e.listing_id}__${e.buyer_token||e.buyer_phone||e.id}`;if(!map.has(key)){map.set(key,{key,listing_id:e.listing_id,buyer_token:e.buyer_token||null,buyer_name:e.buyer_name||'Unknown buyer',buyer_phone:e.buyer_phone||'',listing_title:e.listings?.title||'Listing',listing_area:e.listings?.area||'',messages:[{id:'enq-'+e.id,sender:'buyer',message:e.message||'',created_at:e.created_at,read_at:e.read_at}],last_at:e.created_at,unread_count:e.read_at?0:1});}});
+  allMessages.forEach(m=>{const key=`${m.listing_id}__${m.buyer_token||m.buyer_phone||''}`;if(map.has(key)){const t=map.get(key);const isDupe=t.messages.some(x=>x.id==='enq-'+m.id||((x.content||x.message)===(m.content||m.message)&&Math.abs(new Date(x.created_at)-new Date(m.created_at))<2000));if(!isDupe)t.messages.push(m);if(new Date(m.created_at)>new Date(t.last_at))t.last_at=m.created_at;if(m.sender==='buyer'&&!m.read_at)t.unread_count=(t.unread_count||0)+1;}else{const listing=allListings.find(l=>l.id===m.listing_id);map.set(key,{key,listing_id:m.listing_id,buyer_token:m.buyer_token||null,buyer_name:m.buyer_name||'Buyer',buyer_phone:m.buyer_phone||'',listing_title:listing?.title||'Listing',listing_area:listing?.area||'',messages:[m],last_at:m.created_at,unread_count:(m.sender==='buyer'&&!m.read_at)?1:0});}});
+  threads=Array.from(map.values()).map(t=>{t.messages.sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));return t;}).sort((a,b)=>new Date(b.last_at)-new Date(a.last_at));
 }
 
-async function pollNewMessages() {
-  if (!allListings.length) return;
-  const ids = allListings.map(l=>l.id);
-  const { data: msgData } = await db.from('messages').select('*').in('listing_id', ids).order('created_at', { ascending: true });
-  const hadCount = allMessages.length;
-  allMessages = msgData || [];
-  buildThreads(); updateNavBadges();
-  if (document.getElementById('page-messages').classList.contains('active')) {
-    renderThreadList();
-    if (activeThread) { const r = threads.find(t=>t.key===activeThread.key); if(r){activeThread=r;renderChatPane(activeThread);} }
-  }
-  if (allMessages.length > hadCount) showToast(`${allMessages.length-hadCount} new message(s) received`, 'success');
+async function pollNewMessages(){
+  if(!allListings.length)return;
+  const ids=allListings.map(l=>l.id);
+  const{data:msgData}=await db.from('messages').select('*').in('listing_id',ids).order('created_at',{ascending:true});
+  const hadCount=allMessages.length;
+  allMessages=msgData||[];
+  buildThreads();updateNavBadges();
+  if(document.getElementById('page-messages').classList.contains('active')){renderThreadList();if(activeThread){const r=threads.find(t=>t.key===activeThread.key);if(r){activeThread=r;renderChatPane(activeThread);}}}
+  if(allMessages.length>hadCount)showToast(`${allMessages.length-hadCount} new message(s) received`,'success');
 }
 
-function updateNavBadges() {
-  document.getElementById('nav-badge-listings').textContent = allListings.length;
-  const totalUnread = threads.reduce((s,t)=>s+(t.unread_count||0),0);
-  const msgBadge = document.getElementById('nav-badge-messages');
-  msgBadge.textContent = totalUnread; msgBadge.style.display = totalUnread>0?'inline-block':'none';
-  const enqBadge = document.getElementById('nav-badge-enquiries');
-  enqBadge.textContent = totalUnread; enqBadge.style.display = totalUnread>0?'inline-block':'none';
+function updateNavBadges(){
+  document.getElementById('nav-badge-listings').textContent=allListings.length;
+  const totalUnread=threads.reduce((s,t)=>s+(t.unread_count||0),0);
+  const msgBadge=document.getElementById('nav-badge-messages');msgBadge.textContent=totalUnread;msgBadge.style.display=totalUnread>0?'inline-block':'none';
+  const enqBadge=document.getElementById('nav-badge-enquiries');enqBadge.textContent=totalUnread;enqBadge.style.display=totalUnread>0?'inline-block':'none';
 }
 
-function getListingStatusDisplay(l) {
-  if (l.recycle_bin) { const d=l.purge_at?Math.max(0,Math.ceil((new Date(l.purge_at)-new Date())/86400000)):null; return { label:'In recycle bin', cls:'status-disabled', banner:`Disabled by admin${l.disabled_reason?': '+escHtml(l.disabled_reason):''}. Contact admin for more information.`+(d!==null?` Removed in ${d} day(s).`:'') }; }
-  if (l.is_disabled)  return { label:'Disabled by admin', cls:'status-disabled', banner:`Disabled by admin${l.disabled_reason?': '+escHtml(l.disabled_reason):''}. Contact admin for more information.` };
-  if (l.status === 'occupied') {
-    const word = l.price_type === 'rent' ? 'occupied' : 'sold';
-    return { label: l.price_type === 'rent' ? 'Occupied' : 'Sold', cls:'status-occupied', banner:`Marked as ${word} — hidden from public search and listing pages.` };
-  }
-  return { label:statusLabel(l.status), cls:'status-'+l.status, banner:null };
+function getListingStatusDisplay(l){
+  if(l.recycle_bin){const d=l.purge_at?Math.max(0,Math.ceil((new Date(l.purge_at)-new Date())/86400000)):null;return{label:'In recycle bin',cls:'status-disabled',banner:`Disabled by admin${l.disabled_reason?': '+escHtml(l.disabled_reason):''}. Contact admin for more information.`+(d!==null?` Removed in ${d} day(s).`:'')};}
+  if(l.is_disabled)return{label:'Disabled by admin',cls:'status-disabled',banner:`Disabled by admin${l.disabled_reason?': '+escHtml(l.disabled_reason):''}. Contact admin for more information.`};
+  if(l.status==='occupied'){const word=l.price_type==='rent'?'occupied':'sold';return{label:l.price_type==='rent'?'Occupied':'Sold',cls:'status-occupied',banner:`Marked as ${word} — hidden from public search and listing pages.`};}
+  return{label:statusLabel(l.status),cls:'status-'+l.status,banner:null};
 }
 
-function renderOverview() {
-  const active   = allListings.filter(l=>l.status==='active'&&!l.is_disabled).length;
-  const unread   = threads.reduce((s,t)=>s+(t.unread_count||0),0);
-  const confirmed= allPayments.filter(p=>p.status==='confirmed'||p.status==='paid');
-  const totalPaid= confirmed.reduce((s,p)=>s+(Number(p.amount)||0),0);
-  const views    = allListings.reduce((s,l)=>s+(Number(l.views)||0),0);
-  document.getElementById('stat-active').textContent        = active;
-  document.getElementById('stat-active-delta').textContent  = `of ${allListings.length} total listing${allListings.length!==1?'s':''}`;
-  const buyerThreadCount = threads.filter(t => t.messages.some(m => m.sender === 'buyer')).length;
-  document.getElementById('stat-enquiries').textContent     = buyerThreadCount;
-  document.getElementById('stat-enquiries-delta').textContent = `${buyerThreadCount} buyer${buyerThreadCount!==1?'s':''} reached out`;
-  document.getElementById('stat-new-enq').textContent       = unread;
-  document.getElementById('stat-new-enq-delta').textContent = unread>0?`${unread} unread — check messages`:'All caught up ✓';
-  document.getElementById('stat-paid').textContent          = `KES ${totalPaid.toLocaleString('en-KE')}`;
-  document.getElementById('stat-paid-delta').textContent    = `${confirmed.length} payment${confirmed.length!==1?'s':''}`;
-  document.getElementById('stat-views').textContent         = views.toLocaleString('en-KE');
-  renderActivityFeed(); renderChart(); renderQuickListings();
+function renderOverview(){
+  const active=allListings.filter(l=>l.status==='active'&&!l.is_disabled).length;
+  const unread=threads.reduce((s,t)=>s+(t.unread_count||0),0);
+  const confirmed=allPayments.filter(p=>p.status==='confirmed'||p.status==='paid');
+  const totalPaid=confirmed.reduce((s,p)=>s+(Number(p.amount)||0),0);
+  const views=allListings.reduce((s,l)=>s+(Number(l.views)||0),0);
+  document.getElementById('stat-active').textContent=active;
+  document.getElementById('stat-active-delta').textContent=`of ${allListings.length} total listing${allListings.length!==1?'s':''}`;
+  const buyerThreadCount=threads.filter(t=>t.messages.some(m=>m.sender==='buyer')).length;
+  document.getElementById('stat-enquiries').textContent=buyerThreadCount;
+  document.getElementById('stat-enquiries-delta').textContent=`${buyerThreadCount} buyer${buyerThreadCount!==1?'s':''} reached out`;
+  document.getElementById('stat-new-enq').textContent=unread;
+  document.getElementById('stat-new-enq-delta').textContent=unread>0?`${unread} unread — check messages`:'All caught up ✓';
+  document.getElementById('stat-paid').textContent=`KES ${totalPaid.toLocaleString('en-KE')}`;
+  document.getElementById('stat-paid-delta').textContent=`${confirmed.length} payment${confirmed.length!==1?'s':''}`;
+  document.getElementById('stat-views').textContent=views.toLocaleString('en-KE');
+  renderActivityFeed();renderChart();renderQuickListings();
 }
 
-function renderActivityFeed() {
-  const items = [];
-  // Each thread already contains the original enquiry as its first buyer message
-  // (see buildThreads()), so we read activity from threads only — this avoids
-  // showing the same buyer contact twice (once as "enquiry", once as "message").
-  threads.slice(0,6).forEach(t => {
-    const lb = [...t.messages].reverse().find(m=>m.sender==='buyer');
-    if (!lb) return;
-    const isFirstContact = String(lb.id).startsWith('enq-');
-    items.push({
-      type: isFirstContact ? 'enquiry' : 'message',
-      time: lb.created_at,
-      html: isFirstContact
-        ? `<strong>${escHtml(t.buyer_name)}</strong> enquired about <strong>${escHtml(t.listing_title)}</strong>`
-        : `<strong>${escHtml(t.buyer_name)}</strong> sent a message about <strong>${escHtml(t.listing_title)}</strong>`,
-      action: () => { showAllMessages(); openThread(t.key); }
-    });
-  });
-  allListings.slice(0,3).forEach(l => items.push({
-    type:'listing', time:l.created_at,
-    html:`You posted <strong>${escHtml(l.title)}</strong> in ${l.area}`,
-    action: () => showPage('listings')
-  }));
-  allPayments.slice(0,2).forEach(p => items.push({
-    type:'payment', time:p.created_at,
-    html:`Payment of <strong>KES ${Number(p.amount||0).toLocaleString('en-KE')}</strong> recorded`,
-    action: () => showPage('payments')
-  }));
+function renderActivityFeed(){
+  const items=[];
+  threads.slice(0,6).forEach(t=>{const lb=[...t.messages].reverse().find(m=>m.sender==='buyer');if(!lb)return;const isFirstContact=String(lb.id).startsWith('enq-');items.push({type:isFirstContact?'enquiry':'message',time:lb.created_at,html:isFirstContact?`<strong>${escHtml(t.buyer_name)}</strong> enquired about <strong>${escHtml(t.listing_title)}</strong>`:`<strong>${escHtml(t.buyer_name)}</strong> sent a message about <strong>${escHtml(t.listing_title)}</strong>`,action:()=>{showAllMessages();openThread(t.key);}});});
+  allListings.slice(0,3).forEach(l=>items.push({type:'listing',time:l.created_at,html:`You posted <strong>${escHtml(l.title)}</strong> in ${l.area}`,action:()=>showPage('listings')}));
+  allPayments.slice(0,2).forEach(p=>items.push({type:'payment',time:p.created_at,html:`Payment of <strong>KES ${Number(p.amount||0).toLocaleString('en-KE')}</strong> recorded`,action:()=>showPage('payments')}));
   items.sort((a,b)=>new Date(b.time)-new Date(a.time));
-  const icons = { enquiry:`<svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13"/></svg>`, message:`<svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>`, listing:`<svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>`, payment:`<svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>` };
-  const feed = document.getElementById('activity-feed');
-  const top = items.slice(0,8);
-  if (!top.length) { feed.innerHTML=`<div style="text-align:center;padding:30px 0;color:var(--text-3);font-size:13px">No activity yet. <a href="post-listing.html" style="color:var(--green);font-weight:500">Post your first listing →</a></div>`; return; }
-  feed.innerHTML = top.map((i,idx)=>`<div class="activity-item" data-idx="${idx}"><div class="activity-dot ${i.type}">${icons[i.type]||icons.enquiry}</div><div class="activity-text">${i.html}</div><div class="activity-time">${timeAgo(i.time)}</div></div>`).join('');
-  feed.querySelectorAll('.activity-item').forEach((el,idx) => { el.onclick = top[idx].action; });
+  const icons={enquiry:`<svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13"/></svg>`,message:`<svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>`,listing:`<svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>`,payment:`<svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>`};
+  const feed=document.getElementById('activity-feed');const top=items.slice(0,8);
+  if(!top.length){feed.innerHTML=`<div style="text-align:center;padding:30px 0;color:var(--text-3);font-size:13px">No activity yet. <a href="post-listing.html" style="color:var(--green);font-weight:500">Post your first listing →</a></div>`;return;}
+  feed.innerHTML=top.map((i,idx)=>`<div class="activity-item" data-idx="${idx}"><div class="activity-dot ${i.type}">${icons[i.type]||icons.enquiry}</div><div class="activity-text">${i.html}</div><div class="activity-time">${timeAgo(i.time)}</div></div>`).join('');
+  feed.querySelectorAll('.activity-item').forEach((el,idx)=>{el.onclick=top[idx].action;});
 }
 
-function renderChart() {
+function renderChart(){
   const labels=[],counts=[];
   for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);const k=d.toISOString().slice(0,10);labels.push(d.toLocaleDateString('en-KE',{weekday:'short'}));counts.push(allEnquiries.filter(e=>e.created_at&&e.created_at.slice(0,10)===k).length+allMessages.filter(m=>m.sender==='buyer'&&m.created_at&&m.created_at.slice(0,10)===k).length);}
   const max=Math.max(...counts,1);
-  document.getElementById('chart-bars').innerHTML = counts.map((c,i)=>`<div class="chart-bar" style="height:${Math.round((c/max)*68)+8}px"><div class="bar-tip">${labels[i]}: ${c}</div></div>`).join('');
-  document.getElementById('chart-labels').innerHTML = labels.map(l=>`<div class="chart-label">${l}</div>`).join('');
+  document.getElementById('chart-bars').innerHTML=counts.map((c,i)=>`<div class="chart-bar" style="height:${Math.round((c/max)*68)+8}px"><div class="bar-tip">${labels[i]}: ${c}</div></div>`).join('');
+  document.getElementById('chart-labels').innerHTML=labels.map(l=>`<div class="chart-label">${l}</div>`).join('');
 }
 
-function renderQuickListings() {
+function renderQuickListings(){
   const el=document.getElementById('quick-listings');
   if(!allListings.length){el.innerHTML=`<div style="text-align:center;padding:20px 0;color:var(--text-3);font-size:13px">No listings yet. <a href="post-listing.html" style="color:var(--green);font-weight:500">Post one →</a></div>`;return;}
   el.innerHTML=allListings.slice(0,5).map(l=>{const cover=(l.listing_photos||[]).find(p=>p.is_cover)||(l.listing_photos||[])[0];const img=cover?`<img src="${cover.url}" alt=""/>`:`<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>`;const d=getListingStatusDisplay(l);const trialDays=getTrialDaysLeft(l);const trialTxt=trialDays!==null?` · Trial: ${trialDays}d left`:'';return `<div class="quick-listing"><div class="quick-img">${img}</div><div style="flex:1;min-width:0"><div class="quick-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(l.title)}</div><div class="quick-meta" style="${l.is_disabled?'color:var(--red)':''}">${l.area} · ${d.label}${trialTxt}</div></div><div class="quick-price">KES ${Number(l.price).toLocaleString('en-KE')}${l.price_type==='rent'?'/mo':''}</div></div>`;}).join('');
@@ -1211,73 +849,56 @@ function renderQuickListings() {
 
 function filterListings(status,el){listingFilter=status;document.querySelectorAll('#page-listings .filter-pill').forEach(p=>p.classList.remove('active'));el.classList.add('active');renderListingsTable();}
 
-// ── Trial helpers ──
-// Returns days left in a listing's 7-day free trial, or null if it isn't on a trial.
-function getTrialDaysLeft(l) {
-  if (l.payment_status !== 'trial' && !l.is_trial) return null;
-  if (!l.trial_expires_at) return null;
-  const diffMs = new Date(l.trial_expires_at) - new Date();
-  return Math.max(0, Math.ceil(diffMs / 86400000));
+function getTrialDaysLeft(l){
+  if(l.payment_status!=='trial'&&!l.is_trial)return null;
+  if(!l.trial_expires_at)return null;
+  const diffMs=new Date(l.trial_expires_at)-new Date();
+  return Math.max(0,Math.ceil(diffMs/86400000));
 }
 
-// Opens the Live Support widget and sends a pre-filled upgrade request on the seller's behalf.
-function requestTrialUpgrade(title) {
-  if (!lswOpen) lswToggle();
-  const msg = `Hi, I'd like to upgrade my listing "${title}" from the free trial to a paid plan (Standard or Featured). Could you help me with payment?`;
-  setTimeout(() => {
-    const input = document.getElementById('lsw-input');
-    if (input) { input.value = msg; lswSend(); }
-  }, 400);
+function requestTrialUpgrade(title){
+  if(!lswOpen)lswToggle();
+  const msg=`Hi, I'd like to upgrade my listing "${title}" from the free trial to a paid plan. Could you help me with payment?`;
+  setTimeout(()=>{const input=document.getElementById('lsw-input');if(input){input.value=msg;lswSend();}},400);
 }
 
-// ── Mark as occupied / sold ──
-// Hides a listing from public pages while keeping it (and its messages/history)
-// visible here in the dashboard, tagged as occupied/sold. Reversible via
-// reactivateListing(). The real enforcement is the RLS policy on `listings`
-// (see the SQL provided separately) — this UI is just the seller-facing control.
-function openOccupiedModal(id, title) {
-  const l = allListings.find(x => x.id === id);
-  if (!l) return;
-  occupiedTargetId = id;
-  const isRent = l.price_type === 'rent';
-  document.getElementById('occupied-modal-title').textContent = isRent ? 'Mark as occupied?' : 'Mark as sold?';
-  document.getElementById('occupied-listing-name').textContent = title;
-  document.getElementById('occupied-modal-copy').innerHTML =
-    `This will hide <strong>${escHtml(title)}</strong> from public search and listing pages immediately. It will still appear here in your dashboard, marked as ${isRent ? 'occupied' : 'sold'}, so you keep your messages and history. You can reactivate it later if that falls through.`;
-  document.getElementById('btn-confirm-occupied').textContent = isRent ? 'Yes, mark as occupied' : 'Yes, mark as sold';
+function openOccupiedModal(id,title){
+  const l=allListings.find(x=>x.id===id);if(!l)return;
+  occupiedTargetId=id;
+  const isRent=l.price_type==='rent';
+  document.getElementById('occupied-modal-title').textContent=isRent?'Mark as occupied?':'Mark as sold?';
+  document.getElementById('occupied-listing-name').textContent=title;
+  document.getElementById('occupied-modal-copy').innerHTML=`This will hide <strong>${escHtml(title)}</strong> from public search immediately. It stays in your dashboard so you keep messages and history. You can reactivate it later if that falls through.`;
+  document.getElementById('btn-confirm-occupied').textContent=isRent?'Yes, mark as occupied':'Yes, mark as sold';
   openModal('modal-occupied');
 }
 
-async function confirmOccupied() {
-  if (!occupiedTargetId) return;
-  const btn = document.getElementById('btn-confirm-occupied');
-  btn.disabled = true; btn.innerHTML = '<span class="spinner-sm"></span> Updating…';
-  const { error } = await db.from('listings')
-    .update({ status: 'occupied', occupied_at: new Date().toISOString() })
-    .eq('id', occupiedTargetId);
-  btn.disabled = false; btn.textContent = 'Yes, mark it';
-  if (error) { showToast('Could not update: ' + error.message, 'error'); return; }
-  const l = allListings.find(l => l.id === occupiedTargetId);
-  if (l) { l.status = 'occupied'; l.occupied_at = new Date().toISOString(); }
-  occupiedTargetId = null;
-  closeModal('modal-occupied');
-  renderListingsTable(); renderOverview();
-  showToast('Listing hidden from public — marked as occupied/sold ✓', 'success');
+async function confirmOccupied(){
+  if(!occupiedTargetId)return;
+  const btn=document.getElementById('btn-confirm-occupied');btn.disabled=true;btn.innerHTML='<span class="spinner-sm"></span> Updating…';
+  const{error}=await db.from('listings').update({status:'occupied',occupied_at:new Date().toISOString()}).eq('id',occupiedTargetId);
+  btn.disabled=false;btn.textContent='Yes, mark it';
+  if(error){showToast('Could not update: '+error.message,'error');return;}
+  const l=allListings.find(l=>l.id===occupiedTargetId);
+  if(l){l.status='occupied';l.occupied_at=new Date().toISOString();}
+  occupiedTargetId=null;closeModal('modal-occupied');renderListingsTable();renderOverview();
+  showToast('Listing hidden from public — marked as occupied/sold ✓','success');
 }
 
-async function reactivateListing(id) {
-  const l = allListings.find(l => l.id === id);
-  if (l && l.is_disabled) { showToast('Disabled by admin. Contact admin.', 'error'); return; }
-  const { error } = await db.from('listings')
-    .update({ status: 'active', occupied_at: null })
-    .eq('id', id);
-  if (error) { showToast('Could not reactivate: ' + error.message, 'error'); return; }
-  if (l) { l.status = 'active'; l.occupied_at = null; }
-  renderListingsTable(); renderOverview();
-  showToast('Listing reactivated and visible to buyers again ✓', 'success');
+async function reactivateListing(id){
+  const l=allListings.find(l=>l.id===id);
+  if(l&&l.is_disabled){showToast('Disabled by admin. Contact admin.','error');return;}
+  const{error}=await db.from('listings').update({status:'pending',occupied_at:null}).eq('id',id);
+  if(error){showToast('Could not reactivate: '+error.message,'error');return;}
+  if(l){l.status='pending';l.occupied_at=null;}
+  renderListingsTable();renderOverview();
+  showToast('Listing resubmitted for admin approval ✓','success');
 }
 
-function renderListingsTable() {
+// ── THE FIXED renderListingsTable — pending/rejected listings have all status
+//    buttons locked. Only active listings can be paused or marked sold/occupied.
+//    Reactivating an occupied listing sends it back to "pending" for admin review.
+function renderListingsTable(){
   const q=(document.getElementById('listing-search')?.value||'').toLowerCase();
   const rows=allListings.filter(l=>{if(listingFilter!=='all'&&l.status!==listingFilter)return false;if(q&&!l.title.toLowerCase().includes(q)&&!(l.area||'').toLowerCase().includes(q))return false;return true;});
   const tbody=document.getElementById('listings-tbody');
@@ -1290,58 +911,65 @@ function renderListingsTable() {
     const posted=new Date(l.created_at).toLocaleDateString('en-KE',{day:'numeric',month:'short',year:'numeric'});
     const d=getListingStatusDisplay(l);
     const trialDays=getTrialDaysLeft(l);
-    const trialNote = trialDays!==null
-      ? `<div class="trial-note${trialDays<=2?' urgent':''}">🕐 Free trial — ${trialDays} day${trialDays!==1?'s':''} left <span class="upgrade-link" onclick="requestTrialUpgrade('${escAttr(l.title)}')">Upgrade now</span></div>`
-      : '';
-    const occupiedNote = (l.status === 'occupied' && d.banner) ? `<div class="occupied-note">${d.banner}</div>` : '';
+    const trialNote=trialDays!==null?`<div class="trial-note${trialDays<=2?' urgent':''}">🕐 Free trial — ${trialDays} day${trialDays!==1?'s':''} left <span class="upgrade-link" onclick="requestTrialUpgrade('${escAttr(l.title)}')">Upgrade now</span></div>`:'';
+    const occupiedNote=(l.status==='occupied'&&d.banner)?`<div class="occupied-note">${d.banner}</div>`:'';
+
+    // Which actions are permitted per status
+    const isActive   = l.status==='active'   && !l.is_disabled;
+    const isPaused   = l.status==='paused'   && !l.is_disabled;
+    const isOccupied = l.status==='occupied' && !l.is_disabled;
+    const canEdit    = (isActive||isPaused||isOccupied);
+
+    const editBtn=canEdit
+      ?`<div class="icon-btn" data-id="${l.id}" onclick="openEditModal(this.dataset.id)" title="Edit listing"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>`
+      :`<div class="icon-btn locked" title="Cannot edit — awaiting admin approval"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>`;
+
+const statusBtn=l.is_disabled
+  ?`<div class="icon-btn locked" title="Disabled by admin — contact support"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>`
+  :(isOccupied||isPaused)
+    ?`<div class="icon-btn purple" data-id="${l.id}" onclick="reactivateListing(this.dataset.id)" title="Resume — sends back for a quick admin recheck"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg></div>`
+    :isActive
+      ?`<div class="icon-btn purple" data-id="${l.id}" data-title="${escAttr(l.title)}" onclick="openOccupiedModal(this.dataset.id,this.dataset.title)" title="${l.price_type==='rent'?'Mark as occupied':'Mark as sold'}"><svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg></div>`
+      :`<div class="icon-btn locked" title="Awaiting admin approval — no status changes allowed"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>`;
+
+const pauseBtn=isActive
+  ?`<div class="icon-btn" data-id="${l.id}" data-status="${l.status}" onclick="togglePause(this.dataset.id,this.dataset.status)" title="Pause listing"><svg viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg></div>`
+  :'';
+
     return `<tr>
-      <td><div class="listing-name-cell"><div class="listing-thumb">${img}</div><div><div class="listing-title-text">${escHtml(l.title)}</div><div class="listing-area-text">${l.area}${l.sub_area?' · '+l.sub_area:''}</div>${l.status!=='occupied'&&d.banner?`<div class="disabled-note">${d.banner}</div>`:''}${occupiedNote}${trialNote}</div></div></td>
+      <td><div class="listing-name-cell"><div class="listing-thumb">${img}</div><div>
+        <div class="listing-title-text">${escHtml(l.title)}</div>
+        <div class="listing-area-text">${l.area}${l.sub_area?' · '+l.sub_area:''}</div>
+        ${l.status!=='occupied'&&d.banner?`<div class="disabled-note">${d.banner}</div>`:''}
+        ${occupiedNote}${trialNote}
+      </div></div></td>
       <td><div class="listing-price-text">KES ${Number(l.price).toLocaleString('en-KE')}${l.price_type==='rent'?'/mo':''}</div><div class="listing-price-sub">${l.price_type==='rent'?'Monthly rent':'For sale'}</div></td>
       <td><span class="status ${d.cls}">${d.label}</span></td>
       <td><span style="font-size:13px;font-weight:600;color:${mc>0?'var(--green-dark)':'var(--text-3)'}">${mc}${uc>0?` <span style="color:var(--red);font-size:11px">(${uc} new)</span>`:''}</span></td>
       <td style="font-size:13px;color:var(--text-3)">${l.views||0}</td>
       <td style="font-size:12px;color:var(--text-3)">${posted}</td>
       <td><div class="actions-cell">
-        <a href="listing.html?id=${l.id}" target="_blank" class="icon-btn" title="View live"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></a>
-        <div class="icon-btn" onclick="openMessagesForListing('${l.id}')" title="Messages for this listing"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
+        <a href="listing.html?id=${l.id}" target="_blank" class="icon-btn" title="View live listing"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></a>
+        <div class="icon-btn" onclick="openMessagesForListing('${l.id}')" title="Messages"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
         <div class="icon-btn" onclick="shareListing('${l.id}')" title="Share"><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></div>
-        <div class="icon-btn" data-id="${l.id}" onclick="openEditModal(this.dataset.id)" title="Edit"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
-        ${l.status==='expired'?`<div class="icon-btn" onclick="renewListing('${l.id}')" title="Renew"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg></div>`:''}
-        ${l.is_disabled?`<div class="icon-btn locked" title="Disabled by admin"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>`:(
-          l.status==='occupied'
-          ? `<div class="icon-btn purple" data-id="${l.id}" onclick="reactivateListing(this.dataset.id)" title="Reactivate — make visible to buyers again"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg></div>`
-          : `<div class="icon-btn purple" data-id="${l.id}" data-title="${escAttr(l.title)}" onclick="openOccupiedModal(this.dataset.id,this.dataset.title)" title="${l.price_type==='rent'?'Mark as occupied':'Mark as sold'}"><svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg></div>`
-        )}
-        ${(!l.is_disabled && l.status!=='occupied')?`<div class="icon-btn" data-id="${l.id}" data-status="${l.status}" onclick="togglePause(this.dataset.id,this.dataset.status)" title="${l.status==='paused'?'Activate':'Pause'}">${l.status==='paused'?`<svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>`:`<svg viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>`}</div>`:''}
-        <div class="icon-btn danger" data-id="${l.id}" data-title="${escAttr(l.title)}" onclick="openDeleteModal(this.dataset.id,this.dataset.title)" title="Delete"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg></div>
+        ${editBtn}${statusBtn}${pauseBtn}
+        <div class="icon-btn danger" data-id="${l.id}" data-title="${escAttr(l.title)}" onclick="openDeleteModal(this.dataset.id,this.dataset.title)" title="Delete listing"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg></div>
       </div></td>
     </tr>`;
   }).join('');
 }
 
-function statusLabel(s){return {active:'Active',pending:'Pending review',paused:'Paused',rejected:'Rejected',expired:'Expired',occupied:'Occupied'}[s]||s;}
-
-async function togglePause(id,cs){const l=allListings.find(l=>l.id===id);if(l&&l.is_disabled){showToast('Disabled by admin. Contact admin.','error');return;}const ns=cs==='paused'?'active':'paused';const{error}=await db.from('listings').update({status:ns}).eq('id',id);if(error){showToast('Could not update','error');return;}if(l)l.status=ns;renderListingsTable();renderOverview();showToast(ns==='active'?'Listing active':'Listing paused','success');}
+function statusLabel(s){return{active:'Active',pending:'Pending review',paused:'Paused',rejected:'Rejected',expired:'Expired',occupied:'Occupied'}[s]||s;}
+async function togglePause(id,cs){const l=allListings.find(l=>l.id===id);if(l&&l.is_disabled){showToast('Disabled by admin. Contact admin.','error');return;}if(cs!=='active'){showToast('Only active listings can be paused.','error');return;}const{error}=await db.from('listings').update({status:'paused'}).eq('id',id);if(error){showToast('Could not update','error');return;}if(l)l.status='paused';renderListingsTable();renderOverview();showToast('Listing paused','success');}
 async function renewListing(id){const{error}=await db.from('listings').update({status:'pending'}).eq('id',id);if(error){showToast('Could not renew: '+error.message,'error');return;}const l=allListings.find(l=>l.id===id);if(l)l.status='pending';renderListingsTable();renderOverview();showToast('Resubmitted for approval','success');}
 function shareListing(id){const l=allListings.find(l=>l.id===id);if(!l)return;const url=`${location.origin}${location.pathname.replace(/dashboard\.html$/,'')}listing.html?id=${id}`;window.open(`https://wa.me/?text=${encodeURIComponent(l.title+' — KES '+Number(l.price).toLocaleString('en-KE')+(l.price_type==='rent'?'/mo':'')+' in '+l.area+'\n'+url)}`,'_blank');}
 
 function openEditModal(id){
   const l=allListings.find(l=>l.id===id);if(!l)return;
-  document.getElementById('edit-id').value=l.id;
-  document.getElementById('edit-title').value=l.title||'';
-  document.getElementById('edit-price').value=l.price||'';
-  document.getElementById('edit-price-type').value=l.price_type||'sale';
-  document.getElementById('edit-bedrooms').value=l.bedrooms||'';
-  document.getElementById('edit-bathrooms').value=l.bathrooms||'';
-  document.getElementById('edit-size').value=l.size_sqm||'';
-  document.getElementById('edit-area').value=l.area||'Milimani';
-  document.getElementById('edit-category').value=l.category||'standard';
-  document.getElementById('edit-address').value=l.address||'';
-  document.getElementById('edit-description').value=l.description||'';
-  document.getElementById('edit-furnished').checked=l.furnished||false;
+  document.getElementById('edit-id').value=l.id;document.getElementById('edit-title').value=l.title||'';document.getElementById('edit-price').value=l.price||'';document.getElementById('edit-price-type').value=l.price_type||'sale';document.getElementById('edit-bedrooms').value=l.bedrooms||'';document.getElementById('edit-bathrooms').value=l.bathrooms||'';document.getElementById('edit-size').value=l.size_sqm||'';document.getElementById('edit-area').value=l.area||'Milimani';document.getElementById('edit-category').value=l.category||'standard';document.getElementById('edit-address').value=l.address||'';document.getElementById('edit-description').value=l.description||'';document.getElementById('edit-furnished').checked=l.furnished||false;
   document.getElementById('edit-amenities-grid').innerHTML=AMENITY_KEYS.map(a=>`<label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;padding:7px;background:var(--surface);border-radius:6px"><input type="checkbox" id="edit-${a.key}" ${l[a.key]?'checked':''}/>${a.label}</label>`).join('');
   openModal('modal-edit');
-  if(l.is_disabled) setTimeout(()=>showToast("Disabled by admin. Edits won't make it live — contact admin.",'error'),350);
+  if(l.is_disabled)setTimeout(()=>showToast("Disabled by admin. Edits won't make it live — contact admin.",'error'),350);
 }
 
 async function saveEdit(){
@@ -1371,77 +999,26 @@ async function confirmDelete(){
   buildThreads();updateNavBadges();deleteTargetId=null;closeModal('modal-delete');renderListingsTable();renderOverview();showToast('Listing deleted','success');
 }
 
-// Messages page
-function showAllMessages() {
-  threadListingFilter = null;
-  activeThread = null;
-  showPage('messages');
-}
-
-function openMessagesForListing(listingId) {
-  threadListingFilter = listingId;
-  activeThread = null;
-  showPage('messages');
-}
-
-function openConversationFromEnquiry(enqId) {
-  const e = allEnquiries.find(x => x.id === enqId);
-  if (!e) return;
-  threadListingFilter = null;
-  showPage('messages');
-  const key = `${e.listing_id}__${e.buyer_token || e.buyer_phone || e.id}`;
-  openThread(key);
-}
-
-function openConversationFromThread(key) {
-  threadListingFilter = null;
-  showPage('messages');
-  openThread(key);
-}
-
-/* ── Mobile messages view toggle ── */
-function showThreadListMobile() {
-  document.getElementById('messages-layout')?.classList.remove('mobile-chat-active');
-}
-function showChatMobile() {
-  document.getElementById('messages-layout')?.classList.add('mobile-chat-active');
-}
+function showAllMessages(){threadListingFilter=null;activeThread=null;showPage('messages');}
+function openMessagesForListing(listingId){threadListingFilter=listingId;activeThread=null;showPage('messages');}
+function openConversationFromThread(key){threadListingFilter=null;showPage('messages');openThread(key);}
+function showThreadListMobile(){document.getElementById('messages-layout')?.classList.remove('mobile-chat-active');}
+function showChatMobile(){document.getElementById('messages-layout')?.classList.add('mobile-chat-active');}
 
 function renderThreadList(){
   const q=(document.getElementById('thread-search-input')?.value||'').toLowerCase();
-  let filtered = threads;
-  if (threadListingFilter) filtered = filtered.filter(t => t.listing_id === threadListingFilter);
-  if (q) filtered = filtered.filter(t=>t.buyer_name.toLowerCase().includes(q)||t.listing_title.toLowerCase().includes(q));
-
-  const chipWrap = document.getElementById('thread-filter-chip');
-  if (chipWrap) {
-    if (threadListingFilter) {
-      const l = allListings.find(l => l.id === threadListingFilter);
-      chipWrap.style.display = 'block';
-      chipWrap.innerHTML = `<span style="display:inline-flex;align-items:center;gap:6px;font-size:11px;background:var(--green-light);color:var(--green-dark);padding:4px 10px;border-radius:20px">
-        Filtered: ${escHtml(l?.title || 'listing')}
-        <span style="cursor:pointer;font-weight:700" onclick="showAllMessages()">×</span>
-      </span>`;
-    } else {
-      chipWrap.style.display = 'none';
-      chipWrap.innerHTML = '';
-    }
-  }
-
+  let filtered=threads;
+  if(threadListingFilter)filtered=filtered.filter(t=>t.listing_id===threadListingFilter);
+  if(q)filtered=filtered.filter(t=>t.buyer_name.toLowerCase().includes(q)||t.listing_title.toLowerCase().includes(q));
+  const chipWrap=document.getElementById('thread-filter-chip');
+  if(chipWrap){if(threadListingFilter){const l=allListings.find(l=>l.id===threadListingFilter);chipWrap.style.display='block';chipWrap.innerHTML=`<span style="display:inline-flex;align-items:center;gap:6px;font-size:11px;background:var(--green-light);color:var(--green-dark);padding:4px 10px;border-radius:20px">Filtered: ${escHtml(l?.title||'listing')}<span style="cursor:pointer;font-weight:700" onclick="showAllMessages()">×</span></span>`;}else{chipWrap.style.display='none';chipWrap.innerHTML='';}}
   document.getElementById('msg-thread-count').textContent=`${filtered.length} conversation${filtered.length!==1?'s':''}`;
   const el=document.getElementById('thread-items');
   if(!filtered.length){el.innerHTML=`<div style="padding:40px 20px;text-align:center;color:var(--text-3);font-size:13px">${q||threadListingFilter?'No matching conversations.':'No messages yet. When buyers contact you, conversations appear here.'}</div>`;return;}
   el.innerHTML=filtered.map(t=>{const lm=t.messages[t.messages.length-1];const prev=lm?(lm.sender==='seller'?'You: ':'')+(lm.content||lm.message||''):'';const ini=t.buyer_name.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase()||'?';const isA=activeThread&&activeThread.key===t.key;const isU=(t.unread_count||0)>0;return `<div class="thread-item${isA?' active':''}${isU?' unread':''}" onclick="openThread('${t.key}')"><div class="thread-avatar">${ini}</div><div class="thread-meta"><div class="thread-name">${escHtml(t.buyer_name)}</div><div class="thread-listing-ref">${escHtml(t.listing_title)}${t.listing_area?' · '+t.listing_area:''}</div><div class="thread-preview">${escHtml(prev)}</div></div><div class="thread-time">${timeAgo(t.last_at)}</div></div>`;}).join('');
 }
 
-function openThread(key){
-  activeThread=threads.find(t=>t.key===key)||null;
-  if(!activeThread)return;
-  renderThreadList();
-  renderChatPane(activeThread);
-  markThreadRead(activeThread);
-  showChatMobile();
-}
+function openThread(key){activeThread=threads.find(t=>t.key===key)||null;if(!activeThread)return;renderThreadList();renderChatPane(activeThread);markThreadRead(activeThread);showChatMobile();}
 
 function renderChatPane(t){
   document.getElementById('chat-empty').style.display='none';
@@ -1450,7 +1027,7 @@ function renderChatPane(t){
   const waLink=t.buyer_phone?`<a href="https://wa.me/${formatWaPhone(t.buyer_phone)}" target="_blank" class="btn btn-sm" style="background:#25D366;color:white;text-decoration:none">WhatsApp</a>`:'';
   const listing=allListings.find(l=>l.id===t.listing_id);
   const liveLink=listing?`<a href="listing.html?id=${t.listing_id}" target="_blank" class="btn btn-outline btn-sm" style="text-decoration:none">View listing</a>`:'';
-  document.getElementById('chat-header').innerHTML=`<button class="mobile-back-btn" onclick="showThreadListMobile()" title="Back to conversations"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></button><div class="chat-header-avatar">${ini}</div><div><div class="chat-header-name">${escHtml(t.buyer_name)}</div><div class="chat-header-sub">${t.buyer_phone||'No phone'} · Re: ${escHtml(t.listing_title)}</div></div><div class="chat-header-actions">${waLink}${liveLink}</div>`;
+  document.getElementById('chat-header').innerHTML=`<button class="mobile-back-btn" onclick="showThreadListMobile()"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></button><div class="chat-header-avatar">${ini}</div><div><div class="chat-header-name">${escHtml(t.buyer_name)}</div><div class="chat-header-sub">${t.buyer_phone||'No phone'} · Re: ${escHtml(t.listing_title)}</div></div><div class="chat-header-actions">${waLink}${liveLink}</div>`;
   document.getElementById('chat-wa-hint').innerHTML=t.buyer_phone?'Replies also sent via WhatsApp if number is available.':'Buyer will see your reply when they revisit the listing.';
   renderChatMessages(t);
   setTimeout(()=>{const mc=document.getElementById('chat-messages');mc.scrollTop=mc.scrollHeight;},50);
@@ -1463,13 +1040,7 @@ function renderChatMessages(t){
   const sn=currentProfile?.full_name||currentUser?.email?.split('@')[0]||'You';
   const si=sn.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase()||'S';
   const bi=t.buyer_name.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase()||'?';
-  mc.innerHTML=t.messages.map(m=>{
-    const md=new Date(m.created_at).toLocaleDateString('en-KE',{weekday:'long',day:'numeric',month:'long'});
-    const dd=md!==lastDate?`<div class="chat-date-divider"><span>${md}</span></div>`:'';lastDate=md;
-    const isSeller=m.sender==='seller';
-    const time=new Date(m.created_at).toLocaleTimeString('en-KE',{hour:'2-digit',minute:'2-digit'});
-    return `${dd}<div class="chat-bubble-row ${isSeller?'seller':''}"><div class="bubble-avatar ${isSeller?'seller-av':'buyer'}">${isSeller?si:bi}</div><div><div class="chat-bubble ${isSeller?'seller-b':'buyer'}">${escHtml(m.content||m.message||'')}</div><div class="bubble-time">${time}${isSeller?' · Sent':''}</div></div></div>`;
-  }).join('');
+  mc.innerHTML=t.messages.map(m=>{const md=new Date(m.created_at).toLocaleDateString('en-KE',{weekday:'long',day:'numeric',month:'long'});const dd=md!==lastDate?`<div class="chat-date-divider"><span>${md}</span></div>`:'';lastDate=md;const isSeller=m.sender==='seller';const time=new Date(m.created_at).toLocaleTimeString('en-KE',{hour:'2-digit',minute:'2-digit'});return `${dd}<div class="chat-bubble-row ${isSeller?'seller':''}"><div class="bubble-avatar ${isSeller?'seller-av':'buyer'}">${isSeller?si:bi}</div><div><div class="chat-bubble ${isSeller?'seller-b':'buyer'}">${escHtml(m.content||m.message||'')}</div><div class="bubble-time">${time}${isSeller?' · Sent':''}</div></div></div>`;}).join('');
 }
 
 async function sendChatReply(){
@@ -1498,51 +1069,24 @@ async function markThreadRead(t){
   buildThreads();updateNavBadges();
 }
 
-// Enquiries — built from `threads`, which already merges the enquiries table
-// with buyer↔seller chat messages. This is what makes buyer-sent chat
-// messages show up here too, not just formal enquiry-form submissions.
-// A seller's own reply is never treated as new/unread — only what the buyer said.
 function filterEnquiries(f,el){enquiryFilter=f;document.querySelectorAll('#page-enquiries .filter-pill').forEach(p=>p.classList.remove('active'));el.classList.add('active');renderEnquiries();}
 
-function buildEnquiryFeed() {
-  return threads.map(t => {
-    const buyerMsgs = t.messages.filter(m => m.sender === 'buyer');
-    if (!buyerMsgs.length) return null; // nothing from the buyer yet — nothing to show
-    const last = buyerMsgs[buyerMsgs.length - 1];
-    return {
-      key: t.key,
-      buyer_name: t.buyer_name,
-      buyer_phone: t.buyer_phone,
-      listing_title: t.listing_title,
-      listing_area: t.listing_area,
-      message: last.content || last.message || '',
-      created_at: last.created_at,
-      unread: buyerMsgs.some(m => !m.read_at),
-    };
-  }).filter(Boolean).sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+function buildEnquiryFeed(){
+  return threads.map(t=>{const buyerMsgs=t.messages.filter(m=>m.sender==='buyer');if(!buyerMsgs.length)return null;const last=buyerMsgs[buyerMsgs.length-1];return{key:t.key,buyer_name:t.buyer_name,buyer_phone:t.buyer_phone,listing_title:t.listing_title,listing_area:t.listing_area,message:last.content||last.message||'',created_at:last.created_at,unread:buyerMsgs.some(m=>!m.read_at)};}).filter(Boolean).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
 }
 
 function renderEnquiries(){
-  let items = buildEnquiryFeed();
-  if (enquiryFilter === 'unread') items = items.filter(i => i.unread);
+  let items=buildEnquiryFeed();
+  if(enquiryFilter==='unread')items=items.filter(i=>i.unread);
   const el=document.getElementById('enquiry-list');
   if(!items.length){el.innerHTML=`<div class="empty-state"><svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13"/></svg><h3>${enquiryFilter==='unread'?'All caught up!':'No enquiries yet'}</h3><p>${enquiryFilter==='unread'?'No unread messages.':"When buyers message you, they'll appear here."}</p></div>`;return;}
-  el.innerHTML=items.map(i=>{const ini=(i.buyer_name||'B').split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase();return `<div class="enquiry-card${i.unread?' unread':''}" id="enq-thread-${i.key}"><div class="enquiry-avatar">${ini}</div><div class="enquiry-body"><div class="enquiry-head"><span class="enquiry-name">${escHtml(i.buyer_name||'Unknown buyer')}</span><span class="enquiry-phone">${i.buyer_phone||''}</span><span class="enquiry-time">${timeAgo(i.created_at)}</span></div><div class="enquiry-listing-ref">Re: ${escHtml(i.listing_title||'Listing')} · ${i.listing_area||''}</div><div class="enquiry-msg">${escHtml(i.message||'')}</div><div class="enquiry-actions"><button class="btn btn-primary btn-sm" onclick="openConversationFromThread('${i.key}')"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Open conversation</button>${i.buyer_phone?`<a class="btn btn-sm" style="background:#25D366;color:white" href="https://wa.me/${formatWaPhone(i.buyer_phone)}" target="_blank">WhatsApp</a>`:''}${i.unread?`<button class="btn btn-outline btn-sm" data-key="${i.key}" onclick="markEnqThreadRead(this.dataset.key)">Mark read</button>`:''}</div></div></div>`;}).join('');
+  el.innerHTML=items.map(i=>{const ini=(i.buyer_name||'B').split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase();return `<div class="enquiry-card${i.unread?' unread':''}"><div class="enquiry-avatar">${ini}</div><div class="enquiry-body"><div class="enquiry-head"><span class="enquiry-name">${escHtml(i.buyer_name||'Unknown buyer')}</span><span class="enquiry-phone">${i.buyer_phone||''}</span><span class="enquiry-time">${timeAgo(i.created_at)}</span></div><div class="enquiry-listing-ref">Re: ${escHtml(i.listing_title||'Listing')} · ${i.listing_area||''}</div><div class="enquiry-msg">${escHtml(i.message||'')}</div><div class="enquiry-actions"><button class="btn btn-primary btn-sm" onclick="openConversationFromThread('${i.key}')"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Open conversation</button>${i.buyer_phone?`<a class="btn btn-sm" style="background:#25D366;color:white" href="https://wa.me/${formatWaPhone(i.buyer_phone)}" target="_blank">WhatsApp</a>`:''}${i.unread?`<button class="btn btn-outline btn-sm" data-key="${i.key}" onclick="markEnqThreadRead(this.dataset.key)">Mark read</button>`:''}</div></div></div>`;}).join('');
 }
 
-function formatWaPhone(p){return (p||'').replace(/^0/,'254').replace(/\s/g,'');}
-
-async function markEnqThreadRead(key) {
-  const t = threads.find(x => x.key === key);
-  if (!t) return;
-  await markThreadRead(t);
-  renderEnquiries();
-}
-
-function openReplyModal(id){replyTargetEnquiry=allEnquiries.find(e=>e.id===id);if(!replyTargetEnquiry)return;document.getElementById('reply-original-msg').textContent=`${replyTargetEnquiry.buyer_name||'Buyer'} said: "${replyTargetEnquiry.message||''}"`;document.getElementById('reply-text').value='';const wr=document.getElementById('reply-whatsapp-row');wr.innerHTML=replyTargetEnquiry.buyer_phone?`<a href="https://wa.me/${formatWaPhone(replyTargetEnquiry.buyer_phone)}" target="_blank" class="btn btn-sm" style="background:#25D366;color:white">Open WhatsApp chat</a>`:'';openModal('modal-reply');}
+function formatWaPhone(p){return(p||'').replace(/^0/,'254').replace(/\s/g,'');}
+async function markEnqThreadRead(key){const t=threads.find(x=>x.key===key);if(!t)return;await markThreadRead(t);renderEnquiries();}
 function sendReply(){const text=document.getElementById('reply-text').value.trim();if(!text){showToast('Please type a reply first','error');return;}if(replyTargetEnquiry?.buyer_phone){window.open(`https://wa.me/${formatWaPhone(replyTargetEnquiry.buyer_phone)}?text=${encodeURIComponent(text)}`,'_blank');}else{showToast('No phone number available','error');return;}closeModal('modal-reply');showToast('Opened WhatsApp with your reply','success');}
 
-// Payments
 function renderPayments(){
   const paid=allPayments.filter(p=>p.status==='confirmed'||p.status==='paid');
   const total=paid.reduce((s,p)=>s+(Number(p.amount)||0),0);
@@ -1553,390 +1097,46 @@ function renderPayments(){
   tbody.innerHTML=allPayments.map(p=>{const date=new Date(p.created_at).toLocaleDateString('en-KE',{day:'numeric',month:'short',year:'numeric'});const isPaid=p.status==='confirmed'||p.status==='paid';const isPending=p.status==='pending'||p.status==='pending_verification';return `<tr><td style="color:var(--text-2)">${date}</td><td style="font-weight:500">${escHtml(p.listings?.title||'—')}</td><td><span class="pay-ref">${p.reference||p.mpesa_ref||'—'}</span></td><td style="font-weight:700;color:var(--green-dark)">KES ${Number(p.amount||0).toLocaleString('en-KE')}</td><td><span class="pay-status ${isPaid?'paid':isPending?'pending':'failed'}">${isPaid?'✓ Paid':isPending?'⏳ Pending':'✕ Failed'}</span></td><td>${isPaid?`<button class="btn btn-outline btn-sm" onclick="openReceiptModal('${p.id}')">Receipt</button>`:'—'}</td></tr>`;}).join('');
 }
 
-// ── Receipts: view, print, or download a PDF for any confirmed payment ──
-let receiptTarget = null;
+let receiptTarget=null;
+function openReceiptModal(id){const p=allPayments.find(x=>String(x.id)===String(id));if(!p)return;receiptTarget=p;const isPaid=p.status==='confirmed'||p.status==='paid';document.getElementById('rcpt-number').textContent='NK-'+String(p.id).slice(0,8).toUpperCase();document.getElementById('rcpt-date').textContent=new Date(p.created_at).toLocaleDateString('en-KE',{day:'numeric',month:'long',year:'numeric'});document.getElementById('rcpt-seller').textContent=currentProfile?.full_name||currentUser?.email||'—';document.getElementById('rcpt-listing').textContent=p.listings?.title||'—';document.getElementById('rcpt-method').textContent=(p.method||'—').toUpperCase();document.getElementById('rcpt-ref').textContent=p.reference||p.mpesa_ref||'—';document.getElementById('rcpt-status').textContent=isPaid?'Paid ✓':(p.status||'pending');document.getElementById('rcpt-amount').textContent=`KES ${Number(p.amount||0).toLocaleString('en-KE')}`;openModal('modal-receipt');}
+function printReceipt(){window.print();}
+function downloadReceiptPDF(){if(!receiptTarget)return;if(!window.jspdf){showToast('PDF library still loading — try again in a second','error');return;}const{jsPDF}=window.jspdf;const doc=new jsPDF({unit:'mm',format:'a5'});const p=receiptTarget;const isPaid=p.status==='confirmed'||p.status==='paid';doc.setFont('helvetica','bold');doc.setFontSize(18);doc.setTextColor(8,80,65);doc.text('NyumbaKisumu',74,20,{align:'center'});doc.setFont('helvetica','normal');doc.setFontSize(10);doc.setTextColor(120,120,120);doc.text('PAYMENT RECEIPT',74,27,{align:'center'});doc.setDrawColor(15,110,86);doc.line(15,32,133,32);let y=42;const row=(label,value)=>{doc.setFont('helvetica','normal');doc.setFontSize(10);doc.setTextColor(130,130,130);doc.text(label,15,y);doc.setFont('helvetica','bold');doc.setTextColor(26,26,24);doc.text(String(value),133,y,{align:'right'});y+=8;};row('Receipt No.','NK-'+String(p.id).slice(0,8).toUpperCase());row('Date',new Date(p.created_at).toLocaleDateString('en-KE',{day:'numeric',month:'long',year:'numeric'}));row('Billed to',currentProfile?.full_name||currentUser?.email||'—');row('Listing',p.listings?.title||'—');row('Payment method',(p.method||'—').toUpperCase());row('Reference',p.reference||p.mpesa_ref||'—');row('Status',isPaid?'Paid':(p.status||'pending'));doc.setDrawColor(224,222,216);doc.line(15,y,133,y);y+=10;doc.setFont('helvetica','bold');doc.setFontSize(14);doc.setTextColor(8,80,65);doc.text('Amount paid',15,y);doc.text(`KES ${Number(p.amount||0).toLocaleString('en-KE')}`,133,y,{align:'right'});y+=20;doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(150,150,150);doc.text('Thank you for using NyumbaKisumu.',74,y,{align:'center'});doc.save(`NyumbaKisumu-Receipt-${String(p.id).slice(0,8)}.pdf`);}
 
-function openReceiptModal(id) {
-  const p = allPayments.find(x => String(x.id) === String(id));
-  if (!p) return;
-  receiptTarget = p;
-  const isPaid = p.status === 'confirmed' || p.status === 'paid';
-  document.getElementById('rcpt-number').textContent = 'NK-' + String(p.id).slice(0, 8).toUpperCase();
-  document.getElementById('rcpt-date').textContent    = new Date(p.created_at).toLocaleDateString('en-KE', { day:'numeric', month:'long', year:'numeric' });
-  document.getElementById('rcpt-seller').textContent  = currentProfile?.full_name || currentUser?.email || '—';
-  document.getElementById('rcpt-listing').textContent = p.listings?.title || '—';
-  document.getElementById('rcpt-method').textContent  = (p.method || '—').toUpperCase();
-  document.getElementById('rcpt-ref').textContent     = p.reference || p.mpesa_ref || '—';
-  document.getElementById('rcpt-status').textContent  = isPaid ? 'Paid ✓' : (p.status || 'pending');
-  document.getElementById('rcpt-amount').textContent  = `KES ${Number(p.amount || 0).toLocaleString('en-KE')}`;
-  openModal('modal-receipt');
-}
-
-function printReceipt() {
-  window.print();
-}
-
-function downloadReceiptPDF() {
-  if (!receiptTarget) return;
-  if (!window.jspdf) { showToast('PDF library still loading — try again in a second', 'error'); return; }
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ unit: 'mm', format: 'a5' });
-  const p = receiptTarget;
-  const isPaid = p.status === 'confirmed' || p.status === 'paid';
-
-  doc.setFont('helvetica', 'bold'); doc.setFontSize(18); doc.setTextColor(8, 80, 65);
-  doc.text('NyumbaKisumu', 74, 20, { align: 'center' });
-  doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.setTextColor(120, 120, 120);
-  doc.text('PAYMENT RECEIPT', 74, 27, { align: 'center' });
-  doc.setDrawColor(15, 110, 86); doc.line(15, 32, 133, 32);
-
-  let y = 42;
-  const row = (label, value) => {
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.setTextColor(130, 130, 130);
-    doc.text(label, 15, y);
-    doc.setFont('helvetica', 'bold'); doc.setTextColor(26, 26, 24);
-    doc.text(String(value), 133, y, { align: 'right' });
-    y += 8;
-  };
-
-  row('Receipt No.', 'NK-' + String(p.id).slice(0, 8).toUpperCase());
-  row('Date', new Date(p.created_at).toLocaleDateString('en-KE', { day:'numeric', month:'long', year:'numeric' }));
-  row('Billed to', currentProfile?.full_name || currentUser?.email || '—');
-  row('Listing', p.listings?.title || '—');
-  row('Payment method', (p.method || '—').toUpperCase());
-  row('Reference', p.reference || p.mpesa_ref || '—');
-  row('Status', isPaid ? 'Paid' : (p.status || 'pending'));
-
-  doc.setDrawColor(224, 222, 216); doc.line(15, y, 133, y); y += 10;
-  doc.setFont('helvetica', 'bold'); doc.setFontSize(14); doc.setTextColor(8, 80, 65);
-  doc.text('Amount paid', 15, y);
-  doc.text(`KES ${Number(p.amount || 0).toLocaleString('en-KE')}`, 133, y, { align: 'right' });
-
-  y += 20;
-  doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(150, 150, 150);
-  doc.text('Thank you for using NyumbaKisumu.', 74, y, { align: 'center' });
-
-  doc.save(`NyumbaKisumu-Receipt-${String(p.id).slice(0, 8)}.pdf`);
-}
-
-// Navigation
 const pageTitles={overview:'Overview',listings:'My listings',messages:'Messages',enquiries:'Enquiries',payments:'Payments',settings:'Settings'};
-function showPage(name){
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-  document.getElementById('page-'+name).classList.add('active');
-  const navEl=document.getElementById('nav-'+name);if(navEl)navEl.classList.add('active');
-  document.getElementById('topbar-title').textContent=pageTitles[name]||name;
-  if(name==='overview') renderOverview();
-  if(name==='listings') renderListingsTable();
-  if(name==='messages') { showThreadListMobile(); renderThreadList(); }
-  if(name==='enquiries') renderEnquiries();
-  if(name==='payments') renderPayments();
-  closeSidebar();
-}
-
+function showPage(name){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));document.getElementById('page-'+name).classList.add('active');const navEl=document.getElementById('nav-'+name);if(navEl)navEl.classList.add('active');document.getElementById('topbar-title').textContent=pageTitles[name]||name;if(name==='overview')renderOverview();if(name==='listings')renderListingsTable();if(name==='messages'){showThreadListMobile();renderThreadList();}if(name==='enquiries')renderEnquiries();if(name==='payments')renderPayments();closeSidebar();}
 function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('sidebar-overlay').classList.toggle('open');}
 function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sidebar-overlay').classList.remove('open');}
-
 function openModal(id){document.getElementById(id).classList.add('open');document.body.style.overflow='hidden';}
 function closeModal(id){document.getElementById(id).classList.remove('open');document.body.style.overflow='';}
 document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.modal-overlay.open').forEach(m=>{m.classList.remove('open');document.body.style.overflow='';});});
 document.querySelectorAll('.modal-overlay').forEach(ov=>ov.addEventListener('click',e=>{if(e.target===ov)closeModal(ov.id);}));
-
 async function doSignOut(){clearInterval(msgPollTimer);lswCleanup();await db.auth.signOut();window.location.href='login.html';}
-
 let toastTimer;
 function showToast(msg,type='success'){const t=document.getElementById('toast'),m=document.getElementById('toast-msg');clearTimeout(toastTimer);t.className='toast '+type;m.textContent=msg;t.classList.add('show');toastTimer=setTimeout(()=>t.classList.remove('show'),3500);}
-
 function timeAgo(iso){if(!iso)return'';const d=(Date.now()-new Date(iso))/1000;if(d<60)return'just now';if(d<3600)return`${Math.floor(d/60)}m ago`;if(d<86400)return`${Math.floor(d/3600)}h ago`;if(d<604800)return`${Math.floor(d/86400)}d ago`;return new Date(iso).toLocaleDateString('en-KE',{day:'numeric',month:'short'});}
 function escHtml(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function escAttr(s){if(!s)return'';return String(s).replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 
-/* LIVE SUPPORT WIDGET — SELLER SIDE (left exactly as wired — unchanged) */
-
-let lswOpen          = false;
-let lswSessionId     = null;
-let lswChannel       = null;
-let lswLoaded        = false;
-let lswSellerName    = '';
-let lswSellerInits   = '';
-let lswWelcomeDone   = false;
-let lswReferralSent  = false;
-let lswAdminUnread   = 0;
-
-const LSW_OPTIONS = [
-  { icon:'💳', label:'Payment or M-Pesa issue' },
-  { icon:'🏠', label:'My listing is pending approval' },
-  { icon:'📋', label:'How do I edit or delete my listing?' },
-  { icon:'💰', label:'Listing fees & pricing' },
-  { icon:'🐛', label:'Report a bug or technical issue' },
-  { icon:'💬', label:'Something else' },
-];
-
-async function lswInit() {
-  lswSellerName  = (currentProfile?.full_name || currentUser?.email?.split('@')[0] || 'Seller').trim();
-  lswSellerInits = lswSellerName.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase() || 'S';
-  try {
-    await lswEnsureSession();
-    await lswLoadUnread();
-    lswSubscribeReplies();
-  } catch (err) {
-    console.error('LSW init error:', err);
-  }
-}
-
-async function lswEnsureSession() {
-  if (lswSessionId) return;
-  const key = 'seller_support_' + currentUser.id;
-
-  const { data: existing } = await db
-    .from('chat_sessions')
-    .select('id')
-    .eq('session_key', key)
-    .eq('is_resolved', false)
-    .maybeSingle();
-
-  if (existing) {
-    lswSessionId = existing.id;
-  } else {
-    const { data: created, error } = await db
-      .from('chat_sessions')
-      .insert({
-        session_key:  key,
-        session_type: 'seller',
-        visitor_name: lswSellerName,
-        page:         'dashboard.html',
-        last_msg_at:  new Date().toISOString(),
-      })
-      .select('id')
-      .single();
-    if (!error && created) lswSessionId = created.id;
-  }
-
-  if (lswSessionId) lswSubscribeReplies();
-}
-
-async function lswLoadUnread() {
-  if (!lswSessionId) return;
-  const { data } = await db
-    .from('chat_messages')
-    .select('id')
-    .eq('session_id', lswSessionId)
-    .eq('sender', 'admin')
-    .is('read_at', null);
-  lswSetBadge(data?.length || 0);
-}
-
-function lswSetBadge(n) {
-  lswAdminUnread = n;
-  const badge = document.getElementById('lsw-fab-badge');
-  if (!badge) return;
-  badge.textContent = n > 0 ? String(n) : '';
-  badge.classList.toggle('show', n > 0);
-}
-
-function lswSubscribeReplies() {
-  if (!lswSessionId || lswChannel) return;
-  lswChannel = db
-    .channel('lsw-seller-' + lswSessionId)
-    .on('postgres_changes', {
-      event:  'INSERT',
-      schema: 'public',
-      table:  'chat_messages',
-      filter: `session_id=eq.${lswSessionId}`,
-    }, payload => {
-      const msg = payload.new;
-      if (msg.sender !== 'admin') return;
-
-      if (lswOpen) {
-        lswAppendBubble('admin', msg.body, new Date(msg.created_at));
-        db.from('chat_messages')
-          .update({ read_at: new Date().toISOString() })
-          .eq('id', msg.id)
-          .then(() => {});
-      } else {
-        lswSetBadge(lswAdminUnread + 1);
-      }
-    })
-    .subscribe();
-}
-
-async function lswLoadHistory() {
-  if (!lswSessionId) return;
-  const container = document.getElementById('lsw-msgs');
-  container.innerHTML = '';
-
-  const { data } = await db
-    .from('chat_messages')
-    .select('*')
-    .eq('session_id', lswSessionId)
-    .order('created_at', { ascending: true });
-
-  const msgs = data || [];
-
-  if (!msgs.length) {
-    lswShowWelcome();
-    return;
-  }
-
-  msgs.forEach(m => {
-    const side = m.sender === 'admin' ? 'admin' : 'seller';
-    lswAppendBubble(side, m.body, new Date(m.created_at));
-  });
-
-  if (msgs.some(m => m.sender === 'admin')) lswReferralSent = true;
-
-  const unreadIds = msgs.filter(m => m.sender === 'admin' && !m.read_at).map(m => m.id);
-  if (unreadIds.length) {
-    await db.from('chat_messages')
-      .update({ read_at: new Date().toISOString() })
-      .in('id', unreadIds);
-    lswSetBadge(0);
-  }
-
-  lswScrollBottom();
-}
-
-function lswShowWelcome() {
-  if (lswWelcomeDone) return;
-  lswWelcomeDone = true;
-
-  const firstName = lswSellerName.split(' ')[0];
-  lswAppendBubble(
-    'admin',
-    `👋 Thanks for reaching out! How may we help you today, ${firstName}?`,
-    new Date()
-  );
-
-  const container = document.getElementById('lsw-msgs');
-  const optionsDiv = document.createElement('div');
-  optionsDiv.className = 'lsw-options';
-  optionsDiv.id = 'lsw-options-wrap';
-  optionsDiv.innerHTML = LSW_OPTIONS
-    .map(o => `<button class="lsw-option-btn" onclick="lswPickOption('${escAttr(o.label)}')">${o.icon} ${o.label}</button>`)
-    .join('');
-  container.appendChild(optionsDiv);
-  lswScrollBottom();
-}
-
-function lswPickOption(label) {
-  document.getElementById('lsw-options-wrap')?.remove();
-  document.getElementById('lsw-input').value = label;
-  lswSend();
-}
-
-async function lswSend() {
-  const input = document.getElementById('lsw-input');
-  const body  = input.value.trim();
-  if (!body) return;
-
-  document.getElementById('lsw-options-wrap')?.remove();
-
-  lswAppendBubble('seller', body, new Date());
-  input.value = '';
-  input.style.height = 'auto';
-
-  await lswEnsureSession();
-
-  if (lswSessionId) {
-    await db.from('chat_messages').insert({
-      session_id: lswSessionId,
-      sender:     'visitor',
-      body,
-    });
-
-    await db.from('chat_sessions').update({
-      last_msg_at:  new Date().toISOString(),
-      unread_admin: lswAdminUnread + 1,
-    }).eq('id', lswSessionId);
-  }
-
-  if (!lswReferralSent) {
-    lswReferralSent = true;
-    setTimeout(() => {
-      lswShowTyping();
-      setTimeout(async () => {
-        lswHideTyping();
-        const reply = `Thanks for reaching out! 🙋 How may we help you today — an available agent will chat with you shortly. For urgent help, email hello@nyumbakisumu.co.ke 📩`;
-        lswAppendBubble('admin', reply, new Date());
-        if (lswSessionId) {
-          await db.from('chat_messages').insert({
-            session_id: lswSessionId,
-            sender:     'admin',
-            body:       reply,
-            read_at:    new Date().toISOString(),
-          });
-        }
-      }, 1800);
-    }, 800);
-  }
-}
-
-function lswShowTyping() {
-  const container = document.getElementById('lsw-msgs');
-  if (document.getElementById('lsw-typ')) return;
-  const d = document.createElement('div');
-  d.id = 'lsw-typ';
-  d.className = 'lsw-msg from-admin';
-  d.innerHTML = `<div class="lsw-msg-av">NK</div>
-    <div class="lsw-typing-bub">
-      <div class="lsw-dot"></div>
-      <div class="lsw-dot"></div>
-      <div class="lsw-dot"></div>
-    </div>`;
-  container.appendChild(d);
-  lswScrollBottom();
-}
-function lswHideTyping() {
-  document.getElementById('lsw-typ')?.remove();
-}
-
-function lswAppendBubble(side, body, date) {
-  const container = document.getElementById('lsw-msgs');
-  const isAdmin   = side === 'admin';
-  const time      = date.toLocaleTimeString('en-KE', { hour:'2-digit', minute:'2-digit' });
-  const div       = document.createElement('div');
-  div.className   = `lsw-msg ${isAdmin ? 'from-admin' : 'from-seller'}`;
-  div.innerHTML   = `
-    <div class="lsw-msg-av">${isAdmin ? 'NK' : lswSellerInits}</div>
-    <div>
-      <div class="lsw-msg-bub">${escHtml(body)}</div>
-      <div class="lsw-msg-time">${isAdmin ? 'Support · ' : ''}${time}</div>
-    </div>`;
-  container.appendChild(div);
-  lswScrollBottom();
-}
-
-function lswToggle() {
-  lswOpen = !lswOpen;
-  document.getElementById('lsw-popup').classList.toggle('open', lswOpen);
-
-  if (lswOpen) {
-    lswSetBadge(0);
-    if (lswSessionId) {
-      db.from('chat_messages')
-        .update({ read_at: new Date().toISOString() })
-        .eq('session_id', lswSessionId)
-        .eq('sender', 'admin')
-        .is('read_at', null)
-        .then(() => {});
-    }
-
-    if (!lswLoaded) {
-      lswLoaded = true;
-      lswLoadHistory().then(() => {
-        lswLoadUnread();
-      });
-    }
-
-    setTimeout(() => document.getElementById('lsw-input')?.focus(), 200);
-  }
-}
-
-function lswKeydown(e)  { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); lswSend(); } }
-function lswResize(el)  { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 100) + 'px'; }
-function lswScrollBottom() { const el = document.getElementById('lsw-msgs'); if (el) el.scrollTop = el.scrollHeight; }
-function lswCleanup()   { if (lswChannel) { lswChannel.unsubscribe(); lswChannel = null; } }
+/* LIVE SUPPORT WIDGET */
+let lswOpen=false,lswSessionId=null,lswChannel=null,lswLoaded=false,lswSellerName='',lswSellerInits='',lswWelcomeDone=false,lswReferralSent=false,lswAdminUnread=0;
+const LSW_OPTIONS=[{icon:'💳',label:'Payment or M-Pesa issue'},{icon:'🏠',label:'My listing is pending approval'},{icon:'📋',label:'How do I edit or delete my listing?'},{icon:'💰',label:'Listing fees & pricing'},{icon:'🐛',label:'Report a bug or technical issue'},{icon:'💬',label:'Something else'}];
+async function lswInit(){lswSellerName=(currentProfile?.full_name||currentUser?.email?.split('@')[0]||'Seller').trim();lswSellerInits=lswSellerName.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase()||'S';try{await lswEnsureSession();await lswLoadUnread();lswSubscribeReplies();}catch(err){console.error('LSW init error:',err);}}
+async function lswEnsureSession(){if(lswSessionId)return;const key='seller_support_'+currentUser.id;const{data:existing}=await db.from('chat_sessions').select('id').eq('session_key',key).eq('is_resolved',false).maybeSingle();if(existing){lswSessionId=existing.id;}else{const{data:created,error}=await db.from('chat_sessions').insert({session_key:key,session_type:'seller',visitor_name:lswSellerName,page:'dashboard.html',last_msg_at:new Date().toISOString()}).select('id').single();if(!error&&created)lswSessionId=created.id;}if(lswSessionId)lswSubscribeReplies();}
+async function lswLoadUnread(){if(!lswSessionId)return;const{data}=await db.from('chat_messages').select('id').eq('session_id',lswSessionId).eq('sender','admin').is('read_at',null);lswSetBadge(data?.length||0);}
+function lswSetBadge(n){lswAdminUnread=n;const badge=document.getElementById('lsw-fab-badge');if(!badge)return;badge.textContent=n>0?String(n):'';badge.classList.toggle('show',n>0);}
+function lswSubscribeReplies(){if(!lswSessionId||lswChannel)return;lswChannel=db.channel('lsw-seller-'+lswSessionId).on('postgres_changes',{event:'INSERT',schema:'public',table:'chat_messages',filter:`session_id=eq.${lswSessionId}`},payload=>{const msg=payload.new;if(msg.sender!=='admin')return;if(lswOpen){lswAppendBubble('admin',msg.body,new Date(msg.created_at));db.from('chat_messages').update({read_at:new Date().toISOString()}).eq('id',msg.id).then(()=>{});}else{lswSetBadge(lswAdminUnread+1);}}).subscribe();}
+async function lswLoadHistory(){if(!lswSessionId)return;const container=document.getElementById('lsw-msgs');container.innerHTML='';const{data}=await db.from('chat_messages').select('*').eq('session_id',lswSessionId).order('created_at',{ascending:true});const msgs=data||[];if(!msgs.length){lswShowWelcome();return;}msgs.forEach(m=>{const side=m.sender==='admin'?'admin':'seller';lswAppendBubble(side,m.body,new Date(m.created_at));});if(msgs.some(m=>m.sender==='admin'))lswReferralSent=true;const unreadIds=msgs.filter(m=>m.sender==='admin'&&!m.read_at).map(m=>m.id);if(unreadIds.length){await db.from('chat_messages').update({read_at:new Date().toISOString()}).in('id',unreadIds);lswSetBadge(0);}lswScrollBottom();}
+function lswShowWelcome(){if(lswWelcomeDone)return;lswWelcomeDone=true;const firstName=lswSellerName.split(' ')[0];lswAppendBubble('admin',`👋 Thanks for reaching out! How may we help you today, ${firstName}?`,new Date());const container=document.getElementById('lsw-msgs');const optionsDiv=document.createElement('div');optionsDiv.className='lsw-options';optionsDiv.id='lsw-options-wrap';optionsDiv.innerHTML=LSW_OPTIONS.map(o=>`<button class="lsw-option-btn" onclick="lswPickOption('${escAttr(o.label)}')">${o.icon} ${o.label}</button>`).join('');container.appendChild(optionsDiv);lswScrollBottom();}
+function lswPickOption(label){document.getElementById('lsw-options-wrap')?.remove();document.getElementById('lsw-input').value=label;lswSend();}
+async function lswSend(){const input=document.getElementById('lsw-input');const body=input.value.trim();if(!body)return;document.getElementById('lsw-options-wrap')?.remove();lswAppendBubble('seller',body,new Date());input.value='';input.style.height='auto';await lswEnsureSession();if(lswSessionId){await db.from('chat_messages').insert({session_id:lswSessionId,sender:'visitor',body});await db.from('chat_sessions').update({last_msg_at:new Date().toISOString(),unread_admin:lswAdminUnread+1}).eq('id',lswSessionId);}if(!lswReferralSent){lswReferralSent=true;setTimeout(()=>{lswShowTyping();setTimeout(async()=>{lswHideTyping();const reply=`Thanks for reaching out! 🙋 An available agent will chat with you shortly. For urgent help, email hello@nyumbakisumu.co.ke 📩`;lswAppendBubble('admin',reply,new Date());if(lswSessionId){await db.from('chat_messages').insert({session_id:lswSessionId,sender:'admin',body:reply,read_at:new Date().toISOString()});}},1800);},800);}}
+function lswShowTyping(){const container=document.getElementById('lsw-msgs');if(document.getElementById('lsw-typ'))return;const d=document.createElement('div');d.id='lsw-typ';d.className='lsw-msg from-admin';d.innerHTML=`<div class="lsw-msg-av">NK</div><div class="lsw-typing-bub"><div class="lsw-dot"></div><div class="lsw-dot"></div><div class="lsw-dot"></div></div>`;container.appendChild(d);lswScrollBottom();}
+function lswHideTyping(){document.getElementById('lsw-typ')?.remove();}
+function lswAppendBubble(side,body,date){const container=document.getElementById('lsw-msgs');const isAdmin=side==='admin';const time=date.toLocaleTimeString('en-KE',{hour:'2-digit',minute:'2-digit'});const div=document.createElement('div');div.className=`lsw-msg ${isAdmin?'from-admin':'from-seller'}`;div.innerHTML=`<div class="lsw-msg-av">${isAdmin?'NK':lswSellerInits}</div><div><div class="lsw-msg-bub">${escHtml(body)}</div><div class="lsw-msg-time">${isAdmin?'Support · ':''}${time}</div></div>`;container.appendChild(div);lswScrollBottom();}
+function lswToggle(){lswOpen=!lswOpen;document.getElementById('lsw-popup').classList.toggle('open',lswOpen);if(lswOpen){lswSetBadge(0);if(lswSessionId){db.from('chat_messages').update({read_at:new Date().toISOString()}).eq('session_id',lswSessionId).eq('sender','admin').is('read_at',null).then(()=>{});}if(!lswLoaded){lswLoaded=true;lswLoadHistory().then(()=>{lswLoadUnread();});}setTimeout(()=>document.getElementById('lsw-input')?.focus(),200);}}
+function lswKeydown(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();lswSend();}}
+function lswResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,100)+'px';}
+function lswScrollBottom(){const el=document.getElementById('lsw-msgs');if(el)el.scrollTop=el.scrollHeight;}
+function lswCleanup(){if(lswChannel){lswChannel.unsubscribe();lswChannel=null;}}
 
 init();
 </script>
