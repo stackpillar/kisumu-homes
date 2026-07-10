@@ -176,6 +176,10 @@
 
     /* ACTION BUTTONS — desktop */
     .action-btns { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    /* FIX: buttons styled as "action-btn view" (View/Manage/View details/etc.) share the
+       class name "view" with the page-section switcher rule below (.view{display:none}),
+       which was silently hiding every such button on desktop. This restores them. */
+    .action-btns .action-btn { display: inline-flex; align-items: center; justify-content: center; }
     .action-btn { padding: 5px 10px; border-radius: 6px; font-size: 12px; font-weight: 500; transition: all .15s; white-space: nowrap; border: none; cursor: pointer; min-height: 30px; }
     .action-btn.approve { background: var(--green-light); color: var(--green-dark); }
     .action-btn.approve:hover { background: var(--green); color: white; }
