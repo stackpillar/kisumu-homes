@@ -252,6 +252,15 @@
     .auth-banner p { font-size:14px; color:var(--green-dark); margin-bottom:12px; }
     .auth-banner a { background:var(--green); color:white; padding:9px 20px; border-radius:var(--radius); font-size:14px; font-weight:600; display:inline-block; }
 
+    .suspended-banner { background:var(--red-light); border:1px solid var(--red); border-radius:var(--radius-lg); padding:24px; text-align:center; margin-bottom:24px; display:none; }
+    .suspended-banner .icon { font-size:32px; margin-bottom:10px; }
+    .suspended-banner h3 { font-size:16px; color:var(--red); margin-bottom:8px; }
+    .suspended-banner p { font-size:14px; color:var(--text-2); max-width:440px; margin:0 auto 14px; line-height:1.6; }
+    .suspended-banner a { background:var(--text); color:white; padding:9px 20px; border-radius:var(--radius); font-size:14px; font-weight:600; display:inline-block; }
+
+    .verify-note { display:flex; align-items:flex-start; gap:10px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:12px 14px; margin-bottom:20px; font-size:12.5px; color:var(--text-2); line-height:1.55; }
+    .verify-note .v-icon { flex-shrink:0; font-size:16px; margin-top:1px; }
+
     /* ── Draggable trial promo widget ── */
     .trial-floatie {
       position:fixed; top:96px; left:20px; z-index:500; width:230px;
@@ -313,8 +322,8 @@
 </nav>
 
 <div class="trial-strip" id="trial-strip">
-  🎉 <strong>Free 7-Day Trial</strong> for first-time sellers
-  <span class="spots-tag" id="strip-spots">Limited spots</span>
+  🎉 <strong>Free listings</strong> during launch — no fee to post
+  <span class="spots-tag" id="strip-spots">Limited time</span>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -324,6 +333,13 @@
   <div class="auth-banner" id="auth-banner">
     <p>You need to be signed in to post a listing.</p>
     <a href="login.html?next=post-listing.html">Sign in or create a free account →</a>
+  </div>
+
+  <div class="suspended-banner" id="suspended-banner">
+    <div class="icon">⛔</div>
+    <h3>This account is suspended</h3>
+    <p id="suspended-reason">Your account has been suspended and can't post new listings. This is usually because a listing or account was flagged as fake, impersonating another party, or fraudulent.</p>
+    <a href="mailto:support@nyumbakisumu.co.ke">Contact support →</a>
   </div>
 
   <div class="steps-bar" id="steps-bar">
@@ -351,14 +367,14 @@
   <!-- STEP 1 -->
   <div id="step-1">
 
-    <!-- ── Trial intro — the very first thing every visitor sees ── -->
+    <!-- ── Launch-free intro — the very first thing every visitor sees ── -->
     <div class="form-card trial-intro-card" id="trial-intro-card">
       <div class="trial-intro-top">
         <span class="trial-ribbon">🔥 LAUNCH OFFER</span>
-        <span class="trial-intro-spots" id="intro-spots-text">Limited spots</span>
+        <span class="trial-intro-spots" id="intro-spots-text">Limited time</span>
       </div>
-      <h2>🎉 Are you a first-time lister? Your listing is FREE for 7 days</h2>
-      <p class="hint">We just launched NyumbaKisumu and want real sellers to try it before paying anything. Here's exactly how it works:</p>
+      <h2>🎉 Listings are FREE while we're building supply in Kisumu</h2>
+      <p class="hint">We just launched NyumbaKisumu and want real sellers on the platform before we turn pricing back on. Here's exactly how it works:</p>
       <div class="trial-steps">
         <div class="trial-step">
           <span class="trial-step-num">1</span>
@@ -366,7 +382,7 @@
         </div>
         <div class="trial-step">
           <span class="trial-step-num">2</span>
-          <p>Because this is your <strong>first listing</strong>, the free 7-day plan will already be selected for you at the pricing step — no M-Pesa, no card, nothing to pay.</p>
+          <p>The free launch plan is already selected for you at the pricing step — no M-Pesa, no card, nothing to pay.</p>
         </div>
         <div class="trial-step">
           <span class="trial-step-num">3</span>
@@ -374,10 +390,14 @@
         </div>
         <div class="trial-step">
           <span class="trial-step-num">4</span>
-          <p>It stays live for <strong>7 days</strong>, then automatically expires unless you choose to upgrade to a paid plan.</p>
+          <p>It stays live for <strong id="intro-launch-days">90 days</strong>, and you can still upgrade to Featured any time for extra visibility.</p>
         </div>
       </div>
-      <div class="trial-intro-note" id="trial-intro-note"></div>
+    </div>
+
+    <div class="verify-note">
+      <span class="v-icon">🛡️</span>
+      <span>Every listing is checked by our team before it goes public, and accounts found to be fake, impersonating another lister, or posting fraudulent listings are automatically suspended.</span>
     </div>
 
     <div class="form-card">
@@ -569,22 +589,22 @@
   <div id="step-3" style="display:none">
     <div class="form-card">
       <h2>Your listing plan</h2>
-      <p class="hint" id="plan-hint">Both paid plans give your listing full visibility on NyumbaKisumu</p>
+      <p class="hint" id="plan-hint">Good news — listings are free while we're building supply in Kisumu 🎉</p>
 
       <div class="trial-banner" id="plan-trial" onclick="selectPlan('trial')">
         <div class="trial-banner-top">
-          <span class="trial-ribbon">🔥 NEW — LAUNCH OFFER</span>
+          <span class="trial-ribbon">🔥 LAUNCH OFFER</span>
           <span class="trial-applied-check">✓ Applied to your listing</span>
         </div>
-        <h3>🎉 Your first listing is FREE for 7 days</h3>
-        <p id="banner-copy">As a first-time seller, we've automatically applied a free 7-day listing to your account — no M-Pesa, no card, nothing to enter.</p>
-        <div class="trial-spots" id="banner-spots-text">Limited spots available — first come, first served</div>
+        <h3 id="banner-title">🎉 Your listing is FREE during launch</h3>
+        <p id="banner-copy">We've automatically applied a free launch listing to your account — no M-Pesa, no card, nothing to enter.</p>
+        <div class="trial-spots" id="banner-spots-text">Free while we're building supply in Kisumu</div>
       </div>
 
-      <div class="upgrade-divider" id="upgrade-divider">or upgrade for longer visibility from day one</div>
+      <div class="upgrade-divider" id="upgrade-divider">or upgrade for extra visibility from day one</div>
 
       <div class="pricing-options">
-        <div class="pricing-option selected" id="plan-basic" onclick="selectPlan('basic')">
+        <div class="pricing-option" id="plan-basic" onclick="selectPlan('basic')">
           <h3>Standard listing</h3>
           <div class="price-tag">KES 800 <span>one-time</span></div>
           <ul>
@@ -609,7 +629,7 @@
       </div>
 
       <div style="background:var(--green-light);border-radius:var(--radius);padding:14px 16px;margin-top:20px;font-size:13px;color:var(--green-dark)" id="payment-info-box">
-        <strong>Payment:</strong> If you choose a paid plan, an M-Pesa prompt will be sent straight to your phone to pay our Paybill. You can also pay manually via Paybill, or skip and pay later — your listing is reviewed regardless.
+        <strong>Payment:</strong> Standard listings are free during launch — nothing to pay. If you choose to upgrade to Featured, an M-Pesa prompt will be sent straight to your phone to pay our Paybill. You can also pay manually via Paybill, or skip and pay later — your listing is reviewed regardless.
       </div>
     </div>
     <div class="form-actions">
@@ -634,14 +654,14 @@
       <div class="trial-applied-banner" id="trial-applied-banner">
         <div class="icon">🎉</div>
         <div>
-          <strong>Free 7-Day Trial Applied</strong>
-          <span class="sub">You will not be charged anything for this listing — it goes live for 7 days once approved.</span>
+          <strong>Free Launch Listing Applied</strong>
+          <span class="sub" id="trial-applied-sub">You will not be charged anything for this listing — it goes live once approved.</span>
         </div>
       </div>
 
       <div id="order-summary"></div>
       <div style="margin-top:20px;padding:14px 16px;background:var(--surface);border-radius:var(--radius);font-size:13px;color:var(--text-2);line-height:1.6">
-        By submitting you confirm that your listing information is accurate and you are authorised to list this property. Your listing is saved immediately and reviewed by our team before appearing publicly.
+        By submitting you confirm that your listing information is accurate and you are authorised to list this property. Your listing is saved immediately, but every listing is verified by our team before it appears publicly. Accounts or listings found to be fake, impersonating another party, or fraudulent are automatically suspended.
       </div>
     </div>
     <div class="form-actions">
@@ -744,16 +764,16 @@
   </div>
 </div>
 
-<!-- ── Draggable trial promo widget ── -->
+<!-- ── Draggable launch-offer promo widget ── -->
 <div class="trial-floatie" id="trial-floatie">
   <div class="trial-floatie-handle" id="trial-floatie-handle" title="Drag me">⠿⠿</div>
   <button class="trial-floatie-close" onclick="dismissTrialFloatie()" aria-label="Dismiss">×</button>
   <a href="post-listing.html" class="trial-floatie-body">
     <span class="trial-floatie-emoji">🎉</span>
     <span class="trial-floatie-copy">
-      <strong>First-time sellers</strong>
-      <span>7 days FREE</span>
-      <span class="floatie-spots" id="floatie-spots"></span>
+      <strong>Listings are free</strong>
+      <span>during launch</span>
+      <span class="floatie-spots" id="floatie-spots">No fee to post right now</span>
     </span>
     <span class="trial-floatie-arrow">→</span>
   </a>
@@ -766,7 +786,13 @@ const EDGE_URL     = `${SUPABASE_URL}/functions/v1`;
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const TRIAL_DAYS = 7;
+// ── Launch pricing switch ─────────────────────────────────────────────
+// Standard listings are free for everyone (not just first-time sellers)
+// while we're building supply. Flip LAUNCH_FREE to false and Standard
+// goes back to being a paid plan — no other code changes needed.
+// Bump LAUNCH_DAYS whenever you want to extend/shorten the free period.
+const LAUNCH_FREE = true;
+const LAUNCH_DAYS = 90;
 
 let currentStep       = 1;
 let selectedCat       = 'student';
@@ -776,18 +802,32 @@ let photos            = [];
 let coverIndex        = 0;
 let currentListingId  = null;
 let currentPlanPrice  = 0;
-let trialEligible     = null;  // true = confirmed eligible, false = confirmed not eligible, null = unknown (not logged in yet)
-let trialSlotsLeft    = 0;
 let currentUser       = null;
 let checkoutRequestId = null;
 let paymentPollTimer  = null;
+
+let accountSuspended = false;
 
 async function init() {
   const { data: { session } } = await db.auth.getSession();
   if (session) {
     currentUser = session.user;
     document.getElementById('auth-banner').style.display = 'none';
-    const { data: profile } = await db.from('profiles').select('phone').eq('id', currentUser.id).single();
+
+    // ── Suspension check: fake, impersonating, or fraudulent accounts are
+    //    blocked from posting new listings. This runs before anything else
+    //    is shown, and submitListing() re-checks it again as a backstop. ──
+    const { data: profile } = await db.from('profiles')
+      .select('phone, is_suspended, suspension_reason')
+      .eq('id', currentUser.id)
+      .single();
+
+    if (profile?.is_suspended) {
+      accountSuspended = true;
+      lockFormForSuspension(profile.suspension_reason);
+      return; // don't bother wiring up the rest of the form
+    }
+
     if (profile?.phone) {
       const p = profile.phone.startsWith('254') ? '0' + profile.phone.slice(3) : profile.phone;
       document.getElementById('phone').value = p;
@@ -795,73 +835,29 @@ async function init() {
   } else {
     document.getElementById('auth-banner').style.display = 'block';
   }
-  // Trial visibility runs regardless of login — everyone gets to see the offer exists
-  await checkTrialAvailability();
+
+  if (LAUNCH_FREE) {
+    document.getElementById('intro-launch-days').textContent = `${LAUNCH_DAYS} days`;
+    showLaunchFreeUI();
+  }
 }
 
-// ── Trial availability: sitewide slots always checked; personal eligibility only
-// once logged in. Anonymous visitors still see the offer, with a nudge to sign in.
-async function checkTrialAvailability() {
-  try {
-    const { data: slotsLeft } = await db.rpc('get_trial_slots_left');
-    trialSlotsLeft = typeof slotsLeft === 'number' ? slotsLeft : 0;
-  } catch(e) {
-    console.error('Could not read trial slots:', e);
-    trialSlotsLeft = 0;
-  }
-
-  if (trialSlotsLeft <= 0) return; // launch offer is over sitewide — nothing to show anyone
-
-  if (currentUser) {
-    try {
-      const { count: myListingsCount } = await db.from('listings')
-        .select('id', { count: 'exact', head: true })
-        .eq('seller_id', currentUser.id);
-      trialEligible = (myListingsCount || 0) === 0;
-    } catch(e) {
-      console.error('Could not check listing history:', e);
-      trialEligible = null;
-    }
-  } else {
-    trialEligible = null; // unknown until they sign in
-  }
-
-  showTrialUI();
+function lockFormForSuspension(reason) {
+  if (reason) document.getElementById('suspended-reason').textContent = reason;
+  document.getElementById('suspended-banner').style.display = 'block';
+  document.getElementById('steps-bar').style.display = 'none';
+  document.getElementById('step-1').style.display = 'none';
+  document.getElementById('trial-strip').style.display = 'none';
 }
 
-function showTrialUI() {
-  const spotsLabel = `Only ${trialSlotsLeft} free spot${trialSlotsLeft === 1 ? '' : 's'} left`;
-
-  if (trialEligible === false) {
-    // Logged in, but already used their first listing — this offer doesn't apply to them
-    return;
-  }
-
+// Everyone gets the free launch listing — no eligibility check, no sign-in
+// gate needed to see or apply the offer. Sign-in is still required to submit.
+function showLaunchFreeUI() {
   document.getElementById('trial-strip').style.display = 'block';
-  document.getElementById('strip-spots').textContent = spotsLabel;
-
   document.getElementById('trial-intro-card').style.display = 'block';
-  document.getElementById('intro-spots-text').textContent = spotsLabel;
-
   document.getElementById('plan-trial').style.display = 'block';
   document.getElementById('upgrade-divider').style.display = 'flex';
-
-  const note = document.getElementById('trial-intro-note');
-
-  if (trialEligible === true) {
-    document.getElementById('plan-hint').textContent = 'Good news — you qualify for our launch free trial 🎉';
-    document.getElementById('banner-spots-text').textContent = `${spotsLabel} at launch — first come, first served`;
-    note.classList.remove('show');
-    selectPlan('trial'); // auto-apply now that we know for sure
-  } else {
-    // Anonymous — invite them, but eligibility can't be confirmed until they sign in
-    document.getElementById('plan-hint').textContent = 'First-time sellers qualify for our launch free trial 🎉';
-    document.getElementById('banner-copy').textContent =
-      'First-time sellers get a free 7-day listing — no M-Pesa, no card. Sign in or create a free account to check your eligibility and claim it.';
-    document.getElementById('banner-spots-text').textContent = `${spotsLabel} — sign in to claim yours`;
-    note.innerHTML = `New here? <a href="login.html?next=post-listing.html">Sign in or create a free account</a> to check your eligibility and claim this instantly.`;
-    note.classList.add('show');
-  }
+  selectPlan('trial');
 }
 
 function showToast(msg, type = '') {
@@ -904,14 +900,7 @@ function dragLeave()  { document.getElementById('photo-drop').classList.remove('
 function dropFiles(e) { e.preventDefault(); dragLeave(); handleFiles(e.dataTransfer.files); }
 
 function selectPlan(plan) {
-  if (plan === 'trial') {
-    if (trialEligible === null) {
-      showToast('Please sign in to claim your free trial', '');
-      setTimeout(() => window.location.href = 'login.html?next=post-listing.html', 900);
-      return;
-    }
-    if (trialEligible !== true) return;
-  }
+  if (plan === 'trial' && !LAUNCH_FREE) return;
   selectedPlan = plan;
   document.getElementById('plan-basic').classList.toggle('selected', plan === 'basic');
   document.getElementById('plan-featured').classList.toggle('selected', plan === 'featured');
@@ -1068,12 +1057,16 @@ function renderReview() {
     <div class="summary-row"><span>Contact phone</span><strong>${f.phone}</strong></div>
     <div class="summary-row"><span>Photos</span><strong>${photos.length} photo(s) added</strong></div>`;
 
-  const isTrial = selectedPlan === 'trial' && trialEligible === true;
-  document.getElementById('trial-applied-banner').style.display = isTrial ? 'flex' : 'none';
+  const isFreeLaunch = selectedPlan === 'trial' && LAUNCH_FREE;
+  document.getElementById('trial-applied-banner').style.display = isFreeLaunch ? 'flex' : 'none';
+  if (isFreeLaunch) {
+    document.getElementById('trial-applied-sub').textContent =
+      `You will not be charged anything for this listing — it goes live for ${LAUNCH_DAYS} days once approved.`;
+  }
 
   const planPrice = getPlanPrice();
-  const planLabel = isTrial
-    ? `🎉 Free ${TRIAL_DAYS}-day launch trial (first-time seller)`
+  const planLabel = isFreeLaunch
+    ? `🎉 Free launch listing (${LAUNCH_DAYS} days)`
     : selectedPlan === 'featured' ? 'Featured listing (90 days)' : 'Standard listing (60 days)';
   document.getElementById('order-summary').innerHTML = `
     <div class="summary-row"><span>Plan</span><span>${planLabel}</span></div>
@@ -1106,12 +1099,25 @@ async function submitListing() {
     return;
   }
 
+  // Backstop: re-check suspension status right before writing to the DB,
+  // in case the account was flagged after the page first loaded.
+  const { data: freshProfile } = await db.from('profiles')
+    .select('is_suspended, suspension_reason')
+    .eq('id', currentUser.id)
+    .single();
+  if (freshProfile?.is_suspended) {
+    accountSuspended = true;
+    showToast('This account has been suspended and cannot post listings', 'error');
+    lockFormForSuspension(freshProfile.suspension_reason);
+    return;
+  }
+
   const btn = document.getElementById('submit-btn');
   btn.disabled = true;
   btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> Submitting…`;
 
   try {
-    const isTrial = selectedPlan === 'trial' && trialEligible === true;
+    const isFreeLaunch = selectedPlan === 'trial' && LAUNCH_FREE;
     const listingData = {
       title:            document.getElementById('title').value.trim(),
       description:      document.getElementById('description').value.trim(),
@@ -1126,10 +1132,10 @@ async function submitListing() {
       address:          document.getElementById('address').value.trim() || null,
       category:         selectedCat,
       is_featured:      selectedPlan === 'featured',
-      is_trial:         isTrial,
-      trial_expires_at: isTrial ? new Date(Date.now() + TRIAL_DAYS*24*60*60*1000).toISOString() : null,
+      is_trial:         isFreeLaunch,
+      trial_expires_at: isFreeLaunch ? new Date(Date.now() + LAUNCH_DAYS*24*60*60*1000).toISOString() : null,
       status:           'pending',
-      payment_status:   isTrial ? 'trial' : 'unpaid',
+      payment_status:   isFreeLaunch ? 'trial' : 'unpaid',
       seller_id:        currentUser.id,
       views:            0,
     };
@@ -1147,9 +1153,9 @@ async function submitListing() {
       }
     }
 
-    if (isTrial) {
+    if (isFreeLaunch) {
       document.getElementById('success-message').textContent =
-        `Your free ${TRIAL_DAYS}-day listing has been saved and is pending review. No payment is needed — once approved, it will be live for ${TRIAL_DAYS} days before it expires.`;
+        `Your free listing has been saved and is pending review. No payment is needed — once approved, it will be live for ${LAUNCH_DAYS} days.`;
       finishSubmission();
     } else {
       openPaymentModal();
@@ -1401,16 +1407,7 @@ init();
     localStorage.setItem(DISMISS_KEY, '1');
   };
 
-  // Only reveal it once we know the launch offer is still live
-  (async () => {
-    try {
-      const { data: slotsLeft } = await db.rpc('get_trial_slots_left');
-      const n = typeof slotsLeft === 'number' ? slotsLeft : 0;
-      if (n <= 0) return;
-      document.getElementById('floatie-spots').textContent = `Only ${n} spot${n === 1 ? '' : 's'} left`;
-      floatie.classList.add('show');
-    } catch(e) { /* fail silently — stays hidden */ }
-  })();
+  floatie.classList.add('show');
 })();
 </script>
 </body>
