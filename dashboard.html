@@ -89,8 +89,10 @@
     .status-rejected{background:var(--red-light);color:var(--red)}
     .status-expired{background:#f3f4f6;color:#6b7280}
     .status-disabled{background:var(--red-light);color:var(--red)}
+    .status-occupied{background:#EDE9FE;color:#5b21b6}
 
     .disabled-note{font-size:11px;color:var(--red);background:var(--red-light);border-radius:6px;padding:6px 9px;margin-top:6px;line-height:1.5;max-width:300px}
+    .occupied-note{font-size:11px;color:#5b21b6;background:#EDE9FE;border-radius:6px;padding:6px 9px;margin-top:6px;line-height:1.5;max-width:300px}
     .trial-note{font-size:11px;color:var(--blue,#185FA5);background:#E6F1FB;border-radius:6px;padding:6px 9px;margin-top:6px;line-height:1.5;max-width:320px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
     .trial-note .upgrade-link{color:var(--green-dark);font-weight:700;text-decoration:underline;cursor:pointer}
     .trial-note.urgent{color:var(--red);background:var(--red-light)}
@@ -212,6 +214,7 @@
     .icon-btn svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2}
     .icon-btn:hover{border-color:var(--green);color:var(--green);background:var(--green-light)}
     .icon-btn.danger:hover{border-color:var(--red);color:var(--red);background:var(--red-light)}
+    .icon-btn.purple:hover{border-color:var(--purple);color:var(--purple);background:#EDE9FE}
 
     /* Empty state */
     .empty-state{text-align:center;padding:60px 20px;color:var(--text-3)}
@@ -693,6 +696,7 @@
         <button class="filter-pill" onclick="filterListings('active',this)">Active</button>
         <button class="filter-pill" onclick="filterListings('pending',this)">Pending</button>
         <button class="filter-pill" onclick="filterListings('paused',this)">Paused</button>
+        <button class="filter-pill" onclick="filterListings('occupied',this)">Occupied / sold</button>
         <div class="filter-search">
           <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           <input type="text" placeholder="Search listings…" id="listing-search" oninput="renderListingsTable()"/>
@@ -837,8 +841,40 @@
         <div class="form-group"><label>Bedrooms</label><input type="number" id="edit-bedrooms" min="0" max="20"/></div>
         <div class="form-group"><label>Bathrooms</label><input type="number" id="edit-bathrooms" min="0" max="20"/></div>
         <div class="form-group"><label>Size (m²)</label><input type="number" id="edit-size"/></div>
-        <div class="form-group"><label>Area</label><select id="edit-area"><option value="Milimani">Milimani</option><option value="Kisumu CBD">Kisumu CBD</option><option value="Kondele">Kondele</option><option value="Riat Hills">Riat Hills</option><option value="Mamboleo">Mamboleo</option><option value="Maseno">Maseno</option><option value="Luanda">Luanda</option><option value="Ahero">Ahero</option></select></div>
-        <div class="form-group"><label>Category</label><select id="edit-category"><option value="student">Student</option><option value="standard">Standard</option><option value="luxury">Luxury</option></select></div>
+        <div class="form-group"><label>Area</label>
+          <select id="edit-area">
+            <optgroup label="Kisumu">
+              <option value="Milimani">Milimani</option>
+              <option value="Kisumu CBD">Kisumu CBD</option>
+              <option value="Kondele">Kondele</option>
+              <option value="Riat Hills">Riat Hills</option>
+              <option value="Mamboleo">Mamboleo</option>
+              <option value="Nyalenda">Nyalenda</option>
+              <option value="Obunga">Obunga</option>
+              <option value="Manyatta">Manyatta</option>
+              <option value="Car Wash">Car Wash</option>
+              <option value="Dunga">Dunga</option>
+              <option value="Elgon View">Elgon View</option>
+              <option value="Kanyakwar">Kanyakwar</option>
+              <option value="Kibos">Kibos</option>
+              <option value="Kibuye">Kibuye</option>
+              <option value="Migosi">Migosi</option>
+              <option value="Nyamasaria">Nyamasaria</option>
+              <option value="Otonglo">Otonglo</option>
+            </optgroup>
+            <optgroup label="Near Maseno University">
+              <option value="Maseno">Maseno</option>
+              <option value="Sega">Sega</option>
+              <option value="Kombewa">Kombewa</option>
+            </optgroup>
+            <optgroup label="Luanda & surroundings">
+              <option value="Luanda">Luanda Town</option>
+              <option value="Matibabu">Matibabu</option>
+              <option value="Ahero">Ahero</option>
+            </optgroup>
+          </select>
+        </div>
+        <div class="form-group"><label>Category</label><select id="edit-category"><option value="student">Student</option><option value="standard">Standard</option><option value="luxury">Luxury</option><option value="commercial">Shops & offices</option></select></div>
         <div class="form-group" style="grid-column:1/-1"><label>Address / sub-area</label><input type="text" id="edit-address"/></div>
         <div class="form-group" style="grid-column:1/-1"><label>Description</label><textarea id="edit-description" style="min-height:120px"></textarea></div>
         <div class="form-group" style="grid-column:1/-1"><label>Furnished</label><label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;padding:10px;background:var(--surface);border-radius:6px;text-transform:none;letter-spacing:0"><input type="checkbox" id="edit-furnished"/> This apartment is furnished</label></div>
@@ -855,6 +891,22 @@
     <div class="modal-head"><h3>Delete listing?</h3><div class="modal-close" onclick="closeModal('modal-delete')">✕</div></div>
     <div class="modal-body"><p style="font-size:14px;color:var(--text-2);line-height:1.7">This will permanently delete <strong id="delete-listing-name"></strong>. Any messages and enquiries linked to it will also be removed. This cannot be undone.</p></div>
     <div class="modal-foot"><button class="btn btn-outline" onclick="closeModal('modal-delete')">Keep it</button><button class="btn btn-danger btn-lg" id="btn-confirm-delete" onclick="confirmDelete()">Delete listing</button></div>
+  </div>
+</div>
+
+<!-- MARK AS OCCUPIED / SOLD MODAL -->
+<div class="modal-overlay" id="modal-occupied">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-head"><h3 id="occupied-modal-title">Mark as sold?</h3><div class="modal-close" onclick="closeModal('modal-occupied')">✕</div></div>
+    <div class="modal-body">
+      <p style="font-size:14px;color:var(--text-2);line-height:1.7" id="occupied-modal-copy">
+        This will hide <strong id="occupied-listing-name"></strong> from public search and listing pages immediately. It will still appear here in your dashboard, marked as sold, so you keep your messages and history. You can reactivate it later if the sale falls through.
+      </p>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('modal-occupied')">Cancel</button>
+      <button class="btn btn-primary" id="btn-confirm-occupied" onclick="confirmOccupied()" style="background:#5b21b6">Yes, mark it</button>
+    </div>
   </div>
 </div>
 
@@ -950,6 +1002,7 @@ let activeThread   = null;
 let listingFilter  = 'all';
 let enquiryFilter  = 'all';
 let deleteTargetId = null;
+let occupiedTargetId = null;
 let replyTargetEnquiry = null;
 let msgPollTimer   = null;
 let threadListingFilter = null;
@@ -1079,6 +1132,10 @@ function updateNavBadges() {
 function getListingStatusDisplay(l) {
   if (l.recycle_bin) { const d=l.purge_at?Math.max(0,Math.ceil((new Date(l.purge_at)-new Date())/86400000)):null; return { label:'In recycle bin', cls:'status-disabled', banner:`Disabled by admin${l.disabled_reason?': '+escHtml(l.disabled_reason):''}. Contact admin for more information.`+(d!==null?` Removed in ${d} day(s).`:'') }; }
   if (l.is_disabled)  return { label:'Disabled by admin', cls:'status-disabled', banner:`Disabled by admin${l.disabled_reason?': '+escHtml(l.disabled_reason):''}. Contact admin for more information.` };
+  if (l.status === 'occupied') {
+    const word = l.price_type === 'rent' ? 'occupied' : 'sold';
+    return { label: l.price_type === 'rent' ? 'Occupied' : 'Sold', cls:'status-occupied', banner:`Marked as ${word} — hidden from public search and listing pages.` };
+  }
   return { label:statusLabel(l.status), cls:'status-'+l.status, banner:null };
 }
 
@@ -1173,6 +1230,53 @@ function requestTrialUpgrade(title) {
   }, 400);
 }
 
+// ── Mark as occupied / sold ──
+// Hides a listing from public pages while keeping it (and its messages/history)
+// visible here in the dashboard, tagged as occupied/sold. Reversible via
+// reactivateListing(). The real enforcement is the RLS policy on `listings`
+// (see the SQL provided separately) — this UI is just the seller-facing control.
+function openOccupiedModal(id, title) {
+  const l = allListings.find(x => x.id === id);
+  if (!l) return;
+  occupiedTargetId = id;
+  const isRent = l.price_type === 'rent';
+  document.getElementById('occupied-modal-title').textContent = isRent ? 'Mark as occupied?' : 'Mark as sold?';
+  document.getElementById('occupied-listing-name').textContent = title;
+  document.getElementById('occupied-modal-copy').innerHTML =
+    `This will hide <strong>${escHtml(title)}</strong> from public search and listing pages immediately. It will still appear here in your dashboard, marked as ${isRent ? 'occupied' : 'sold'}, so you keep your messages and history. You can reactivate it later if that falls through.`;
+  document.getElementById('btn-confirm-occupied').textContent = isRent ? 'Yes, mark as occupied' : 'Yes, mark as sold';
+  openModal('modal-occupied');
+}
+
+async function confirmOccupied() {
+  if (!occupiedTargetId) return;
+  const btn = document.getElementById('btn-confirm-occupied');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner-sm"></span> Updating…';
+  const { error } = await db.from('listings')
+    .update({ status: 'occupied', occupied_at: new Date().toISOString() })
+    .eq('id', occupiedTargetId);
+  btn.disabled = false; btn.textContent = 'Yes, mark it';
+  if (error) { showToast('Could not update: ' + error.message, 'error'); return; }
+  const l = allListings.find(l => l.id === occupiedTargetId);
+  if (l) { l.status = 'occupied'; l.occupied_at = new Date().toISOString(); }
+  occupiedTargetId = null;
+  closeModal('modal-occupied');
+  renderListingsTable(); renderOverview();
+  showToast('Listing hidden from public — marked as occupied/sold ✓', 'success');
+}
+
+async function reactivateListing(id) {
+  const l = allListings.find(l => l.id === id);
+  if (l && l.is_disabled) { showToast('Disabled by admin. Contact admin.', 'error'); return; }
+  const { error } = await db.from('listings')
+    .update({ status: 'active', occupied_at: null })
+    .eq('id', id);
+  if (error) { showToast('Could not reactivate: ' + error.message, 'error'); return; }
+  if (l) { l.status = 'active'; l.occupied_at = null; }
+  renderListingsTable(); renderOverview();
+  showToast('Listing reactivated and visible to buyers again ✓', 'success');
+}
+
 function renderListingsTable() {
   const q=(document.getElementById('listing-search')?.value||'').toLowerCase();
   const rows=allListings.filter(l=>{if(listingFilter!=='all'&&l.status!==listingFilter)return false;if(q&&!l.title.toLowerCase().includes(q)&&!(l.area||'').toLowerCase().includes(q))return false;return true;});
@@ -1189,8 +1293,9 @@ function renderListingsTable() {
     const trialNote = trialDays!==null
       ? `<div class="trial-note${trialDays<=2?' urgent':''}">🕐 Free trial — ${trialDays} day${trialDays!==1?'s':''} left <span class="upgrade-link" onclick="requestTrialUpgrade('${escAttr(l.title)}')">Upgrade now</span></div>`
       : '';
+    const occupiedNote = (l.status === 'occupied' && d.banner) ? `<div class="occupied-note">${d.banner}</div>` : '';
     return `<tr>
-      <td><div class="listing-name-cell"><div class="listing-thumb">${img}</div><div><div class="listing-title-text">${escHtml(l.title)}</div><div class="listing-area-text">${l.area}${l.sub_area?' · '+l.sub_area:''}</div>${d.banner?`<div class="disabled-note">${d.banner}</div>`:''}${trialNote}</div></div></td>
+      <td><div class="listing-name-cell"><div class="listing-thumb">${img}</div><div><div class="listing-title-text">${escHtml(l.title)}</div><div class="listing-area-text">${l.area}${l.sub_area?' · '+l.sub_area:''}</div>${l.status!=='occupied'&&d.banner?`<div class="disabled-note">${d.banner}</div>`:''}${occupiedNote}${trialNote}</div></div></td>
       <td><div class="listing-price-text">KES ${Number(l.price).toLocaleString('en-KE')}${l.price_type==='rent'?'/mo':''}</div><div class="listing-price-sub">${l.price_type==='rent'?'Monthly rent':'For sale'}</div></td>
       <td><span class="status ${d.cls}">${d.label}</span></td>
       <td><span style="font-size:13px;font-weight:600;color:${mc>0?'var(--green-dark)':'var(--text-3)'}">${mc}${uc>0?` <span style="color:var(--red);font-size:11px">(${uc} new)</span>`:''}</span></td>
@@ -1202,14 +1307,19 @@ function renderListingsTable() {
         <div class="icon-btn" onclick="shareListing('${l.id}')" title="Share"><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></div>
         <div class="icon-btn" data-id="${l.id}" onclick="openEditModal(this.dataset.id)" title="Edit"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
         ${l.status==='expired'?`<div class="icon-btn" onclick="renewListing('${l.id}')" title="Renew"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg></div>`:''}
-        ${l.is_disabled?`<div class="icon-btn locked" title="Disabled by admin"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>`:`<div class="icon-btn" data-id="${l.id}" data-status="${l.status}" onclick="togglePause(this.dataset.id,this.dataset.status)" title="${l.status==='paused'?'Activate':'Pause'}">${l.status==='paused'?`<svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>`:`<svg viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>`}</div>`}
+        ${l.is_disabled?`<div class="icon-btn locked" title="Disabled by admin"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>`:(
+          l.status==='occupied'
+          ? `<div class="icon-btn purple" data-id="${l.id}" onclick="reactivateListing(this.dataset.id)" title="Reactivate — make visible to buyers again"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg></div>`
+          : `<div class="icon-btn purple" data-id="${l.id}" data-title="${escAttr(l.title)}" onclick="openOccupiedModal(this.dataset.id,this.dataset.title)" title="${l.price_type==='rent'?'Mark as occupied':'Mark as sold'}"><svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg></div>`
+        )}
+        ${(!l.is_disabled && l.status!=='occupied')?`<div class="icon-btn" data-id="${l.id}" data-status="${l.status}" onclick="togglePause(this.dataset.id,this.dataset.status)" title="${l.status==='paused'?'Activate':'Pause'}">${l.status==='paused'?`<svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>`:`<svg viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>`}</div>`:''}
         <div class="icon-btn danger" data-id="${l.id}" data-title="${escAttr(l.title)}" onclick="openDeleteModal(this.dataset.id,this.dataset.title)" title="Delete"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg></div>
       </div></td>
     </tr>`;
   }).join('');
 }
 
-function statusLabel(s){return {active:'Active',pending:'Pending review',paused:'Paused',rejected:'Rejected',expired:'Expired'}[s]||s;}
+function statusLabel(s){return {active:'Active',pending:'Pending review',paused:'Paused',rejected:'Rejected',expired:'Expired',occupied:'Occupied'}[s]||s;}
 
 async function togglePause(id,cs){const l=allListings.find(l=>l.id===id);if(l&&l.is_disabled){showToast('Disabled by admin. Contact admin.','error');return;}const ns=cs==='paused'?'active':'paused';const{error}=await db.from('listings').update({status:ns}).eq('id',id);if(error){showToast('Could not update','error');return;}if(l)l.status=ns;renderListingsTable();renderOverview();showToast(ns==='active'?'Listing active':'Listing paused','success');}
 async function renewListing(id){const{error}=await db.from('listings').update({status:'pending'}).eq('id',id);if(error){showToast('Could not renew: '+error.message,'error');return;}const l=allListings.find(l=>l.id===id);if(l)l.status='pending';renderListingsTable();renderOverview();showToast('Resubmitted for approval','success');}
