@@ -412,7 +412,7 @@
       <option value="sale">For sale</option>
       <option value="rent">To let</option>
     </select>
-    <input type="text" id="search-q" placeholder="Search by area, price, or keyword…"/>
+    <input type="text" id="search-q" placeholder="Search by area, price (e.g. 7000), or keyword…" oninput="nkFormatSearchInput(this)"/>
     <button onclick="doSearch()">Search</button>
   </div>
 
@@ -809,15 +809,44 @@
     window.location.href = `listings.html?category=${cat}`;
   }
 
+  // ── Auto-format a plain number typed in the search box as a KES price ──
+  // If what's left after stripping "KES", commas, and spaces is pure digits,
+  // we're in "price mode" and reformat live. Anything with letters (area names,
+  // keywords) is left untouched so normal text search still works.
+  function nkFormatSearchInput(el) {
+    const raw = el.value;
+    const stripped = raw.replace(/^KES\s?/i, '').replace(/,/g, '').trim();
+    if (stripped.length && /^[0-9]+$/.test(stripped)) {
+      el.value = 'KES ' + Number(stripped).toLocaleString('en-KE');
+      el.dataset.priceValue = stripped;
+    } else {
+      delete el.dataset.priceValue;
+    }
+  }
+
   // ── Search ──
   function doSearch() {
-    const area = document.getElementById('search-area').value;
-    const type = document.getElementById('search-type').value;
-    const q    = document.getElementById('search-q').value;
+    const area  = document.getElementById('search-area').value;
+    const type  = document.getElementById('search-type').value;
+    const qEl   = document.getElementById('search-q');
     const params = new URLSearchParams();
     if (area) params.set('area', area);
     if (type) params.set('type', type);
-    if (q)    params.set('q', q);
+
+    const priceRaw = qEl.dataset.priceValue;
+    if (priceRaw) {
+      // Someone typed a plain number (e.g. "7000") — instead of requiring an
+      // exact match, search a sensible band around it: ±15%, minimum ±500,
+      // rounded to the nearest 100 so the range reads cleanly.
+      const price  = Number(priceRaw);
+      const margin = Math.max(price * 0.15, 500);
+      const minPrice = Math.max(0, Math.round((price - margin) / 100) * 100);
+      const maxPrice = Math.round((price + margin) / 100) * 100;
+      params.set('minPrice', minPrice);
+      params.set('maxPrice', maxPrice);
+    } else if (qEl.value) {
+      params.set('q', qEl.value);
+    }
     window.location.href = `listings.html?${params.toString()}`;
   }
 
