@@ -835,13 +835,11 @@
 
     const priceRaw = qEl.dataset.priceValue;
     if (priceRaw) {
-      // Someone typed a plain number (e.g. "7000") — instead of requiring an
-      // exact match, search a sensible band around it: ±15%, minimum ±500,
-      // rounded to the nearest 100 so the range reads cleanly.
-      const price  = Number(priceRaw);
-      const margin = Math.max(price * 0.15, 500);
-      const minPrice = Math.max(0, Math.round((price - margin) / 100) * 100);
-      const maxPrice = Math.round((price + margin) / 100) * 100;
+      // Someone typed a plain number (e.g. "7000") — match only values within
+      // ±1 KES of it (so 7000 matches 6999–7001, not something like 650).
+      const price    = Number(priceRaw);
+      const minPrice = Math.max(0, price - 1);
+      const maxPrice = price + 1;
       params.set('minPrice', minPrice);
       params.set('maxPrice', maxPrice);
     } else if (qEl.value) {
