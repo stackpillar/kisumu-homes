@@ -56,14 +56,24 @@
       overflow:hidden;
       position:relative;
     }
-    .hero::before {
-      content:'';position:absolute;inset:0;
-      background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/svg%3E");
+    .hero-illustration {
+      position:absolute; inset:0; z-index:0;
     }
-    .hero-eyebrow { display:inline-block;background:rgba(255,255,255,0.1);color:#9FE1CB;font-size:12px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;padding:5px 14px;border-radius:20px;margin-bottom:20px;position:relative; }
-    .hero h1 { font-family:'Playfair Display',serif;font-size:clamp(32px,5vw,52px);color:white;line-height:1.15;margin-bottom:18px;position:relative; }
-    .hero h1 em { font-style:italic;color:#5DCAA5; }
-    .hero-sub { font-size:16px;color:rgba(255,255,255,0.6);max-width:520px;margin:0 auto 48px;position:relative;line-height:1.7; }
+    .hero-slide {
+      position:absolute; inset:0; width:100%; height:100%;
+      object-fit:cover; object-position:center 35%; display:block;
+      opacity:0; transition:opacity 1.4s ease-in-out;
+    }
+    .hero-slide.active { opacity:1; }
+    .hero-overlay {
+      position:absolute; inset:0; z-index:1;
+      background:linear-gradient(180deg, rgba(4,52,44,0.90) 0%, rgba(4,52,44,0.78) 35%, rgba(4,52,44,0.72) 65%, rgba(4,52,44,0.90) 100%);
+    }
+    .hero-content { position:relative; z-index:2; }
+    .hero-eyebrow { display:inline-block;background:rgba(255,255,255,0.16);color:#C9F0E0;font-size:12px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;padding:5px 14px;border-radius:20px;margin-bottom:20px; }
+    .hero h1 { font-family:'Playfair Display',serif;font-size:clamp(32px,5vw,52px);color:white;line-height:1.15;margin-bottom:18px;text-shadow:0 2px 16px rgba(0,0,0,0.4); }
+    .hero h1 em { font-style:italic;color:#6FE0B8; }
+    .hero-sub { font-size:16px;color:rgba(255,255,255,0.92);max-width:520px;margin:0 auto 48px;line-height:1.7;text-shadow:0 1px 10px rgba(0,0,0,0.35); }
     /* Illustration strip */
     .hero-strip {
       position:relative;height:120px;margin-top:0;
@@ -102,7 +112,10 @@
 
     /* ── Mission card ── */
     .mission-card {
-      background:var(--green-dark);border-radius:var(--radius-lg);
+      background:
+        linear-gradient(160deg, rgba(4,52,44,0.92) 0%, rgba(4,52,44,0.82) 45%, rgba(4,52,44,0.90) 100%),
+        url('hero-photo-4.jpg') center 30% / cover no-repeat;
+      border-radius:var(--radius-lg);
       padding:48px 52px;position:relative;overflow:hidden;
     }
     .mission-card::after {
@@ -240,6 +253,14 @@
 
 <!-- ── HERO ── -->
 <section class="hero">
+  <div class="hero-illustration" aria-hidden="true">
+    <img class="hero-slide active" src="hero-photo.jpg" alt=""/>
+    <img class="hero-slide" src="hero-photo-2.jpg" alt=""/>
+    <img class="hero-slide" src="hero-photo-3.jpg" alt=""/>
+    <img class="hero-slide" src="hero-photo-4.jpg" alt=""/>
+  </div>
+  <div class="hero-overlay" aria-hidden="true"></div>
+  <div class="hero-content">
   <div class="hero-eyebrow">Our story</div>
   <h1>Built for <em>Western Kenya</em>,<br/>by people who live here</h1>
   <p class="hero-sub">NyumbaKisumu started with a simple frustration — finding a good apartment in Kisumu meant dealing with agents who charged a month's rent just to show you a door. We decided to change that.</p>
@@ -267,6 +288,7 @@
     <div class="hero-building" style="width:44px;height:52px">
       <div class="hero-building-win"><span></span><span class="lit"></span><span class="lit"></span><span></span></div>
     </div>
+  </div>
   </div>
 </section>
 
@@ -586,6 +608,18 @@
   }
 
   loadStats();
+
+  // ── Hero photo slideshow: crossfade between slides every 3s ──
+  (function () {
+    const slides = document.querySelectorAll('.hero-slide');
+    if (slides.length < 2) return;
+    let current = 0;
+    setInterval(() => {
+      slides[current].classList.remove('active');
+      current = (current + 1) % slides.length;
+      slides[current].classList.add('active');
+    }, 3000);
+  })();
 </script>
 </body>
 </html>
