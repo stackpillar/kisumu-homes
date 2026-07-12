@@ -7,6 +7,7 @@
   <meta name="description" content="List your apartment in Kisumu, Maseno, or Luanda. Simple, affordable pricing with no agent commissions."/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     /* ─── Reset & Tokens ─────────────────────────── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -711,40 +712,10 @@
 <section class="proof-section">
   <div class="proof-inner">
     <div class="proof-label">What sellers in Kisumu say</div>
-    <div class="proof-grid">
-      <div class="proof-card">
-        <div class="proof-stars">★★★★★</div>
-        <p class="proof-quote">"Nilipata tenant ndani ya wiki moja. I paid KES 800, a tenant who pays KES 18,000 per month found me here. Best investment I've made this year."</p>
-        <div class="proof-author">
-          <div class="proof-avatar">AM</div>
-          <div>
-            <div class="proof-name">Achieng Moraa</div>
-            <div class="proof-role">Landlord · Kondele, Kisumu</div>
-          </div>
-        </div>
-      </div>
-      <div class="proof-card">
-        <div class="proof-stars">★★★★★</div>
-        <p class="proof-quote">"I listed my bedsitter near Maseno University. Three students WhatsApp'd me in two days. One moved in by end of week. The featured listing was worth every shilling."</p>
-        <div class="proof-author">
-          <div class="proof-avatar">PO</div>
-          <div>
-            <div class="proof-name">Peter Otieno</div>
-            <div class="proof-role">Property owner · Maseno</div>
-          </div>
-        </div>
-      </div>
-      <div class="proof-card">
-        <div class="proof-stars">★★★★★</div>
-        <p class="proof-quote">"An agent wanted 10% of the sale price — KES 180,000 on my apartment. NyumbaKisumu charged me KES 2,500 and I sold it myself in 3 weeks. Saved me a fortune."</p>
-        <div class="proof-author">
-          <div class="proof-avatar">GW</div>
-          <div>
-            <div class="proof-name">Grace Wambua</div>
-            <div class="proof-role">Seller · Milimani, Kisumu</div>
-          </div>
-        </div>
-      </div>
+    <div class="proof-grid" id="proof-grid">
+      <div class="proof-card"><div class="skel" style="width:80px;margin-bottom:14px;background:rgba(255,255,255,0.1)"></div><div class="skel" style="margin-bottom:8px;background:rgba(255,255,255,0.1)"></div><div class="skel short" style="background:rgba(255,255,255,0.1)"></div></div>
+      <div class="proof-card"><div class="skel" style="width:80px;margin-bottom:14px;background:rgba(255,255,255,0.1)"></div><div class="skel" style="margin-bottom:8px;background:rgba(255,255,255,0.1)"></div><div class="skel short" style="background:rgba(255,255,255,0.1)"></div></div>
+      <div class="proof-card"><div class="skel" style="width:80px;margin-bottom:14px;background:rgba(255,255,255,0.1)"></div><div class="skel" style="margin-bottom:8px;background:rgba(255,255,255,0.1)"></div><div class="skel short" style="background:rgba(255,255,255,0.1)"></div></div>
     </div>
   </div>
 </section>
@@ -904,6 +875,58 @@
   priceObserver.observe(basicPriceEl);
 
   document.querySelector('.faq-item')?.classList.add('open');
+
+  // ── Live testimonials: pull real platform reviews instead of hardcoded quotes ──
+  const SUPABASE_URL = 'https://vliuuloyfhyxcsuchpss.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_oIIcecf3wzKMual5K24Z8Q_zmxVfgsx';
+  const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  function starString(rating) {
+    return '★'.repeat(rating) + '☆'.repeat(5 - rating);
+  }
+
+  function initialsFor(name) {
+    if (!name) return '?';
+    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+  }
+
+  async function loadTestimonials() {
+    const grid = document.getElementById('proof-grid');
+    const { data, error } = await db
+      .from('reviews')
+      .select('reviewer_name, rating, comment, created_at')
+      .eq('review_type', 'platform')
+      .eq('status', 'published')
+      .not('comment', 'is', null)
+      .order('rating', { ascending: false })
+      .order('created_at', { ascending: false })
+      .limit(6);
+
+    if (error || !data || !data.length) {
+      // No live reviews yet — quietly hide the section rather than show fake quotes
+      document.querySelector('.proof-section').style.display = 'none';
+      return;
+    }
+
+    grid.innerHTML = data.map(r => `
+      <div class="proof-card">
+        <div class="proof-stars">${starString(r.rating)}</div>
+        <p class="proof-quote">"${escapeHtml(r.comment)}"</p>
+        <div class="proof-author">
+          <div class="proof-avatar">${initialsFor(r.reviewer_name)}</div>
+          <div>
+            <div class="proof-name">${escapeHtml(r.reviewer_name || 'NyumbaKisumu user')}</div>
+            <div class="proof-role">Verified NyumbaKisumu user</div>
+          </div>
+        </div>
+      </div>`).join('');
+  }
+
+  function escapeHtml(str) {
+    return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  loadTestimonials();
 </script>
 <script>
   function toggleMobileMenu() {
