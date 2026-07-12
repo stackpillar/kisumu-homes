@@ -82,7 +82,9 @@
 
     /* ─── Hero ────────────────────────────────────── */
     .hero {
-      background: var(--green-dark);
+      background:
+        linear-gradient(180deg, rgba(4,52,44,0.90) 0%, rgba(4,52,44,0.78) 35%, rgba(4,52,44,0.72) 65%, rgba(4,52,44,0.90) 100%),
+        url('hero-photo-4.jpg') center 30% / cover no-repeat;
       padding: 80px 40px 96px;
       text-align: center;
       position: relative; overflow: hidden;
@@ -408,7 +410,7 @@
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
       Saved
     </a>
-    <a href="post-listing.html" class="btn btn-primary">List your apartment</a>
+    <a href="post-listing.html" class="btn-nav">List your apartment</a>
   </div>
   <button class="mobile-menu-btn" onclick="toggleMobileMenu()" aria-label="Open menu">
     <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
@@ -428,7 +430,7 @@
     <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
     Saved
   </a>
-  <a href="post-listing.html" class="btn btn-primary">List your apartment</a>
+  <a href="post-listing.html" class="btn-nav" style="justify-content:center;margin-top:8px">List your apartment</a>
 </div>
 
 <!-- ── HERO ── -->
