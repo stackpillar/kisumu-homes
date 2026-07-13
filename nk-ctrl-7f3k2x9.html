@@ -193,8 +193,6 @@
     .action-btn.delete:hover { background: var(--red-light); color: var(--red); border-color: var(--red); }
     .action-btn.message { background: var(--blue-light); color: var(--blue); }
     .action-btn.message:hover { background: var(--blue); color: white; }
-    .action-btn.upgrade { background: var(--blue-light); color: var(--blue); }
-    .action-btn.upgrade:hover { background: var(--blue); color: white; }
 
     /* MOBILE ACTION MENU (dropdown) */
     .action-menu-wrap { position: relative; display: none; }
@@ -378,11 +376,6 @@
       Pending approval
       <span class="nav-badge" id="nav-badge-pending">—</span>
     </button>
-    <button class="nav-item" onclick="showView('listings'); setTab('trial')">
-      <svg viewBox="0 0 24 24"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
-      Trial upgrade requests
-      <span class="nav-badge" id="nav-badge-trial">—</span>
-    </button>
     <button class="nav-item" onclick="showView('listings'); setTab('featured')">
       <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
       Featured listings
@@ -499,7 +492,7 @@
         <div class="card" style="margin-bottom:0">
           <div class="card-header">
             <span class="card-title">Listings awaiting approval</span>
-            <div class="action-btns"><button class="action-btn view" onclick="showView('listings'); setTab('pending')">View all →</button></div>
+            <button class="action-btn view" onclick="showView('listings'); setTab('pending')">View all →</button>
           </div>
           <div class="table-wrap">
             <table>
@@ -534,14 +527,13 @@
           <span class="card-title">All listings</span>
           <div style="display:flex;align-items:center;gap:10px">
             <span style="font-size:12px;color:var(--text-3)" id="listings-count"></span>
-            <div class="action-btns"><button class="action-btn view" onclick="exportListingsCSV()">Export CSV</button></div>
+            <button class="action-btn view" onclick="exportListingsCSV()">Export CSV</button>
           </div>
         </div>
         <div class="tab-bar">
           <button class="tab-btn active" id="tab-all"      onclick="setTab('all')">All <span class="count" id="tc-all">—</span></button>
           <button class="tab-btn"        id="tab-pending"  onclick="setTab('pending')">Pending <span class="count" id="tc-pending">—</span></button>
           <button class="tab-btn"        id="tab-active"   onclick="setTab('active')">Active <span class="count" id="tc-active">—</span></button>
-          <button class="tab-btn"        id="tab-trial"    onclick="setTab('trial')">Trial <span class="count" id="tc-trial">—</span></button>
           <button class="tab-btn"        id="tab-featured" onclick="setTab('featured')">Featured <span class="count" id="tc-featured">—</span></button>
           <button class="tab-btn"        id="tab-expired"  onclick="setTab('expired')">Expired <span class="count" id="tc-expired">—</span></button>
         </div>
@@ -612,7 +604,7 @@
         </div>
       </div>
       <div class="card">
-        <div class="card-header"><span class="card-title">All payments</span><div class="action-btns"><button class="action-btn view" onclick="exportPaymentsCSV()">Export CSV</button></div></div>
+        <div class="card-header"><span class="card-title">All payments</span><button class="action-btn view" onclick="exportPaymentsCSV()">Export CSV</button></div>
         <div class="table-wrap mobile-hide">
           <table>
             <thead><tr><th>Listing</th><th>Method</th><th>Amount</th><th>Reference</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
@@ -654,7 +646,7 @@
           <button class="tab-btn"        id="etab-site_chat" onclick="setEnqTab('site_chat')">Site chat <span class="count" id="etc-site_chat">—</span></button>
           <button class="tab-btn"        id="etab-seller_chat" onclick="setEnqTab('seller_chat')">Seller support <span class="count" id="etc-seller_chat">—</span></button>
         </div>
-        <p style="padding:0 22px 14px;font-size:12px;color:var(--text-3)">Every buyer enquiry, buyer↔seller message, and support chat on the platform shows up here for moderation. Trial upgrade requests from sellers usually arrive under "Seller support."</p>
+        <p style="padding:0 22px 14px;font-size:12px;color:var(--text-3)">Every buyer enquiry, buyer↔seller message, and support chat on the platform shows up here for moderation.</p>
         <div class="table-wrap mobile-hide">
           <table>
             <thead><tr><th>Type</th><th>Person</th><th>Related to</th><th>Message</th><th>Date</th><th>Action</th></tr></thead>
@@ -773,18 +765,6 @@
   </div>
 </div>
 
-<!-- UPGRADE LISTING MODAL (trial → paid plan) -->
-<div class="modal-overlay" id="upgrade-modal" onclick="handleOverlayClick(event,'upgrade-modal')">
-  <div class="modal" style="max-width:440px">
-    <div class="modal-header"><h3>Process upgrade request</h3><button class="modal-close" onclick="closeUpgradeModal()">×</button></div>
-    <div class="modal-body" id="upgrade-modal-body"></div>
-    <div class="modal-footer">
-      <button class="btn-modal cancel" onclick="closeUpgradeModal()">Cancel</button>
-      <button class="btn-modal approve" onclick="confirmUpgrade()">Confirm upgrade</button>
-    </div>
-  </div>
-</div>
-
 <!-- PROFILE MODAL -->
 <div class="modal-overlay" id="profile-modal" onclick="handleOverlayClick(event,'profile-modal')">
   <div class="modal" style="max-width:480px">
@@ -860,18 +840,24 @@
   let selectedListingIds = new Set();
   let editingListingId   = null;
   let editingProfileId   = null;
-  let upgradingListingId = null;
 
+  // ─────────────────────────────────────────────
+  // KEY FIX: Data stores — never pass raw objects
+  // through onclick attributes. Store by ID and
+  // look up when needed. This is what broke mobile.
+  // ─────────────────────────────────────────────
   const _listings = {};
   const _users    = {};
   const _payments = {};
 
+  // ─── HTML safety helpers ───
   function esc(s) {
     return String(s == null ? '' : s)
       .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
       .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
   }
 
+  // ─── Debounce ───
   function debounce(fn, ms) {
     let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); };
   }
@@ -881,6 +867,7 @@
   const fmtPrice = n => 'KES ' + Number(n||0).toLocaleString('en-KE');
   const fmtDate  = d => new Date(d).toLocaleDateString('en-KE', { day:'numeric', month:'short', year:'numeric' });
 
+  // ─── Close action menus when tapping elsewhere ───
   document.addEventListener('click', e => {
     if (!e.target.closest('.action-menu-wrap'))
       document.querySelectorAll('.action-menu-dropdown.open').forEach(d => d.classList.remove('open'));
@@ -891,6 +878,7 @@
     const wasOpen = dd.classList.contains('open');
     document.querySelectorAll('.action-menu-dropdown.open').forEach(d => d.classList.remove('open'));
     if (!wasOpen) {
+      // Position dropdown near button for mobile
       const rect = btn.getBoundingClientRect();
       dd.style.top  = (rect.bottom + window.scrollY + 4) + 'px';
       dd.classList.add('open');
@@ -901,6 +889,7 @@
     if (e.target === e.currentTarget) document.getElementById(id).classList.remove('open');
   }
 
+  // ─── Auth ───
   async function checkAuth() {
     const { data: { user } } = await db.auth.getUser();
     if (!user) { window.location.href = 'login.html?next=admin.html'; return; }
@@ -912,6 +901,7 @@
     document.getElementById('admin-name').textContent   = profile.full_name || 'Admin';
   }
 
+  // ─── Toast ───
   function toast(msg, type='') {
     const t = document.getElementById('toast');
     t.textContent = msg; t.className = `toast ${type} show`;
@@ -928,6 +918,7 @@
     } catch(e) {}
   }
 
+  // ─── Chat badge ───
   async function loadChatBadge() {
     const { data } = await db.from('chat_sessions').select('unread_admin').eq('is_resolved', false);
     const total = (data||[]).reduce((s,r) => s + (r.unread_admin||0), 0);
@@ -964,9 +955,6 @@
     document.getElementById('nav-badge-recycle').textContent = recycled||0;
     document.getElementById('stat-sellers').textContent = sellers||0;
     document.getElementById('nav-badge-unpaid').textContent = unpaid||0;
-
-    const { count: trialCount } = await db.from('listings').select('*',{count:'exact',head:true}).eq('payment_status','trial').eq('recycle_bin',false);
-    document.getElementById('nav-badge-trial').textContent = trialCount||0;
 
     const { data: pays } = await db.from('payments').select('amount,type').eq('status','confirmed');
     const rev      = (pays||[]).reduce((s,p) => s + Number(p.amount), 0);
@@ -1036,24 +1024,22 @@
 
   async function loadTabCounts() {
     const [
-      {count:pend}, {count:actv}, {count:exp}, {count:feat}, {count:tot}, {count:trial}
+      {count:pend}, {count:actv}, {count:exp}, {count:feat}, {count:tot}
     ] = await Promise.all([
       db.from('listings').select('*',{count:'exact',head:true}).eq('status','pending').eq('recycle_bin',false),
       db.from('listings').select('*',{count:'exact',head:true}).eq('status','active').eq('recycle_bin',false),
       db.from('listings').select('*',{count:'exact',head:true}).eq('status','expired').eq('recycle_bin',false),
       db.from('listings').select('*',{count:'exact',head:true}).eq('is_featured',true).eq('status','active').eq('recycle_bin',false),
       db.from('listings').select('*',{count:'exact',head:true}).eq('recycle_bin',false),
-      db.from('listings').select('*',{count:'exact',head:true}).eq('payment_status','trial').eq('recycle_bin',false),
     ]);
     document.getElementById('tc-all').textContent      = tot||0;
     document.getElementById('tc-pending').textContent  = pend||0;
     document.getElementById('tc-active').textContent   = actv||0;
     document.getElementById('tc-featured').textContent = feat||0;
     document.getElementById('tc-expired').textContent  = exp||0;
-    document.getElementById('tc-trial').textContent    = trial||0;
-    document.getElementById('nav-badge-trial').textContent = trial||0;
   }
 
+  // ─── Mobile action menu helper ───
   function mobileMenu(id, items) {
     const opts = items.map(i =>
       `<button class="action-menu-item ${i.cls}" onclick="${i.fn}">${esc(i.label)}</button>`
@@ -1081,7 +1067,6 @@
     else if (currentTab==='active')   q = q.eq('status','active');
     else if (currentTab==='featured') q = q.eq('is_featured',true).eq('status','active');
     else if (currentTab==='expired')  q = q.eq('status','expired');
-    else if (currentTab==='trial')    q = q.eq('payment_status','trial');
 
     const area   = document.getElementById('filter-area').value;
     const cat    = document.getElementById('filter-cat').value;
@@ -1106,13 +1091,11 @@
       const cover = (l.listing_photos||[]).find(p=>p.is_cover)||(l.listing_photos||[])[0];
       const thumb = cover ? `<img src="${esc(cover.url)}" alt=""/>` : `<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>`;
       const payClass = l.payment_status==='paid'?'paid':l.payment_status==='trial'?'trial':l.payment_status==='submitted'?'pending':'unpaid';
-      const isTrial = l.payment_status==='trial';
       const menuItems = [
         ...(l.status==='pending'?[
           {label:'✓ Approve', cls:'success', fn:`approveListing('${l.id}')`},
           {label:'✕ Reject',  cls:'danger',  fn:`rejectListing('${l.id}')`},
         ]:[]),
-        ...(isTrial?[{label:'⬆ Process upgrade', cls:'blue', fn:`openUpgradeModal('${l.id}')`}]:[]),
         ...(l.status==='active'&&!l.is_featured?[{label:'★ Feature', cls:'gold', fn:`featureListing('${l.id}')`}]:[]),
         {label:'View details', cls:'', fn:`openListingModal('${l.id}')`},
         {label:'Edit listing',  cls:'', fn:`openEditListingModal('${l.id}')`},
@@ -1137,7 +1120,6 @@
         <td>
           <div class="action-btns">
             ${l.status==='pending'?`<button class="action-btn approve" onclick="approveListing('${l.id}')">Approve</button><button class="action-btn reject" onclick="rejectListing('${l.id}')">Reject</button>`:''}
-            ${isTrial?`<button class="action-btn upgrade" onclick="openUpgradeModal('${l.id}')">Upgrade</button>`:''}
             ${l.status==='active'&&!l.is_featured?`<button class="action-btn feature" onclick="featureListing('${l.id}')">Feature</button>`:''}
             <button class="action-btn view"   onclick="openEditListingModal('${l.id}')">Edit</button>
             <button class="action-btn view"   onclick="openListingModal('${l.id}')">View</button>
@@ -1156,7 +1138,6 @@
       const cover = (l.listing_photos||[]).find(p=>p.is_cover)||(l.listing_photos||[])[0];
       const thumb = cover ? `<img src="${esc(cover.url)}" alt=""/>` : `<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>`;
       const payClass = l.payment_status==='paid'?'paid':l.payment_status==='trial'?'trial':l.payment_status==='submitted'?'pending':'unpaid';
-      const isTrial = l.payment_status==='trial';
       return `<div class="mobile-card">
         <div class="mobile-card-header">
           <div class="thumb-img" style="width:52px;height:42px">${thumb}</div>
@@ -1174,7 +1155,6 @@
         </div>
         <div class="mobile-card-actions">
           ${l.status==='pending'?`<button class="action-btn approve" onclick="approveListing('${l.id}')">Approve</button><button class="action-btn reject" onclick="rejectListing('${l.id}')">Reject</button>`:''}
-          ${isTrial?`<button class="action-btn upgrade" onclick="openUpgradeModal('${l.id}')">Upgrade</button>`:''}
           <button class="action-btn view" onclick="openListingModal('${l.id}')">View</button>
           <button class="action-btn view" onclick="openEditListingModal('${l.id}')">Edit</button>
           ${l.is_disabled
@@ -1189,6 +1169,7 @@
     renderBulkBar();
   }
 
+  // ─── Selection ───
   function toggleSelectListing(id,checked) { if(checked) selectedListingIds.add(id); else selectedListingIds.delete(id); renderBulkBar(); }
   function toggleSelectAllListings(checked) {
     document.querySelectorAll('.listing-select-cb').forEach(cb => {
@@ -1229,6 +1210,7 @@
     selectedListingIds.clear(); loadAllListings(); loadOverview();
   }
 
+  // ─── Listing actions (all take an ID, look up from store) ───
   function approveListing(id) {
     const l = _listings[id]; if(!l) return;
     if (l.payment_status!=='paid' && l.payment_status!=='trial') {
@@ -1264,61 +1246,6 @@
     logAction('feature_listing','listing',id,'');
     toast('Listing featured ✓','success');
     if(currentView==='listings') loadAllListings();
-  }
-
-  // ─── UPGRADE (trial → paid Standard/Featured) ───
-  // Sellers on a free trial see an "Upgrade now" prompt in their dashboard that
-  // messages the admin. This is where that request actually gets processed —
-  // it clears the trial, sets the plan, marks payment confirmed if the admin
-  // has received it (e.g. via M-Pesa outside the platform), and logs a payment
-  // row so it's reflected in Payments/Revenue immediately.
-  function openUpgradeModal(id) {
-    const l = _listings[id]; if(!l) return;
-    upgradingListingId = id;
-    const trialDaysLeft = l.trial_expires_at ? Math.max(0, Math.ceil((new Date(l.trial_expires_at)-new Date())/86400000)) : null;
-    document.getElementById('upgrade-modal-body').innerHTML = `
-      <div class="field"><label>Listing</label><div class="val">${esc(l.title)}</div></div>
-      <div class="field"><label>Seller</label><div class="val">${esc(l.profiles?.full_name||'—')}</div></div>
-      ${trialDaysLeft!==null?`<div class="field"><label>Free trial</label><div class="val">${trialDaysLeft} day(s) left</div></div>`:''}
-      <div class="field"><label>Choose plan</label>
-        <select id="upgrade-plan">
-          <option value="basic">Standard — KES 800 (30 days, up to 6 photos)</option>
-          <option value="featured">Featured — KES 2,500 (30 days, up to 15 photos, top placement)</option>
-        </select>
-      </div>
-      <div class="field check-field"><input type="checkbox" id="upgrade-mark-paid" checked/><label for="upgrade-mark-paid">Mark payment as confirmed (M-Pesa already received)</label></div>
-      <div class="confirm-warning">Confirming clears the free trial and activates the selected plan immediately — the seller's dashboard reflects this right away.</div>`;
-    document.getElementById('upgrade-modal').classList.add('open');
-  }
-  function closeUpgradeModal() { document.getElementById('upgrade-modal').classList.remove('open'); upgradingListingId = null; }
-
-  async function confirmUpgrade() {
-    const id = upgradingListingId; if(!id) return;
-    const l = _listings[id]; if(!l) return;
-    const plan     = document.getElementById('upgrade-plan').value;
-    const markPaid = document.getElementById('upgrade-mark-paid').checked;
-    const amount   = plan === 'featured' ? 2500 : 800;
-
-    const updates = { is_featured: plan === 'featured', trial_expires_at: null };
-    if (markPaid) updates.payment_status = 'paid';
-
-    const { data, error } = await db.from('listings').update(updates).eq('id', id).select();
-    if (error)        { toast('Error upgrading: '+error.message,'error'); return; }
-    if (!data?.length){ toast('Blocked by RLS — check Supabase policy','error'); return; }
-
-    if (markPaid) {
-      await db.from('payments').insert({
-        listing_id: id, amount, method: 'manual', reference: 'Admin-processed upgrade',
-        type: plan === 'featured' ? 'featured_upgrade' : 'listing_fee', status: 'confirmed'
-      });
-    }
-
-    logAction('upgrade_listing','listing',id,`Upgraded trial to ${plan} (${markPaid?'paid':'unpaid'})`);
-    toast(`Listing upgraded to ${plan==='featured'?'Featured':'Standard'} ✓`,'success');
-    closeUpgradeModal();
-    loadOverview();
-    if (currentView==='listings') loadAllListings();
-    if (currentView==='payments') loadPayments();
   }
 
   function deactivateListing(id) {
@@ -1461,7 +1388,6 @@
       ${l.description?`<div class="field"><label>Description</label><div class="val" style="font-size:13px;color:var(--text-2);line-height:1.6">${esc(l.description)}</div></div>`:''}`;
     document.getElementById('modal-footer').innerHTML = `
       ${l.status==='pending'?`<button class="btn-modal approve" onclick="approveListing('${l.id}');closeModal()">Approve</button><button class="btn-modal reject" onclick="rejectListing('${l.id}');closeModal()">Reject</button>`:''}
-      ${l.payment_status==='trial'?`<button class="btn-modal approve" onclick="closeModal();openUpgradeModal('${l.id}')">Process upgrade</button>`:''}
       ${l.is_disabled?`<button class="btn-modal approve" onclick="activateListing('${l.id}');closeModal()">Activate</button>`:`<button class="btn-modal reject" onclick="deactivateListing('${l.id}');closeModal()">Deactivate</button>`}
       <button class="btn-modal cancel" onclick="openEditListingModal('${l.id}');closeModal()">Edit</button>
       <button class="btn-modal cancel" onclick="closeModal()">Close</button>`;
@@ -1590,6 +1516,7 @@ async function loadUsers() {
       return;
     }
 
+    // Fetch listing counts AND unread message counts for all sellers in parallel
     const rows = await Promise.all((data || []).map(async u => {
       const [{ count: listingCount }, { data: chatSess }] = await Promise.all([
         db.from('listings').select('*', { count: 'exact', head: true }).eq('seller_id', u.id),
@@ -1607,6 +1534,7 @@ async function loadUsers() {
 
     rows.forEach(u => { _users[u.id] = u; });
 
+    // Helper — builds the badge span or empty string
     const msgBadge = (count) => count > 0
       ? `<span class="seller-msg-badge">${count}</span>`
       : '';
@@ -1684,6 +1612,8 @@ async function loadUsers() {
   }
 
 async function messageSellerInChat(sellerId, sellerName) {
+    // Must match the key dashboard.html lswEnsureSession() uses —
+    // "seller_support_" + currentUser.id — so both sides share one session.
     const sessionKey = `seller_support_${sellerId}`;
     let { data: existing } = await db
       .from('chat_sessions')
@@ -1795,9 +1725,14 @@ async function messageSellerInChat(sellerId, sellerName) {
   }
 
   // ─── ENQUIRIES / CHATS (unified moderation feed) ───
+  // Pulls together three separate sources so nothing buyers or sellers
+  // say to each other happens outside the admin's view:
+  //   1. `enquiries`      — the listing enquiry form buyers submit
+  //   2. `messages`       — buyer↔seller chat threads tied to a listing
+  //   3. `chat_sessions`  — the site-wide live chat widget + seller support chat
   let _enqItems = [];
   let enqTab = 'all';
-  const _enqThreads = {};
+  const _enqThreads = {}; // id -> full thread array, for the "View" modal
 
   async function loadEnquiries() {
     const tbody    = document.getElementById('enquiries-body');
@@ -1813,6 +1748,7 @@ async function messageSellerInChat(sellerId, sellerName) {
 
     const items = [];
 
+    // 1. Buyer enquiries — one row each
     (enqData||[]).forEach(e => {
       items.push({
         type:'enquiry', id:'enq-'+e.id, unread: !e.admin_read_at,
@@ -1823,6 +1759,7 @@ async function messageSellerInChat(sellerId, sellerName) {
       _enqThreads['enq-'+e.id] = { kind:'enquiry', rawId:e.id, name:e.buyer_name, contact:e.buyer_phone||e.buyer_email, related:e.listings?.title||'—', body:e.message||'' };
     });
 
+    // 2. Listing messages — grouped into buyer↔seller threads
     const threadMap = new Map();
     (msgData||[]).forEach(m => {
       const key = `msg-${m.listing_id}__${m.buyer_token || m.buyer_phone || 'anon'}`;
@@ -1832,8 +1769,8 @@ async function messageSellerInChat(sellerId, sellerName) {
     threadMap.forEach((msgs, key) => {
       msgs.sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
       const buyerMsgs = msgs.filter(m => m.sender === 'buyer');
-      if (!buyerMsgs.length) return;
-      const last = buyerMsgs[buyerMsgs.length-1];
+      if (!buyerMsgs.length) return; // seller-only thread (no buyer message yet) — nothing to surface
+      const last = buyerMsgs[buyerMsgs.length-1]; // last BUYER message drives the preview/date, not seller replies
       const unread = buyerMsgs.some(m => !m.admin_read_at);
       items.push({
         type:'message', id:key, unread,
@@ -1845,6 +1782,9 @@ async function messageSellerInChat(sellerId, sellerName) {
       _enqThreads[key] = { kind:'message', name:last.buyer_name||'Buyer', contact:last.buyer_phone||'', related:last.listings?.title||'—', messages:msgs };
     });
 
+    // 3. Chat sessions — live site chat + seller support chat (view-only pointer into admin-chat.html;
+    //    unread_admin here is the SAME field admin-chat.html already manages — we only read it, never reset it,
+    //    so opening this feed never interferes with Live Chat's own read tracking)
     (chatData||[]).forEach(c => {
       const isSeller = c.session_type === 'seller';
       items.push({
@@ -1861,6 +1801,7 @@ async function messageSellerInChat(sellerId, sellerName) {
     items.sort((a,b)=> new Date(b.date) - new Date(a.date));
     _enqItems = items;
 
+    // Tab counts
     const counts = { all: items.length, enquiry:0, message:0, site_chat:0, seller_chat:0 };
     items.forEach(i => { if (counts[i.type] !== undefined) counts[i.type]++; });
     Object.entries(counts).forEach(([k,v]) => { const el=document.getElementById('etc-'+k); if(el) el.textContent = v; });
@@ -1895,8 +1836,8 @@ async function messageSellerInChat(sellerId, sellerName) {
 
     tbody.innerHTML = filtered.map(i => {
       const actionBtn = (i.type==='site_chat'||i.type==='seller_chat')
-        ? `<div class="action-btns"><button class="action-btn message" onclick="window.open('admin-chat.html?session=${i.sessionId}','_blank')">Open chat</button></div>`
-        : `<div class="action-btns"><button class="action-btn view" onclick="openInquiryModal('${i.id}')">View</button></div>`;
+        ? `<button class="action-btn message" onclick="window.open('admin-chat.html?session=${i.sessionId}','_blank')">Open chat</button>`
+        : `<button class="action-btn view" onclick="openInquiryModal('${i.id}')">View</button>`;
       const unreadDot = i.unread ? `<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--red);margin-right:7px;flex-shrink:0"></span>` : '';
       return `<tr>
         <td><span class="badge ${ENQ_TYPE_BADGE_CLASS[i.type]}">${ENQ_TYPE_LABEL[i.type]}</span></td>
@@ -1930,6 +1871,7 @@ async function messageSellerInChat(sellerId, sellerName) {
     }).join('');
   }
 
+  // ─── Mark an enquiry/message item as read (called when the admin opens an individual thread) ───
   async function markInquiryRead(id) {
     const t = _enqThreads[id]; if (!t) return;
     if (t.kind === 'enquiry') {
@@ -1944,6 +1886,10 @@ async function messageSellerInChat(sellerId, sellerName) {
     loadEnquiriesBadge();
   }
 
+  // ─── Mark EVERYTHING currently in the feed as read the moment the Enquiries
+  // tab is opened. Only enquiries/messages that arrive AFTER this point will
+  // badge up again — chat_sessions.unread_admin is left untouched since that's
+  // Live Chat's own read-tracking, not ours to reset. ───
   async function markAllEnquiriesRead() {
     const nowIso = new Date().toISOString();
     await Promise.all([
@@ -1955,6 +1901,7 @@ async function messageSellerInChat(sellerId, sellerName) {
     loadEnquiriesBadge();
   }
 
+  // ─── Thread view modal (enquiry text or full listing-chat thread) ───
   function openInquiryModal(id) {
     const t = _enqThreads[id]; if (!t) return;
     document.getElementById('inquiry-modal-title').textContent = t.related || 'Conversation';
@@ -1981,12 +1928,16 @@ async function messageSellerInChat(sellerId, sellerName) {
     document.getElementById('inquiry-modal-body').innerHTML = body;
     document.getElementById('inquiry-modal-footer').innerHTML = `<button class="btn-modal cancel" onclick="closeInquiryModal()">Close</button>`;
     document.getElementById('inquiry-modal').classList.add('open');
-    markInquiryRead(id);
+    markInquiryRead(id); // only fires for enquiry/message kinds — chat items never call openInquiryModal
   }
   function closeInquiryModal() { document.getElementById('inquiry-modal').classList.remove('open'); }
 
   // ════════════════════════════════════
-  // REPORTS
+  // REPORTS — buyers/sellers flagging scams, impostors, or the platform
+  // Every report resolves to the FULL listing (photo, price, status, date
+  // listed) and the FULL seller record (name, phone, email, joined date,
+  // suspension state) — plus a repeat-offender count — so an admin never
+  // has to go hunting across other tabs to act on a report.
   // ════════════════════════════════════
   let _reports = [];
   let reportTab = 'open';
@@ -2012,6 +1963,10 @@ async function messageSellerInChat(sellerId, sellerName) {
     }
     _reports = data;
 
+    // Resolve FULL listing + FULL seller records — not just a name — since
+    // reports.target_id can't be a typed foreign key (it points at different
+    // tables depending on target_type). We fetch the whole row so the modal
+    // and table can show everything an admin needs to track the seller.
     const listingIds      = [...new Set(data.filter(r=>r.target_type==='listing' && r.target_id).map(r=>r.target_id))];
     const directSellerIds = [...new Set(data.filter(r=>r.target_type==='seller'  && r.target_id).map(r=>r.target_id))];
 
@@ -2022,10 +1977,10 @@ async function messageSellerInChat(sellerId, sellerName) {
       const { data: ls } = await db.from('listings').select('*, listing_photos(*), profiles(*)').in('id', listingIds);
       (ls||[]).forEach(l => {
         _reportTargetsCache.listing[l.id] = l;
-        _listings[l.id] = l;
+        _listings[l.id] = l; // populate the shared store so recycleListing/deactivateListing/openListingModal work straight from a report
         if (l.profiles) {
           _reportTargetsCache.seller[l.profiles.id] = l.profiles;
-          _users[l.profiles.id] = l.profiles;
+          _users[l.profiles.id] = l.profiles; // populate the shared store so openProfileModal/disableProfileFlow work straight from a report
         }
       });
     }
@@ -2034,6 +1989,9 @@ async function messageSellerInChat(sellerId, sellerName) {
       (ps||[]).forEach(p => { _reportTargetsCache.seller[p.id] = p; _users[p.id] = p; });
     }
 
+    // Cheap "repeat offender" signal computed from the reports we already
+    // have loaded (no extra query) — the modal fetches an exact, DB-backed
+    // count separately when opened.
     const counts2 = {};
     data.forEach(r => {
       const seller = reportTargetSeller(r);
@@ -2214,6 +2172,10 @@ async function messageSellerInChat(sellerId, sellerName) {
   }
   function closeReportModal() { document.getElementById('report-modal').classList.remove('open'); }
 
+  // Exact, DB-backed count of every report tied to a seller — either
+  // directly (target_type='seller') or via any of their listings
+  // (target_type='listing' where the listing belongs to them). This is
+  // the number that matters for spotting a repeat scammer.
   async function getSellerTotalReportCount(sellerId) {
     const { data: sellerListings } = await db.from('listings').select('id').eq('seller_id', sellerId);
     const listingIds = (sellerListings||[]).map(l=>l.id);
@@ -2229,6 +2191,9 @@ async function messageSellerInChat(sellerId, sellerName) {
 
   async function setReportStatus(id, status) {
     const notesEl = document.getElementById('report-admin-notes');
+    // Only include admin_notes in the update when the modal's textarea is actually
+    // present (i.e. the modal is open) — otherwise leave existing notes untouched,
+    // since this can now also be triggered directly from a row/menu button.
     const updates = { status };
     if (notesEl) updates.admin_notes = notesEl.value.trim() || null;
     if (status==='resolved' || status==='dismissed') updates.resolved_at = new Date().toISOString();
@@ -2248,7 +2213,8 @@ async function messageSellerInChat(sellerId, sellerName) {
   }
 
   // ════════════════════════════════════
-  // REVIEWS
+  // REVIEWS — platform reviews (admin responds) + seller reviews (read-only
+  // here; sellers respond to their own from their dashboard)
   // ════════════════════════════════════
   let _reviews = [];
   let reviewTab = 'platform';
@@ -2301,10 +2267,6 @@ async function messageSellerInChat(sellerId, sellerName) {
     tbody.innerHTML = filtered.map(r => {
       const target = r.review_type==='platform' ? 'NyumbaKisumu' : (r.target_seller?.full_name || '—');
       const canRespond = r.review_type==='platform';
-      /* FIX: the respond button must be wrapped in .action-btns to get the
-         override that keeps it visible on desktop (see the .action-btns .action-btn
-         rule above) — without it, the "view" class collides with the
-         page-switcher's .view{display:none} rule and the button vanishes. */
       return `<tr>
         <td style="white-space:nowrap;font-size:13px">${stars(r.rating)}</td>
         <td>${esc(r.reviewer_name||(r.reviewer_role==='seller'?'Seller':'Buyer'))}<div class="listing-meta" style="text-transform:capitalize">${esc(r.reviewer_role)}</div></td>
@@ -2312,7 +2274,7 @@ async function messageSellerInChat(sellerId, sellerName) {
         <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r.comment||'—')}</td>
         <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.response_text?esc(r.response_text):'<span style="color:var(--text-3)">No response</span>'}</td>
         <td>${fmtDate(r.created_at)}</td>
-        <td>${canRespond?`<div class="action-btns"><button class="action-btn view" onclick="openReviewRespondModal('${r.id}')">${r.response_text?'Edit response':'Respond'}</button></div>`:'<span style="color:var(--text-3);font-size:12px">Seller responds</span>'}</td>
+        <td>${canRespond?`<button class="action-btn view" onclick="openReviewRespondModal('${r.id}')">${r.response_text?'Edit response':'Respond'}</button>`:'<span style="color:var(--text-3);font-size:12px">Seller responds</span>'}</td>
       </tr>`;
     }).join('');
 
@@ -2503,7 +2465,7 @@ async function messageSellerInChat(sellerId, sellerName) {
 
   async function doLogout() { await db.auth.signOut(); window.location.href='login.html'; }
 
-  // ─── Enquiries badge ───
+  // ─── Enquiries badge (counts only UNREAD items — clears as you view them) ───
   async function loadEnquiriesBadge() {
     const [{count:enqUnread}, {count:msgUnread}, {data:chatRows}] = await Promise.all([
       db.from('enquiries').select('*',{count:'exact',head:true}).is('admin_read_at', null),
