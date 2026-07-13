@@ -196,6 +196,31 @@
     .action-btn.upgrade { background: var(--blue-light); color: var(--blue); }
     .action-btn.upgrade:hover { background: var(--blue); color: white; }
 
+    /* ICON-ONLY action buttons (desktop rows) with hover tooltip */
+    .action-btns .action-btn.icon {
+      width: 30px; height: 30px; padding: 0; border-radius: 8px;
+      display: inline-flex; align-items: center; justify-content: center;
+      position: relative; flex-shrink: 0;
+    }
+    .action-btn.icon svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; display: block; }
+    [data-tip] { position: relative; }
+    [data-tip]::after {
+      content: attr(data-tip);
+      position: absolute; bottom: calc(100% + 7px); left: 50%; transform: translateX(-50%) translateY(2px);
+      background: var(--text); color: #fff; font-size: 11px; font-weight: 500; line-height: 1.3;
+      padding: 5px 9px; border-radius: 6px; white-space: nowrap;
+      opacity: 0; visibility: hidden; pointer-events: none;
+      transition: opacity .12s ease, transform .12s ease;
+      z-index: 60;
+    }
+    [data-tip]::before {
+      content: ''; position: absolute; bottom: calc(100% + 3px); left: 50%; transform: translateX(-50%);
+      border: 4px solid transparent; border-top-color: var(--text);
+      opacity: 0; visibility: hidden; pointer-events: none; transition: opacity .12s ease; z-index: 60;
+    }
+    [data-tip]:hover::after, [data-tip]:focus-visible::after { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
+    [data-tip]:hover::before, [data-tip]:focus-visible::before { opacity: 1; visibility: visible; }
+
     /* MOBILE ACTION MENU (dropdown) */
     .action-menu-wrap { position: relative; display: none; }
     .action-menu-btn {
@@ -239,6 +264,8 @@
     .mobile-card-row span:last-child  { font-weight: 500; color: var(--text); }
     .mobile-card-actions { padding: 12px 14px; border-top: 1px solid var(--border); display: flex; gap: 8px; flex-wrap: wrap; }
     .mobile-card-actions .action-btn { flex: 1; min-width: 80px; text-align: center; padding: 10px; font-size: 13px; min-height: 44px; display: flex; align-items: center; justify-content: center; }
+    .mobile-card-actions .action-btn.icon { flex: 0 0 auto; min-width: 44px; width: 44px; }
+    .mobile-card-actions .action-btn.icon svg { width: 17px; height: 17px; }
 
     /* TWO COL */
     .two-col { display: grid; grid-template-columns: 1fr 320px; gap: 20px; }
@@ -872,6 +899,32 @@
       .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
   }
 
+  // ─── Icon-only action button helper ───
+  // Renders a compact icon button with a CSS hover tooltip (see [data-tip] rules)
+  // instead of a full text label, so a row of actions doesn't eat up column width.
+  const ICONS = {
+    view:     '<circle cx="12" cy="12" r="3"/><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>',
+    edit:     '<path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/>',
+    approve:  '<polyline points="20 6 9 17 4 12"/>',
+    reject:   '<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',
+    feature:  '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>',
+    delete:   '<polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/>',
+    message:  '<path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>',
+    upgrade:  '<circle cx="12" cy="12" r="10"/><polyline points="16 12 12 8 8 12"/><line x1="12" y1="16" x2="12" y2="8"/>',
+    activate: '<polygon points="5 3 19 12 5 21 5 3"/>',
+    deactivate:'<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>',
+    restore:  '<polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/>',
+    recycle:  '<polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/>',
+    suspend:  '<path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="18" y1="8" x2="23" y2="13"/><line x1="23" y1="8" x2="18" y2="13"/>',
+    reinstate:'<path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><polyline points="17 11 19 13 23 9"/>',
+    list:     '<line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>',
+    external: '<circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/>',
+    chat:     '<path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/>',
+  };
+  function aBtn(icon, tip, cls, onclick) {
+    return `<button class="action-btn icon ${cls}" data-tip="${esc(tip)}" aria-label="${esc(tip)}" onclick="${onclick}"><svg viewBox="0 0 24 24">${ICONS[icon]}</svg></button>`;
+  }
+
   function debounce(fn, ms) {
     let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); };
   }
@@ -1020,9 +1073,9 @@
         <td><span class="badge ${l.is_featured?'featured':'standard'}">${l.is_featured?'Featured':'Standard'}</span></td>
         <td>
           <div class="action-btns">
-            <button class="action-btn approve" onclick="approveListing('${l.id}')">Approve</button>
-            <button class="action-btn view"    onclick="openListingModal('${l.id}')">View</button>
-            <button class="action-btn reject"  onclick="rejectListing('${l.id}')">Reject</button>
+            ${aBtn('approve','Approve listing','approve',`approveListing('${l.id}')`)}
+            ${aBtn('view','View details','view',`openListingModal('${l.id}')`)}
+            ${aBtn('reject','Reject listing','reject',`rejectListing('${l.id}')`)}
           </div>
           ${mobileMenu(l.id,[
             {label:'✓ Approve',  cls:'success', fn:`approveListing('${l.id}')`},
@@ -1136,16 +1189,16 @@
         <td>${fmtDate(l.created_at)}</td>
         <td>
           <div class="action-btns">
-            ${l.status==='pending'?`<button class="action-btn approve" onclick="approveListing('${l.id}')">Approve</button><button class="action-btn reject" onclick="rejectListing('${l.id}')">Reject</button>`:''}
-            ${isTrial?`<button class="action-btn upgrade" onclick="openUpgradeModal('${l.id}')">Upgrade</button>`:''}
-            ${l.status==='active'&&!l.is_featured?`<button class="action-btn feature" onclick="featureListing('${l.id}')">Feature</button>`:''}
-            <button class="action-btn view"   onclick="openEditListingModal('${l.id}')">Edit</button>
-            <button class="action-btn view"   onclick="openListingModal('${l.id}')">View</button>
+            ${l.status==='pending'?(aBtn('approve','Approve listing','approve',`approveListing('${l.id}')`)+aBtn('reject','Reject listing','reject',`rejectListing('${l.id}')`)):''}
+            ${isTrial?aBtn('upgrade','Process upgrade','upgrade',`openUpgradeModal('${l.id}')`):''}
+            ${l.status==='active'&&!l.is_featured?aBtn('feature','Feature listing','feature',`featureListing('${l.id}')`):''}
+            ${aBtn('edit','Edit listing','view',`openEditListingModal('${l.id}')`)}
+            ${aBtn('view','View live listing','view',`openListingModal('${l.id}')`)}
             ${l.is_disabled
-              ?`<button class="action-btn approve" onclick="activateListing('${l.id}')">Activate</button>`
-              :`<button class="action-btn reject"  onclick="deactivateListing('${l.id}')">Deactivate</button>`}
-            <button class="action-btn reject" onclick="recycleListing('${l.id}')">Recycle</button>
-            <button class="action-btn delete" onclick="deleteListingPermanently('${l.id}')">Delete</button>
+              ? aBtn('activate','Activate listing','approve',`activateListing('${l.id}')`)
+              : aBtn('deactivate','Deactivate listing','reject',`deactivateListing('${l.id}')`)}
+            ${aBtn('recycle','Move to recycle bin','reject',`recycleListing('${l.id}')`)}
+            ${aBtn('delete','Delete permanently','delete',`deleteListingPermanently('${l.id}')`)}
           </div>
           ${mobileMenu(l.id, menuItems)}
         </td>
@@ -1173,15 +1226,15 @@
           <div class="mobile-card-row"><span>Posted</span><span>${fmtDate(l.created_at)}</span></div>
         </div>
         <div class="mobile-card-actions">
-          ${l.status==='pending'?`<button class="action-btn approve" onclick="approveListing('${l.id}')">Approve</button><button class="action-btn reject" onclick="rejectListing('${l.id}')">Reject</button>`:''}
-          ${isTrial?`<button class="action-btn upgrade" onclick="openUpgradeModal('${l.id}')">Upgrade</button>`:''}
-          <button class="action-btn view" onclick="openListingModal('${l.id}')">View</button>
-          <button class="action-btn view" onclick="openEditListingModal('${l.id}')">Edit</button>
+          ${l.status==='pending'?(aBtn('approve','Approve','approve',`approveListing('${l.id}')`)+aBtn('reject','Reject','reject',`rejectListing('${l.id}')`)):''}
+          ${isTrial?aBtn('upgrade','Upgrade','upgrade',`openUpgradeModal('${l.id}')`):''}
+          ${aBtn('view','View','view',`openListingModal('${l.id}')`)}
+          ${aBtn('edit','Edit','view',`openEditListingModal('${l.id}')`)}
           ${l.is_disabled
-            ?`<button class="action-btn approve" onclick="activateListing('${l.id}')">Activate</button>`
-            :`<button class="action-btn reject"  onclick="deactivateListing('${l.id}')">Deactivate</button>`}
-          <button class="action-btn reject" onclick="recycleListing('${l.id}')">Recycle</button>
-          <button class="action-btn delete" onclick="deleteListingPermanently('${l.id}')">Delete</button>
+            ? aBtn('activate','Activate','approve',`activateListing('${l.id}')`)
+            : aBtn('deactivate','Deactivate','reject',`deactivateListing('${l.id}')`)}
+          ${aBtn('recycle','Recycle','reject',`recycleListing('${l.id}')`)}
+          ${aBtn('delete','Delete','delete',`deleteListingPermanently('${l.id}')`)}
         </div>
       </div>`;
     }).join('');
@@ -1394,8 +1447,8 @@
         <td>${fmtPrice(l.price)}</td>
         <td>
           <div class="action-btns">
-            <button class="action-btn approve" onclick="restoreListing('${l.id}')">Restore</button>
-            <button class="action-btn delete"  onclick="deleteListingPermanently('${l.id}')">Delete permanently</button>
+            ${aBtn('restore','Restore listing','approve',`restoreListing('${l.id}')`)}
+            ${aBtn('delete','Delete permanently','delete',`deleteListingPermanently('${l.id}')`)}
           </div>
           ${mobileMenu(l.id,[
             {label:'Restore',           cls:'success', fn:`restoreListing('${l.id}')`},
@@ -1419,8 +1472,8 @@
           <div class="mobile-card-row"><span>Price</span><span>${fmtPrice(l.price)}</span></div>
         </div>
         <div class="mobile-card-actions">
-          <button class="action-btn approve" onclick="restoreListing('${l.id}')">Restore</button>
-          <button class="action-btn delete"  onclick="deleteListingPermanently('${l.id}')">Delete</button>
+          ${aBtn('restore','Restore','approve',`restoreListing('${l.id}')`)}
+          ${aBtn('delete','Delete','delete',`deleteListingPermanently('${l.id}')`)}
         </div>
       </div>`;
     }).join('');
@@ -1543,7 +1596,7 @@
       <td><span class="badge ${p.status==='confirmed'?'paid':'pending'}">${p.status}</span></td>
       <td>${fmtDate(p.created_at)}</td>
       <td>${(p.status==='pending'||p.status==='pending_verification')
-        ? `<button class="action-btn approve" onclick="confirmPayment('${p.id}','${p.listing_id}')">Confirm</button>`
+        ? `<div class="action-btns">${aBtn('approve','Confirm payment','approve',`confirmPayment('${p.id}','${p.listing_id}')`)}</div>`
         : '—'}</td>
     </tr>`).join('');
     mobileEl.innerHTML = data.map(p => `<div class="mobile-card">
@@ -1626,15 +1679,16 @@ async function loadUsers() {
         <td>${u.is_disabled ? '<span class="badge rejected">suspended</span>' : '<span class="badge active">active</span>'}</td>
         <td>${fmtDate(u.created_at)}</td>
         <td>
-          <div class="action-btns">
-            <button class="action-btn view"    onclick="openProfileModal('${u.id}')">Manage</button>
-            <button class="action-btn view"    onclick="filterByUser('${esc(u.full_name || '')}')">Listings</button>
-            <button class="action-btn message" onclick="messageSellerInChat('${u.id}','${esc(u.full_name || 'Seller')}')">
-              Message${msgBadge(u.unreadFromSeller)}
-            </button>
+          <div class="action-btns" style="position:relative">
+            ${aBtn('view','Manage profile','view',`openProfileModal('${u.id}')`)}
+            ${aBtn('list','View listings','view',`filterByUser('${esc(u.full_name || '')}')`)}
+            <span style="position:relative;display:inline-block">
+              ${aBtn('message','Message seller','message',`messageSellerInChat('${u.id}','${esc(u.full_name || 'Seller')}')`)}
+              ${u.unreadFromSeller > 0 ? `<span class="seller-msg-badge" style="position:absolute;top:-6px;right:-6px;margin:0">${u.unreadFromSeller}</span>` : ''}
+            </span>
             ${u.is_disabled
-              ? `<button class="action-btn approve" onclick="enableProfile('${u.id}')">Reinstate</button>`
-              : `<button class="action-btn reject" onclick="disableProfileFlow('${u.id}')">Suspend</button>`}
+              ? aBtn('reinstate','Reinstate account','approve',`enableProfile('${u.id}')`)
+              : aBtn('suspend','Suspend account','reject',`disableProfileFlow('${u.id}')`)}
           </div>
           ${mobileMenu(u.id, [
             { label: 'Manage profile', cls: '',     fn: `openProfileModal('${u.id}')` },
@@ -1670,14 +1724,12 @@ async function loadUsers() {
             : ''}
         </div>
         <div class="mobile-card-actions">
-          <button class="action-btn view"    onclick="openProfileModal('${u.id}')">Manage</button>
-          <button class="action-btn view"    onclick="filterByUser('${esc(u.full_name || '')}')">Listings</button>
-          <button class="action-btn message" onclick="messageSellerInChat('${u.id}','${esc(u.full_name || 'Seller')}')">
-            Message${msgBadge(u.unreadFromSeller)}
-          </button>
+          ${aBtn('view','Manage','view',`openProfileModal('${u.id}')`)}
+          ${aBtn('list','Listings','view',`filterByUser('${esc(u.full_name || '')}')`)}
+          ${aBtn('message','Message','message',`messageSellerInChat('${u.id}','${esc(u.full_name || 'Seller')}')`)}
           ${u.is_disabled
-            ? `<button class="action-btn approve" onclick="enableProfile('${u.id}')">Reinstate</button>`
-            : `<button class="action-btn reject" onclick="disableProfileFlow('${u.id}')">Suspend</button>`}
+            ? aBtn('reinstate','Reinstate','approve',`enableProfile('${u.id}')`)
+            : aBtn('suspend','Suspend','reject',`disableProfileFlow('${u.id}')`)}
         </div>
       </div>`;
     }).join('');
@@ -1895,8 +1947,8 @@ async function messageSellerInChat(sellerId, sellerName) {
 
     tbody.innerHTML = filtered.map(i => {
       const actionBtn = (i.type==='site_chat'||i.type==='seller_chat')
-        ? `<div class="action-btns"><button class="action-btn message" onclick="window.open('admin-chat.html?session=${i.sessionId}','_blank')">Open chat</button></div>`
-        : `<div class="action-btns"><button class="action-btn view" onclick="openInquiryModal('${i.id}')">View</button></div>`;
+        ? `<div class="action-btns">${aBtn('chat','Open chat','message',`window.open('admin-chat.html?session=${i.sessionId}','_blank')`)}</div>`
+        : `<div class="action-btns">${aBtn('view','View conversation','view',`openInquiryModal('${i.id}')`)}</div>`;
       const unreadDot = i.unread ? `<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--red);margin-right:7px;flex-shrink:0"></span>` : '';
       return `<tr>
         <td><span class="badge ${ENQ_TYPE_BADGE_CLASS[i.type]}">${ENQ_TYPE_LABEL[i.type]}</span></td>
@@ -1910,8 +1962,8 @@ async function messageSellerInChat(sellerId, sellerName) {
 
     mobileEl.innerHTML = filtered.map(i => {
       const actionBtn = (i.type==='site_chat'||i.type==='seller_chat')
-        ? `<button class="action-btn message" style="flex:1" onclick="window.open('admin-chat.html?session=${i.sessionId}','_blank')">Open chat</button>`
-        : `<button class="action-btn view" style="flex:1" onclick="openInquiryModal('${i.id}')">View</button>`;
+        ? aBtn('chat','Open chat','message',`window.open('admin-chat.html?session=${i.sessionId}','_blank')`)
+        : aBtn('view','View','view',`openInquiryModal('${i.id}')`);
       const unreadDot = i.unread ? `<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--red);margin-right:6px;flex-shrink:0"></span>` : '';
       return `<div class="mobile-card">
         <div class="mobile-card-header">
@@ -2104,8 +2156,8 @@ async function messageSellerInChat(sellerId, sellerName) {
         <td>${fmtDate(r.created_at)}</td>
         <td>
           <div class="action-btns">
-            <button class="action-btn view" onclick="openReportModal('${r.id}')">View details</button>
-            ${seller && !seller.is_disabled?`<button class="action-btn reject" onclick="quickSuspendSeller('${seller.id}')">Suspend seller</button>`:''}
+            ${aBtn('view','View full details','view',`openReportModal('${r.id}')`)}
+            ${seller && !seller.is_disabled?aBtn('suspend','Suspend seller','reject',`quickSuspendSeller('${seller.id}')`):''}
           </div>
           ${mobileMenu(r.id,[
             {label:'View full details', cls:'', fn:`openReportModal('${r.id}')`},
@@ -2135,8 +2187,8 @@ async function messageSellerInChat(sellerId, sellerName) {
           <div class="mobile-card-row"><span>Date</span><span>${fmtDate(r.created_at)}</span></div>
         </div>
         <div class="mobile-card-actions">
-          <button class="action-btn view" style="flex:1" onclick="openReportModal('${r.id}')">View details</button>
-          ${seller && !seller.is_disabled?`<button class="action-btn reject" style="flex:1" onclick="quickSuspendSeller('${seller.id}')">Suspend seller</button>`:''}
+          ${aBtn('view','View details','view',`openReportModal('${r.id}')`)}
+          ${seller && !seller.is_disabled?aBtn('suspend','Suspend seller','reject',`quickSuspendSeller('${seller.id}')`):''}
         </div>
       </div>`;
     }).join('');
@@ -2312,7 +2364,7 @@ async function messageSellerInChat(sellerId, sellerName) {
         <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r.comment||'—')}</td>
         <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.response_text?esc(r.response_text):'<span style="color:var(--text-3)">No response</span>'}</td>
         <td>${fmtDate(r.created_at)}</td>
-        <td>${canRespond?`<div class="action-btns"><button class="action-btn view" onclick="openReviewRespondModal('${r.id}')">${r.response_text?'Edit response':'Respond'}</button></div>`:'<span style="color:var(--text-3);font-size:12px">Seller responds</span>'}</td>
+        <td>${canRespond?`<div class="action-btns">${aBtn('edit',r.response_text?'Edit response':'Respond','view',`openReviewRespondModal('${r.id}')`)}</div>`:'<span style="color:var(--text-3);font-size:12px">Seller responds</span>'}</td>
       </tr>`;
     }).join('');
 
@@ -2331,7 +2383,7 @@ async function messageSellerInChat(sellerId, sellerName) {
           <div class="mobile-card-row"><span>Response</span><span>${r.response_text?'Sent':'None'}</span></div>
           <div class="mobile-card-row"><span>Date</span><span>${fmtDate(r.created_at)}</span></div>
         </div>
-        ${canRespond?`<div class="mobile-card-actions"><button class="action-btn view" style="flex:1" onclick="openReviewRespondModal('${r.id}')">${r.response_text?'Edit response':'Respond'}</button></div>`:''}
+        ${canRespond?`<div class="mobile-card-actions">${aBtn('edit',r.response_text?'Edit response':'Respond','view',`openReviewRespondModal('${r.id}')`)}</div>`:''}
       </div>`;
     }).join('');
   }
