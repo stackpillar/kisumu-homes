@@ -418,6 +418,10 @@
         <svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>Enquiries
         <span class="badge-count" id="nav-badge-enquiries" style="display:none">0</span>
       </button>
+      <button class="nav-item" id="nav-reviews" onclick="showPage('reviews')">
+        <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Reviews
+        <span class="badge-count" id="nav-badge-reviews" style="display:none">0</span>
+      </button>
       <button class="nav-item" id="nav-payments" onclick="showPage('payments')">
         <svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Payments
       </button>
@@ -546,6 +550,15 @@
         </div>
       </div>
       <div class="enquiry-list" id="enquiry-list"><div style="text-align:center;padding:40px;color:var(--text-3);font-size:13px">Loading enquiries…</div></div>
+    </div>
+
+    <!-- REVIEWS -->
+    <div class="page" id="page-reviews">
+      <div class="section-head">
+        <h2>Reviews from buyers</h2>
+        <div style="font-size:13px;color:var(--text-3)" id="reviews-summary"></div>
+      </div>
+      <div class="enquiry-list" id="reviews-list"><div style="text-align:center;padding:40px;color:var(--text-3);font-size:13px">Loading reviews…</div></div>
     </div>
 
     <!-- PAYMENTS -->
@@ -713,7 +726,7 @@ const SUPABASE_KEY = 'sb_publishable_oIIcecf3wzKMual5K24Z8Q_zmxVfgsx';
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-let currentUser=null,currentProfile=null,allListings=[],allEnquiries=[],allPayments=[],allMessages=[],threads=[],activeThread=null,listingFilter='all',enquiryFilter='all',deleteTargetId=null,occupiedTargetId=null,replyTargetEnquiry=null,msgPollTimer=null,threadListingFilter=null;
+let currentUser=null,currentProfile=null,allListings=[],allEnquiries=[],allPayments=[],allMessages=[],allReviews=[],threads=[],activeThread=null,listingFilter='all',enquiryFilter='all',deleteTargetId=null,occupiedTargetId=null,replyTargetEnquiry=null,msgPollTimer=null,threadListingFilter=null;
 
 const AMENITY_KEYS=[{key:'has_parking',label:'Parking'},{key:'has_water',label:'Water supply'},{key:'has_security',label:'Security'},{key:'has_wifi',label:'WiFi ready'},{key:'has_backup_power',label:'Backup power'},{key:'has_gym',label:'Gym'},{key:'has_pool',label:'Swimming pool'},{key:'has_balcony',label:'Balcony'}];
 
@@ -766,6 +779,8 @@ async function loadAllData(){
   }else{allEnquiries=[];allMessages=[];}
   const{data:payData}=await db.from('payments').select('*, listings(title)').eq('seller_id',currentUser.id).order('created_at',{ascending:false});
   allPayments=payData||[];
+  const{data:revData}=await db.from('reviews').select('*, listings(title)').eq('review_type','seller').eq('target_seller_id',currentUser.id).order('created_at',{ascending:false});
+  allReviews=revData||[];
   buildThreads();updateNavBadges();
 }
 
@@ -792,6 +807,9 @@ function updateNavBadges(){
   const totalUnread=threads.reduce((s,t)=>s+(t.unread_count||0),0);
   const msgBadge=document.getElementById('nav-badge-messages');msgBadge.textContent=totalUnread;msgBadge.style.display=totalUnread>0?'inline-block':'none';
   const enqBadge=document.getElementById('nav-badge-enquiries');enqBadge.textContent=totalUnread;enqBadge.style.display=totalUnread>0?'inline-block':'none';
+  const unrespondedReviews=allReviews.filter(r=>!r.response_text).length;
+  const revBadge=document.getElementById('nav-badge-reviews');
+  if(revBadge){revBadge.textContent=unrespondedReviews;revBadge.style.display=unrespondedReviews>0?'inline-block':'none';}
 }
 
 function getListingStatusDisplay(l){
@@ -1087,6 +1105,74 @@ function formatWaPhone(p){return(p||'').replace(/^0/,'254').replace(/\s/g,'');}
 async function markEnqThreadRead(key){const t=threads.find(x=>x.key===key);if(!t)return;await markThreadRead(t);renderEnquiries();}
 function sendReply(){const text=document.getElementById('reply-text').value.trim();if(!text){showToast('Please type a reply first','error');return;}if(replyTargetEnquiry?.buyer_phone){window.open(`https://wa.me/${formatWaPhone(replyTargetEnquiry.buyer_phone)}?text=${encodeURIComponent(text)}`,'_blank');}else{showToast('No phone number available','error');return;}closeModal('modal-reply');showToast('Opened WhatsApp with your reply','success');}
 
+/* ══════════════════════════════════════
+   REVIEWS — seller-facing view + response
+   Sellers can see reviews buyers left about
+   them and post ONE public response per review.
+   That response_text is what shows up publicly
+   on pricing.html's testimonials section.
+══════════════════════════════════════ */
+function starsHtml(n){
+  return [1,2,3,4,5].map(i=>`<svg viewBox="0 0 24 24" width="14" height="14" style="${i<=n?'fill:var(--gold);stroke:var(--gold)':'fill:none;stroke:var(--border)'};stroke-width:1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`).join('');
+}
+
+function renderReviews(){
+  const el=document.getElementById('reviews-list');
+  const summary=document.getElementById('reviews-summary');
+  if(!allReviews.length){
+    el.innerHTML=`<div class="empty-state"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><h3>No reviews yet</h3><p>When a buyer reviews you after contacting about a listing, it appears here.</p></div>`;
+    summary.textContent='';
+    return;
+  }
+  const avg=(allReviews.reduce((s,r)=>s+r.rating,0)/allReviews.length).toFixed(1);
+  summary.textContent=`${avg} average · ${allReviews.length} review${allReviews.length!==1?'s':''}`;
+  el.innerHTML=allReviews.map(r=>{
+    const ini=(r.reviewer_name||'B').split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase();
+    const hasResponse=!!r.response_text;
+    return `<div class="enquiry-card">
+      <div class="enquiry-avatar">${ini}</div>
+      <div class="enquiry-body">
+        <div class="enquiry-head"><span class="enquiry-name">${escHtml(r.reviewer_name||'Anonymous buyer')}</span><span class="enquiry-time">${timeAgo(r.created_at)}</span></div>
+        <div style="margin-bottom:6px">${starsHtml(r.rating)}</div>
+        ${r.listings?.title?`<div class="enquiry-listing-ref">Re: ${escHtml(r.listings.title)}</div>`:''}
+        <div class="enquiry-msg">${escHtml(r.comment||'(No comment left — rating only)')}</div>
+        <div id="review-response-${r.id}" style="margin-top:12px">
+          ${hasResponse
+            ? `<div style="background:var(--green-light);border-radius:8px;padding:10px 12px;font-size:13px;color:var(--green-dark)"><strong>Your response (public):</strong> ${escHtml(r.response_text)}</div>
+               <button class="btn btn-outline btn-sm" style="margin-top:8px" onclick="openReviewResponseEditor('${r.id}')">Edit response</button>`
+            : `<button class="btn btn-primary btn-sm" onclick="openReviewResponseEditor('${r.id}')">Respond publicly</button>`}
+        </div>
+        <div id="review-editor-${r.id}" style="display:none;margin-top:10px">
+          <textarea id="review-textarea-${r.id}" placeholder="Thank the buyer or address their feedback… this will be shown publicly on our pricing page" style="width:100%;min-height:80px;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;resize:vertical">${escHtml(r.response_text||'')}</textarea>
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <button class="btn btn-primary btn-sm" onclick="submitReviewResponse('${r.id}')">Post response</button>
+            <button class="btn btn-outline btn-sm" onclick="closeReviewResponseEditor('${r.id}')">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openReviewResponseEditor(id){
+  document.getElementById('review-response-'+id).style.display='none';
+  document.getElementById('review-editor-'+id).style.display='block';
+}
+function closeReviewResponseEditor(id){
+  document.getElementById('review-editor-'+id).style.display='none';
+  document.getElementById('review-response-'+id).style.display='block';
+}
+async function submitReviewResponse(id){
+  const text=document.getElementById('review-textarea-'+id).value.trim();
+  if(!text){showToast('Please write a response first','error');return;}
+  const{error}=await db.from('reviews').update({response_text:text,responded_by:currentUser.id,responded_at:new Date().toISOString()}).eq('id',id);
+  if(error){showToast('Could not save response: '+error.message,'error');return;}
+  const idx=allReviews.findIndex(r=>r.id===id);
+  if(idx!==-1)allReviews[idx].response_text=text;
+  renderReviews();updateNavBadges();
+  showToast('Response posted — now visible on the pricing page ✓','success');
+}
+
 function renderPayments(){
   const paid=allPayments.filter(p=>p.status==='confirmed'||p.status==='paid');
   const total=paid.reduce((s,p)=>s+(Number(p.amount)||0),0);
@@ -1102,8 +1188,8 @@ function openReceiptModal(id){const p=allPayments.find(x=>String(x.id)===String(
 function printReceipt(){window.print();}
 function downloadReceiptPDF(){if(!receiptTarget)return;if(!window.jspdf){showToast('PDF library still loading — try again in a second','error');return;}const{jsPDF}=window.jspdf;const doc=new jsPDF({unit:'mm',format:'a5'});const p=receiptTarget;const isPaid=p.status==='confirmed'||p.status==='paid';doc.setFont('helvetica','bold');doc.setFontSize(18);doc.setTextColor(8,80,65);doc.text('NyumbaKisumu',74,20,{align:'center'});doc.setFont('helvetica','normal');doc.setFontSize(10);doc.setTextColor(120,120,120);doc.text('PAYMENT RECEIPT',74,27,{align:'center'});doc.setDrawColor(15,110,86);doc.line(15,32,133,32);let y=42;const row=(label,value)=>{doc.setFont('helvetica','normal');doc.setFontSize(10);doc.setTextColor(130,130,130);doc.text(label,15,y);doc.setFont('helvetica','bold');doc.setTextColor(26,26,24);doc.text(String(value),133,y,{align:'right'});y+=8;};row('Receipt No.','NK-'+String(p.id).slice(0,8).toUpperCase());row('Date',new Date(p.created_at).toLocaleDateString('en-KE',{day:'numeric',month:'long',year:'numeric'}));row('Billed to',currentProfile?.full_name||currentUser?.email||'—');row('Listing',p.listings?.title||'—');row('Payment method',(p.method||'—').toUpperCase());row('Reference',p.reference||p.mpesa_ref||'—');row('Status',isPaid?'Paid':(p.status||'pending'));doc.setDrawColor(224,222,216);doc.line(15,y,133,y);y+=10;doc.setFont('helvetica','bold');doc.setFontSize(14);doc.setTextColor(8,80,65);doc.text('Amount paid',15,y);doc.text(`KES ${Number(p.amount||0).toLocaleString('en-KE')}`,133,y,{align:'right'});y+=20;doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(150,150,150);doc.text('Thank you for using NyumbaKisumu.',74,y,{align:'center'});doc.save(`NyumbaKisumu-Receipt-${String(p.id).slice(0,8)}.pdf`);}
 
-const pageTitles={overview:'Overview',listings:'My listings',messages:'Messages',enquiries:'Enquiries',payments:'Payments',settings:'Settings'};
-function showPage(name){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));document.getElementById('page-'+name).classList.add('active');const navEl=document.getElementById('nav-'+name);if(navEl)navEl.classList.add('active');document.getElementById('topbar-title').textContent=pageTitles[name]||name;if(name==='overview')renderOverview();if(name==='listings')renderListingsTable();if(name==='messages'){showThreadListMobile();renderThreadList();}if(name==='enquiries')renderEnquiries();if(name==='payments')renderPayments();closeSidebar();}
+const pageTitles={overview:'Overview',listings:'My listings',messages:'Messages',enquiries:'Enquiries',reviews:'Reviews',payments:'Payments',settings:'Settings'};
+function showPage(name){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));document.getElementById('page-'+name).classList.add('active');const navEl=document.getElementById('nav-'+name);if(navEl)navEl.classList.add('active');document.getElementById('topbar-title').textContent=pageTitles[name]||name;if(name==='overview')renderOverview();if(name==='listings')renderListingsTable();if(name==='messages'){showThreadListMobile();renderThreadList();}if(name==='enquiries')renderEnquiries();if(name==='reviews')renderReviews();if(name==='payments')renderPayments();closeSidebar();}
 function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('sidebar-overlay').classList.toggle('open');}
 function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sidebar-overlay').classList.remove('open');}
 function openModal(id){document.getElementById(id).classList.add('open');document.body.style.overflow='hidden';}
