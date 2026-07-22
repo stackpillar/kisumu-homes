@@ -1164,9 +1164,9 @@ function renderReviews(){
         <div class="enquiry-msg">${escHtml(r.comment||'(No comment left — rating only)')}</div>
         <div id="review-response-${r.id}" style="margin-top:12px">
           ${hasResponse
-            ? `<div style="background:var(--green-light);border-radius:8px;padding:10px 12px;font-size:13px;color:var(--green-dark)"><strong>Your response (public):</strong> ${escHtml(r.response_text)}</div>
+            ? `<div style="background:var(--green-light);border-radius:8px;padding:10px 12px;font-size:13px;color:var(--green-dark)"><strong>Your response${r.status==='published'?' (live on pricing page)':' (awaiting admin publish)'}:</strong> ${escHtml(r.response_text)}</div>
                <button class="btn btn-outline btn-sm" style="margin-top:8px" onclick="openReviewResponseEditor('${r.id}')">Edit response</button>`
-            : `<button class="btn btn-primary btn-sm" onclick="openReviewResponseEditor('${r.id}')">Respond publicly</button>`}
+            : `<button class="btn btn-primary btn-sm" onclick="openReviewResponseEditor('${r.id}')">Respond</button>`}
         </div>
         <div id="review-editor-${r.id}" style="display:none;margin-top:10px">
           <textarea id="review-textarea-${r.id}" placeholder="Thank the buyer or address their feedback… this will be shown publicly on our pricing page" style="width:100%;min-height:80px;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;resize:vertical">${escHtml(r.response_text||'')}</textarea>
