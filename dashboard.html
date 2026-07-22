@@ -347,6 +347,27 @@
     .lsw-send:hover{background:var(--green-dark)}
     .lsw-send svg{width:15px;height:15px;stroke:white;fill:none;stroke-width:2}
     .lsw-footer{padding:7px 14px;font-size:11px;color:var(--text-3);text-align:center;border-top:1px solid var(--border);background:var(--white);flex-shrink:0}
+    .lsw-subbar{display:none;align-items:center;gap:8px;padding:7px 14px;background:var(--green-light);border-bottom:1px solid var(--border);flex-shrink:0}
+    .lsw-subbar.show{display:flex}
+    .lsw-subbar-back{display:flex;align-items:center;gap:3px;font-size:11px;font-weight:700;color:var(--green-dark);cursor:pointer;background:none;border:none;padding:2px 4px 2px 0;flex-shrink:0}
+    .lsw-subbar-back svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.5}
+    .lsw-subbar-crumb{font-size:11px;color:var(--text-2);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .lsw-subbar-restart{font-size:11px;font-weight:600;color:var(--green-dark);cursor:pointer;background:none;border:none;text-decoration:underline;flex-shrink:0}
+    .lsw-faq-card{background:var(--white);border:1px solid var(--border);border-radius:14px;border-bottom-left-radius:4px;padding:11px 13px;font-size:13px;line-height:1.6;color:var(--text-2)}
+    .lsw-faq-card strong{color:var(--text)}
+    .lsw-faq-actions{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+    .lsw-chip-btn{font-size:11px;font-weight:600;padding:6px 12px;border-radius:20px;border:1.5px solid var(--green);background:white;color:var(--green);cursor:pointer;transition:all .15s;font-family:'Inter',sans-serif}
+    .lsw-chip-btn:hover{background:var(--green);color:white}
+    .lsw-chip-btn.subtle{border-color:var(--border);color:var(--text-2)}
+    .lsw-chip-btn.subtle:hover{border-color:var(--text-3);background:var(--surface);color:var(--text)}
+    .lsw-search-wrap{position:relative;margin-top:4px}
+    .lsw-search-wrap svg{position:absolute;left:10px;top:11px;width:13px;height:13px;stroke:var(--text-3);fill:none;stroke-width:2;pointer-events:none}
+    .lsw-search-input{width:100%;padding:8px 10px 8px 30px;border:1.5px solid var(--border);border-radius:10px;font-size:12px;outline:none;background:white;color:var(--text);font-family:'Inter',sans-serif;transition:border-color .15s}
+    .lsw-search-input:focus{border-color:var(--green)}
+    .lsw-search-results{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+    .lsw-search-hit{text-align:left;padding:8px 11px;border-radius:10px;border:1px solid var(--border);background:white;font-size:12px;color:var(--text-2);cursor:pointer;transition:all .15s;line-height:1.4;width:100%;font-family:'Inter',sans-serif}
+    .lsw-search-hit:hover{border-color:var(--green);background:var(--green-light)}
+    .lsw-search-hit strong{color:var(--text);display:block;margin-bottom:2px;font-size:12.5px}
     @media(max-width:600px){.lsw-popup{width:calc(100vw - 24px);right:12px;bottom:84px}.lsw-fab{bottom:16px;right:16px}}
     @media(max-width:1100px){.overview-grid{grid-template-columns:1fr}.settings-grid{grid-template-columns:1fr}}
     @media(max-width:900px){
@@ -711,6 +732,11 @@
     <div class="lsw-head-av"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
     <div class="lsw-head-info"><div class="lsw-head-name">NyumbaKisumu Support</div><div class="lsw-head-status"><span></span>Online — we reply quickly</div></div>
     <button class="lsw-close" onclick="lswToggle()">×</button>
+  </div>
+  <div class="lsw-subbar" id="lsw-subbar">
+    <button class="lsw-subbar-back" id="lsw-subbar-back" onclick="lswGoBack()"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>Back</button>
+    <span class="lsw-subbar-crumb" id="lsw-subbar-crumb"></span>
+    <button class="lsw-subbar-restart" onclick="lswRestart()">New topic</button>
   </div>
   <div class="lsw-msgs" id="lsw-msgs"></div>
   <div class="lsw-input-bar">
@@ -1203,22 +1229,234 @@ function timeAgo(iso){if(!iso)return'';const d=(Date.now()-new Date(iso))/1000;i
 function escHtml(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function escAttr(s){if(!s)return'';return String(s).replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 
-/* LIVE SUPPORT WIDGET */
-let lswOpen=false,lswSessionId=null,lswChannel=null,lswLoaded=false,lswSellerName='',lswSellerInits='',lswWelcomeDone=false,lswReferralSent=false,lswAdminUnread=0;
-const LSW_OPTIONS=[{icon:'💳',label:'Payment or M-Pesa issue'},{icon:'🏠',label:'My listing is pending approval'},{icon:'📋',label:'How do I edit or delete my listing?'},{icon:'💰',label:'Listing fees & pricing'},{icon:'🐛',label:'Report a bug or technical issue'},{icon:'💬',label:'Something else'}];
-async function lswInit(){lswSellerName=(currentProfile?.full_name||currentUser?.email?.split('@')[0]||'Seller').trim();lswSellerInits=lswSellerName.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase()||'S';try{await lswEnsureSession();await lswLoadUnread();lswSubscribeReplies();}catch(err){console.error('LSW init error:',err);}}
-async function lswEnsureSession(){if(lswSessionId)return;const key='seller_support_'+currentUser.id;const{data:existing}=await db.from('chat_sessions').select('id').eq('session_key',key).eq('is_resolved',false).maybeSingle();if(existing){lswSessionId=existing.id;}else{const{data:created,error}=await db.from('chat_sessions').insert({session_key:key,session_type:'seller',visitor_name:lswSellerName,page:'dashboard.html',last_msg_at:new Date().toISOString()}).select('id').single();if(!error&&created)lswSessionId=created.id;}if(lswSessionId)lswSubscribeReplies();}
+/* ══════════════════════════════════════
+   LIVE SUPPORT WIDGET — guided assistant
+   Walks the seller through a menu of common
+   topics, answers the easy ones instantly,
+   and hands the rest to a human agent with
+   a ticket reference — all without touching
+   any other part of the dashboard.
+══════════════════════════════════════ */
+let lswOpen=false,lswSessionId=null,lswChannel=null,lswLoaded=false,lswSellerName='',lswSellerInits='',lswAdminUnread=0;
+let lswStack=['root'],lswTicketRef=null,lswAwaitingFreeText=false,lswPendingCategory=null,lswLastHits=[];
+
+const LSW_TREE={
+  root:{title:'How can we help today?',options:[
+    {id:'payments',icon:'💳',label:'Payments & M-Pesa',next:'payments'},
+    {id:'listing_status',icon:'🏠',label:'Listing status & approval',next:'listing_status'},
+    {id:'edit_delete',icon:'✏️',label:'Editing or deleting a listing',next:'edit_delete'},
+    {id:'pricing',icon:'💰',label:'Fees & pricing plans',next:'pricing'},
+    {id:'messages',icon:'📬',label:'Messages & enquiries',next:'messages'},
+    {id:'bug',icon:'🐛',label:'Report a bug',next:'bug'},
+    {id:'other',icon:'💬',label:'Something else',category:'General enquiry',human:true},
+  ]},
+  payments:{title:"Payments & M-Pesa — what's going on?",options:[
+    {id:'p1',label:'My listing still shows trial/pending after paying',category:'Payment not reflecting',answer:'Confirmed M-Pesa payments usually reflect within 2–5 minutes. If it has been longer than that, tell us your M-Pesa reference code below and we\'ll trace it for you.'},
+    {id:'p2',label:'How do I pay for a listing?',category:'How to pay',answer:'Go to <strong>My listings</strong>, open the listing that\'s on a free trial, and tap <strong>Upgrade now</strong> on the trial banner — it opens an M-Pesa prompt on your phone.',action:{label:'Open My listings',fn:"showPage('listings');lswToggle();"}},
+    {id:'p3',label:'I was charged twice',category:'Duplicate charge',answer:'Sorry about that — duplicate charges are refunded once confirmed. Share both M-Pesa reference codes below and we\'ll process a refund.'},
+    {id:'p4',label:'Something else about payments',category:'Payments — other',human:true},
+  ]},
+  listing_status:{title:'Listing status — what do you need?',options:[
+    {id:'l1',label:'My listing has been pending for a while',category:'Pending approval delay',answer:'Listings are usually reviewed within 24 hours. If it\'s been longer, tell us the listing name below and we\'ll check on it.'},
+    {id:'l2',label:'My listing was rejected',category:'Rejected listing',answer:'Rejections are usually due to missing photos, an unclear price, or a duplicate post. Reply with the listing name and we\'ll tell you exactly what to fix.'},
+    {id:'l3',label:'My account or listing is disabled',category:'Account or listing disabled',answer:'A disabled listing means our team flagged something for review. Tell us the listing name below and we\'ll look into it and get back to you.'},
+    {id:'l4',label:'Something else about listing status',category:'Listing status — other',human:true},
+  ]},
+  edit_delete:{title:'Editing or deleting — what do you need?',options:[
+    {id:'e1',label:"I can't edit my pending/rejected listing",category:'Cannot edit listing',answer:'Editing is locked while a listing awaits admin review, to avoid re-review loops. Once it\'s active or paused, edits unlock from the listings table.',action:{label:'Open My listings',fn:"showPage('listings');lswToggle();"}},
+    {id:'e2',label:'How do I mark a listing as sold/occupied?',category:'Mark as sold/occupied',answer:'On <strong>My listings</strong>, use the ✓ icon on an active listing to mark it sold or occupied — it hides it from public search but keeps your messages and history.',action:{label:'Open My listings',fn:"showPage('listings');lswToggle();"}},
+    {id:'e3',label:'How do I permanently delete a listing?',category:'Delete listing',answer:'Use the 🗑 icon on the listing row. This is permanent and removes its messages and enquiries too, so make sure first.'},
+    {id:'e4',label:'Something else about editing',category:'Edit/delete — other',human:true},
+  ]},
+  pricing:{title:'Fees & pricing — what do you need?',options:[
+    {id:'f1',label:'How much does a listing cost?',category:'Pricing question',answer:'Pricing depends on your plan and listing category — check the trial banner on each listing, or ask us for current rates below.'},
+    {id:'f2',label:'Can I get a refund?',category:'Refund request',human:true},
+    {id:'f3',label:'Something else about pricing',category:'Pricing — other',human:true},
+  ]},
+  messages:{title:'Messages & enquiries — what do you need?',options:[
+    {id:'m1',label:"A buyer's message isn't showing up",category:'Missing buyer message',answer:'Give it a moment — new messages sync automatically every 30 seconds. If it\'s still missing after that, tell us the buyer\'s name and listing below.'},
+    {id:'m2',label:'How do I reply to a buyer?',category:'How to reply',answer:'Open <strong>Messages</strong>, pick the conversation, and type in the reply box — or tap WhatsApp on that thread to reply there directly.',action:{label:'Open Messages',fn:"showAllMessages();lswToggle();"}},
+    {id:'m3',label:'Something else about messages',category:'Messages — other',human:true},
+  ]},
+  bug:{title:'What went wrong?',options:[
+    {id:'b1',label:'A page is not loading or looks broken',category:'Bug — page broken',human:true},
+    {id:'b2',label:"A button or feature isn't working",category:'Bug — feature broken',human:true},
+    {id:'b3',label:'Something else',category:'Bug — other',human:true},
+  ]},
+};
+
+function lswName(){return(lswSellerName||'there').split(' ')[0]||'there';}
+
+async function lswInit(){
+  lswSellerName=(currentProfile?.full_name||currentUser?.email?.split('@')[0]||'Seller').trim();
+  lswSellerInits=lswSellerName.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase()||'S';
+  try{await lswEnsureSession();await lswLoadUnread();lswSubscribeReplies();}catch(err){console.error('LSW init error:',err);}
+}
+async function lswEnsureSession(){
+  if(lswSessionId)return;
+  const key='seller_support_'+currentUser.id;
+  const{data:existing}=await db.from('chat_sessions').select('id').eq('session_key',key).eq('is_resolved',false).maybeSingle();
+  if(existing){lswSessionId=existing.id;}
+  else{const{data:created,error}=await db.from('chat_sessions').insert({session_key:key,session_type:'seller',visitor_name:lswSellerName,page:'dashboard.html',last_msg_at:new Date().toISOString()}).select('id').single();if(!error&&created)lswSessionId=created.id;}
+  if(lswSessionId){lswTicketRef='NK-'+String(lswSessionId).replace(/-/g,'').slice(0,7).toUpperCase();lswSubscribeReplies();}
+}
 async function lswLoadUnread(){if(!lswSessionId)return;const{data}=await db.from('chat_messages').select('id').eq('session_id',lswSessionId).eq('sender','admin').is('read_at',null);lswSetBadge(data?.length||0);}
 function lswSetBadge(n){lswAdminUnread=n;const badge=document.getElementById('lsw-fab-badge');if(!badge)return;badge.textContent=n>0?String(n):'';badge.classList.toggle('show',n>0);}
-function lswSubscribeReplies(){if(!lswSessionId||lswChannel)return;lswChannel=db.channel('lsw-seller-'+lswSessionId).on('postgres_changes',{event:'INSERT',schema:'public',table:'chat_messages',filter:`session_id=eq.${lswSessionId}`},payload=>{const msg=payload.new;if(msg.sender!=='admin')return;if(lswOpen){lswAppendBubble('admin',msg.body,new Date(msg.created_at));db.from('chat_messages').update({read_at:new Date().toISOString()}).eq('id',msg.id).then(()=>{});}else{lswSetBadge(lswAdminUnread+1);}}).subscribe();}
-async function lswLoadHistory(){if(!lswSessionId)return;const container=document.getElementById('lsw-msgs');container.innerHTML='';const{data}=await db.from('chat_messages').select('*').eq('session_id',lswSessionId).order('created_at',{ascending:true});const msgs=data||[];if(!msgs.length){lswShowWelcome();return;}msgs.forEach(m=>{const side=m.sender==='admin'?'admin':'seller';lswAppendBubble(side,m.body,new Date(m.created_at));});if(msgs.some(m=>m.sender==='admin'))lswReferralSent=true;const unreadIds=msgs.filter(m=>m.sender==='admin'&&!m.read_at).map(m=>m.id);if(unreadIds.length){await db.from('chat_messages').update({read_at:new Date().toISOString()}).in('id',unreadIds);lswSetBadge(0);}lswScrollBottom();}
-function lswShowWelcome(){if(lswWelcomeDone)return;lswWelcomeDone=true;const firstName=lswSellerName.split(' ')[0];lswAppendBubble('admin',`👋 Thanks for reaching out! How may we help you today, ${firstName}?`,new Date());const container=document.getElementById('lsw-msgs');const optionsDiv=document.createElement('div');optionsDiv.className='lsw-options';optionsDiv.id='lsw-options-wrap';optionsDiv.innerHTML=LSW_OPTIONS.map(o=>`<button class="lsw-option-btn" onclick="lswPickOption('${escAttr(o.label)}')">${o.icon} ${o.label}</button>`).join('');container.appendChild(optionsDiv);lswScrollBottom();}
-function lswPickOption(label){document.getElementById('lsw-options-wrap')?.remove();document.getElementById('lsw-input').value=label;lswSend();}
-async function lswSend(){const input=document.getElementById('lsw-input');const body=input.value.trim();if(!body)return;document.getElementById('lsw-options-wrap')?.remove();lswAppendBubble('seller',body,new Date());input.value='';input.style.height='auto';await lswEnsureSession();if(lswSessionId){await db.from('chat_messages').insert({session_id:lswSessionId,sender:'visitor',body});await db.from('chat_sessions').update({last_msg_at:new Date().toISOString(),unread_admin:lswAdminUnread+1}).eq('id',lswSessionId);}if(!lswReferralSent){lswReferralSent=true;setTimeout(()=>{lswShowTyping();setTimeout(async()=>{lswHideTyping();const reply=`Thanks for reaching out! 🙋 An available agent will chat with you shortly. For urgent help, email hello@nyumbakisumu.co.ke 📩`;lswAppendBubble('admin',reply,new Date());if(lswSessionId){await db.from('chat_messages').insert({session_id:lswSessionId,sender:'admin',body:reply,read_at:new Date().toISOString()});}},1800);},800);}}
+function lswSubscribeReplies(){
+  if(!lswSessionId||lswChannel)return;
+  lswChannel=db.channel('lsw-seller-'+lswSessionId).on('postgres_changes',{event:'INSERT',schema:'public',table:'chat_messages',filter:`session_id=eq.${lswSessionId}`},payload=>{
+    const msg=payload.new;if(msg.sender!=='admin')return;
+    if(lswOpen){lswHideTyping();lswAppendBubble('admin',msg.body,new Date(msg.created_at));db.from('chat_messages').update({read_at:new Date().toISOString()}).eq('id',msg.id).then(()=>{});}
+    else{lswSetBadge(lswAdminUnread+1);}
+  }).subscribe();
+}
+async function lswLoadHistory(){
+  if(!lswSessionId)return;
+  const container=document.getElementById('lsw-msgs');container.innerHTML='';
+  const{data}=await db.from('chat_messages').select('*').eq('session_id',lswSessionId).order('created_at',{ascending:true});
+  const msgs=data||[];
+  lswStack=['root'];
+  if(!msgs.length){lswRenderNode('root',true);return;}
+  msgs.forEach(m=>{const side=m.sender==='admin'?'admin':'seller';if(m.body&&m.body.startsWith('[Auto]'))return;lswAppendBubble(side,m.body,new Date(m.created_at));});
+  const unreadIds=msgs.filter(m=>m.sender==='admin'&&!m.read_at).map(m=>m.id);
+  if(unreadIds.length){await db.from('chat_messages').update({read_at:new Date().toISOString()}).in('id',unreadIds);lswSetBadge(0);}
+  lswUpdateSubbar();lswScrollBottom();
+}
+
+/* ── Guided tree rendering ── */
+function lswUpdateSubbar(){
+  const bar=document.getElementById('lsw-subbar'),crumb=document.getElementById('lsw-subbar-crumb'),back=document.getElementById('lsw-subbar-back');
+  const atRoot=lswStack.length<=1;
+  bar.classList.toggle('show',!atRoot||!!lswTicketRef);
+  back.style.visibility=atRoot?'hidden':'visible';
+  const trail=lswStack.map(k=>k==='root'?'Menu':(LSW_TREE[k]?.title||k).replace(/ — .*/,'').replace(/\?.*/,'')).join(' › ');
+  crumb.textContent=lswTicketRef?`Ticket ${lswTicketRef}${atRoot?'':' · '+trail}`:trail;
+}
+function lswGoBack(){document.getElementById('lsw-options-wrap')?.remove();document.getElementById('lsw-search-wrap-el')?.remove();if(lswStack.length>1){lswStack.pop();lswRenderNode(lswStack.pop());}}
+function lswRestart(){lswStack=['root'];lswAwaitingFreeText=false;lswPendingCategory=null;document.getElementById('lsw-options-wrap')?.remove();document.getElementById('lsw-search-wrap-el')?.remove();lswAppendBubble('admin','🔁 Starting a new topic — what can we help with?',new Date());lswRenderNodeOptionsOnly('root');}
+
+function lswRenderNode(nodeKey,isWelcome){
+  const node=LSW_TREE[nodeKey];if(!node)return;
+  if(lswStack[lswStack.length-1]!==nodeKey)lswStack.push(nodeKey);
+  document.getElementById('lsw-options-wrap')?.remove();document.getElementById('lsw-search-wrap-el')?.remove();
+  const container=document.getElementById('lsw-msgs');
+  if(isWelcome){
+    lswAppendBubble('admin',`👋 Hi ${lswName()}! ${node.title}`,new Date());
+    const searchWrap=document.createElement('div');searchWrap.id='lsw-search-wrap-el';searchWrap.className='lsw-search-wrap';
+    searchWrap.innerHTML=`<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input class="lsw-search-input" id="lsw-search-input" placeholder="Or search e.g. 'refund', 'pending'…" oninput="lswSearch(this.value)"/><div class="lsw-search-results" id="lsw-search-results"></div>`;
+    container.appendChild(searchWrap);
+  }
+  lswRenderNodeOptionsOnly(nodeKey);
+}
+function lswRenderNodeOptionsOnly(nodeKey){
+  const node=LSW_TREE[nodeKey];if(!node)return;
+  document.getElementById('lsw-options-wrap')?.remove();
+  const container=document.getElementById('lsw-msgs');
+  const optionsDiv=document.createElement('div');optionsDiv.className='lsw-options';optionsDiv.id='lsw-options-wrap';
+  optionsDiv.innerHTML=node.options.map(o=>`<button class="lsw-option-btn" onclick="lswSelectOption('${nodeKey}','${o.id}')">${o.icon?o.icon+' ':''}${escHtml(o.label)}</button>`).join('');
+  container.appendChild(optionsDiv);
+  lswUpdateSubbar();lswScrollBottom();
+}
+
+function lswSearch(q){
+  const results=document.getElementById('lsw-search-results');if(!results)return;
+  q=q.trim().toLowerCase();
+  if(q.length<2){results.innerHTML='';lswLastHits=[];return;}
+  const hits=[];
+  Object.values(LSW_TREE).forEach(node=>node.options.forEach(o=>{if(o.answer&&(o.label.toLowerCase().includes(q)||(o.category||'').toLowerCase().includes(q)||o.answer.toLowerCase().includes(q)))hits.push(o);}));
+  lswLastHits=hits.slice(0,4);
+  results.innerHTML=lswLastHits.length
+    ?lswLastHits.map((o,i)=>`<button type="button" class="lsw-search-hit" onclick="lswShowAnswerAt(${i})"><strong>${escHtml(o.label)}</strong>${escHtml(o.answer.replace(/<[^>]+>/g,'').slice(0,72))}…</button>`).join('')
+    :`<div style="font-size:11px;color:var(--text-3);padding:4px 2px">No quick answer for that — describe it in the box below and we'll help directly.</div>`;
+}
+function lswShowAnswerAt(i){const o=lswLastHits[i];if(!o)return;document.getElementById('lsw-options-wrap')?.remove();document.getElementById('lsw-search-wrap-el')?.remove();lswAppendBubble('seller',o.label,new Date());lswShowAnswer(o.answer,o.category,o.action);}
+
+function lswSelectOption(nodeKey,optId){
+  document.getElementById('lsw-options-wrap')?.remove();document.getElementById('lsw-search-wrap-el')?.remove();
+  const node=LSW_TREE[nodeKey];const opt=node.options.find(o=>o.id===optId);if(!opt)return;
+  lswAppendBubble('seller',opt.label,new Date());
+  if(opt.next){setTimeout(()=>lswRenderNode(opt.next),250);return;}
+  if(opt.answer){lswShowAnswer(opt.answer,opt.category,opt.action);return;}
+  if(opt.human){lswStartHandoff(opt.category||opt.label);return;}
+}
+
+function lswShowAnswer(answer,category,action){
+  const container=document.getElementById('lsw-msgs');
+  setTimeout(()=>{
+    lswShowTyping();
+    setTimeout(()=>{
+      lswHideTyping();
+      const wrap=document.createElement('div');wrap.className='lsw-msg from-admin';
+      wrap.innerHTML=`<div class="lsw-msg-av">NK</div><div style="max-width:82%"><div class="lsw-faq-card">${answer}${action?`<div class="lsw-faq-actions"><button class="lsw-chip-btn" onclick="${action.fn}">${escHtml(action.label)} →</button></div>`:''}
+        <div class="lsw-faq-actions"><button class="lsw-chip-btn" onclick="lswFaqResolved()">✓ That solved it</button><button class="lsw-chip-btn subtle" onclick="lswStartHandoff('${escAttr(category||'General enquiry')}')">Still need help</button></div></div></div>`;
+      container.appendChild(wrap);lswScrollBottom();
+    },850);
+  },150);
+}
+function lswFaqResolved(){
+  lswAppendBubble('seller','That solved it, thanks!',new Date());
+  setTimeout(()=>{lswShowTyping();setTimeout(()=>{
+    lswHideTyping();
+    lswAppendBubble('admin','Glad we could help! 🎉 Ask anything else, or start a new topic below.',new Date());
+    const container=document.getElementById('lsw-msgs');const btn=document.createElement('div');btn.className='lsw-faq-actions';btn.style.padding='0 0 4px 40px';
+    btn.innerHTML=`<button class="lsw-chip-btn" onclick="lswRestart()">🔁 New topic</button>`;container.appendChild(btn);lswScrollBottom();
+  },650);},150);
+}
+
+async function lswStartHandoff(category){
+  lswPendingCategory=category||'General enquiry';
+  lswAwaitingFreeText=true;
+  await lswEnsureSession();
+  lswShowTyping();
+  setTimeout(async()=>{
+    lswHideTyping();
+    lswAppendBubble('admin',`Got it — tell us a bit more about "<strong>${escHtml(lswPendingCategory)}</strong>" and an agent will follow up right here. Your ticket is <strong>${lswTicketRef||'—'}</strong>.`,new Date());
+    lswUpdateSubbar();
+    document.getElementById('lsw-input')?.focus();
+    if(lswSessionId){
+      try{await db.from('chat_messages').insert({session_id:lswSessionId,sender:'admin',body:`[Auto] Topic selected: ${lswPendingCategory}. Awaiting seller details.`,read_at:new Date().toISOString()});}catch(e){}
+    }
+    lswScrollBottom();
+  },700);
+}
+
+async function lswSend(){
+  const input=document.getElementById('lsw-input');const body=input.value.trim();if(!body)return;
+  document.getElementById('lsw-options-wrap')?.remove();document.getElementById('lsw-search-wrap-el')?.remove();
+  const tagged=lswAwaitingFreeText&&lswPendingCategory?`[${lswPendingCategory}] ${body}`:body;
+  lswAppendBubble('seller',body,new Date());
+  input.value='';input.style.height='auto';
+  await lswEnsureSession();
+  if(lswSessionId){
+    await db.from('chat_messages').insert({session_id:lswSessionId,sender:'visitor',body:tagged});
+    await db.from('chat_sessions').update({last_msg_at:new Date().toISOString(),unread_admin:(lswAdminUnread||0)+1}).eq('id',lswSessionId);
+  }
+  if(lswAwaitingFreeText){
+    lswAwaitingFreeText=false;
+    setTimeout(()=>{lswShowTyping();setTimeout(async()=>{
+      lswHideTyping();
+      const reply=`Thanks! 🙋 Ticket <strong>${lswTicketRef||''}</strong> is with our team — an agent will reply right here. For urgent issues, email hello@nyumbakisumu.co.ke 📩`;
+      lswAppendBubble('admin',reply,new Date());
+      if(lswSessionId){try{await db.from('chat_messages').insert({session_id:lswSessionId,sender:'admin',body:reply,read_at:new Date().toISOString()});}catch(e){}}
+      const container=document.getElementById('lsw-msgs');const btn=document.createElement('div');btn.className='lsw-faq-actions';btn.style.padding='0 0 4px 40px';
+      btn.innerHTML=`<button class="lsw-chip-btn subtle" onclick="lswRestart()">🔁 Ask about something else</button>`;container.appendChild(btn);lswScrollBottom();
+    },1600);},600);
+  }
+}
+
 function lswShowTyping(){const container=document.getElementById('lsw-msgs');if(document.getElementById('lsw-typ'))return;const d=document.createElement('div');d.id='lsw-typ';d.className='lsw-msg from-admin';d.innerHTML=`<div class="lsw-msg-av">NK</div><div class="lsw-typing-bub"><div class="lsw-dot"></div><div class="lsw-dot"></div><div class="lsw-dot"></div></div>`;container.appendChild(d);lswScrollBottom();}
 function lswHideTyping(){document.getElementById('lsw-typ')?.remove();}
-function lswAppendBubble(side,body,date){const container=document.getElementById('lsw-msgs');const isAdmin=side==='admin';const time=date.toLocaleTimeString('en-KE',{hour:'2-digit',minute:'2-digit'});const div=document.createElement('div');div.className=`lsw-msg ${isAdmin?'from-admin':'from-seller'}`;div.innerHTML=`<div class="lsw-msg-av">${isAdmin?'NK':lswSellerInits}</div><div><div class="lsw-msg-bub">${escHtml(body)}</div><div class="lsw-msg-time">${isAdmin?'Support · ':''}${time}</div></div>`;container.appendChild(div);lswScrollBottom();}
-function lswToggle(){lswOpen=!lswOpen;document.getElementById('lsw-popup').classList.toggle('open',lswOpen);if(lswOpen){lswSetBadge(0);if(lswSessionId){db.from('chat_messages').update({read_at:new Date().toISOString()}).eq('session_id',lswSessionId).eq('sender','admin').is('read_at',null).then(()=>{});}if(!lswLoaded){lswLoaded=true;lswLoadHistory().then(()=>{lswLoadUnread();});}setTimeout(()=>document.getElementById('lsw-input')?.focus(),200);}}
+function lswAppendBubble(side,body,date){const container=document.getElementById('lsw-msgs');const isAdmin=side==='admin';const time=date.toLocaleTimeString('en-KE',{hour:'2-digit',minute:'2-digit'});const div=document.createElement('div');div.className=`lsw-msg ${isAdmin?'from-admin':'from-seller'}`;const rich=/<strong>|<br/.test(body);div.innerHTML=`<div class="lsw-msg-av">${isAdmin?'NK':lswSellerInits}</div><div><div class="lsw-msg-bub">${rich?body:escHtml(body)}</div><div class="lsw-msg-time">${isAdmin?'Support · ':''}${time}</div></div>`;container.appendChild(div);lswScrollBottom();}
+function lswToggle(){
+  lswOpen=!lswOpen;document.getElementById('lsw-popup').classList.toggle('open',lswOpen);
+  if(lswOpen){
+    lswSetBadge(0);
+    if(lswSessionId){db.from('chat_messages').update({read_at:new Date().toISOString()}).eq('session_id',lswSessionId).eq('sender','admin').is('read_at',null).then(()=>{});}
+    if(!lswLoaded){lswLoaded=true;lswLoadHistory();}
+    else lswUpdateSubbar();
+    setTimeout(()=>document.getElementById('lsw-input')?.focus(),200);
+  }
+}
 function lswKeydown(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();lswSend();}}
 function lswResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,100)+'px';}
 function lswScrollBottom(){const el=document.getElementById('lsw-msgs');if(el)el.scrollTop=el.scrollHeight;}
