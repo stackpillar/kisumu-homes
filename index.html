@@ -641,17 +641,88 @@
   const NK_AREAS_BY_COUNTY = {
     "Kisumu": ["Ahero","Car Wash","Dunga","Elgon View","Kanyakwar","Kibos","Kibuye","Kisumu CBD","Kombewa","Kondele","Luanda","Mamboleo","Manyatta","Maseno","Matibabu","Migosi","Milimani","Nyalenda","Nyamasaria","Obunga","Otonglo","Riat Hills","Sega"],
     "Nairobi": ["Nairobi CBD","Westlands","Parklands","Highridge","Kangemi","Kitisuru","Runda","Loresho","Muthaiga","Gigiri","Spring Valley","Nyari","Rosslyn","Thome","Garden Estate","Ridgeways","Kilimani","Kileleshwa","Lavington","Kawangware","Hurlingham","Upper Hill","Adams Arcade","Karen","Langata","South B","South C","Nairobi West","Madaraka","Otiende","Kibera","Woodley","Roysambu","Zimmerman","Kahawa West","Githurai","Mirema","Kasarani","Mwiki","Njiru","Ruaraka","Baba Dogo","Mathare","Huruma","Pipeline","Imara Daima","Nyayo Estate","Dandora","Kariobangi","Kayole","Komarock","Utawala","Tassia","Umoja","Buruburu","Donholm","Makadara","Eastleigh","Ngara","Pangani"],
-    "Mombasa": ["Mombasa CBD (Old Town)","Nyali","Bamburi","Kizingo","Tudor","Likoni","Changamwe","Kisauni","Shanzu","Mkomani","Bombolulu","Kiembeni","Port Reitz","Miritini","Chaani","Migadini","Kongowea","Junda","Mwakirunge","Mtopanga","Jomvu","Magongo"]
+    "Mombasa": ["Mombasa CBD (Old Town)","Nyali","Bamburi","Kizingo","Tudor","Likoni","Changamwe","Kisauni","Shanzu","Mkomani","Bombolulu","Kiembeni","Port Reitz","Miritini","Chaani","Migadini","Kongowea","Junda","Mwakirunge","Mtopanga","Jomvu","Magongo"],
+    "Nakuru": ["Nakuru CBD","Milimani","Section 58","Langalanga","Pangani","Shabab","Bangladesh","Lanet","Free Area","Freehold","Ngata","Bahati","London","Afraha","Naka","Kiamunyi","White House","Pipeline","Kaptembwa","Rhoda","Menengai","Naivasha"],
+    "Uasin Gishu": ["Eldoret CBD","Kapsoya","Langas","Kimumu","Huruma","Elgon View","Pioneer","Annex","Rupa Village","Hazina","Kamukunji","Munyaka","West Indies"],
+    "Kiambu": ["Thika CBD","Landless","Makongeni","Section 9","Blue Post","Thika Greens","Kiganjo","Tora","Ngoingwa","Bahati Ridge","Kisii Estate","Ruiru","Membley","Kamakis","Juja","Kiambu Town","Kikuyu","Limuru"],
+    "Kilifi": ["Kilifi Town","Malindi CBD","Kisumu Ndogo","Majengo (Malindi)","Silversands","Watamu","Mtwapa","Mariakani","Kaloleni","Mazeras","Magarini"],
+    "Machakos": ["Machakos CBD","Mua Hills","Kalama","Mitaboni","Athi River","Mlolongo","Syokimau","Katani","Kangundo Road","Kola"],
+    "Kakamega": ["Kakamega CBD","Amalemba","Milimani","Shirere","Lurambi","Mahiakalo","Sudi"],
+    "Meru": ["Meru CBD","Makutano","Kinoru","Ntharene"],
+    "Nyeri": ["Nyeri CBD","Ring Road","Mountain View Estate","Garden Estate","Kamakwa","Ruring'u","Majengo"],
+    "Kericho": ["Kericho CBD","Kapsoit","Ainamoi"],
+    "Trans Nzoia": ["Kitale CBD","Milimani","Mitume","Matisi","Tuwan"],
+    "Kwale": ["Kwale Town","Diani","Ukunda","Tiwi","Msambweni","Lunga Lunga"],
+    "Tana River": ["Hola","Garsen","Bura"],
+    "Lamu": ["Lamu Town","Mokowe","Faza","Matondoni"],
+    "Taita-Taveta": ["Voi","Taveta","Wundanyi","Mwatate"],
+    "Garissa": ["Garissa Town","Dadaab","Balambala"],
+    "Wajir": ["Wajir Town","Habaswein","Griftu"],
+    "Mandera": ["Mandera Town","El Wak","Rhamu"],
+    "Marsabit": ["Marsabit Town","Moyale","Loiyangalani"],
+    "Isiolo": ["Isiolo Town","Garbatulla"],
+    "Tharaka-Nithi": ["Chuka","Marimanti","Kathwana"],
+    "Embu": ["Embu Town","Runyenjes","Manyatta"],
+    "Kitui": ["Kitui Town","Mwingi","Mutomo"],
+    "Makueni": ["Wote","Emali","Sultan Hamud","Kibwezi"],
+    "Nyandarua": ["Ol Kalou","Engineer","Njabini","Nyahururu"],
+    "Kirinyaga": ["Kerugoya","Kutus","Sagana","Kagio"],
+    "Murang'a": ["Murang'a Town","Kenol","Kangema","Maragua"],
+    "Turkana": ["Lodwar","Kakuma","Lokichogio"],
+    "West Pokot": ["Kapenguria","Makutano","Chepareria"],
+    "Samburu": ["Maralal","Baragoi"],
+    "Elgeyo-Marakwet": ["Iten","Tambach","Kapsowar"],
+    "Nandi": ["Kapsabet","Nandi Hills","Mosoriot"],
+    "Baringo": ["Kabarnet","Eldama Ravine","Marigat"],
+    "Laikipia": ["Nanyuki","Nyahururu","Rumuruti"],
+    "Narok": ["Narok Town","Kilgoris","Ololulunga"],
+    "Kajiado": ["Kajiado Town","Ngong","Kitengela","Ongata Rongai","Kiserian","Loitokitok","Namanga","Isinya"],
+    "Bomet": ["Bomet Town","Sotik","Longisa"],
+    "Vihiga": ["Mbale","Luanda (Vihiga)","Chavakali"],
+    "Bungoma": ["Bungoma CBD","Kanduyi","Sikata","Webuye","Kimilili"],
+    "Busia": ["Busia Town","Malaba","Nambale"],
+    "Siaya": ["Siaya Town","Bondo","Ugunja","Yala"],
+    "Homa Bay": ["Homa Bay Central","Asego","Arujo","Kalanya","Kanyabala","Katuma","Posta/Bonde"],
+    "Migori": ["Migori Town","Rongo","Awendo","Isebania"],
+    "Kisii": ["Kisii CBD","Milimani","Nyanchwa","Nyamataro","Daraja Mbili","Mwembe","Jogoo","Nyamage","Nyakoe","Nyangena","Gesonso"],
+    "Nyamira": ["Nyamira Town","Keroka","Ekerenyo"]
   };
   const NK_TIER1 = ["Kisumu", "Nairobi", "Mombasa"];
-  const NK_AREA_DESC = {
-    "Kisumu": "Our home base — 23 areas covered",
-    "Nairobi": "Now live — 60 areas covered",
-    "Mombasa": "Now live — 22 areas covered"
+
+  // Some county names are less recognizable than their main town — show both.
+  const NK_COUNTY_LABEL = {
+    "Uasin Gishu": "Uasin Gishu (Eldoret)",
+    "Trans Nzoia": "Trans Nzoia (Kitale)",
+    "Kiambu": "Kiambu (Thika)",
+    "Kilifi": "Kilifi (Malindi)",
+    "Kwale": "Kwale (Diani)",
+    "Taita-Taveta": "Taita-Taveta (Voi)",
+    "West Pokot": "West Pokot (Kapenguria)",
+    "Vihiga": "Vihiga (Mbale)",
+    "Nyandarua": "Nyandarua (Ol Kalou)",
+    "Turkana": "Turkana (Lodwar)",
+    "Samburu": "Samburu (Maralal)",
+    "Elgeyo-Marakwet": "Elgeyo-Marakwet (Iten)",
+    "Nandi": "Nandi (Kapsabet)",
+    "Baringo": "Baringo (Kabarnet)",
+    "Laikipia": "Laikipia (Nanyuki)",
+    "Tharaka-Nithi": "Tharaka-Nithi (Chuka)",
+    "Kirinyaga": "Kirinyaga (Kerugoya)",
+    "Makueni": "Makueni (Wote)"
   };
+  function nkCountyLabel(county) {
+    return NK_COUNTY_LABEL[county] || county;
+  }
 
   function nkAreaCountFor(county) {
     return (NK_AREAS_BY_COUNTY[county] || []).length;
+  }
+  function nkCountyDesc(county) {
+    const n = nkAreaCountFor(county);
+    if (!n) return 'Coming soon';
+    if (county === 'Kisumu') return `Our home base — ${n} areas covered`;
+    if (NK_TIER1.includes(county)) return `Now live — ${n} areas covered`;
+    return `${n} area${n !== 1 ? 's' : ''} covered`;
   }
 
   // ── Render the "Browse by county" grid (all 47 counties) ──
@@ -661,11 +732,11 @@
     grid.innerHTML = NK_COUNTIES.map(county => {
       const hasAreas = nkAreaCountFor(county) > 0;
       const isTier1 = NK_TIER1.includes(county);
-      const desc = isTier1 ? NK_AREA_DESC[county] : 'Coming soon';
+      const desc = nkCountyDesc(county);
       const classes = 'area-card' + (isTier1 ? ' tier1' : '') + (hasAreas ? '' : ' coming-soon');
       const click = hasAreas ? `onclick="goCounty('${county}')"` : '';
       return `<div class="${classes}" ${click}>
-        <div class="area-card-name">${county}</div>
+        <div class="area-card-name">${nkCountyLabel(county)}</div>
         <div class="area-card-count">${desc}</div>
       </div>`;
     }).join('');
@@ -678,7 +749,7 @@
     el.innerHTML = NK_COUNTIES.map(county => {
       const hasAreas = nkAreaCountFor(county) > 0;
       const href = hasAreas ? `listings.html?county=${encodeURIComponent(county)}` : '#';
-      return `<a href="${href}">${county}</a>`;
+      return `<a href="${href}">${nkCountyLabel(county)}</a>`;
     }).join('');
   }
 
@@ -686,7 +757,7 @@
   function renderLatestCountySelect() {
     const sel = document.getElementById('latest-county-select');
     if (!sel) return;
-    sel.innerHTML = NK_COUNTIES.map(c => `<option value="${c}" ${c === 'Nairobi' ? 'selected' : ''}>${c}</option>`).join('');
+    sel.innerHTML = NK_COUNTIES.map(c => `<option value="${c}" ${c === 'Nairobi' ? 'selected' : ''}>${nkCountyLabel(c)}</option>`).join('');
   }
 
   // ── Rebuild the area pills for a given county ──
@@ -727,7 +798,7 @@
   function nkPopulateSearchCounties() {
     const sel = document.getElementById('search-county');
     if (!sel) return;
-    sel.innerHTML = '<option value="">All counties</option>' + NK_COUNTIES.map(c => `<option value="${c}">${c}</option>`).join('');
+    sel.innerHTML = '<option value="">All counties</option>' + NK_COUNTIES.map(c => `<option value="${c}">${nkCountyLabel(c)}</option>`).join('');
   }
   function nkPopulateSearchAreas(county) {
     const sel = document.getElementById('search-area');
