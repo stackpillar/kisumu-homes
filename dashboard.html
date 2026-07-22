@@ -1191,10 +1191,10 @@ function closeReviewResponseEditor(id){
 async function submitReviewResponse(id){
   const text=document.getElementById('review-textarea-'+id).value.trim();
   if(!text){showToast('Please write a response first','error');return;}
-  const{error}=await db.from('reviews').update({response_text:text,responded_by:currentUser.id,responded_at:new Date().toISOString()}).eq('id',id);
+  const{error}=await db.from('reviews').update({response_text:text,responded_by:currentUser.id,responded_at:new Date().toISOString(),status:'published'}).eq('id',id);
   if(error){showToast('Could not save response: '+error.message,'error');return;}
   const idx=allReviews.findIndex(r=>r.id===id);
-  if(idx!==-1)allReviews[idx].response_text=text;
+  if(idx!==-1){allReviews[idx].response_text=text;allReviews[idx].status='published';}
   renderReviews();updateNavBadges();
   showToast('Response posted — now visible on the pricing page ✓','success');
 }
