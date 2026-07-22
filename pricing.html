@@ -302,6 +302,17 @@
     }
     .proof-name { font-size: 13px; font-weight: 600; color: white; }
     .proof-role { font-size: 11px; color: rgba(255,255,255,0.4); }
+    .proof-reply {
+      margin-top: 16px; padding-top: 16px;
+      border-top: 1px solid rgba(255,255,255,0.12);
+    }
+    .proof-reply-label {
+      font-size: 11px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase;
+      color: #9FE1CB; margin-bottom: 6px;
+    }
+    .proof-reply-text {
+      font-size: 13px; color: rgba(255,255,255,0.75); line-height: 1.65; font-style: italic;
+    }
 
     /* ─── FAQ ─────────────────────────────────────── */
     .faq-section { padding: 80px 40px; background: var(--white); }
@@ -881,6 +892,16 @@
   const SUPABASE_KEY = 'sb_publishable_oIIcecf3wzKMual5K24Z8Q_zmxVfgsx';
   const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+  /* Nav: Sign in → My Account when logged in */
+  (async function () {
+    const { data: { session } } = await db.auth.getSession();
+    if (!session) return;
+    const d = document.getElementById('nav-account-link');
+    const m = document.getElementById('mobile-account-link');
+    if (d) { d.textContent='My Account'; d.href='dashboard.html'; d.style.fontWeight='600'; d.style.color='var(--green)'; }
+    if (m) { m.textContent='My Account'; m.href='dashboard.html'; }
+  })();
+
   function starString(rating) {
     return '★'.repeat(rating) + '☆'.repeat(5 - rating);
   }
@@ -894,8 +915,8 @@
     const grid = document.getElementById('proof-grid');
     const { data, error } = await db
       .from('reviews')
-      .select('reviewer_name, rating, comment, created_at')
-      .eq('review_type', 'platform')
+      .select('reviewer_name, rating, comment, created_at, response_text, review_type, target_seller:profiles!target_seller_id(full_name)')
+      .in('review_type', ['platform', 'seller'])
       .eq('status', 'published')
       .not('comment', 'is', null)
       .order('rating', { ascending: false })
@@ -908,7 +929,17 @@
       return;
     }
 
-    grid.innerHTML = data.map(r => `
+    grid.innerHTML = data.map(r => {
+      const isSeller = r.review_type === 'seller';
+      const roleLine = isSeller
+        ? `Reviewed ${escapeHtml(r.target_seller?.full_name || 'a seller')} on NyumbaKisumu`
+        : 'Verified NyumbaKisumu user';
+      const replyBlock = r.response_text ? `
+        <div class="proof-reply">
+          <div class="proof-reply-label">${isSeller ? "Seller's reply" : "NyumbaKisumu's reply"}</div>
+          <p class="proof-reply-text">"${escapeHtml(r.response_text)}"</p>
+        </div>` : '';
+      return `
       <div class="proof-card">
         <div class="proof-stars">${starString(r.rating)}</div>
         <p class="proof-quote">"${escapeHtml(r.comment)}"</p>
@@ -916,17 +947,22 @@
           <div class="proof-avatar">${initialsFor(r.reviewer_name)}</div>
           <div>
             <div class="proof-name">${escapeHtml(r.reviewer_name || 'NyumbaKisumu user')}</div>
-            <div class="proof-role">Verified NyumbaKisumu user</div>
+            <div class="proof-role">${roleLine}</div>
           </div>
         </div>
-      </div>`).join('');
+        ${replyBlock}
+      </div>`;
+    }).join('');
   }
 
   function escapeHtml(str) {
     return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 
-  loadTestimonials();
+  loadTestimonials().catch(err => {
+    console.error('Testimonials failed to load:', err);
+    document.querySelector('.proof-section').style.display = 'none';
+  });
 </script>
 <script>
   function toggleMobileMenu() {
