@@ -731,7 +731,7 @@
         <p style="padding:0 22px 14px;font-size:12px;color:var(--text-3)">Platform reviews come from buyers and sellers rating NyumbaKisumu itself — the team can respond to those directly. Seller reviews are buyers rating a specific seller after a successful contact; sellers respond to those from their own dashboard.</p>
         <div class="table-wrap mobile-hide">
           <table>
-            <thead><tr><th>Rating</th><th>Reviewer</th><th>Target</th><th>Comment</th><th>Response</th><th>Date</th><th>Action</th></tr></thead>
+            <thead><tr><th>Rating</th><th>Reviewer</th><th>Target</th><th>Comment</th><th>Response</th><th>Status</th><th>Date</th><th>Action</th></tr></thead>
             <tbody id="reviews-body"><tr class="skeleton-row"><td colspan="7"><div class="skel"></div></td></tr></tbody>
           </table>
         </div>
@@ -2353,37 +2353,59 @@ async function messageSellerInChat(sellerId, sellerName) {
     tbody.innerHTML = filtered.map(r => {
       const target = r.review_type==='platform' ? 'NyumbaKisumu' : (r.target_seller?.full_name || '—');
       const canRespond = r.review_type==='platform';
-      /* FIX: the respond button must be wrapped in .action-btns to get the
-         override that keeps it visible on desktop (see the .action-btns .action-btn
-         rule above) — without it, the "view" class collides with the
-         page-switcher's .view{display:none} rule and the button vanishes. */
+      const isPublished = r.status === 'published';
+      const publishBtn = aBtn(
+        isPublished ? 'deactivate' : 'activate',
+        isPublished ? 'Unpublish from pricing page' : 'Publish to pricing page',
+        isPublished ? 'reject' : 'approve',
+        `toggleReviewPublish('${r.id}', ${isPublished})`
+      );
+      const respondBtn = canRespond
+        ? aBtn('edit', r.response_text ? 'Edit response' : 'Respond', 'view', `openReviewRespondModal('${r.id}')`)
+        : '';
+      /* FIX: buttons must be wrapped in .action-btns to get the override that
+         keeps them visible on desktop (see the .action-btns .action-btn rule
+         above) — without it, the "view" class collides with the page-switcher's
+         .view{display:none} rule and the button vanishes. */
       return `<tr>
         <td style="white-space:nowrap;font-size:13px">${stars(r.rating)}</td>
         <td>${esc(r.reviewer_name||(r.reviewer_role==='seller'?'Seller':'Buyer'))}<div class="listing-meta" style="text-transform:capitalize">${esc(r.reviewer_role)}</div></td>
         <td>${esc(target)}${r.listings?.title?`<div class="listing-meta">${esc(r.listings.title)}</div>`:''}</td>
         <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r.comment||'—')}</td>
         <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.response_text?esc(r.response_text):'<span style="color:var(--text-3)">No response</span>'}</td>
+        <td><span class="badge ${isPublished?'active':'pending'}">${isPublished?'Published':'Draft'}</span></td>
         <td>${fmtDate(r.created_at)}</td>
-        <td>${canRespond?`<div class="action-btns">${aBtn('edit',r.response_text?'Edit response':'Respond','view',`openReviewRespondModal('${r.id}')`)}</div>`:'<span style="color:var(--text-3);font-size:12px">Seller responds</span>'}</td>
+        <td><div class="action-btns">${publishBtn}${respondBtn}</div></td>
       </tr>`;
     }).join('');
 
     mobileEl.innerHTML = filtered.map(r => {
       const target = r.review_type==='platform' ? 'NyumbaKisumu' : (r.target_seller?.full_name || '—');
       const canRespond = r.review_type==='platform';
+      const isPublished = r.status === 'published';
+      const publishBtn = aBtn(
+        isPublished ? 'deactivate' : 'activate',
+        isPublished ? 'Unpublish' : 'Publish',
+        isPublished ? 'reject' : 'approve',
+        `toggleReviewPublish('${r.id}', ${isPublished})`
+      );
       return `<div class="mobile-card">
         <div class="mobile-card-header">
           <div style="flex:1;min-width:0">
             <div style="font-size:13px">${stars(r.rating)}</div>
             <div style="font-size:11px;color:var(--text-3)">${esc(r.reviewer_name||'Anonymous')} · ${esc(target)}</div>
           </div>
+          <span class="badge ${isPublished?'active':'pending'}">${isPublished?'Published':'Draft'}</span>
         </div>
         <div class="mobile-card-body">
           <div class="mobile-card-row"><span>Comment</span><span style="text-align:right;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r.comment||'—')}</span></div>
           <div class="mobile-card-row"><span>Response</span><span>${r.response_text?'Sent':'None'}</span></div>
           <div class="mobile-card-row"><span>Date</span><span>${fmtDate(r.created_at)}</span></div>
         </div>
-        ${canRespond?`<div class="mobile-card-actions">${aBtn('edit',r.response_text?'Edit response':'Respond','view',`openReviewRespondModal('${r.id}')`)}</div>`:''}
+        <div class="mobile-card-actions">
+          ${publishBtn}
+          ${canRespond?aBtn('edit',r.response_text?'Edit response':'Respond','view',`openReviewRespondModal('${r.id}')`):''}
+        </div>
       </div>`;
     }).join('');
   }
@@ -2396,7 +2418,16 @@ async function messageSellerInChat(sellerId, sellerName) {
     document.getElementById('review-respond-modal').classList.add('open');
   }
   function closeReviewRespondModal() { document.getElementById('review-respond-modal').classList.remove('open'); editingReviewId=null; }
-
+async function toggleReviewPublish(id, isCurrentlyPublished) {
+    const newStatus = isCurrentlyPublished ? 'draft' : 'published';
+    const { error } = await db.from('reviews').update({ status: newStatus }).eq('id', id);
+    if (error) { toast('Error: '+error.message,'error'); return; }
+    logAction('toggle_review_publish','review',id,newStatus);
+    toast(newStatus==='published' ? 'Review published to pricing page ✓' : 'Review unpublished — removed from pricing page','success');
+    const r = _reviews.find(x=>x.id===id);
+    if (r) r.status = newStatus;
+    renderReviewsTable();
+  }
   async function submitReviewResponse() {
     const text = document.getElementById('review-respond-text').value.trim();
     if (!text) { toast('Please write a response first','error'); return; }
