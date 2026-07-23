@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Admin Dashboard — NyumbaKisumu</title>
+  <title>Admin Dashboard — Nyumba254</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet"/>
@@ -385,7 +385,7 @@
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-logo">
     <div class="sidebar-logo-icon"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
-    NyumbaKisumu
+    Nyumba254
     <span class="sidebar-badge">ADMIN</span>
   </div>
   <nav class="sidebar-nav">
@@ -536,11 +536,11 @@
           </div>
         </div>
         <div class="quick-panel">
-          <div class="quick-card"><h4>Listings by area</h4><div id="area-breakdown"><div class="quick-row"><span>Loading…</span><span>—</span></div></div></div>
+          <div class="quick-card"><h4>Listings by county</h4><div id="area-breakdown"><div class="quick-row"><span>Loading…</span><span>—</span></div></div></div>
           <div class="quick-card">
             <h4>Revenue breakdown</h4>
-            <div class="quick-row"><span>Standard (KES 800)</span><span id="rev-standard">—</span></div>
-            <div class="quick-row"><span>Featured (KES 2,500)</span><span id="rev-featured">—</span></div>
+            <div class="quick-row"><span>Standard (KES 500)</span><span id="rev-standard">—</span></div>
+            <div class="quick-row"><span>Featured (KES 1,500)</span><span id="rev-featured">—</span></div>
             <div class="quick-row" style="border-top:2px solid var(--border);margin-top:4px;padding-top:12px"><span style="font-weight:600">Total</span><span id="rev-total" style="font-weight:700;color:var(--green-dark)">—</span></div>
           </div>
           <div class="quick-card">
@@ -573,16 +573,11 @@
           <button class="tab-btn"        id="tab-expired"  onclick="setTab('expired')">Expired <span class="count" id="tc-expired">—</span></button>
         </div>
         <div class="filters-row">
+          <select class="filter-select" id="filter-county" onchange="onFilterCountyChange()">
+            <option value="">All counties</option>
+          </select>
           <select class="filter-select" id="filter-area" onchange="loadAllListings()">
             <option value="">All areas</option>
-            <option>Ahero</option><option>Car Wash</option><option>Dunga</option>
-            <option>Elgon View</option><option>Kanyakwar</option><option>Kibos</option>
-            <option>Kibuye</option><option>Kisumu CBD</option><option>Kombewa</option>
-            <option>Kondele</option><option>Luanda</option><option>Mamboleo</option>
-            <option>Manyatta</option><option>Maseno</option><option>Matibabu</option>
-            <option>Migosi</option><option>Milimani</option><option>Nyalenda</option>
-            <option>Nyamasaria</option><option>Obunga</option><option>Otonglo</option>
-            <option>Riat Hills</option><option>Sega</option>
           </select>
           <select class="filter-select" id="filter-cat" onchange="loadAllListings()">
             <option value="">All categories</option>
@@ -602,7 +597,7 @@
         <!-- Desktop table -->
         <div class="table-wrap mobile-hide">
           <table>
-            <thead><tr><th><input type="checkbox" onchange="toggleSelectAllListings(this.checked)"/></th><th>Property</th><th>Area</th><th>Price</th><th>Category</th><th>Status</th><th>Payment</th><th>Posted</th><th>Actions</th></tr></thead>
+            <thead><tr><th><input type="checkbox" onchange="toggleSelectAllListings(this.checked)"/></th><th>Property</th><th>Location</th><th>Price</th><th>Category</th><th>Status</th><th>Payment</th><th>Posted</th><th>Actions</th></tr></thead>
             <tbody id="all-listings-body"><tr class="skeleton-row"><td colspan="9"><div class="skel"></div></td></tr></tbody>
           </table>
         </div>
@@ -728,7 +723,7 @@
           <button class="tab-btn active" id="revtab-platform" onclick="setReviewTab('platform')">Platform reviews <span class="count" id="revtc-platform">—</span></button>
           <button class="tab-btn"        id="revtab-seller"   onclick="setReviewTab('seller')">Seller reviews <span class="count" id="revtc-seller">—</span></button>
         </div>
-        <p style="padding:0 22px 14px;font-size:12px;color:var(--text-3)">Platform reviews come from buyers and sellers rating NyumbaKisumu itself — the team can respond to those directly. Seller reviews are buyers rating a specific seller after a successful contact; sellers respond to those from their own dashboard.</p>
+        <p style="padding:0 22px 14px;font-size:12px;color:var(--text-3)">Platform reviews come from buyers and sellers rating Nyumba254 itself — the team can respond to those directly. Seller reviews are buyers rating a specific seller after a successful contact; sellers respond to those from their own dashboard.</p>
         <div class="table-wrap mobile-hide">
           <table>
             <thead><tr><th>Rating</th><th>Reviewer</th><th>Target</th><th>Comment</th><th>Response</th><th>Status</th><th>Date</th><th>Action</th></tr></thead>
@@ -881,6 +876,89 @@
   const { createClient } = supabase;
   const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
+  // ── Kenya's 47 counties + the areas we currently cover per county ──
+  // (kept in sync with the same data structure used on index.html)
+  const NK_COUNTIES = [
+    "Mombasa","Kwale","Kilifi","Tana River","Lamu","Taita-Taveta","Garissa","Wajir","Mandera",
+    "Marsabit","Isiolo","Meru","Tharaka-Nithi","Embu","Kitui","Machakos","Makueni","Nyandarua",
+    "Nyeri","Kirinyaga","Murang'a","Kiambu","Turkana","West Pokot","Samburu","Trans Nzoia",
+    "Uasin Gishu","Elgeyo-Marakwet","Nandi","Baringo","Laikipia","Nakuru","Narok","Kajiado",
+    "Kericho","Bomet","Kakamega","Vihiga","Bungoma","Busia","Siaya","Kisumu","Homa Bay",
+    "Migori","Kisii","Nyamira","Nairobi"
+  ].sort();
+
+  const NK_AREAS_BY_COUNTY = {
+    "Kisumu": ["Ahero","Car Wash","Dunga","Elgon View","Kanyakwar","Kibos","Kibuye","Kisumu CBD","Kombewa","Kondele","Luanda","Mamboleo","Manyatta","Maseno","Matibabu","Migosi","Milimani","Nyalenda","Nyamasaria","Obunga","Otonglo","Riat Hills","Sega"],
+    "Nairobi": ["Nairobi CBD","Westlands","Parklands","Highridge","Kangemi","Kitisuru","Runda","Loresho","Muthaiga","Gigiri","Spring Valley","Nyari","Rosslyn","Thome","Garden Estate","Ridgeways","Kilimani","Kileleshwa","Lavington","Kawangware","Hurlingham","Upper Hill","Adams Arcade","Karen","Langata","South B","South C","Nairobi West","Madaraka","Otiende","Kibera","Woodley","Roysambu","Zimmerman","Kahawa West","Githurai","Mirema","Kasarani","Mwiki","Njiru","Ruaraka","Baba Dogo","Mathare","Huruma","Pipeline","Imara Daima","Nyayo Estate","Dandora","Kariobangi","Kayole","Komarock","Utawala","Tassia","Umoja","Buruburu","Donholm","Makadara","Eastleigh","Ngara","Pangani"],
+    "Mombasa": ["Mombasa CBD (Old Town)","Nyali","Bamburi","Kizingo","Tudor","Likoni","Changamwe","Kisauni","Shanzu","Mkomani","Bombolulu","Kiembeni","Port Reitz","Miritini","Chaani","Migadini","Kongowea","Junda","Mwakirunge","Mtopanga","Jomvu","Magongo"],
+    "Nakuru": ["Nakuru CBD","Milimani","Section 58","Langalanga","Pangani","Shabab","Bangladesh","Lanet","Free Area","Freehold","Ngata","Bahati","London","Afraha","Naka","Kiamunyi","White House","Pipeline","Kaptembwa","Rhoda","Menengai","Naivasha"],
+    "Uasin Gishu": ["Eldoret CBD","Kapsoya","Langas","Kimumu","Huruma","Elgon View","Pioneer","Annex","Rupa Village","Hazina","Kamukunji","Munyaka","West Indies"],
+    "Kiambu": ["Thika CBD","Landless","Makongeni","Section 9","Blue Post","Thika Greens","Kiganjo","Tora","Ngoingwa","Bahati Ridge","Kisii Estate","Ruiru","Membley","Kamakis","Juja","Kiambu Town","Kikuyu","Limuru"],
+    "Kilifi": ["Kilifi Town","Malindi CBD","Kisumu Ndogo","Majengo (Malindi)","Silversands","Watamu","Mtwapa","Mariakani","Kaloleni","Mazeras","Magarini"],
+    "Machakos": ["Machakos CBD","Mua Hills","Kalama","Mitaboni","Athi River","Mlolongo","Syokimau","Katani","Kangundo Road","Kola"],
+    "Kakamega": ["Kakamega CBD","Amalemba","Milimani","Shirere","Lurambi","Mahiakalo","Sudi","Mumias","Butere","Malava","Lugari"],
+    "Meru": ["Meru CBD","Makutano","Kinoru","Ntharene","Nkubu","Maua","Timau","Laare","Mikinduri","Kianjai"],
+    "Nyeri": ["Nyeri CBD","Ring Road","Mountain View Estate","Garden Estate","Kamakwa","Ruring'u","Majengo","Karatina","Othaya Town","Mukurweini Town","Naromoru"],
+    "Kericho": ["Kericho CBD","Kapsoit","Ainamoi","Litein","Kipkelion","Fort Ternan","Sosiot","Chepseon","Kedowa","Cheborge"],
+    "Trans Nzoia": ["Kitale CBD","Milimani","Mitume","Matisi","Tuwan","Endebess","Kiminini","Kwanza","Saboti","Cherangany"],
+    "Kwale": ["Kwale Town","Diani","Ukunda","Tiwi","Msambweni","Lunga Lunga","Matuga","Kinango","Waa","Shimoni","Mackinon Road","Vanga"],
+    "Tana River": ["Hola","Garsen","Bura","Galole","Wenje","Kipini","Madogo","Chewele","Bangale","Wayu"],
+    "Lamu": ["Lamu Town","Mokowe","Faza","Matondoni","Mpeketoni","Witu","Hindi","Kizingitini","Shela","Kiunga"],
+    "Taita-Taveta": ["Voi","Taveta","Wundanyi","Mwatate","Mgange","Wesu","Bura (Taita)","Mbale (Taveta)","Tausa","Werugha"],
+    "Garissa": ["Garissa Town","Dadaab","Balambala","Fafi","Ijara","Lagdera","Modogashe","Bura (Garissa)","Sankuri","Hulugho"],
+    "Wajir": ["Wajir Town","Habaswein","Griftu","Eldas","Tarbaj","Bute","Buna","Diif","Elnur","Khorof Harar"],
+    "Mandera": ["Mandera Town","Rhamu","Banissa","Lafey","Takaba","El Wak","Kotulo","Fino","Arabia","Warankara"],
+    "Marsabit": ["Marsabit Town","Moyale","Loiyangalani","North Horr","Laisamis","Sololo","Turbi","Maikona","Illeret","Dukana"],
+    "Isiolo": ["Isiolo Town","Garbatulla","Merti","Kinna","Oldonyiro","Burat","Bulapesa","Wabera","Chari","Cherab"],
+    "Tharaka-Nithi": ["Chuka","Marimanti","Kathwana","Chogoria","Gatunga","Nkondi","Igambang'ombe","Muthambi","Mitheru","Tunyai"],
+    "Embu": ["Embu Town","Runyenjes","Manyatta","Siakago","Ishiara","Kiritiri","Kyeni","Karurumo","Kirimari","Gaturi"],
+    "Kitui": ["Kitui Town","Mwingi","Mutomo","Mutitu","Migwani","Zombe","Kabati","Ikutha","Mutha","Kanyangi"],
+    "Makueni": ["Wote","Emali","Sultan Hamud","Kibwezi","Kilome","Mbooni","Kaiti","Nunguni","Makindu","Tawa"],
+    "Nyandarua": ["Ol Kalou","Engineer","Njabini","Nyahururu","Ndaragwa","Ol Joro Orok","North Kinangop","South Kinangop","Kipipiri","Shamata"],
+    "Kirinyaga": ["Kerugoya","Kutus","Sagana","Kagio","Wang'uru","Baricho","Kianyaga","Kimbimbi","Mwea","Kutus Town"],
+    "Murang'a": ["Murang'a Town","Kenol","Kangema","Maragua","Kandara","Kigumo","Gatanga","Kiria-ini","Kabati","Makuyu"],
+    "Turkana": ["Lodwar","Kakuma","Lokichogio","Lokitaung","Kalokol","Lokichar","Kainuk","Todonyang","Kibish","Katilu"],
+    "West Pokot": ["Kapenguria","Makutano (Pokot)","Chepareria","Kacheliba","Sigor","Alale","Chepnyal","Lomut","Ortum","Kongelai"],
+    "Samburu": ["Maralal","Baragoi","Wamba","Archer's Post","Suguta Marmar","Kirisia","South Horr","Poro","Loosuk","Kisima"],
+    "Elgeyo-Marakwet": ["Iten","Tambach","Kapsowar","Chepkorio","Kapyego","Kapsait","Chesoi","Kaptarakwa","Kamogoi","Kabiemit"],
+    "Nandi": ["Kapsabet","Nandi Hills","Mosoriot","Kabiyet","Kaptumo","Kobujoi","Kapsisiywa","Kapsabet Town","Chepterit","Kilibwoni"],
+    "Baringo": ["Kabarnet","Eldama Ravine","Marigat","Kabartonjo","Mogotio","Kimalel","Kabernet Town","Loruk","Kampi ya Samaki","Mochongoi"],
+    "Laikipia": ["Nanyuki","Nyahururu","Rumuruti","Dol Dol","Kinamba","Ngobit","Sipili","Marmanet","Mukogodo","Salama"],
+    "Narok": ["Narok Town","Kilgoris","Ololulunga","Suswa","Ewaso Ngiro","Nairagie Enkare","Naikarra","Ntulele","Melili","Lolgorian"],
+    "Kajiado": ["Kajiado Town","Ngong","Kitengela","Ongata Rongai","Kiserian","Loitokitok","Namanga","Isinya","Bissil","Mashuuru"],
+    "Bomet": ["Bomet Town","Sotik","Longisa","Mulot","Chepalungu","Silibwet","Sigor (Bomet)","Chebunyo","Kaplong","Mogogosiek"],
+    "Vihiga": ["Mbale","Luanda (Vihiga)","Chavakali","Majengo (Vihiga)","Emuhaya","Sabatia","Hamisi","Wodanga","Bunyore","Gisambai"],
+    "Bungoma": ["Bungoma CBD","Kanduyi","Sikata","Webuye","Kimilili","Chwele","Bumula","Sirisia","Naitiri","Malakisi"],
+    "Busia": ["Busia Town","Malaba","Nambale","Funyula","Budalangi","Amagoro","Port Victoria","Matayos","Alupe","Angurai"],
+    "Siaya": ["Siaya Town","Bondo","Ugunja","Yala","Ukwala","Usenge","Sega (Siaya)","Nyang'oma Kogelo","Uranga","Yenga"],
+    "Homa Bay": ["Homa Bay Central","Asego","Arujo","Kalanya","Kanyabala","Katuma","Posta/Bonde","Oyugis","Kendu Bay","Rangwe","Ndhiwa","Mbita","Sindo","Kabondo","Kasipul","Karachuonyo"],
+    "Migori": ["Migori Town","Rongo","Awendo","Isebania","Kehancha","Macalder","Muhuru Bay","Uriri","Ntimaru","Suna"],
+    "Kisii": ["Kisii CBD","Milimani","Nyanchwa","Nyamataro","Daraja Mbili","Mwembe","Jogoo","Nyamage","Nyakoe","Nyangena","Gesonso"],
+    "Nyamira": ["Nyamira Town","Keroka","Ekerenyo","Nyansiongo","Manga","Ikonge","Magwagwa","Nyamaiya","Bomwagamo","Ainapngetuny"]
+  };
+
+  function nkAreaCountFor(county) { return (NK_AREAS_BY_COUNTY[county] || []).length; }
+
+  // Populate the county filter dropdown (Listings view) and cascade areas on change
+  function populateCountyFilter() {
+    const sel = document.getElementById('filter-county');
+    if (!sel) return;
+    sel.innerHTML = '<option value="">All counties</option>' + NK_COUNTIES.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join('');
+  }
+  function onFilterCountyChange() {
+    const county = document.getElementById('filter-county').value;
+    const areaSel = document.getElementById('filter-area');
+    const areas = NK_AREAS_BY_COUNTY[county];
+    if (areas && areas.length) {
+      areaSel.innerHTML = '<option value="">All areas</option>' + areas.map(a => `<option value="${esc(a)}">${esc(a)}</option>`).join('');
+      areaSel.disabled = false;
+    } else {
+      areaSel.innerHTML = county ? `<option value="">All of ${esc(county)} (areas coming soon)</option>` : '<option value="">All areas</option>';
+      areaSel.disabled = !!county && !areas;
+    }
+    loadAllListings();
+  }
+
   let currentUser = null;
   let currentView = 'overview';
   let currentTab  = 'all';
@@ -908,6 +986,7 @@
     approve:  '<polyline points="20 6 9 17 4 12"/>',
     reject:   '<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',
     feature:  '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>',
+    unfeature:'<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/><line x1="3" y1="3" x2="21" y2="21"/>',
     delete:   '<polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/>',
     message:  '<path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>',
     upgrade:  '<circle cx="12" cy="12" r="10"/><polyline points="16 12 12 8 8 12"/><line x1="12" y1="16" x2="12" y2="8"/>',
@@ -933,6 +1012,7 @@
 
   const fmtPrice = n => 'KES ' + Number(n||0).toLocaleString('en-KE');
   const fmtDate  = d => new Date(d).toLocaleDateString('en-KE', { day:'numeric', month:'short', year:'numeric' });
+  const fmtLocation = l => l.county ? (l.area ? `${l.county} · ${l.area}` : l.county) : (l.area || '—');
 
   document.addEventListener('click', e => {
     if (!e.target.closest('.action-menu-wrap'))
@@ -1026,18 +1106,23 @@
     const stdCnt   = (pays||[]).filter(p=>p.type==='listing_fee').length;
     const featCnt  = (pays||[]).filter(p=>p.type==='featured_upgrade').length;
     document.getElementById('stat-revenue').textContent = rev.toLocaleString('en-KE');
-    document.getElementById('rev-standard').textContent = `KES ${(stdCnt*800).toLocaleString()}`;
-    document.getElementById('rev-featured').textContent = `KES ${(featCnt*2500).toLocaleString()}`;
+    document.getElementById('rev-standard').textContent = `KES ${(stdCnt*500).toLocaleString()}`;
+    document.getElementById('rev-featured').textContent = `KES ${(featCnt*1500).toLocaleString()}`;
     document.getElementById('rev-total').textContent    = `KES ${rev.toLocaleString()}`;
 
-    const areas = ['Milimani','Kisumu CBD','Kondele','Maseno','Luanda','Riat Hills','Mamboleo'];
-    const areaData = await Promise.all(areas.map(async a => {
-      const {count} = await db.from('listings').select('*',{count:'exact',head:true}).eq('area',a).eq('status','active').eq('recycle_bin',false);
-      return {area:a, count:count||0};
-    }));
-    document.getElementById('area-breakdown').innerHTML = areaData
-      .sort((a,b)=>b.count-a.count)
-      .map(r=>`<div class="quick-row"><span>${esc(r.area)}</span><span>${r.count}</span></div>`).join('');
+    // Listings-by-county breakdown: count active listings for every county that
+    // has at least one, sorted highest first (top 8 shown). Falls back to
+    // grouping by area for rows where county wasn't set (pre-migration data).
+    const { data: activeRows } = await db.from('listings').select('county,area').eq('status','active').eq('recycle_bin',false);
+    const countyCounts = {};
+    (activeRows||[]).forEach(r => {
+      const key = r.county || 'Kisumu';
+      countyCounts[key] = (countyCounts[key]||0) + 1;
+    });
+    const countyBreakdown = Object.entries(countyCounts).sort((a,b)=>b[1]-a[1]).slice(0,8);
+    document.getElementById('area-breakdown').innerHTML = countyBreakdown.length
+      ? countyBreakdown.map(([county,count])=>`<div class="quick-row"><span>${esc(county)}</span><span>${count}</span></div>`).join('')
+      : '<div class="quick-row"><span>No active listings yet</span><span>—</span></div>';
 
     for (const cat of ['student','standard','luxury','commercial']) {
       const {count} = await db.from('listings').select('*',{count:'exact',head:true}).eq('category',cat).eq('status','active').eq('recycle_bin',false);
@@ -1066,7 +1151,7 @@
       return `<tr>
         <td><div class="listing-thumb">
           <div class="thumb-img">${thumb}</div>
-          <div class="listing-info"><div class="listing-title">${esc(l.title)}</div><div class="listing-meta">${esc(l.area)}</div></div>
+          <div class="listing-info"><div class="listing-title">${esc(l.title)}</div><div class="listing-meta">${esc(fmtLocation(l))}</div></div>
         </div></td>
         <td>${esc(l.profiles?.full_name||'—')}</td>
         <td>${fmtPrice(l.price)}</td>
@@ -1136,9 +1221,11 @@
     else if (currentTab==='expired')  q = q.eq('status','expired');
     else if (currentTab==='trial')    q = q.eq('payment_status','trial');
 
+    const county = document.getElementById('filter-county').value;
     const area   = document.getElementById('filter-area').value;
     const cat    = document.getElementById('filter-cat').value;
     const search = document.getElementById('filter-search').value.trim();
+    if (county) q = q.eq('county',county);
     if (area)   q = q.eq('area',area);
     if (cat)    q = q.eq('category',cat);
     if (search) q = q.or(`title.ilike.%${search}%,area.ilike.%${search}%`);
@@ -1167,6 +1254,7 @@
         ]:[]),
         ...(isTrial?[{label:'⬆ Process upgrade', cls:'blue', fn:`openUpgradeModal('${l.id}')`}]:[]),
         ...(l.status==='active'&&!l.is_featured?[{label:'★ Feature', cls:'gold', fn:`featureListing('${l.id}')`}]:[]),
+        ...(l.is_featured?[{label:'☆ Unfeature', cls:'', fn:`unfeatureListing('${l.id}')`}]:[]),
         {label:'View details', cls:'', fn:`openListingModal('${l.id}')`},
         {label:'Edit listing',  cls:'', fn:`openEditListingModal('${l.id}')`},
         l.is_disabled
@@ -1181,7 +1269,7 @@
           <div class="thumb-img">${thumb}</div>
           <div class="listing-info"><div class="listing-title">${esc(l.title)}</div><div class="listing-meta">${esc(l.profiles?.full_name||'—')}</div></div>
         </div></td>
-        <td>${esc(l.area)}</td>
+        <td>${esc(fmtLocation(l))}</td>
         <td style="font-weight:500">${fmtPrice(l.price)}</td>
         <td><span class="badge ${l.category}">${l.category}</span></td>
         <td><span class="badge ${l.status}">${l.status}</span></td>
@@ -1192,6 +1280,7 @@
             ${l.status==='pending'?(aBtn('approve','Approve listing','approve',`approveListing('${l.id}')`)+aBtn('reject','Reject listing','reject',`rejectListing('${l.id}')`)):''}
             ${isTrial?aBtn('upgrade','Process upgrade','upgrade',`openUpgradeModal('${l.id}')`):''}
             ${l.status==='active'&&!l.is_featured?aBtn('feature','Feature listing','feature',`featureListing('${l.id}')`):''}
+            ${l.is_featured?aBtn('unfeature','Unfeature listing','view',`unfeatureListing('${l.id}')`):''}
             ${aBtn('edit','Edit listing','view',`openEditListingModal('${l.id}')`)}
             ${aBtn('view','View live listing','view',`openListingModal('${l.id}')`)}
             ${l.is_disabled
@@ -1215,7 +1304,7 @@
           <div class="thumb-img" style="width:52px;height:42px">${thumb}</div>
           <div style="flex:1;min-width:0">
             <div style="font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(l.title)}</div>
-            <div style="font-size:11px;color:var(--text-3)">${esc(l.profiles?.full_name||'—')} · ${esc(l.area)}</div>
+            <div style="font-size:11px;color:var(--text-3)">${esc(l.profiles?.full_name||'—')} · ${esc(fmtLocation(l))}</div>
           </div>
           <span class="badge ${l.status}">${l.status}</span>
         </div>
@@ -1228,6 +1317,8 @@
         <div class="mobile-card-actions">
           ${l.status==='pending'?(aBtn('approve','Approve','approve',`approveListing('${l.id}')`)+aBtn('reject','Reject','reject',`rejectListing('${l.id}')`)):''}
           ${isTrial?aBtn('upgrade','Upgrade','upgrade',`openUpgradeModal('${l.id}')`):''}
+          ${l.status==='active'&&!l.is_featured?aBtn('feature','Feature','feature',`featureListing('${l.id}')`):''}
+          ${l.is_featured?aBtn('unfeature','Unfeature','view',`unfeatureListing('${l.id}')`):''}
           ${aBtn('view','View','view',`openListingModal('${l.id}')`)}
           ${aBtn('edit','Edit','view',`openEditListingModal('${l.id}')`)}
           ${l.is_disabled
@@ -1316,7 +1407,17 @@
     if(error){toast('Error featuring listing','error');return;}
     logAction('feature_listing','listing',id,'');
     toast('Listing featured ✓','success');
-    if(currentView==='listings') loadAllListings();
+    const l=_listings[id]; if(l){ l.is_featured=true; l.featured_until=until; }
+    loadOverview(); if(currentView==='listings') loadAllListings();
+  }
+
+  async function unfeatureListing(id) {
+    const {error}=await db.from('listings').update({is_featured:false,featured_until:null}).eq('id',id);
+    if(error){toast('Error unfeaturing listing','error');return;}
+    logAction('unfeature_listing','listing',id,'');
+    toast('Listing unfeatured','success');
+    const l=_listings[id]; if(l){ l.is_featured=false; l.featured_until=null; }
+    loadOverview(); if(currentView==='listings') loadAllListings();
   }
 
   // ─── UPGRADE (trial → paid Standard/Featured) ───
@@ -1335,8 +1436,8 @@
       ${trialDaysLeft!==null?`<div class="field"><label>Free trial</label><div class="val">${trialDaysLeft} day(s) left</div></div>`:''}
       <div class="field"><label>Choose plan</label>
         <select id="upgrade-plan">
-          <option value="basic">Standard — KES 800 (30 days, up to 6 photos)</option>
-          <option value="featured">Featured — KES 2,500 (30 days, up to 15 photos, top placement)</option>
+          <option value="basic">Standard — KES 500 (30 days, up to 6 photos)</option>
+          <option value="featured">Featured — KES 1,500 (30 days, up to 15 photos, top placement)</option>
         </select>
       </div>
       <div class="field check-field"><input type="checkbox" id="upgrade-mark-paid" checked/><label for="upgrade-mark-paid">Mark payment as confirmed (M-Pesa already received)</label></div>
@@ -1350,7 +1451,7 @@
     const l = _listings[id]; if(!l) return;
     const plan     = document.getElementById('upgrade-plan').value;
     const markPaid = document.getElementById('upgrade-mark-paid').checked;
-    const amount   = plan === 'featured' ? 2500 : 800;
+    const amount   = plan === 'featured' ? 1500 : 500;
 
     const updates = { is_featured: plan === 'featured', trial_expires_at: null };
     if (markPaid) updates.payment_status = 'paid';
@@ -1440,7 +1541,7 @@
     tbody.innerHTML = data.map(l => {
       const days = Math.max(0,Math.ceil((new Date(l.purge_at)-new Date())/86400000));
       return `<tr>
-        <td>${esc(l.title)}<div class="listing-meta">${esc(l.area)}</div></td>
+        <td>${esc(l.title)}<div class="listing-meta">${esc(fmtLocation(l))}</div></td>
         <td style="max-width:220px">${esc(l.disabled_reason||'—')}</td>
         <td>${fmtDate(l.disabled_at)}</td>
         <td>${days} day(s) left</td>
@@ -1463,7 +1564,7 @@
         <div class="mobile-card-header">
           <div style="flex:1;min-width:0">
             <div style="font-weight:600;font-size:13px">${esc(l.title)}</div>
-            <div style="font-size:11px;color:var(--text-3)">${esc(l.area)} · ${days} day(s) left</div>
+            <div style="font-size:11px;color:var(--text-3)">${esc(fmtLocation(l))} · ${days} day(s) left</div>
           </div>
         </div>
         <div class="mobile-card-body">
@@ -1503,10 +1604,11 @@
       <div class="field"><label>Status</label><div class="val"><span class="badge ${l.status}">${l.status}</span></div></div>
       <div class="field"><label>Category</label><div class="val">${esc(l.category)}</div></div>
       <div class="field"><label>Price</label><div class="val">${fmtPrice(l.price)}${l.price_type==='rent'?' /month':''}</div></div>
+      <div class="field"><label>County</label><div class="val">${esc(l.county||'—')}</div></div>
       <div class="field"><label>Area</label><div class="val">${esc(l.area)}${l.sub_area?' — '+esc(l.sub_area):''}</div></div>
       <div class="field"><label>Bedrooms</label><div class="val">${l.bedrooms==0?'Bedsitter/studio':(l.bedrooms+' bedroom(s)')}</div></div>
       <div class="field"><label>Furnished</label><div class="val">${l.furnished?'Yes':'No'}</div></div>
-      <div class="field"><label>Plan</label><div class="val">${l.payment_status==='trial'?'7-day free trial':(l.is_featured?'Featured (KES 2,500)':'Standard (KES 800)')}</div></div>
+      <div class="field"><label>Plan</label><div class="val">${l.payment_status==='trial'?'7-day free trial':(l.is_featured?'Featured (KES 1,500)':'Standard (KES 500)')}</div></div>
       <div class="field"><label>Payment</label><div class="val"><span class="badge ${l.payment_status==='paid'?'paid':l.payment_status==='trial'?'trial':'unpaid'}">${l.payment_status==='trial'?'trial':(l.payment_status||'unpaid')}</span></div></div>
       ${l.trial_expires_at?`<div class="field"><label>Trial expires</label><div class="val">${fmtDate(l.trial_expires_at)}</div></div>`:''}
       <div class="field"><label>Listing ID</label><div class="val mono">${l.id}</div></div>
@@ -1515,6 +1617,8 @@
     document.getElementById('modal-footer').innerHTML = `
       ${l.status==='pending'?`<button class="btn-modal approve" onclick="approveListing('${l.id}');closeModal()">Approve</button><button class="btn-modal reject" onclick="rejectListing('${l.id}');closeModal()">Reject</button>`:''}
       ${l.payment_status==='trial'?`<button class="btn-modal approve" onclick="closeModal();openUpgradeModal('${l.id}')">Process upgrade</button>`:''}
+      ${l.status==='active'&&!l.is_featured?`<button class="btn-modal approve" onclick="featureListing('${l.id}');closeModal()">★ Feature</button>`:''}
+      ${l.is_featured?`<button class="btn-modal cancel" onclick="unfeatureListing('${l.id}');closeModal()">☆ Unfeature</button>`:''}
       ${l.is_disabled?`<button class="btn-modal approve" onclick="activateListing('${l.id}');closeModal()">Activate</button>`:`<button class="btn-modal reject" onclick="deactivateListing('${l.id}');closeModal()">Deactivate</button>`}
       <button class="btn-modal cancel" onclick="openEditListingModal('${l.id}');closeModal()">Edit</button>
       <button class="btn-modal cancel" onclick="closeModal()">Close</button>`;
@@ -1525,6 +1629,7 @@
   function openEditListingModal(id) {
     const l = _listings[id]; if(!l) return;
     editingListingId = l.id;
+    const currentCounty = l.county || 'Kisumu';
     document.getElementById('edit-listing-body').innerHTML = `
       <div class="field"><label>Title</label><input type="text" id="el-title" value="${esc(l.title||'')}"/></div>
       <div class="field"><label>Description</label><textarea id="el-description" rows="3">${esc(l.description||'')}</textarea></div>
@@ -1538,14 +1643,40 @@
         <div class="field"><label>Size (m²)</label><input type="number" id="el-size_sqm" value="${l.size_sqm||''}"/></div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-        <div class="field"><label>Area</label><input type="text" id="el-area" value="${esc(l.area||'')}"/></div>
+        <div class="field"><label>County</label><select id="el-county" onchange="onEditCountyChange()">
+          ${NK_COUNTIES.map(c=>`<option value="${esc(c)}" ${c===currentCounty?'selected':''}>${esc(c)}</option>`).join('')}
+        </select></div>
         <div class="field"><label>Category</label><select id="el-category"><option value="student" ${l.category==='student'?'selected':''}>Student</option><option value="standard" ${l.category==='standard'?'selected':''}>Standard</option><option value="luxury" ${l.category==='luxury'?'selected':''}>Luxury</option><option value="commercial" ${l.category==='commercial'?'selected':''}>Commercial</option></select></div>
       </div>
+      <div class="field" id="el-area-wrap"><label>Area</label>${buildEditAreaField(currentCounty, l.area||'')}</div>
       <div class="field"><label>Sub-area</label><input type="text" id="el-sub_area" value="${esc(l.sub_area||'')}"/></div>
       <div class="field"><label>Address</label><input type="text" id="el-address" value="${esc(l.address||'')}"/></div>
       <div class="field check-field"><input type="checkbox" id="el-furnished" ${l.furnished?'checked':''}/><label for="el-furnished">Furnished</label></div>
       <div class="field check-field"><input type="checkbox" id="el-is_featured" ${l.is_featured?'checked':''}/><label for="el-is_featured">Featured</label></div>`;
     document.getElementById('edit-listing-modal').classList.add('open');
+  }
+  // Areas are only known for counties in NK_AREAS_BY_COUNTY (Kisumu today,
+  // plus whatever's been added since). Elsewhere, fall back to free text.
+  function buildEditAreaField(county, currentArea) {
+    const areas = NK_AREAS_BY_COUNTY[county];
+    if (areas && areas.length) {
+      const hasCurrent = currentArea && areas.includes(currentArea);
+      return `<select id="el-area">
+        ${!hasCurrent && currentArea ? `<option value="${esc(currentArea)}" selected>${esc(currentArea)} (custom)</option>` : ''}
+        ${areas.map(a=>`<option value="${esc(a)}" ${a===currentArea?'selected':''}>${esc(a)}</option>`).join('')}
+      </select>`;
+    }
+    return `<input type="text" id="el-area" value="${esc(currentArea)}" placeholder="Type the area/town name"/>`;
+  }
+  function onEditCountyChange() {
+    const county = document.getElementById('el-county').value;
+    const wrap = document.getElementById('el-area-wrap');
+    const currentAreaInput = document.getElementById('el-area');
+    const currentVal = currentAreaInput ? currentAreaInput.value : '';
+    wrap.innerHTML = `<label>Area</label>${buildEditAreaField(county, '')}`;
+    // Preserve typed value if switching between two counties with free-text areas
+    const newAreaInput = document.getElementById('el-area');
+    if (newAreaInput && newAreaInput.tagName === 'INPUT' && currentVal) newAreaInput.value = currentVal;
   }
   function closeEditListingModal() { document.getElementById('edit-listing-modal').classList.remove('open'); editingListingId=null; }
   async function saveListingEdit() {
@@ -1557,6 +1688,7 @@
       bedrooms:    parseInt(document.getElementById('el-bedrooms').value)||0,
       bathrooms:   parseInt(document.getElementById('el-bathrooms').value)||null,
       size_sqm:    parseFloat(document.getElementById('el-size_sqm').value)||null,
+      county:      document.getElementById('el-county').value,
       area:        document.getElementById('el-area').value.trim(),
       sub_area:    document.getElementById('el-sub_area').value.trim()||null,
       address:     document.getElementById('el-address').value.trim()||null,
@@ -2110,7 +2242,7 @@ async function messageSellerInChat(sellerId, sellerName) {
   function reportTargetLabel(r) {
     if (r.target_type === 'listing') return _reportTargetsCache.listing[r.target_id]?.title || 'Listing (deleted or unknown)';
     if (r.target_type === 'seller')  return _reportTargetsCache.seller[r.target_id]?.full_name  || 'Seller (unknown)';
-    if (r.target_type === 'system')  return 'NyumbaKisumu platform';
+    if (r.target_type === 'system')  return 'Nyumba254 platform';
     return 'Other';
   }
   function reportTargetSeller(r) {
@@ -2142,7 +2274,7 @@ async function messageSellerInChat(sellerId, sellerName) {
           ${listing?`<div class="thumb-img">${thumb}</div>`:''}
           <div class="listing-info">
             <div class="listing-title">${esc(reportTargetLabel(r))}</div>
-            <div class="listing-meta">${esc(r.target_type)}${listing?' · '+esc(listing.area||''):''}${listing?' · listed '+fmtDate(listing.created_at):''}</div>
+            <div class="listing-meta">${esc(r.target_type)}${listing?' · '+esc(fmtLocation(listing)):''}${listing?' · listed '+fmtDate(listing.created_at):''}</div>
           </div>
         </div></td>
         <td>
@@ -2217,7 +2349,7 @@ async function messageSellerInChat(sellerId, sellerName) {
       <div class="field"><label>Reported listing</label>
         <div class="val" style="display:flex;gap:10px;align-items:center">
           <div class="thumb-img" style="width:56px;height:44px">${cover?`<img src="${esc(cover.url)}" alt=""/>`:''}</div>
-          <div><div style="font-weight:600">${esc(listing.title)}</div><div style="font-size:12px;color:var(--text-3)">${esc(listing.area||'')}${listing.sub_area?', '+esc(listing.sub_area):''}</div></div>
+          <div><div style="font-weight:600">${esc(listing.title)}</div><div style="font-size:12px;color:var(--text-3)">${esc(fmtLocation(listing))}${listing.sub_area?', '+esc(listing.sub_area):''}</div></div>
         </div>
       </div>
       <div class="field"><label>Price</label><div class="val">${fmtPrice(listing.price)}${listing.price_type==='rent'?' /month':''}</div></div>
@@ -2351,7 +2483,7 @@ async function messageSellerInChat(sellerId, sellerName) {
     const stars = n => '<span style="color:var(--gold)">' + '★'.repeat(n) + '</span><span style="color:var(--border)">' + '★'.repeat(5-n) + '</span>';
 
     tbody.innerHTML = filtered.map(r => {
-      const target = r.review_type==='platform' ? 'NyumbaKisumu' : (r.target_seller?.full_name || '—');
+      const target = r.review_type==='platform' ? 'Nyumba254' : (r.target_seller?.full_name || '—');
       const canRespond = r.review_type==='platform';
       const isPublished = r.status === 'published';
       const publishBtn = aBtn(
@@ -2380,7 +2512,7 @@ async function messageSellerInChat(sellerId, sellerName) {
     }).join('');
 
     mobileEl.innerHTML = filtered.map(r => {
-      const target = r.review_type==='platform' ? 'NyumbaKisumu' : (r.target_seller?.full_name || '—');
+      const target = r.review_type==='platform' ? 'Nyumba254' : (r.target_seller?.full_name || '—');
       const canRespond = r.review_type==='platform';
       const isPublished = r.status === 'published';
       const publishBtn = aBtn(
@@ -2527,12 +2659,12 @@ async function toggleReviewPublish(id, isCurrentlyPublished) {
     URL.revokeObjectURL(url);
   }
   async function exportListingsCSV() {
-    const {data} = await db.from('listings').select('id,title,area,category,price,status,payment_status,is_featured,created_at');
-    exportCSV(data||[], `nyumbakisumu-listings-${Date.now()}.csv`);
+    const {data} = await db.from('listings').select('id,title,county,area,category,price,status,payment_status,is_featured,created_at');
+    exportCSV(data||[], `nyumba254-listings-${Date.now()}.csv`);
   }
   async function exportPaymentsCSV() {
     const {data} = await db.from('payments').select('id,listing_id,amount,method,reference,status,created_at');
-    exportCSV(data||[], `nyumbakisumu-payments-${Date.now()}.csv`);
+    exportCSV(data||[], `nyumba254-payments-${Date.now()}.csv`);
   }
 
   // ─── VIEW SWITCHING ───
@@ -2602,6 +2734,7 @@ async function toggleReviewPublish(id, isCurrentlyPublished) {
   // ─── INIT ───
   async function init() {
     await checkAuth();
+    populateCountyFilter();
     loadOverview();
     loadChatBadge();
     subscribeChatBadge();
