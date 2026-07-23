@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Your Shortlist — NyumbaKisumu</title>
-  <meta name="description" content="Your saved apartment listings on NyumbaKisumu — keep track of properties you're interested in across Kisumu, Maseno, and Luanda."/>
+  <title>Your Shortlist — Nyumba254</title>
+  <meta name="description" content="Your saved apartment listings on Nyumba254 — keep track of properties you're interested in across Kenya, from Kisumu to Nairobi to Mombasa."/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -127,6 +127,20 @@
     .remove-heart-btn:hover svg { transform: scale(1.1); }
     .remove-heart-btn.removing svg { opacity: .3; }
 
+    /* Add-to-shortlist heart (used on recommended cards — outline until saved) */
+    .add-heart-btn {
+      position: absolute; top: 10px; right: 10px; z-index: 3;
+      width: 32px; height: 32px; border-radius: 50%;
+      background: rgba(255,255,255,0.95); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all .15s;
+    }
+    .add-heart-btn:hover { background: var(--green-light); border-color: var(--green); }
+    .add-heart-btn svg { fill: none; stroke: var(--text-2); width: 16px; height: 16px; stroke-width: 2; transition: all .15s; }
+    .add-heart-btn:hover svg { stroke: var(--green-dark); transform: scale(1.1); }
+    .add-heart-btn.added { pointer-events: none; }
+    .add-heart-btn.added svg { fill: var(--red); stroke: var(--red); }
+
     .card-body { padding: 14px 16px; }
     .card-top-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
     .card-area { font-size: 11px; font-weight: 600; color: var(--green); text-transform: uppercase; letter-spacing: .06em; }
@@ -159,6 +173,12 @@
     .empty-state svg { width: 52px; height: 52px; margin: 0 auto 18px; stroke: var(--border); fill: none; stroke-width: 1.5; }
     .empty-state h3 { font-size: 17px; font-weight: 600; color: var(--text-2); margin-bottom: 8px; }
     .empty-state p { font-size: 14px; margin-bottom: 22px; max-width: 360px; margin-left: auto; margin-right: auto; }
+
+    /* ── Recommended section ── */
+    .recommended-section { margin-top: 48px; padding-top: 32px; border-top: 1px solid var(--border); }
+    .recommended-header { margin-bottom: 18px; }
+    .recommended-header h2 { font-family: 'Playfair Display', serif; font-size: 22px; color: var(--text); margin-bottom: 4px; }
+    .recommended-header p { font-size: 13px; color: var(--text-3); }
 
     /* ── Confirm modal (clear all) ── */
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 500; display: none; align-items: center; justify-content: center; padding: 20px; }
@@ -218,7 +238,7 @@
         <polyline points="9 22 9 12 15 12 15 22"/>
       </svg>
     </div>
-    NyumbaKisumu
+    Nyumba254
   </a>
   <div class="nav-links">
     <a href="index.html" class="nav-link">Home</a>
@@ -297,6 +317,20 @@
       <div class="skeleton"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line xshort"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div></div></div>
     </div>
   </div>
+
+  <!-- ── RECOMMENDED / RECENTLY LISTED ── -->
+  <div class="recommended-section" id="recommended-section">
+    <div class="recommended-header">
+      <h2>You may also like</h2>
+      <p>Recently listed properties across Kenya</p>
+    </div>
+    <div class="listings-grid" id="recommended-grid">
+      <div class="skeleton"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line xshort"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div></div></div>
+      <div class="skeleton"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line xshort"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div></div></div>
+      <div class="skeleton"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line xshort"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div></div></div>
+      <div class="skeleton"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line xshort"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div></div></div>
+    </div>
+  </div>
 </div>
 
 <!-- ── CLEAR ALL CONFIRM MODAL ── -->
@@ -319,8 +353,8 @@
   <div class="footer-inner">
     <div class="footer-top">
       <div>
-        <div class="footer-logo">NyumbaKisumu</div>
-        <p class="footer-tagline">Find and list apartments in Kisumu, Maseno, and Luanda — no agents, no commission.</p>
+        <div class="footer-logo">Nyumba254</div>
+        <p class="footer-tagline">Find and list apartments, shops, and offices across Kenya — no agents, no commission.</p>
       </div>
       <div class="footer-col">
         <h4>Browse</h4>
@@ -328,13 +362,14 @@
         <a href="listings.html?category=student">Student housing</a>
         <a href="listings.html?category=standard">Standard</a>
         <a href="listings.html?category=luxury">Luxury</a>
+        <a href="listings.html?category=commercial">Shops & offices</a>
       </div>
       <div class="footer-col">
-        <h4>Areas</h4>
-        <a href="listings.html?area=Milimani">Milimani</a>
-        <a href="listings.html?area=Maseno">Maseno</a>
-        <a href="listings.html?area=Luanda">Luanda</a>
-        <a href="listings.html?area=Kondele">Kondele</a>
+        <h4>Counties</h4>
+        <a href="listings.html?county=Kisumu">Kisumu</a>
+        <a href="listings.html?county=Nairobi">Nairobi</a>
+        <a href="listings.html?county=Mombasa">Mombasa</a>
+        <a href="listings.html">All 47 counties</a>
       </div>
       <div class="footer-col">
         <h4>Platform</h4>
@@ -345,8 +380,8 @@
       </div>
     </div>
     <div class="footer-bottom">
-      <p>© 2025 NyumbaKisumu. All rights reserved.</p>
-      <p>Kisumu · Maseno · Luanda · Western Kenya</p>
+      <p>© 2025 Nyumba254. All rights reserved.</p>
+      <p>Kisumu · Nairobi · Mombasa · Nationwide across Kenya</p>
     </div>
   </div>
 </footer>
@@ -360,6 +395,7 @@
   const SAVED_KEY = 'nk_saved_listings';
   let currentUser = null;
   let savedRows = [];
+  let recommendedRows = [];
 
   function getLocalSavedIds() {
     try { const raw = localStorage.getItem(SAVED_KEY); return raw ? JSON.parse(raw) : []; } catch { return []; }
@@ -409,6 +445,7 @@
       await loadFromLocalStorage();
     }
     render();
+    loadRecommended();
   }
 
   // ── Load from Supabase (signed-in buyer) ──
@@ -443,6 +480,29 @@
     savedRows = savedRows.filter(r => r.listing_id !== listingId);
     render();
     showToast('Removed from shortlist', 'success');
+    loadRecommended();
+  }
+
+  // ── Add a listing to the shortlist (used by the "You may also like" cards) ──
+  async function addToSaved(listingId, btnEl) {
+    if (btnEl) { btnEl.classList.add('added'); btnEl.disabled = true; }
+    const listing = recommendedRows.find(l => l.id === listingId);
+    if (currentUser) {
+      const { error } = await db.from('saved_listings').insert({ user_id: currentUser.id, listing_id: listingId });
+      if (error) {
+        showToast('Could not save — please try again', 'error');
+        if (btnEl) { btnEl.classList.remove('added'); btnEl.disabled = false; }
+        return;
+      }
+    } else {
+      const ids = getLocalSavedIds();
+      if (!ids.includes(listingId)) { ids.push(listingId); setLocalSavedIds(ids); }
+    }
+    if (listing) savedRows.unshift({ listing_id: listingId, created_at: currentUser ? new Date().toISOString() : null, listing });
+    recommendedRows = recommendedRows.filter(l => l.id !== listingId);
+    render();
+    renderRecommended();
+    showToast('Saved to your shortlist', 'success');
   }
 
   // ── Clear all ──
@@ -460,6 +520,7 @@
     savedRows = [];
     render();
     showToast('Shortlist cleared', 'success');
+    loadRecommended();
   }
 
   async function doSignOut() {
@@ -502,7 +563,7 @@
             <span class="card-cat-pill ${l.category}">${l.category}</span>
           </div>
           <div class="card-title">${l.title}</div>
-          <div class="card-sub">${l.address || 'Kisumu, Kenya'}</div>
+          <div class="card-sub">${l.address || l.area || 'Kenya'}</div>
           <div class="card-price">${formatPrice(l.price, l.price_type)}</div>
           <div class="card-meta">
             ${l.bedrooms !== null ? `<div class="card-meta-item"><svg viewBox="0 0 24 24"><path d="M2 4v16M22 4v16M2 12h20M2 8h4a2 2 0 012 2v2H2V8zM16 8h4a2 2 0 012 2v2h-6V8z"/></svg>${l.bedrooms === 0 ? 'Studio' : l.bedrooms + ' bed'}</div>` : ''}
@@ -535,6 +596,63 @@
       return;
     }
     grid.innerHTML = savedRows.map(buildCard).join('');
+  }
+
+  // ── "You may also like" — recently listed properties, excluding anything already saved ──
+  async function loadRecommended() {
+    const excludeIds = savedRows.map(r => r.listing_id);
+    const fetchLimit = excludeIds.length + 8;
+    let q = db.from('listings').select('*, listing_photos(*)')
+      .eq('status', 'active').eq('is_disabled', false)
+      .order('created_at', { ascending: false })
+      .limit(fetchLimit);
+    const { data, error } = await q;
+    if (error) { console.error('Load recommended error:', error.message); recommendedRows = []; renderRecommended(); return; }
+    recommendedRows = (data || []).filter(l => !excludeIds.includes(l.id)).slice(0, 8);
+    renderRecommended();
+  }
+
+  function buildRecommendedCard(l) {
+    const photos = l.listing_photos || [];
+    const cover = photos.find(p => p.is_cover) || photos[0];
+    const imgHtml = cover
+      ? `<img src="${cover.url}" alt="${l.title}" loading="lazy" decoding="async"/>`
+      : `<div class="card-img-placeholder"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg><span style="font-size:11px">No photo</span></div>`;
+    return `
+      <div class="card" data-id="${l.id}">
+        <a class="card-img-link" href="listing.html?id=${l.id}">
+          <div class="card-img">
+            ${imgHtml}
+            ${l.is_featured ? '<span class="badge-featured">Featured</span>' : ''}
+          </div>
+        </a>
+        <button class="add-heart-btn" title="Save to shortlist" onclick="addToSaved('${l.id}', this)">
+          <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+        </button>
+        <div class="card-body">
+          <div class="card-top-row">
+            <div class="card-area">${l.area}${l.sub_area ? ' · ' + l.sub_area : ''}</div>
+            <span class="card-cat-pill ${l.category}">${l.category}</span>
+          </div>
+          <div class="card-title">${l.title}</div>
+          <div class="card-sub">${l.address || l.area || 'Kenya'}</div>
+          <div class="card-price">${formatPrice(l.price, l.price_type)}</div>
+          <div class="card-meta">
+            ${l.bedrooms !== null ? `<div class="card-meta-item"><svg viewBox="0 0 24 24"><path d="M2 4v16M22 4v16M2 12h20M2 8h4a2 2 0 012 2v2H2V8zM16 8h4a2 2 0 012 2v2h-6V8z"/></svg>${l.bedrooms === 0 ? 'Studio' : l.bedrooms + ' bed'}</div>` : ''}
+            ${l.bathrooms ? `<div class="card-meta-item"><svg viewBox="0 0 24 24"><path d="M9 6l1-1a2 2 0 012.83 0l6.17 6.17a1 1 0 010 1.41L17 14M3 20h18M5 20v-4a3 3 0 013-3h1"/></svg>${l.bathrooms} bath</div>` : ''}
+            ${l.size_sqm ? `<div class="card-meta-item"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="1"/></svg>${l.size_sqm}m²</div>` : ''}
+          </div>
+          <a class="card-view-btn" href="listing.html?id=${l.id}" style="margin-top:10px">View listing</a>
+        </div>
+      </div>`;
+  }
+
+  function renderRecommended() {
+    const section = document.getElementById('recommended-section');
+    const grid = document.getElementById('recommended-grid');
+    if (!recommendedRows.length) { section.style.display = 'none'; return; }
+    section.style.display = 'block';
+    grid.innerHTML = recommendedRows.map(buildRecommendedCard).join('');
   }
 
   // ── Boot ──
@@ -628,7 +746,7 @@
         <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
       </div>
       <div>
-        <div class="nk-head-title">NyumbaKisumu</div>
+        <div class="nk-head-title">Nyumba254</div>
         <div class="nk-head-sub" id="nk-status-line">We usually reply within a few minutes</div>
       </div>
     </div>
@@ -681,7 +799,7 @@
 
   function renderGreeting() {
     document.getElementById('nk-msgs').innerHTML = `
-      <div class="nk-greeting"><strong>👋 Hi there!</strong>Have a question about finding or listing an apartment in Kisumu? We're here to help.</div>
+      <div class="nk-greeting"><strong>👋 Hi there!</strong>Have a question about finding or listing an apartment anywhere in Kenya? We're here to help.</div>
       <div class="nk-quick-replies" id="nk-qr-wrap">
         ${QUICK_REPLIES.map(q => `<button class="nk-qr" onclick="nkQuickReply(this,'${q.replace(/'/g,"\\'")}'">${q}</button>`).join('')}
       </div>`;
