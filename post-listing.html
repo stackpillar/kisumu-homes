@@ -3,303 +3,340 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Post a Listing — Nyumba254</title>
+  <title>Browse Listings — Nyumba254</title>
+  <meta name="description" content="Browse apartments for sale and rent across Kenya. Filter by county, area, price, bedrooms and more."/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --green:#0F6E56; --green-light:#E1F5EE; --green-mid:#1D9E75; --green-dark:#085041;
-      --gold:#BA7517; --gold-light:#FAEEDA;
-      --red:#C53030; --red-light:#FFF5F5;
-      --text:#1a1a18; --text-2:#4a4a46; --text-3:#888780;
-      --border:#e0ded8; --surface:#f7f6f2; --white:#ffffff;
-      --radius:10px; --radius-lg:16px;
+      --green:       #0F6E56;
+      --green-light: #E1F5EE;
+      --green-mid:   #1D9E75;
+      --green-dark:  #085041;
+      --gold:        #BA7517;
+      --gold-light:  #FAEEDA;
+      --text:        #1a1a18;
+      --text-2:      #4a4a46;
+      --text-3:      #888780;
+      --border:      #e0ded8;
+      --surface:     #f7f6f2;
+      --white:       #ffffff;
+      --radius:      10px;
+      --radius-lg:   16px;
     }
-    html { scroll-behavior:smooth; }
-    body { font-family:'Inter',sans-serif; color:var(--text); background:var(--surface); font-size:15px; line-height:1.6; }
-    a { text-decoration:none; color:inherit; }
-    button { font-family:inherit; cursor:pointer; border:none; }
-    input,select,textarea { font-family:inherit; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; color: var(--text); background: var(--surface); font-size: 15px; line-height: 1.6; }
+    a { text-decoration: none; color: inherit; }
+    button { font-family: inherit; cursor: pointer; border: none; }
+    input, select { font-family: inherit; }
 
-    nav { position:sticky; top:0; z-index:100; display:flex; align-items:center; justify-content:space-between; padding:0 32px; height:64px; background:var(--white); border-bottom:1px solid var(--border); }
-    .logo { display:flex; align-items:center; gap:10px; font-family:'Playfair Display',serif; font-size:20px; color:var(--green-dark); }
-    .logo-icon { width:34px; height:34px; background:var(--green); border-radius:8px; display:flex; align-items:center; justify-content:center; }
-    .logo-icon svg { width:18px; height:18px; fill:none; stroke:white; stroke-width:2; stroke-linecap:round; }
-    .nav-right { display:flex; align-items:center; gap:12px; }
-    .nav-link { font-size:14px; color:var(--text-2); padding:8px 14px; border-radius:var(--radius); transition:background .15s; }
-    .nav-link:hover { background:var(--surface); }
-
-    .trial-strip {
-      display:none;
-      background:linear-gradient(90deg, var(--green-dark), var(--green));
-      color:white; text-align:center; padding:11px 16px; font-size:13px; font-weight:600;
-      position:sticky; top:64px; z-index:90; letter-spacing:.01em;
+    /* ── Navbar ── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 32px; height: 64px;
+      background: var(--white); border-bottom: 1px solid var(--border);
     }
-    .trial-strip strong { color:#FFE9B8; }
-    .trial-strip .spots-tag {
-      background:rgba(255,255,255,0.2); padding:3px 11px; border-radius:20px; margin-left:8px; font-weight:700; font-size:12px;
+    .logo { display: flex; align-items: center; gap: 10px; font-family: 'Playfair Display', serif; font-size: 20px; color: var(--green-dark); }
+    .logo-icon { width: 34px; height: 34px; background: var(--green); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+    .logo-icon svg { width: 18px; height: 18px; fill: none; stroke: white; stroke-width: 2; stroke-linecap: round; }
+    .nav-links { display: flex; align-items: center; gap: 6px; }
+    .nav-link { font-size: 14px; color: var(--text-2); padding: 8px 14px; border-radius: var(--radius); transition: background .15s; white-space: nowrap; }
+    .nav-link:hover { background: var(--surface); color: var(--text); }
+    .btn { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 500; padding: 9px 18px; border-radius: var(--radius); transition: all .15s; }
+    .btn-primary { background: var(--green); color: white; }
+    .btn-primary:hover { background: var(--green-dark); }
+    .btn-outline { background: transparent; color: var(--text-2); border: 1.5px solid var(--border); }
+    .btn-outline:hover { border-color: var(--green); color: var(--green); }
+
+    /* ── Mobile menu ── */
+    .mobile-menu-btn {
+      display: none; background: none; border: none; cursor: pointer;
+      padding: 6px; border-radius: 6px;
     }
-
-    .page-wrap { max-width:860px; margin:0 auto; padding:40px 24px 80px; }
-
-    .steps-bar { display:flex; align-items:center; margin-bottom:40px; }
-    .step-item { display:flex; align-items:center; gap:10px; flex:1; }
-    .step-item:last-child { flex:0; }
-    .step-dot { width:32px; height:32px; border-radius:50%; border:2px solid var(--border); background:white; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:600; color:var(--text-3); flex-shrink:0; transition:all .3s; }
-    .step-dot.active { border-color:var(--green); background:var(--green); color:white; }
-    .step-dot.done { border-color:var(--green); background:var(--green-light); color:var(--green); }
-    .step-dot.done::after { content:'✓'; }
-    .step-dot.done span { display:none; }
-    .step-label { font-size:13px; color:var(--text-3); white-space:nowrap; }
-    .step-label.active { color:var(--green); font-weight:600; }
-    .step-line { flex:1; height:1px; background:var(--border); margin:0 12px; }
-    .step-line.done { background:var(--green); }
-
-    .form-card { background:white; border-radius:var(--radius-lg); border:1px solid var(--border); padding:32px; margin-bottom:20px; }
-    .form-card h2 { font-size:18px; font-weight:600; color:var(--text); margin-bottom:6px; }
-    .form-card p.hint { font-size:13px; color:var(--text-3); margin-bottom:24px; }
-
-    .trial-intro-card {
-      display:none;
-      border:2px solid var(--green);
-      background:linear-gradient(135deg, var(--green-light), #ffffff);
+    .mobile-menu-btn svg { width: 22px; height: 22px; stroke: var(--text); fill: none; stroke-width: 2; display: block; }
+    .mobile-nav {
+      display: none; position: fixed; top: 64px; left: 0; right: 0;
+      background: var(--white); border-bottom: 1px solid var(--border);
+      padding: 16px; z-index: 99; flex-direction: column; gap: 4px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
     }
-    .trial-intro-top { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:14px; flex-wrap:wrap; }
-    .trial-intro-card h2 { font-size:19px; color:var(--green-dark); margin-bottom:8px; }
-    .trial-intro-card > p.hint { color:var(--green); margin-bottom:16px; }
-    .trial-ribbon { background:var(--gold); color:white; font-size:11px; font-weight:700; padding:4px 12px; border-radius:20px; letter-spacing:.03em; }
-    .trial-intro-spots { font-size:12px; font-weight:700; color:var(--gold); background:var(--gold-light); padding:4px 12px; border-radius:20px; }
-    .trial-steps { display:flex; flex-direction:column; gap:12px; margin-bottom:16px; }
-    .trial-step { display:flex; gap:12px; align-items:flex-start; }
-    .trial-step-num { width:24px; height:24px; border-radius:50%; background:var(--green); color:white; font-size:12px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px; }
-    .trial-step p { font-size:13.5px; color:var(--text-2); line-height:1.55; }
-    .trial-step strong { color:var(--text); }
-    .trial-intro-note {
-      font-size:13px; color:var(--green-dark); background:rgba(255,255,255,0.6);
-      border:1px dashed var(--green); border-radius:var(--radius); padding:10px 12px; display:none;
+    .mobile-nav.open { display: flex; }
+    .mobile-nav a { font-size: 15px; color: var(--text-2); padding: 10px 14px; border-radius: var(--radius); }
+    .mobile-nav a:hover { background: var(--surface); }
+    .mobile-nav .btn-primary { text-align: center; justify-content: center; margin-top: 8px; }
+
+    /* ── Page header ── */
+    .page-header {
+      background: var(--white); border-bottom: 1px solid var(--border);
+      padding: 24px 32px 0;
     }
-    .trial-intro-note.show { display:block; }
-    .trial-intro-note a { color:var(--green-dark); font-weight:700; text-decoration:underline; }
+    .page-header h1 { font-family: 'Playfair Display', serif; font-size: 28px; color: var(--text); margin-bottom: 4px; }
+    .page-header p { font-size: 14px; color: var(--text-3); margin-bottom: 20px; }
 
-    .field { margin-bottom:20px; }
-    .field:last-child { margin-bottom:0; }
-    .field label { display:block; font-size:13px; font-weight:600; color:var(--text-2); margin-bottom:6px; }
-    .field label .req { color:var(--red); margin-left:2px; }
-    .field label .opt { font-size:11px; font-weight:400; color:var(--text-3); margin-left:4px; }
-    .field input,.field select,.field textarea { width:100%; padding:10px 14px; border:1.5px solid var(--border); border-radius:var(--radius); font-size:14px; color:var(--text); background:var(--surface); outline:none; transition:border-color .15s, background .15s; }
-    .field input:focus,.field select:focus,.field textarea:focus { border-color:var(--green); background:white; }
-    .field input.error,.field select.error,.field textarea.error { border-color:var(--red); background:var(--red-light); }
-    .field textarea { resize:vertical; min-height:100px; line-height:1.6; }
-    .field-hint { font-size:12px; color:var(--text-3); margin-top:5px; }
-    .field-error { font-size:12px; color:var(--red); margin-top:5px; display:none; }
-    .field-error.show { display:block; }
-
-    .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
-    .grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; }
-
-    .cat-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
-    .cat-option { border:2px solid var(--border); border-radius:var(--radius-lg); padding:16px; cursor:pointer; transition:all .2s; text-align:center; background:white; }
-    .cat-option:hover { border-color:var(--green-mid); }
-    .cat-option.selected { border-color:var(--green); background:var(--green-light); }
-    .cat-option-icon { font-size:28px; margin-bottom:8px; }
-    .cat-option-title { font-size:14px; font-weight:600; color:var(--text); margin-bottom:3px; }
-    .cat-option-desc { font-size:12px; color:var(--text-3); line-height:1.4; }
-    .cat-option.selected .cat-option-title { color:var(--green-dark); }
-
-    .toggle-group { display:flex; border:1.5px solid var(--border); border-radius:var(--radius); overflow:hidden; }
-    .toggle-opt { flex:1; padding:10px; text-align:center; font-size:14px; font-weight:500; color:var(--text-3); cursor:pointer; transition:all .15s; background:white; user-select:none; }
-    .toggle-opt:hover { background:var(--surface); }
-    .toggle-opt.active { background:var(--green); color:white; }
-
-    .photo-drop { border:2px dashed var(--border); border-radius:var(--radius-lg); padding:36px 24px; text-align:center; cursor:pointer; transition:all .2s; background:var(--surface); }
-    .photo-drop:hover,.photo-drop.drag-over { border-color:var(--green); background:var(--green-light); }
-    .photo-drop svg { width:40px; height:40px; stroke:var(--text-3); fill:none; stroke-width:1.5; margin:0 auto 12px; display:block; }
-    .photo-drop p { font-size:14px; color:var(--text-2); margin-bottom:4px; }
-    .photo-drop span { font-size:12px; color:var(--text-3); }
-    .photo-drop input[type="file"] { display:none; }
-    .photo-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(110px,1fr)); gap:10px; margin-top:16px; }
-    .photo-thumb { position:relative; aspect-ratio:1; border-radius:8px; overflow:hidden; border:1.5px solid var(--border); }
-    .photo-thumb img { width:100%; height:100%; object-fit:cover; }
-    .photo-thumb .remove-btn { position:absolute; top:4px; right:4px; width:22px; height:22px; background:rgba(0,0,0,0.6); color:white; border-radius:50%; font-size:14px; line-height:1; display:flex; align-items:center; justify-content:center; cursor:pointer; }
-    .photo-thumb .remove-btn:hover { background:var(--red); }
-    .photo-thumb .cover-badge { position:absolute; bottom:4px; left:4px; background:var(--green); color:white; font-size:10px; font-weight:600; padding:2px 6px; border-radius:4px; }
-    .photo-thumb .set-cover { position:absolute; bottom:4px; left:4px; background:rgba(0,0,0,0.5); color:white; font-size:10px; padding:2px 6px; border-radius:4px; cursor:pointer; display:none; }
-    .photo-thumb:hover .set-cover { display:block; }
-    .upload-progress { margin-top:8px; height:4px; background:var(--border); border-radius:2px; overflow:hidden; display:none; }
-    .upload-progress-bar { height:100%; background:var(--green); border-radius:2px; transition:width .3s; width:0%; }
-
-    .trial-banner {
-      border:2px solid var(--green); border-radius:var(--radius-lg); padding:22px; margin-bottom:8px;
-      cursor:pointer; transition:all .2s; background:linear-gradient(135deg, var(--green-light), #ffffff);
-      display:none; position:relative;
+    /* Search bar in header */
+    .header-search { display: flex; gap: 8px; flex-wrap: wrap; padding-bottom: 20px; }
+    .header-search input {
+      flex: 1; min-width: 200px; padding: 9px 14px; border-radius: var(--radius);
+      border: 1.5px solid var(--border); font-size: 14px; color: var(--text); outline: none;
+      background: var(--surface); transition: border-color .15s;
     }
-    .trial-banner.selected { background:linear-gradient(135deg, var(--green), var(--green-dark)); border-color:var(--green-dark); }
-    .trial-banner.selected h3, .trial-banner.selected p, .trial-banner.selected .trial-spots { color:white; }
-    .trial-banner-top { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px; flex-wrap:wrap; }
-    .trial-applied-check { font-size:12px; font-weight:700; color:var(--green-dark); background:white; padding:4px 10px; border-radius:20px; display:none; align-items:center; gap:4px; }
-    .trial-banner.selected .trial-applied-check { display:inline-flex; }
-    .trial-banner h3 { font-size:16px; font-weight:700; color:var(--green-dark); margin-bottom:6px; }
-    .trial-banner p { font-size:13px; color:var(--green); line-height:1.55; margin-bottom:10px; }
-    .trial-spots { font-size:12px; font-weight:700; color:var(--gold); }
-
-    .upgrade-divider { display:none; align-items:center; gap:10px; font-size:12px; color:var(--text-3); margin:20px 0 16px; }
-    .upgrade-divider::before,.upgrade-divider::after { content:''; flex:1; height:1px; background:var(--border); }
-
-    .pricing-options { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
-    .pricing-option { border:2px solid var(--border); border-radius:var(--radius-lg); padding:20px; cursor:pointer; transition:all .2s; background:white; position:relative; }
-    .pricing-option:hover { border-color:var(--green-mid); }
-    .pricing-option.selected { border-color:var(--green); background:var(--green-light); }
-    .pricing-option .pop-badge { position:absolute; top:-10px; left:50%; transform:translateX(-50%); background:var(--gold); color:white; font-size:11px; font-weight:600; padding:2px 12px; border-radius:20px; white-space:nowrap; }
-    .pricing-option h3 { font-size:15px; font-weight:600; color:var(--text); margin-bottom:4px; }
-    .pricing-option .price-tag { font-size:22px; font-weight:700; color:var(--green-dark); margin-bottom:10px; }
-    .pricing-option .price-tag span { font-size:13px; font-weight:400; color:var(--text-3); }
-    .pricing-option ul { list-style:none; padding:0; }
-    .pricing-option ul li { font-size:13px; color:var(--text-2); padding:3px 0; display:flex; align-items:center; gap:7px; }
-    .pricing-option ul li::before { content:'✓'; color:var(--green); font-weight:700; font-size:12px; }
-    .pricing-option.featured-opt { border-color:var(--gold); }
-    .pricing-option.featured-opt.selected { border-color:var(--gold); background:var(--gold-light); }
-
-    .trial-applied-banner {
-      display:none; align-items:center; gap:14px;
-      background:linear-gradient(135deg, var(--green), var(--green-dark)); color:white;
-      border-radius:var(--radius-lg); padding:18px 22px; margin-bottom:20px;
+    .header-search input:focus { border-color: var(--green); background: white; }
+    .header-search button {
+      padding: 9px 20px; background: var(--green); color: white; border-radius: var(--radius);
+      font-size: 14px; font-weight: 500; transition: background .15s;
     }
-    .trial-applied-banner .icon { font-size:28px; flex-shrink:0; }
-    .trial-applied-banner strong { display:block; font-size:15px; margin-bottom:2px; }
-    .trial-applied-banner span.sub { font-size:13px; color:rgba(255,255,255,0.85); }
+    .header-search button:hover { background: var(--green-dark); }
 
-    .summary-row { display:flex; justify-content:space-between; align-items:flex-start; padding:10px 0; border-bottom:1px solid var(--border); font-size:14px; gap:12px; }
-    .summary-row:last-child { border-bottom:none; font-weight:600; font-size:15px; color:var(--green-dark); }
-    .summary-row span:first-child { color:var(--text-2); flex-shrink:0; }
-    .summary-row strong { text-align:right; }
+    /* ── Layout ── */
+    .layout { display: grid; grid-template-columns: 280px 1fr; gap: 0; min-height: calc(100vh - 200px); }
 
-    .form-actions { display:flex; gap:12px; justify-content:space-between; align-items:center; margin-top:24px; }
-    .btn-back { padding:11px 22px; border-radius:var(--radius); border:1.5px solid var(--border); background:white; font-size:14px; font-weight:500; color:var(--text-2); transition:all .15s; cursor:pointer; }
-    .btn-back:hover { border-color:var(--text-2); color:var(--text); }
-    .btn-next { padding:11px 28px; border-radius:var(--radius); background:var(--green); color:white; font-size:14px; font-weight:600; transition:background .15s; display:flex; align-items:center; gap:8px; cursor:pointer; border:none; }
-    .btn-next:hover { background:var(--green-dark); }
-    .btn-submit { padding:13px 32px; border-radius:var(--radius); background:var(--green); color:white; font-size:15px; font-weight:600; transition:background .15s; display:flex; align-items:center; gap:8px; cursor:pointer; border:none; }
-    .btn-submit:hover { background:var(--green-dark); }
-    .btn-submit:disabled,.btn-next:disabled { opacity:.6; cursor:not-allowed; }
-
-    .success-screen { text-align:center; padding:60px 24px; display:none; }
-    .success-icon { width:72px; height:72px; background:var(--green-light); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 24px; }
-    .success-icon svg { width:36px; height:36px; stroke:var(--green); fill:none; stroke-width:2.5; }
-    .success-screen h2 { font-family:'Playfair Display',serif; font-size:28px; color:var(--text); margin-bottom:10px; }
-    .success-screen p { font-size:15px; color:var(--text-2); max-width:440px; margin:0 auto 28px; line-height:1.7; }
-    .success-actions { display:flex; justify-content:center; gap:12px; flex-wrap:wrap; }
-
-    .toast { position:fixed; bottom:24px; right:24px; z-index:9999; background:var(--text); color:white; padding:12px 20px; border-radius:var(--radius); font-size:14px; transform:translateY(80px); opacity:0; transition:all .3s; max-width:340px; line-height:1.5; }
-    .toast.show { transform:translateY(0); opacity:1; }
-    .toast.error { background:var(--red); }
-    .toast.success { background:var(--green-dark); }
-
-    .modal-overlay { position:fixed; inset:0; background:rgba(15,15,12,0.6); display:none; align-items:center; justify-content:center; z-index:1000; padding:20px; }
-    .modal-overlay.show { display:flex; }
-    .modal-box { background:white; border-radius:var(--radius-lg); max-width:480px; width:100%; padding:28px; max-height:92vh; overflow-y:auto; position:relative; box-shadow:0 20px 60px rgba(0,0,0,0.25); }
-    .modal-close-x { position:absolute; top:14px; right:14px; width:30px; height:30px; border-radius:50%; background:var(--surface); color:var(--text-2); font-size:18px; line-height:1; display:flex; align-items:center; justify-content:center; cursor:pointer; border:none; }
-    .modal-close-x:hover { background:var(--border); }
-    .modal-box h2 { font-size:18px; font-weight:600; margin-bottom:4px; padding-right:32px; }
-    .modal-hint { font-size:13px; color:var(--text-3); margin-bottom:18px; line-height:1.6; }
-    .pay-amount-display { font-size:32px; font-weight:700; color:var(--green-dark); margin-bottom:20px; }
-    .pay-amount-display span { font-size:14px; font-weight:400; color:var(--text-3); }
-
-    .pay-tabs { display:flex; border:1.5px solid var(--border); border-radius:var(--radius); overflow:hidden; margin-bottom:22px; }
-    .pay-tab { flex:1; padding:11px; text-align:center; font-size:14px; font-weight:600; color:var(--text-3); cursor:pointer; background:white; transition:all .15s; }
-    .pay-tab.active { background:var(--green); color:white; }
-    .pay-panel { display:none; }
-    .pay-panel.active { display:block; }
-
-    .stk-steps { margin-bottom:20px; }
-    .stk-step { display:flex; gap:12px; align-items:flex-start; margin-bottom:12px; }
-    .stk-step-num { width:24px; height:24px; border-radius:50%; background:var(--green); color:white; font-size:12px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px; }
-    .stk-step p { font-size:13px; color:var(--text-2); line-height:1.5; }
-    .stk-step strong { color:var(--text); }
-
-    .stk-status { display:none; align-items:center; gap:10px; border-radius:var(--radius); padding:12px 14px; font-size:13px; margin:14px 0; }
-    .stk-status.pending { display:flex; background:var(--green-light); color:var(--green-dark); }
-    .stk-status.success { display:flex; background:#d1fae5; color:#065f46; }
-    .stk-status.error   { display:flex; background:var(--red-light); color:var(--red); }
-    .stk-spin { width:16px; height:16px; border:2px solid var(--green); border-top-color:transparent; border-radius:50%; animation:spin .7s linear infinite; flex-shrink:0; }
-    @keyframes spin { to { transform:rotate(360deg); } }
-
-    .manual-divider { display:flex; align-items:center; gap:10px; font-size:12px; color:var(--text-3); margin:18px 0; }
-    .manual-divider::before,.manual-divider::after { content:''; flex:1; height:1px; background:var(--border); }
-
-    .bank-details { background:var(--surface); border-radius:var(--radius); padding:16px; margin-bottom:18px; border:1px solid var(--border); }
-    .bank-details h4 { font-size:13px; font-weight:700; color:var(--text); margin-bottom:12px; text-transform:uppercase; letter-spacing:.04em; }
-    .bank-row { display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid var(--border); font-size:13px; }
-    .bank-row:last-child { border-bottom:none; }
-    .bank-row span:first-child { color:var(--text-3); }
-    .bank-row strong { color:var(--text); font-weight:600; }
-
-    .verify-section { margin-bottom:12px; }
-    .verify-section label { display:block; font-size:13px; font-weight:600; color:var(--text-2); margin-bottom:6px; }
-    .verify-section input { width:100%; padding:10px 14px; border:1.5px solid var(--border); border-radius:var(--radius); font-size:14px; color:var(--text); background:var(--surface); outline:none; transition:border-color .15s; letter-spacing:.04em; }
-    .verify-section input:focus { border-color:var(--green); background:white; }
-
-    .btn-pay-primary { width:100%; padding:13px; border-radius:var(--radius); background:var(--green); color:white; font-size:15px; font-weight:600; margin-top:8px; transition:background .15s; border:none; cursor:pointer; }
-    .btn-pay-primary:hover { background:var(--green-dark); }
-    .btn-pay-primary:disabled { opacity:.6; cursor:not-allowed; }
-
-    .pay-note { font-size:12px; color:var(--text-3); background:var(--surface); border-radius:var(--radius); padding:10px 12px; margin-top:16px; line-height:1.6; }
-    .skip-link { display:block; text-align:center; margin-top:16px; font-size:13px; color:var(--text-3); cursor:pointer; padding:6px; }
-    .skip-link:hover { color:var(--text-2); text-decoration:underline; }
-
-    .auth-banner { background:var(--green-light); border:1px solid var(--green); border-radius:var(--radius-lg); padding:20px 24px; text-align:center; margin-bottom:24px; display:none; }
-    .auth-banner p { font-size:14px; color:var(--green-dark); margin-bottom:12px; }
-    .auth-banner a { background:var(--green); color:white; padding:9px 20px; border-radius:var(--radius); font-size:14px; font-weight:600; display:inline-block; }
-
-    /* ── Draggable trial promo widget ── */
-    .trial-floatie {
-      position:fixed; top:96px; left:20px; z-index:500; width:230px;
-      display:none;
-      background:linear-gradient(135deg, var(--green), var(--green-dark));
-      color:white; border-radius:16px; box-shadow:0 10px 30px rgba(0,0,0,0.25);
-      user-select:none;
+    /* ── Sidebar filters ── */
+    .sidebar {
+      background: var(--white); border-right: 1px solid var(--border);
+      padding: 24px 20px; position: sticky; top: 64px;
+      height: calc(100vh - 64px); overflow-y: auto;
     }
-    .trial-floatie.show { display:block; }
-    .trial-floatie-handle {
-      position:absolute; top:6px; left:8px; cursor:grab; font-size:15px; color:rgba(255,255,255,0.55);
-      padding:5px 7px; line-height:1; touch-action:none; letter-spacing:2px;
-    }
-    .trial-floatie-handle:active { cursor:grabbing; }
-    .trial-floatie-close {
-      position:absolute; top:6px; right:6px; width:22px; height:22px; border-radius:50%;
-      background:rgba(255,255,255,0.15); color:white; border:none; font-size:14px; cursor:pointer;
-      display:flex; align-items:center; justify-content:center; z-index:2;
-    }
-    .trial-floatie-close:hover { background:rgba(255,255,255,0.3); }
-    .trial-floatie-body {
-      display:flex; align-items:center; gap:10px; padding:22px 14px 14px 32px; text-decoration:none; color:white;
-    }
-    .trial-floatie-emoji { font-size:22px; flex-shrink:0; }
-    .trial-floatie-copy { display:flex; flex-direction:column; font-size:12.5px; line-height:1.4; }
-    .trial-floatie-copy strong { font-size:13.5px; }
-    .trial-floatie-copy .floatie-spots { display:block; font-size:11px; color:#FFE9B8; font-weight:600; margin-top:2px; }
-    .trial-floatie-arrow { margin-left:auto; font-size:16px; flex-shrink:0; }
+    .sidebar::-webkit-scrollbar { width: 4px; }
+    .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
-    @media(max-width:640px) {
-      nav { padding:0 16px; }
-      .page-wrap { padding:24px 16px 60px; }
-      .form-card { padding:20px 16px; }
-      .grid-2,.grid-3 { grid-template-columns:1fr; }
-      .cat-grid { grid-template-columns:1fr; }
-      .pricing-options { grid-template-columns:1fr; }
-      .steps-bar .step-label { display:none; }
-      .modal-box { padding:22px 18px; }
-      .trial-strip { top:64px; font-size:12px; padding:9px 12px; }
-      .trial-floatie { left:12px; top:auto; bottom:90px; width:200px; }
+    .filter-section { margin-bottom: 28px; }
+    .filter-label { font-size: 11px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 10px; display: block; }
+    .filter-reset { float: right; font-size: 11px; color: var(--green); cursor: pointer; text-transform: none; letter-spacing: 0; font-weight: 500; }
+    .filter-reset:hover { text-decoration: underline; }
+
+    /* Checkbox filters */
+    .check-list { display: flex; flex-direction: column; gap: 6px; }
+    .check-item { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+    .check-item input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--green); cursor: pointer; }
+    .check-item label { font-size: 13px; color: var(--text-2); cursor: pointer; flex: 1; }
+    .check-item .check-count { font-size: 12px; color: var(--text-3); }
+
+    /* County select in sidebar */
+    .county-select {
+      width: 100%; padding: 9px 12px; border: 1.5px solid var(--border); border-radius: var(--radius);
+      font-size: 13px; color: var(--text); background: white; outline: none; cursor: pointer; margin-bottom: 10px;
     }
-    @media(max-width:820px) and (min-width:641px) {
-      .cat-grid { grid-template-columns:repeat(2,1fr); }
+    .county-select:focus { border-color: var(--green); }
+    .area-hint { font-size: 12px; color: var(--text-3); }
+
+    /* Range inputs */
+    .range-row { display: flex; gap: 8px; align-items: center; }
+    .range-input {
+      flex: 1; padding: 8px 10px; border: 1.5px solid var(--border); border-radius: 8px;
+      font-size: 13px; color: var(--text); outline: none; background: var(--surface);
+      transition: border-color .15s;
+    }
+    .range-input:focus { border-color: var(--green); background: white; }
+    .range-sep { font-size: 12px; color: var(--text-3); }
+
+    /* Pill toggles */
+    .pill-group { display: flex; flex-wrap: wrap; gap: 6px; }
+    .filter-pill {
+      font-size: 12px; padding: 5px 12px; border-radius: 20px;
+      border: 1.5px solid var(--border); background: white; color: var(--text-2);
+      cursor: pointer; transition: all .15s; font-weight: 500;
+    }
+    .filter-pill:hover { border-color: var(--green); color: var(--green); }
+    .filter-pill.active { background: var(--green); color: white; border-color: var(--green); }
+
+    .apply-btn {
+      width: 100%; padding: 11px; background: var(--green); color: white;
+      border-radius: var(--radius); font-size: 14px; font-weight: 600;
+      transition: background .15s; margin-top: 8px;
+    }
+    .apply-btn:hover { background: var(--green-dark); }
+
+    /* ── Main content ── */
+    .main { padding: 24px; }
+
+    /* Toolbar */
+    .toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+    .result-count { font-size: 14px; color: var(--text-2); }
+    .result-count strong { color: var(--text); font-weight: 600; }
+    .sort-select {
+      padding: 8px 12px; border: 1.5px solid var(--border); border-radius: var(--radius);
+      font-size: 13px; color: var(--text); background: white; outline: none; cursor: pointer;
+    }
+    .sort-select:focus { border-color: var(--green); }
+
+    /* Active filter tags */
+    .active-filters { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+    .filter-tag {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: var(--green-light); color: var(--green-dark);
+      font-size: 12px; font-weight: 500; padding: 4px 10px; border-radius: 20px;
+      border: 1px solid #9FE1CB;
+    }
+    .filter-tag button { background: none; color: var(--green-dark); font-size: 14px; line-height: 1; padding: 0; margin-left: 2px; opacity: .7; }
+    .filter-tag button:hover { opacity: 1; }
+
+    /* Listings grid */
+    .listings-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+
+    /* Card */
+    .card {
+      background: white; border-radius: var(--radius-lg); border: 1px solid var(--border);
+      overflow: hidden; transition: transform .2s, box-shadow .2s; cursor: pointer;
+    }
+    .card:hover { transform: translateY(-2px); box-shadow: 0 4px 20px rgba(0,0,0,0.09); }
+    .card-img { height: 180px; background: var(--surface); position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+    .card-img img { width: 100%; height: 100%; object-fit: cover; }
+    .card-img-placeholder { display: flex; flex-direction: column; align-items: center; gap: 6px; color: var(--text-3); }
+    .card-img-placeholder svg { width: 32px; height: 32px; opacity: .3; stroke: currentColor; fill: none; stroke-width: 1.5; }
+    .badge-featured { position: absolute; top: 10px; left: 10px; background: var(--gold); color: white; font-size: 10px; font-weight: 600; padding: 3px 9px; border-radius: 20px; }
+    .badge-cat { position: absolute; top: 10px; right: 10px; font-size: 10px; font-weight: 600; padding: 3px 9px; border-radius: 20px; text-transform: capitalize; }
+    .badge-cat.student { background: var(--green); color: white; }
+    .badge-cat.luxury { background: var(--gold-light); color: var(--gold); border: 1px solid var(--gold); }
+    .badge-cat.commercial { background: #EAEEF7; color: #2A3B7A; border: 1px solid #B9C6EA; }
+    .card-body { padding: 14px 16px; }
+    .card-area { font-size: 11px; font-weight: 600; color: var(--green); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
+    .card-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 3px; line-height: 1.35; }
+    .card-sub { font-size: 12px; color: var(--text-3); margin-bottom: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .card-price { font-size: 17px; font-weight: 700; color: var(--green-dark); margin-bottom: 10px; }
+    .card-price span { font-size: 12px; font-weight: 400; color: var(--text-3); }
+    .card-meta { display: flex; gap: 12px; font-size: 12px; color: var(--text-2); padding-top: 10px; border-top: 1px solid var(--border); }
+    .card-meta-item { display: flex; align-items: center; gap: 4px; }
+    .card-meta-item svg { width: 13px; height: 13px; stroke: var(--text-3); fill: none; stroke-width: 2; }
+
+    /* ── Skeleton loading ── */
+    .skeleton { background: white; border-radius: var(--radius-lg); overflow: hidden; border: 1px solid var(--border); }
+    .skeleton-img { height: 180px; background: linear-gradient(90deg, #f0efe9 25%, #e8e7e1 50%, #f0efe9 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; }
+    .skeleton-body { padding: 14px 16px; }
+    .skeleton-line { height: 11px; background: linear-gradient(90deg, #f0efe9 25%, #e8e7e1 50%, #f0efe9 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; border-radius: 4px; margin-bottom: 9px; }
+    .skeleton-line.short { width: 55%; }
+    .skeleton-line.xshort { width: 35%; }
+    @keyframes shimmer { to { background-position: -200% 0; } }
+
+    /* ── Empty & error states ── */
+    .empty-state { text-align: center; padding: 80px 20px; color: var(--text-3); grid-column: 1/-1; }
+    .empty-state svg { width: 48px; height: 48px; margin: 0 auto 16px; stroke: var(--border); fill: none; stroke-width: 1.5; }
+    .empty-state h3 { font-size: 16px; font-weight: 600; color: var(--text-2); margin-bottom: 6px; }
+    .empty-state p { font-size: 14px; }
+    .empty-state a { color: var(--green); font-weight: 500; }
+
+    /* ── Pagination ── */
+    .pagination { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 32px; }
+    .page-btn {
+      width: 36px; height: 36px; border-radius: 8px; border: 1.5px solid var(--border);
+      background: white; color: var(--text-2); font-size: 13px; font-weight: 500;
+      cursor: pointer; transition: all .15s; display: flex; align-items: center; justify-content: center;
+    }
+    .page-btn:hover { border-color: var(--green); color: var(--green); }
+    .page-btn.active { background: var(--green); color: white; border-color: var(--green); }
+    .page-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+    /* ── Mobile sidebar toggle ── */
+    .filter-toggle {
+      display: none; align-items: center; gap: 6px;
+      padding: 8px 14px; border-radius: var(--radius); border: 1.5px solid var(--border);
+      background: white; font-size: 13px; font-weight: 500; color: var(--text);
+    }
+    .filter-toggle svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; }
+    .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 199; }
+    .sidebar-overlay.open { display: block; }
+
+    /* ══════════════════════════════════════
+       NOTIFY ME — "haven't found what you're
+       looking for" alert strip + modal form
+    ══════════════════════════════════════ */
+    .notify-strip {
+      position: relative;
+      margin-top: 28px;
+      background: linear-gradient(135deg, var(--green-light), #eef8f2);
+      border: 1.5px dashed var(--green-mid);
+      border-radius: var(--radius-lg);
+      padding: 18px 22px;
+    }
+    .notify-strip-close {
+      position: absolute; top: 8px; right: 10px; background: none; border: none;
+      color: var(--text-3); cursor: pointer; font-size: 14px; padding: 4px;
+    }
+    .notify-strip-close:hover { color: var(--text); }
+    .notify-strip-inner { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+    .notify-strip-icon { font-size: 26px; flex-shrink: 0; }
+    .notify-strip-text { flex: 1; min-width: 220px; }
+    .notify-strip-text strong { display: block; font-size: 14.5px; color: var(--green-dark); margin-bottom: 2px; }
+    .notify-strip-text span { font-size: 13px; color: var(--text-2); }
+
+    .notify-modal-overlay {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+      z-index: 500; align-items: center; justify-content: center; padding: 20px;
+    }
+    .notify-modal-overlay.open { display: flex; }
+    .notify-modal {
+      background: white; border-radius: var(--radius-lg); max-width: 520px; width: 100%;
+      max-height: 90vh; overflow-y: auto; box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+    }
+    .notify-modal-head {
+      padding: 20px 24px 14px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; background: white; z-index: 2;
+    }
+    .notify-modal-head h3 { font-size: 17px; font-weight: 600; color: var(--text); font-family: 'Playfair Display', serif; }
+    .notify-modal-close { background: none; border: none; font-size: 20px; color: var(--text-3); cursor: pointer; padding: 2px 6px; }
+    .notify-modal-close:hover { color: var(--text); }
+    .notify-modal-body { padding: 20px 24px; }
+    .notify-modal-sub { font-size: 13px; color: var(--text-3); margin-bottom: 18px; line-height: 1.6; }
+    .nf-field { margin-bottom: 16px; }
+    .nf-field label { display: block; font-size: 12px; font-weight: 600; color: var(--text-2); margin-bottom: 6px; }
+    .nf-optional { font-weight: 400; color: var(--text-3); font-size: 11px; }
+    .nf-field input[type="text"], .nf-field input[type="tel"], .nf-field input[type="email"],
+    .nf-field input[type="number"], .nf-field select, .nf-field textarea {
+      width: 100%; padding: 10px 13px; border: 1.5px solid var(--border); border-radius: var(--radius);
+      font-size: 13px; color: var(--text); outline: none; background: var(--surface);
+      transition: border-color .15s, background .15s; font-family: inherit;
+    }
+    .nf-field input:focus, .nf-field select:focus, .nf-field textarea:focus { border-color: var(--green); background: white; }
+    .nf-field textarea { resize: vertical; min-height: 60px; }
+    .nf-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .nf-check { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--text-2); cursor: pointer; font-weight: 500; }
+    .nf-check input { width: 15px; height: 15px; accent-color: var(--green); cursor: pointer; }
+    .notify-modal-foot {
+      padding: 16px 24px; border-top: 1px solid var(--border); display: flex; gap: 10px;
+      justify-content: flex-end; position: sticky; bottom: 0; background: white;
+    }
+    .notify-success-toast {
+      position: fixed; bottom: 24px; right: 24px; z-index: 999;
+      background: var(--green-dark); color: white; padding: 13px 20px; border-radius: var(--radius);
+      font-size: 13px; font-weight: 500; box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+      transform: translateY(80px); opacity: 0; transition: all .3s; max-width: 320px;
+    }
+    .exit-star { width:28px; height:28px; cursor:pointer; stroke:var(--border); fill:none; stroke-width:1.5; transition:all .1s; }
+    .exit-star.filled { fill:var(--gold); stroke:var(--gold); }
+    .notify-success-toast.show { transform: translateY(0); opacity: 1; }
+
+    /* ── Responsive ── */
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+      .sidebar {
+        position: fixed; top: 0; left: -300px; width: 280px; height: 100vh;
+        z-index: 200; transition: left .25s; padding-top: 16px;
+      }
+      .sidebar.open { left: 0; }
+      .filter-toggle { display: flex; }
+      .page-header { padding: 20px 16px 0; }
+      .main { padding: 16px; }
+    }
+    @media (max-width: 768px) {
+      nav { padding: 0 16px; }
+      .nav-links { display: none; }
+      .mobile-menu-btn { display: flex; }
+    }
+    @media (max-width: 600px) {
+      .nf-row { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 480px) {
+      .header-search { flex-direction: column; }
+      .header-search input, .header-search button { width: 100%; }
     }
   </style>
 </head>
 <body>
 
+<!-- ── NAVBAR ── -->
 <nav>
   <a href="index.html" class="logo">
     <div class="logo-icon">
@@ -307,441 +344,343 @@
     </div>
     Nyumba254
   </a>
-  <div class="nav-right">
-    <a href="listings.html" class="nav-link">Browse listings</a>
+  <div class="nav-links">
+    <a href="listings.html" class="nav-link" style="color:var(--green);font-weight:500">Browse</a>
+    <a href="how-it-works.html" class="nav-link">How it works</a>
+    <a href="about.html" class="nav-link">About us</a>
+    <a href="pricing.html" class="nav-link">Pricing</a>
+    <a href="contact.html" class="nav-link">Contact</a>
+    <a href="login.html" class="nav-link" id="nav-account-link">Sign in</a>
+    <a href="saved.html" class="nav-link">
+      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+      Saved
+    </a>
+    <a href="post-listing.html" class="btn btn-primary">List your apartment</a>
   </div>
+  <button class="mobile-menu-btn" onclick="toggleMobileMenu()" aria-label="Open menu">
+    <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  </button>
 </nav>
 
-<div class="trial-strip" id="trial-strip">
-  🎉 <strong>Free 7-Day Trial</strong> for first-time sellers
-  <span class="spots-tag" id="strip-spots">Limited spots</span>
-</div>
-
-<div class="toast" id="toast"></div>
-
-<div class="page-wrap">
-
-  <div class="auth-banner" id="auth-banner">
-    <p>You need to be signed in to post a listing.</p>
-    <a href="login.html?next=post-listing.html">Sign in or create a free account →</a>
-  </div>
-
-  <div class="steps-bar" id="steps-bar">
-    <div class="step-item">
-      <div class="step-dot active" id="dot-1"><span>1</span></div>
-      <div class="step-label active" id="lbl-1">Property details</div>
-    </div>
-    <div class="step-line" id="line-1"></div>
-    <div class="step-item">
-      <div class="step-dot" id="dot-2"><span>2</span></div>
-      <div class="step-label" id="lbl-2">Photos</div>
-    </div>
-    <div class="step-line" id="line-2"></div>
-    <div class="step-item">
-      <div class="step-dot" id="dot-3"><span>3</span></div>
-      <div class="step-label" id="lbl-3">Pricing plan</div>
-    </div>
-    <div class="step-line" id="line-3"></div>
-    <div class="step-item">
-      <div class="step-dot" id="dot-4"><span>4</span></div>
-      <div class="step-label" id="lbl-4">Review & submit</div>
-    </div>
-  </div>
-
-  <!-- STEP 1 -->
-  <div id="step-1">
-
-    <!-- ── Trial intro — the very first thing every visitor sees ── -->
-    <div class="form-card trial-intro-card" id="trial-intro-card">
-      <div class="trial-intro-top">
-        <span class="trial-ribbon">🔥 LAUNCH OFFER</span>
-        <span class="trial-intro-spots" id="intro-spots-text">Limited spots</span>
-      </div>
-      <h2>🎉 Are you a first-time lister? Your listing is FREE for 7 days</h2>
-      <p class="hint">We just launched Nyumba254 and want real sellers to try it before paying anything. Here's exactly how it works:</p>
-      <div class="trial-steps">
-        <div class="trial-step">
-          <span class="trial-step-num">1</span>
-          <p>Fill out your listing below as normal — there's nothing extra to do or enter.</p>
-        </div>
-        <div class="trial-step">
-          <span class="trial-step-num">2</span>
-          <p>Because this is your <strong>first listing</strong>, the free 7-day plan will already be selected for you at the pricing step — no M-Pesa, no card, nothing to pay.</p>
-        </div>
-        <div class="trial-step">
-          <span class="trial-step-num">3</span>
-          <p>Submit as usual. Once our team approves it, your listing goes live immediately — completely free.</p>
-        </div>
-        <div class="trial-step">
-          <span class="trial-step-num">4</span>
-          <p>It stays live for <strong>7 days</strong>, then automatically expires unless you choose to upgrade to a paid plan.</p>
-        </div>
-      </div>
-      <div class="trial-intro-note" id="trial-intro-note"></div>
-    </div>
-
-    <div class="form-card">
-      <h2>What type of property are you listing?</h2>
-      <p class="hint">Choose the category that best describes your property</p>
-      <div class="cat-grid">
-        <div class="cat-option selected" data-cat="student" onclick="selectCat(this)">
-          <div class="cat-option-icon">🎓</div>
-          <div class="cat-option-title">Student housing</div>
-          <div class="cat-option-desc">Bedsitters, single rooms, shared flats near campuses</div>
-        </div>
-        <div class="cat-option" data-cat="standard" onclick="selectCat(this)">
-          <div class="cat-option-icon">🏠</div>
-          <div class="cat-option-title">Standard apartment</div>
-          <div class="cat-option-desc">1–3 bedroom apartments for families and professionals</div>
-        </div>
-        <div class="cat-option" data-cat="luxury" onclick="selectCat(this)">
-          <div class="cat-option-icon">✨</div>
-          <div class="cat-option-title">Luxury / premium</div>
-          <div class="cat-option-desc">High-end apartments in prime neighborhoods across Kenya</div>
-        </div>
-        <div class="cat-option" data-cat="commercial" onclick="selectCat(this)">
-          <div class="cat-option-icon">🏢</div>
-          <div class="cat-option-title">Shop / office</div>
-          <div class="cat-option-desc">Retail shops, offices and business spaces, e.g. in city centers</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="form-card">
-      <h2>Basic information</h2>
-      <p class="hint">Give buyers a clear, accurate picture of your property</p>
-      <div class="field">
-        <label>Listing title <span class="req">*</span></label>
-        <input type="text" id="title" placeholder="e.g. Spacious 2-bedroom flat in Milimani with parking" maxlength="120"/>
-        <div class="field-hint">Be specific — good titles get more enquiries</div>
-        <div class="field-error" id="err-title">Please enter a title (at least 6 characters)</div>
-      </div>
-      <div class="field">
-        <label>Description <span class="req">*</span></label>
-        <textarea id="description" placeholder="Describe the apartment — size, features, what's nearby, security, water supply, condition…" rows="5"></textarea>
-        <div class="field-error" id="err-desc">Please add a description</div>
-      </div>
-      <div class="grid-2">
-        <div class="field">
-          <label>Sale or rent <span class="req">*</span></label>
-          <div class="toggle-group">
-            <div class="toggle-opt active" id="type-sale" onclick="setType('sale')">For sale</div>
-            <div class="toggle-opt" id="type-rent" onclick="setType('rent')">To let / rent</div>
-          </div>
-        </div>
-        <div class="field">
-          <label>Price (KES) <span class="req">*</span> <span class="opt" id="price-suffix">total asking price</span></label>
-          <input type="number" id="price" placeholder="e.g. 4500000" min="0"/>
-          <div class="field-error" id="err-price">Please enter a price</div>
-        </div>
-      </div>
-      <div class="grid-3">
-        <div class="field">
-          <label>Bedrooms <span class="req">*</span></label>
-          <select id="bedrooms">
-            <option value="">Select</option>
-            <option value="0">Bedsitter / studio</option>
-            <option value="1">1 bedroom</option>
-            <option value="2">2 bedrooms</option>
-            <option value="3">3 bedrooms</option>
-            <option value="4">4 bedrooms</option>
-            <option value="5">5+ bedrooms</option>
-          </select>
-          <div class="field-error" id="err-bed">Please select number of bedrooms</div>
-        </div>
-        <div class="field">
-          <label>Bathrooms <span class="opt">optional</span></label>
-          <select id="bathrooms">
-            <option value="">Select</option>
-            <option value="1">1 bathroom</option>
-            <option value="2">2 bathrooms</option>
-            <option value="3">3 bathrooms</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Floor area <span class="opt">optional</span></label>
-          <input type="number" id="size" placeholder="e.g. 85" min="0"/>
-          <div class="field-hint">Square metres (m²)</div>
-        </div>
-      </div>
-      <div style="display:flex;align-items:center;gap:10px;cursor:pointer">
-        <input type="checkbox" id="furnished" style="width:18px;height:18px;accent-color:var(--green);cursor:pointer"/>
-        <label for="furnished" style="font-size:14px;color:var(--text-2);cursor:pointer">This apartment is furnished</label>
-      </div>
-    </div>
-
-    <div class="form-card">
-      <h2>Location</h2>
-      <p class="hint">Accurate location details help buyers find your apartment faster</p>
-      <div class="grid-2">
-        <div class="field">
-          <label>County <span class="req">*</span></label>
-          <select id="county" onchange="handleCountyChange()">
-            <option value="">Select county</option>
-          </select>
-          <div class="field-hint">All 47 counties are listed — pick yours first</div>
-        </div>
-        <div class="field">
-          <label>Area <span class="req">*</span></label>
-          <select id="area" onchange="handleAreaChange()">
-            <option value="">Select county first</option>
-          </select>
-          <div class="field-error" id="err-area">Please select an area</div>
-        </div>
-      </div>
-      <div class="field" id="sub_area-field">
-        <label>Sub-area / estate <span class="opt">optional</span></label>
-        <input type="text" id="sub_area" placeholder="e.g. Near Maseno University Gate"/>
-      </div>
-      <div class="field" id="area_custom-field" style="display:none">
-        <label>Type your area <span class="req">*</span></label>
-        <input type="text" id="area_custom" placeholder="e.g. Nyahera"/>
-        <div class="field-hint">Not seeing your area in the list above? Type it in here instead.</div>
-        <div class="field-error" id="err-area-custom">Please type in your area</div>
-      </div>
-      <div class="field">
-        <label>Street address or landmark <span class="opt">optional</span></label>
-        <input type="text" id="address" placeholder="e.g. Off Obote Road, near Mega City Mall"/>
-        <div class="field-hint">Exact address is shared only after a buyer enquires</div>
-      </div>
-      <div class="field">
-        <label>Your contact phone <span class="req">*</span></label>
-        <input type="tel" id="phone" placeholder="e.g. 0712 345 678"/>
-        <div class="field-hint">Buyers will call or WhatsApp this number</div>
-        <div class="field-error" id="err-phone">Please enter a valid phone number</div>
-      </div>
-    </div>
-
-    <div class="form-actions">
-      <span style="font-size:13px;color:var(--text-3)">Step 1 of 4</span>
-      <button class="btn-next" onclick="goStep(2)">Next: Add photos →</button>
-    </div>
-  </div>
-
-  <!-- STEP 2 -->
-  <div id="step-2" style="display:none">
-    <div class="form-card">
-      <h2>Add photos</h2>
-      <p class="hint">Listings with photos get 5× more enquiries. Add up to 10 — the first becomes the cover.</p>
-      <div class="photo-drop" id="photo-drop" onclick="document.getElementById('file-input').click()" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="dropFiles(event)">
-        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-        <p>Click to upload or drag photos here</p>
-        <span>JPG, PNG or WEBP — up to 30MB each, max 10 photos</span>
-        <input type="file" id="file-input" accept="image/*" multiple onchange="handleFiles(this.files)"/>
-      </div>
-      <div class="upload-progress" id="upload-progress"><div class="upload-progress-bar" id="upload-bar"></div></div>
-      <div class="photo-grid" id="photo-grid"></div>
-      <p id="photo-count" style="font-size:13px;color:var(--text-3);margin-top:12px">No photos added yet</p>
-    </div>
-    <div class="form-actions">
-      <button class="btn-back" onclick="goStep(1)">← Back</button>
-      <div style="display:flex;align-items:center;gap:12px">
-        <span style="font-size:13px;color:var(--text-3)">Step 2 of 4</span>
-        <button class="btn-next" onclick="goStep(3)">Next: Choose plan →</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- STEP 3 -->
-  <div id="step-3" style="display:none">
-    <div class="form-card">
-      <h2>Your listing plan</h2>
-      <p class="hint" id="plan-hint">Both paid plans give your listing full visibility on Nyumba254</p>
-
-      <div class="trial-banner" id="plan-trial" onclick="selectPlan('trial')">
-        <div class="trial-banner-top">
-          <span class="trial-ribbon">🔥 NEW — LAUNCH OFFER</span>
-          <span class="trial-applied-check">✓ Applied to your listing</span>
-        </div>
-        <h3>🎉 Your first listing is FREE for 7 days</h3>
-        <p id="banner-copy">As a first-time seller, we've automatically applied a free 7-day listing to your account — no M-Pesa, no card, nothing to enter.</p>
-        <div class="trial-spots" id="banner-spots-text">Limited spots available — first come, first served</div>
-      </div>
-
-      <div class="upgrade-divider" id="upgrade-divider">or upgrade for longer visibility from day one</div>
-
-      <div class="pricing-options">
-        <div class="pricing-option selected" id="plan-basic" onclick="selectPlan('basic')">
-          <h3>Standard listing</h3>
-          <div class="price-tag">KES 800 <span>one-time</span></div>
-          <ul>
-            <li>Listed for 60 days</li>
-            <li>Up to 10 photos</li>
-            <li>Buyer enquiry form</li>
-            <li>Appears in search results</li>
-          </ul>
-        </div>
-        <div class="pricing-option featured-opt" id="plan-featured" onclick="selectPlan('featured')">
-          <div class="pop-badge">Most enquiries</div>
-          <h3>Featured listing</h3>
-          <div class="price-tag">KES 2,500 <span>one-time</span></div>
-          <ul>
-            <li>Listed for 90 days</li>
-            <li>Featured badge on your card</li>
-            <li>Top placement in search</li>
-            <li>Highlighted on homepage</li>
-            <li>Priority in area pages</li>
-          </ul>
-        </div>
-      </div>
-
-      <div style="background:var(--green-light);border-radius:var(--radius);padding:14px 16px;margin-top:20px;font-size:13px;color:var(--green-dark)" id="payment-info-box">
-        <strong>Payment:</strong> If you choose a paid plan, an M-Pesa prompt will be sent straight to your phone to pay our Paybill. You can also pay manually via Paybill, or skip and pay later — your listing is reviewed regardless.
-      </div>
-    </div>
-    <div class="form-actions">
-      <button class="btn-back" onclick="goStep(2)">← Back</button>
-      <div style="display:flex;align-items:center;gap:12px">
-        <span style="font-size:13px;color:var(--text-3)">Step 3 of 4</span>
-        <button class="btn-next" onclick="goStep(4)">Review listing →</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- STEP 4 -->
-  <div id="step-4" style="display:none">
-    <div class="form-card">
-      <h2>Review your listing</h2>
-      <p class="hint">Check everything before submitting — you can edit after posting too</p>
-      <div id="review-content"></div>
-    </div>
-    <div class="form-card">
-      <h2>Order summary</h2>
-
-      <div class="trial-applied-banner" id="trial-applied-banner">
-        <div class="icon">🎉</div>
-        <div>
-          <strong>Free 7-Day Trial Applied</strong>
-          <span class="sub">You will not be charged anything for this listing — it goes live for 7 days once approved.</span>
-        </div>
-      </div>
-
-      <div id="order-summary"></div>
-      <div style="margin-top:20px;padding:14px 16px;background:var(--surface);border-radius:var(--radius);font-size:13px;color:var(--text-2);line-height:1.6">
-        By submitting you confirm that your listing information is accurate and you are authorised to list this property. Your listing is saved immediately and reviewed by our team before appearing publicly.
-      </div>
-    </div>
-    <div class="form-actions">
-      <button class="btn-back" onclick="goStep(3)">← Back</button>
-      <button class="btn-submit" id="submit-btn" onclick="submitListing()">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-        Submit listing →
-      </button>
-    </div>
-  </div>
-
-  <!-- SUCCESS -->
-  <div class="success-screen" id="success-screen">
-    <div class="success-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
-    <h2>Listing submitted!</h2>
-    <p id="success-message">Your apartment has been saved and is pending review. It will appear publicly once our team approves it.</p>
-    <div class="success-actions">
-      <a href="dashboard.html" style="padding:11px 22px;background:var(--green);color:white;border-radius:var(--radius);font-size:14px;font-weight:600">View my listings</a>
-      <a href="index.html" style="padding:11px 22px;border:1.5px solid var(--border);border-radius:var(--radius);font-size:14px;font-weight:500;color:var(--text-2)">Back to home</a>
-    </div>
-  </div>
-</div>
-
-<!-- PAYMENT MODAL -->
-<div class="modal-overlay" id="payment-modal">
-  <div class="modal-box">
-    <button class="modal-close-x" onclick="skipPayment()">×</button>
-    <h2>Complete payment</h2>
-    <p class="modal-hint">Your listing is already saved and pending review. Payment is optional — our admin team can approve with or without it.</p>
-    <div class="pay-amount-display" id="pay-amount-display">KES 800 <span>one-time listing fee</span></div>
-
-    <div class="pay-tabs">
-      <div class="pay-tab active" id="tab-mpesa" onclick="switchPayTab('mpesa')">M-Pesa STK Push</div>
-      <div class="pay-tab" id="tab-bank" onclick="switchPayTab('bank')">Pay Manually (Paybill)</div>
-    </div>
-
-    <div class="pay-panel active" id="panel-mpesa">
-      <div class="stk-steps">
-        <div class="stk-step">
-          <div class="stk-step-num">1</div>
-          <p>Enter your M-Pesa number and tap <strong>"Send M-Pesa Prompt"</strong> — a payment request appears on your phone.</p>
-        </div>
-        <div class="stk-step">
-          <div class="stk-step-num">2</div>
-          <p>Enter your <strong>M-Pesa PIN</strong> to approve payment of <strong id="stk-amount-label">KES 800</strong> to our Paybill.</p>
-        </div>
-        <div class="stk-step">
-          <div class="stk-step-num">3</div>
-          <p>You'll receive an <strong>M-Pesa SMS</strong>. Your listing will be automatically confirmed once payment is detected.</p>
-        </div>
-      </div>
-
-      <div style="margin-bottom:14px">
-        <label style="display:block;font-size:13px;font-weight:600;color:var(--text-2);margin-bottom:6px">M-Pesa phone number</label>
-        <input type="tel" id="mpesa-phone" placeholder="e.g. 0712 345 678" style="width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:var(--radius);font-size:14px;color:var(--text);background:var(--surface);outline:none;transition:border-color .15s"/>
-      </div>
-
-      <button class="btn-pay-primary" id="stk-btn" onclick="sendStkPush()">
-        📱 Send M-Pesa Prompt
-      </button>
-
-      <div class="stk-status" id="stk-status">
-        <div class="stk-spin" id="stk-spin"></div>
-        <span id="stk-status-text">Sending prompt to your phone…</span>
-      </div>
-
-      <div class="manual-divider">or enter your M-Pesa code manually</div>
-
-      <div class="verify-section">
-        <label>M-Pesa transaction code (from your confirmation SMS)</label>
-        <input type="text" id="mpesa-code" placeholder="e.g. QFT7H8K2LM" style="text-transform:uppercase"/>
-      </div>
-      <button class="btn-pay-primary" onclick="confirmManualPayment('mpesa')" style="margin-top:0">
-        ✓ Verify M-Pesa Payment
-      </button>
-    </div>
-
-    <div class="pay-panel" id="panel-bank">
-      <div class="bank-details">
-        <h4>M-Pesa Paybill — Payment Details</h4>
-        <div class="bank-row"><span>Paybill number</span><strong>522522</strong></div>
-        <div class="bank-row"><span>Account number</span><strong>1298476615</strong></div>
-        <div class="bank-row"><span>Bank</span><strong>KCB Bank Kenya</strong></div>
-        <div class="bank-row"><span>Amount</span><strong id="bank-amount-label">KES 800</strong></div>
-      </div>
-      <div style="font-size:13px;color:var(--text-2);margin-bottom:14px;padding:10px 12px;background:var(--surface);border-radius:var(--radius)">
-        On your phone, go to <strong>M-Pesa → Lipa na M-Pesa → Paybill</strong>, enter the Paybill and account numbers above with the exact amount, then enter the M-Pesa confirmation code you receive below. We'll verify within a few hours.
-      </div>
-      <div class="verify-section">
-        <label>M-Pesa transaction code (from your confirmation SMS)</label>
-        <input type="text" id="bank-ref" placeholder="e.g. QFT7H8K2LM" style="text-transform:uppercase"/>
-      </div>
-      <button class="btn-pay-primary" onclick="confirmManualPayment('paybill')" style="margin-top:8px">
-        ✓ Verify Paybill Payment
-      </button>
-    </div>
-
-    <div class="pay-note">💡 Already paid or prefer to pay later? Skip below — your listing stays pending and our team will review it anytime.</div>
-    <span class="skip-link" onclick="skipPayment()">Skip for now — pay later →</span>
-  </div>
-</div>
-
-<!-- ── Draggable trial promo widget ── -->
-<div class="trial-floatie" id="trial-floatie">
-  <div class="trial-floatie-handle" id="trial-floatie-handle" title="Drag me">⠿⠿</div>
-  <button class="trial-floatie-close" onclick="dismissTrialFloatie()" aria-label="Dismiss">×</button>
-  <a href="post-listing.html" class="trial-floatie-body">
-    <span class="trial-floatie-emoji">🎉</span>
-    <span class="trial-floatie-copy">
-      <strong>First-time sellers</strong>
-      <span>7 days FREE</span>
-      <span class="floatie-spots" id="floatie-spots"></span>
-    </span>
-    <span class="trial-floatie-arrow">→</span>
+<!-- ── MOBILE NAV ── -->
+<div class="mobile-nav" id="mobile-nav">
+  <a href="listings.html">Browse listings</a>
+  <a href="how-it-works.html">How it works</a>
+  <a href="about.html" class="nav-link">About us</a>
+  <a href="pricing.html">Pricing</a>
+  <a href="contact.html">Contact</a>
+  <a href="login.html" id="mobile-account-link">Sign in</a>
+  <a href="saved.html">
+    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+    Saved
   </a>
+  <a href="post-listing.html" class="btn btn-primary">List your apartment</a>
 </div>
 
+<!-- ── PAGE HEADER ── -->
+<div class="page-header">
+  <h1 id="page-title">Browse listings</h1>
+  <p id="page-desc">Apartments, shops, and offices for sale and rent across Kenya</p>
+  <div class="header-search">
+    <input type="text" id="search-q" placeholder="Search by keyword, area, or price (e.g. 7000)…" oninput="nkFormatSearchInput(this)" onkeydown="if(event.key==='Enter'){event.preventDefault();applyFilters();}"/>
+    <button onclick="applyFilters()">Search</button>
+  </div>
+</div>
+
+<!-- ── MOBILE SIDEBAR OVERLAY ── -->
+<div class="sidebar-overlay" id="overlay" onclick="closeSidebar()"></div>
+
+<!-- ── LAYOUT ── -->
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+      <span style="font-size:15px;font-weight:600;color:var(--text)">Filters</span>
+      <button onclick="resetAllFilters()" style="font-size:12px;color:var(--green);background:none;font-weight:500">Reset all</button>
+    </div>
+
+    <!-- Listing type -->
+    <div class="filter-section">
+      <span class="filter-label">Listing type</span>
+      <div class="pill-group" id="type-pills">
+        <div class="filter-pill active" data-val="" onclick="setPill(this,'type-pills')">All</div>
+        <div class="filter-pill" data-val="sale" onclick="setPill(this,'type-pills')">For sale</div>
+        <div class="filter-pill" data-val="rent" onclick="setPill(this,'type-pills')">To let / rent</div>
+      </div>
+    </div>
+
+    <!-- Category -->
+    <div class="filter-section">
+      <span class="filter-label">Property category</span>
+      <div class="pill-group" id="cat-pills">
+        <div class="filter-pill active" data-val="" onclick="setPill(this,'cat-pills')">All</div>
+        <div class="filter-pill" data-val="student" onclick="setPill(this,'cat-pills')">Student</div>
+        <div class="filter-pill" data-val="standard" onclick="setPill(this,'cat-pills')">Standard</div>
+        <div class="filter-pill" data-val="luxury" onclick="setPill(this,'cat-pills')">Luxury</div>
+        <div class="filter-pill" data-val="commercial" onclick="setPill(this,'cat-pills')">Commercial</div>
+      </div>
+    </div>
+
+    <!-- County & Area -->
+    <div class="filter-section">
+      <span class="filter-label">County & area</span>
+      <select class="county-select" id="county-select" onchange="handleCountyFilterChange()">
+        <option value="">All counties</option>
+      </select>
+      <div id="area-checks">
+        <p class="area-hint" id="area-hint">Pick a county above to filter by area</p>
+        <div class="check-list" id="area-checks-visible"></div>
+        <div class="check-list" id="area-checks-more" style="display:none; margin-top:6px"></div>
+        <button type="button" id="area-more-toggle" onclick="toggleMoreAreas()" style="display:none;background:none;color:var(--green);font-size:12px;font-weight:500;margin-top:8px;padding:0">Show all areas ▾</button>
+      </div>
+    </div>
+
+    <!-- Price range -->
+    <div class="filter-section">
+      <span class="filter-label">Price (KES)</span>
+      <div class="range-row">
+        <input type="number" class="range-input" id="price-min" placeholder="Min" oninput="debouncedApply()"/>
+        <span class="range-sep">–</span>
+        <input type="number" class="range-input" id="price-max" placeholder="Max" oninput="debouncedApply()"/>
+      </div>
+      <div class="pill-group" style="margin-top:8px" id="price-presets">
+        <div class="filter-pill" onclick="setPreset(0,2000000)">Under 2M</div>
+        <div class="filter-pill" onclick="setPreset(2000000,5000000)">2M–5M</div>
+        <div class="filter-pill" onclick="setPreset(5000000,10000000)">5M–10M</div>
+        <div class="filter-pill" onclick="setPreset(10000000,null)">10M+</div>
+      </div>
+    </div>
+
+    <!-- Bedrooms -->
+    <div class="filter-section" id="bedrooms-filter-section">
+      <span class="filter-label">Bedrooms</span>
+      <div class="pill-group" id="bed-pills">
+        <div class="filter-pill active" data-val="" onclick="setPill(this,'bed-pills')">Any</div>
+        <div class="filter-pill" data-val="1" onclick="setPill(this,'bed-pills')">1</div>
+        <div class="filter-pill" data-val="2" onclick="setPill(this,'bed-pills')">2</div>
+        <div class="filter-pill" data-val="3" onclick="setPill(this,'bed-pills')">3</div>
+        <div class="filter-pill" data-val="4" onclick="setPill(this,'bed-pills')">4+</div>
+      </div>
+    </div>
+
+    <!-- Furnished -->
+    <div class="filter-section">
+      <span class="filter-label">Furnishing</span>
+      <div class="pill-group" id="furn-pills">
+        <div class="filter-pill active" data-val="" onclick="setPill(this,'furn-pills')">Any</div>
+        <div class="filter-pill" data-val="true" onclick="setPill(this,'furn-pills')">Furnished</div>
+        <div class="filter-pill" data-val="false" onclick="setPill(this,'furn-pills')">Unfurnished</div>
+      </div>
+    </div>
+
+    <button class="apply-btn" onclick="applyFilters(); closeSidebar()">Apply filters</button>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <button class="filter-toggle" onclick="openSidebar()">
+          <svg viewBox="0 0 24 24"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="20" y2="12"/><line x1="12" y1="18" x2="20" y2="18"/></svg>
+          Filters
+        </button>
+        <span class="result-count" id="result-count">Loading…</span>
+      </div>
+      <select class="sort-select" id="sort-select" onchange="applyFilters()">
+        <option value="created_at_desc">Newest first</option>
+        <option value="price_asc">Price: low to high</option>
+        <option value="price_desc">Price: high to low</option>
+        <option value="featured">Featured first</option>
+      </select>
+    </div>
+
+    <!-- Active filter tags -->
+    <div class="active-filters" id="active-filters"></div>
+
+    <!-- Results grid -->
+    <div id="results">
+      <div class="listings-grid" id="listings-grid">
+        <div class="skeleton"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line xshort"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div></div></div>
+        <div class="skeleton"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line xshort"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div></div></div>
+        <div class="skeleton"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line xshort"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div></div></div>
+        <div class="skeleton"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line xshort"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div></div></div>
+        <div class="skeleton"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line xshort"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div></div></div>
+        <div class="skeleton"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line xshort"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div></div></div>
+      </div>
+    </div>
+
+    <!-- ══ NOTIFY ME STRIP — always visible below results, never blocks browsing ══ -->
+    <div class="notify-strip" id="notify-strip">
+      <button class="notify-strip-close" onclick="dismissNotifyStrip()" aria-label="Dismiss">✕</button>
+      <div class="notify-strip-inner">
+        <div class="notify-strip-icon">🔔</div>
+        <div class="notify-strip-text">
+          <strong>Haven't found what you're looking for?</strong>
+          <span>Tell us what you want and we'll notify you the moment a matching listing goes live.</span>
+        </div>
+        <button class="btn btn-primary" onclick="openNotifyModal()">Notify me</button>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination" id="pagination"></div>
+  </main>
+</div>
+
+<!-- ══ NOTIFY ME MODAL ══ -->
+<div class="notify-modal-overlay" id="notify-modal-overlay" onclick="if(event.target===this) closeNotifyModal()">
+  <div class="notify-modal">
+    <div class="notify-modal-head">
+      <h3>Get notified about new listings</h3>
+      <button class="notify-modal-close" onclick="closeNotifyModal()">✕</button>
+    </div>
+    <div class="notify-modal-body">
+      <p class="notify-modal-sub">Fill in what you're looking for — we'll reach out the moment a matching listing is posted. No spam.</p>
+
+      <div class="nf-field">
+        <label>Your name</label>
+        <input type="text" id="nf-name" placeholder="e.g. Brian Otieno"/>
+      </div>
+      <div class="nf-row">
+        <div class="nf-field">
+          <label>Phone number</label>
+          <input type="tel" id="nf-phone" placeholder="07XX XXX XXX"/>
+        </div>
+        <div class="nf-field">
+          <label>Email <span class="nf-optional">optional but recommended</span></label>
+          <input type="email" id="nf-email" placeholder="you@example.com"/>
+        </div>
+      </div>
+
+      <div class="nf-field">
+        <label>Listing type</label>
+        <div class="pill-group" id="nf-type-pills">
+          <div class="filter-pill active" data-val="" onclick="nfSetPill(this,'nf-type-pills')">Any</div>
+          <div class="filter-pill" data-val="sale" onclick="nfSetPill(this,'nf-type-pills')">For sale</div>
+          <div class="filter-pill" data-val="rent" onclick="nfSetPill(this,'nf-type-pills')">To let / rent</div>
+        </div>
+      </div>
+
+      <div class="nf-field">
+        <label>Property category</label>
+        <div class="pill-group" id="nf-cat-pills">
+          <div class="filter-pill active" data-val="" onclick="nfSetPill(this,'nf-cat-pills')">Any</div>
+          <div class="filter-pill" data-val="student" onclick="nfSetPill(this,'nf-cat-pills')">Student</div>
+          <div class="filter-pill" data-val="standard" onclick="nfSetPill(this,'nf-cat-pills')">Standard</div>
+          <div class="filter-pill" data-val="luxury" onclick="nfSetPill(this,'nf-cat-pills')">Luxury</div>
+          <div class="filter-pill" data-val="commercial" onclick="nfSetPill(this,'nf-cat-pills')">Commercial</div>
+        </div>
+      </div>
+
+      <div class="nf-field">
+        <label>County</label>
+        <select class="county-select" id="nf-county-select" onchange="nfHandleCountyChange()" style="margin-bottom:0"></select>
+      </div>
+      <div class="nf-field" id="nf-area-wrap">
+        <label>Preferred area <span class="nf-optional">optional</span></label>
+        <select class="county-select" id="nf-area-select" style="margin-bottom:0"><option value="">Any area in this county</option></select>
+      </div>
+      <div class="nf-field">
+        <label class="nf-check">
+          <input type="checkbox" id="nf-area-not-listed" onchange="nfToggleCustomArea()"/>
+          My area isn't listed — let me type it
+        </label>
+        <input type="text" id="nf-area-custom" placeholder="e.g. Kericho town, near the market" style="display:none;margin-top:8px"/>
+      </div>
+
+      <div class="nf-field">
+        <label>Budget (KES)</label>
+        <div class="range-row">
+          <input type="number" class="range-input" id="nf-budget-min" placeholder="Min"/>
+          <span class="range-sep">–</span>
+          <input type="number" class="range-input" id="nf-budget-max" placeholder="Max"/>
+        </div>
+      </div>
+
+      <div class="nf-field">
+        <label>Bedrooms <span class="nf-optional">optional</span></label>
+        <div class="pill-group" id="nf-bed-pills">
+          <div class="filter-pill active" data-val="" onclick="nfSetPill(this,'nf-bed-pills')">Any</div>
+          <div class="filter-pill" data-val="1" onclick="nfSetPill(this,'nf-bed-pills')">1</div>
+          <div class="filter-pill" data-val="2" onclick="nfSetPill(this,'nf-bed-pills')">2</div>
+          <div class="filter-pill" data-val="3" onclick="nfSetPill(this,'nf-bed-pills')">3</div>
+          <div class="filter-pill" data-val="4" onclick="nfSetPill(this,'nf-bed-pills')">4+</div>
+        </div>
+      </div>
+
+      <div class="nf-field">
+        <label>Anything else? <span class="nf-optional">optional</span></label>
+        <textarea id="nf-notes" rows="2" placeholder="e.g. must have parking, near a school…"></textarea>
+      </div>
+    </div>
+    <div class="notify-modal-foot">
+      <button class="btn btn-outline" onclick="closeNotifyModal()">Cancel</button>
+      <button class="btn btn-primary" id="nf-submit-btn" onclick="submitNotifyAlert()">Notify me</button>
+    </div>
+  </div>
+</div>
+<div class="notify-success-toast" id="notify-success-toast">✓ You're set! We'll reach out the moment a match goes live.</div>
+<!-- ══ EXIT INTENT — "did you find what you were looking for?" ══ -->
+<div class="notify-modal-overlay" id="exit-overlay">
+  <div class="notify-modal" style="max-width:440px">
+    <div class="notify-modal-head">
+      <h3>Before you go…</h3>
+      <button class="notify-modal-close" onclick="exitCloseAndGo()">✕</button>
+    </div>
+    <div class="notify-modal-body">
+
+      <!-- Question -->
+      <div id="exit-panel-question">
+        <p class="notify-modal-sub" style="margin-bottom:20px">Did you find what you were looking for today?</p>
+        <div style="display:flex;gap:10px">
+          <button class="btn btn-primary" style="flex:1;justify-content:center" onclick="exitAnswerYes()">🙂 Yes, I did</button>
+          <button class="btn btn-outline" style="flex:1;justify-content:center" onclick="exitAnswerNo()">Not quite</button>
+        </div>
+      </div>
+
+      <!-- Yes → quick platform review -->
+      <div id="exit-panel-review" style="display:none">
+        <p class="notify-modal-sub">Glad to hear it! Mind leaving a quick review? Takes under a minute.</p>
+        <div id="exit-stars" style="display:flex;gap:4px;margin-bottom:16px"></div>
+        <div class="nf-field">
+          <label>How was your experience finding your way around the site?</label>
+          <textarea id="exit-review-nav" rows="2" placeholder="e.g. easy to filter by area, search was quick…"></textarea>
+        </div>
+        <div class="nf-field">
+          <label>Anything we could improve? <span class="nf-optional">optional</span></label>
+          <textarea id="exit-review-improve" rows="2" placeholder="Any suggestions for us?"></textarea>
+        </div>
+        <div class="nf-field">
+          <label>Your name <span class="nf-optional">shown publicly with your review</span></label>
+          <input type="text" id="exit-review-name" placeholder="e.g. Brian Otieno" maxlength="60"/>
+          <label class="nf-check" style="margin-top:8px">
+            <input type="checkbox" id="exit-review-anon" onchange="exitToggleAnon()"/>
+            Post anonymously instead
+          </label>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:6px">
+          <button class="btn btn-outline" style="flex:1;justify-content:center" onclick="exitSkipReview()">Skip</button>
+          <button class="btn btn-primary" style="flex:1;justify-content:center" id="exit-review-submit" onclick="exitSubmitReview()">Submit & continue</button>
+        </div>
+      </div>
+
+      <!-- Thanks / done -->
+      <div id="exit-panel-thanks" style="display:none;text-align:center;padding:10px 0">
+        <div style="font-size:32px;margin-bottom:10px">🙌</div>
+        <p style="font-size:14px;color:var(--text-2)" id="exit-thanks-text">Thanks for letting us know!</p>
+      </div>
+
+    </div>
+  </div>
+</div>
 <script>
-const SUPABASE_URL = 'https://vliuuloyfhyxcsuchpss.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_oIIcecf3wzKMual5K24Z8Q_zmxVfgsx';
-const EDGE_URL     = `${SUPABASE_URL}/functions/v1`;
-const { createClient } = supabase;
-const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+  const SUPABASE_URL = 'https://vliuuloyfhyxcsuchpss.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_oIIcecf3wzKMual5K24Z8Q_zmxVfgsx';
+  const { createClient } = supabase;
+  const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
   const NK_COUNTIES = [
     "Mombasa","Kwale","Kilifi","Tana River","Lamu","Taita-Taveta","Garissa","Wajir","Mandera",
@@ -822,677 +761,779 @@ const db = createClient(SUPABASE_URL, SUPABASE_KEY);
     "Makueni": "Makueni (Wote)"
   };
 
-  // Populate the county dropdown
   function nkCountyLabel(county) { return NK_COUNTY_LABEL[county] || county; }
-  function nkPopulateCounties() {
-    const sel = document.getElementById('county');
+
+  // Reverse lookup: area name -> county (used for URL ?area= links and the card fallback address)
+  const NK_AREA_TO_COUNTY = {};
+  for (const [county, areas] of Object.entries(NK_AREAS_BY_COUNTY)) {
+    areas.forEach(a => { NK_AREA_TO_COUNTY[a] = county; });
+  }
+
+  function nkPopulateCountySelect() {
+    const sel = document.getElementById('county-select');
     if (!sel) return;
-    sel.innerHTML = '<option value="">Select county</option>' +
-      NK_COUNTIES.map(c => `<option value="${c}" ${c === 'Kisumu' ? 'selected' : ''}>${nkCountyLabel(c)}</option>`).join('');
+    sel.innerHTML = '<option value="">All counties</option>' +
+      NK_COUNTIES.map(c => `<option value="${c}">${nkCountyLabel(c)}</option>`).join('');
   }
-  // Populate the area dropdown for the chosen county, plus an "Other" fallback
-  function nkPopulateAreas(county) {
-    const sel = document.getElementById('area');
+
+  // Rebuild the area checkbox list for a chosen county (first 8 visible, rest behind "Show all")
+  function renderAreaChecklist(county) {
+    const hint = document.getElementById('area-hint');
+    const visible = document.getElementById('area-checks-visible');
+    const more = document.getElementById('area-checks-more');
+    const toggleBtn = document.getElementById('area-more-toggle');
     const areas = NK_AREAS_BY_COUNTY[county] || [];
-    sel.innerHTML = '<option value="">Select area</option>' +
-      areas.map(a => `<option value="${a}">${a}</option>`).join('') +
-      '<option value="__other__">Other — my area isn\'t listed</option>';
-    handleAreaChange();
-  }
-  function handleCountyChange() {
-    const county = document.getElementById('county').value;
-    nkPopulateAreas(county);
-  }
 
-
-const TRIAL_DAYS = 7;
-
-let currentStep       = 1;
-let selectedCat       = 'student';
-let priceType         = 'sale';
-let selectedPlan      = 'basic';
-let photos            = [];
-let coverIndex        = 0;
-let currentListingId  = null;
-let currentPlanPrice  = 0;
-let trialEligible     = null;  // true = confirmed eligible, false = confirmed not eligible, null = unknown (not logged in yet)
-let trialSlotsLeft    = 0;
-let currentUser       = null;
-let checkoutRequestId = null;
-let paymentPollTimer  = null;
-
-async function init() {
-  nkPopulateCounties();
-  nkPopulateAreas('Kisumu');
-  const { data: { session } } = await db.auth.getSession();
-  if (session) {
-    currentUser = session.user;
-    document.getElementById('auth-banner').style.display = 'none';
-    const { data: profile } = await db.from('profiles').select('phone').eq('id', currentUser.id).single();
-    if (profile?.phone) {
-      const p = profile.phone.startsWith('254') ? '0' + profile.phone.slice(3) : profile.phone;
-      document.getElementById('phone').value = p;
-    }
-  } else {
-    document.getElementById('auth-banner').style.display = 'block';
-  }
-  // Trial visibility runs regardless of login — everyone gets to see the offer exists
-  await checkTrialAvailability();
-}
-
-// ── Trial availability: sitewide slots always checked; personal eligibility only
-// once logged in. Anonymous visitors still see the offer, with a nudge to sign in.
-async function checkTrialAvailability() {
-  try {
-    const { data: slotsLeft } = await db.rpc('get_trial_slots_left');
-    trialSlotsLeft = typeof slotsLeft === 'number' ? slotsLeft : 0;
-  } catch(e) {
-    console.error('Could not read trial slots:', e);
-    trialSlotsLeft = 0;
-  }
-
-  if (trialSlotsLeft <= 0) return; // launch offer is over sitewide — nothing to show anyone
-
-  if (currentUser) {
-    try {
-      const { count: myListingsCount } = await db.from('listings')
-        .select('id', { count: 'exact', head: true })
-        .eq('seller_id', currentUser.id);
-      trialEligible = (myListingsCount || 0) === 0;
-    } catch(e) {
-      console.error('Could not check listing history:', e);
-      trialEligible = null;
-    }
-  } else {
-    trialEligible = null; // unknown until they sign in
-  }
-
-  showTrialUI();
-}
-
-function showTrialUI() {
-  const spotsLabel = `Only ${trialSlotsLeft} free spot${trialSlotsLeft === 1 ? '' : 's'} left`;
-
-  if (trialEligible === false) {
-    // Logged in, but already used their first listing — this offer doesn't apply to them
-    return;
-  }
-
-  document.getElementById('trial-strip').style.display = 'block';
-  document.getElementById('strip-spots').textContent = spotsLabel;
-
-  document.getElementById('trial-intro-card').style.display = 'block';
-  document.getElementById('intro-spots-text').textContent = spotsLabel;
-
-  document.getElementById('plan-trial').style.display = 'block';
-  document.getElementById('upgrade-divider').style.display = 'flex';
-
-  const note = document.getElementById('trial-intro-note');
-
-  if (trialEligible === true) {
-    document.getElementById('plan-hint').textContent = 'Good news — you qualify for our launch free trial 🎉';
-    document.getElementById('banner-spots-text').textContent = `${spotsLabel} at launch — first come, first served`;
-    note.classList.remove('show');
-    selectPlan('trial'); // auto-apply now that we know for sure
-  } else {
-    // Anonymous — invite them, but eligibility can't be confirmed until they sign in
-    document.getElementById('plan-hint').textContent = 'First-time sellers qualify for our launch free trial 🎉';
-    document.getElementById('banner-copy').textContent =
-      'First-time sellers get a free 7-day listing — no M-Pesa, no card. Sign in or create a free account to check your eligibility and claim it.';
-    document.getElementById('banner-spots-text').textContent = `${spotsLabel} — sign in to claim yours`;
-    note.innerHTML = `New here? <a href="login.html?next=post-listing.html">Sign in or create a free account</a> to check your eligibility and claim this instantly.`;
-    note.classList.add('show');
-  }
-}
-
-function showToast(msg, type = '') {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = `toast ${type} show`;
-  setTimeout(() => t.className = 'toast', 4000);
-}
-
-function selectCat(el) {
-  document.querySelectorAll('.cat-option').forEach(o => o.classList.remove('selected'));
-  el.classList.add('selected');
-  selectedCat = el.dataset.cat;
-}
-
-function setType(type) {
-  priceType = type;
-  document.getElementById('type-sale').classList.toggle('active', type === 'sale');
-  document.getElementById('type-rent').classList.toggle('active', type === 'rent');
-  document.getElementById('price-suffix').textContent = type === 'sale' ? 'total asking price' : 'per month';
-}
-
-// ── Area select: reveal the free-text "type your own" field when the
-//    "Other — my area isn't listed" option is chosen, so sellers whose
-//    area is missing from the dropdown can still fill in the Area field. ──
-function handleAreaChange() {
-  const val = document.getElementById('area').value;
-  const customField = document.getElementById('area_custom-field');
-  const isOther = val === '__other__';
-  customField.style.display = isOther ? 'block' : 'none';
-  if (!isOther) {
-    document.getElementById('area_custom').value = '';
-    document.getElementById('area_custom').classList.remove('error');
-    document.getElementById('err-area-custom').classList.remove('show');
-  }
-}
-
-function dragOver(e)  { e.preventDefault(); document.getElementById('photo-drop').classList.add('drag-over'); }
-function dragLeave()  { document.getElementById('photo-drop').classList.remove('drag-over'); }
-function dropFiles(e) { e.preventDefault(); dragLeave(); handleFiles(e.dataTransfer.files); }
-
-function selectPlan(plan) {
-  if (plan === 'trial') {
-    if (trialEligible === null) {
-      showToast('Please sign in to claim your free trial', '');
-      setTimeout(() => window.location.href = 'login.html?next=post-listing.html', 900);
+    if (!county) {
+      hint.style.display = 'block';
+      hint.textContent = 'Pick a county above to filter by area';
+      visible.innerHTML = '';
+      more.innerHTML = '';
+      more.style.display = 'none';
+      toggleBtn.style.display = 'none';
       return;
     }
-    if (trialEligible !== true) return;
-  }
-  selectedPlan = plan;
-  document.getElementById('plan-basic').classList.toggle('selected', plan === 'basic');
-  document.getElementById('plan-featured').classList.toggle('selected', plan === 'featured');
-  const trial = document.getElementById('plan-trial');
-  if (trial) trial.classList.toggle('selected', plan === 'trial');
-}
-
-function getPlanPrice() {
-  if (selectedPlan === 'trial')    return 0;
-  if (selectedPlan === 'featured') return 2500;
-  return 800;
-}
-
-async function handleFiles(files) {
-  const remaining = 10 - photos.length;
-  if (remaining <= 0) { showToast('Maximum 10 photos allowed', 'error'); return; }
-  const toAdd = Array.from(files).slice(0, remaining);
-  for (const file of toAdd) {
-    if (!file.type.startsWith('image/')) continue;
-    if (file.size > 30 * 1024 * 1024) { showToast(`${file.name} is too large (max 30MB)`, 'error'); continue; }
-    showToast('Processing photo…', '');
-    const processed = await standardizeImage(file);
-    photos.push({ file: processed, previewUrl: URL.createObjectURL(processed) });
-  }
-  renderPhotoGrid();
-}
-
-async function standardizeImage(file) {
-  if (file.size <= 2 * 1024 * 1024) return file;
-  return new Promise(resolve => {
-    const img = new Image();
-    const url = URL.createObjectURL(file);
-    img.onload = () => {
-      URL.revokeObjectURL(url);
-      let { width, height } = img;
-      const MAX = 2000;
-      if (width > MAX || height > MAX) {
-        const r = Math.min(MAX/width, MAX/height);
-        width = Math.round(width * r); height = Math.round(height * r);
-      }
-      const canvas = document.createElement('canvas');
-      canvas.width = width; canvas.height = height;
-      const ctx = canvas.getContext('2d');
-      ctx.imageSmoothingQuality = 'high';
-      ctx.drawImage(img, 0, 0, width, height);
-      canvas.toBlob(blob => resolve(new File([blob], file.name.replace(/\.\w+$/, '.jpg'), { type: 'image/jpeg' })), 'image/jpeg', 0.92);
-    };
-    img.onerror = () => resolve(file);
-    img.src = url;
-  });
-}
-
-function renderPhotoGrid() {
-  document.getElementById('photo-count').textContent = photos.length
-    ? `${photos.length} photo${photos.length > 1 ? 's' : ''} added — hover to set cover`
-    : 'No photos added yet';
-  document.getElementById('photo-grid').innerHTML = photos.map((p, i) => `
-    <div class="photo-thumb">
-      <img src="${p.previewUrl}" alt="Photo ${i+1}"/>
-      <button class="remove-btn" onclick="removePhoto(${i})">×</button>
-      ${i === coverIndex ? '<span class="cover-badge">Cover</span>' : `<span class="set-cover" onclick="setCover(${i})">Set cover</span>`}
-    </div>`).join('');
-}
-
-function removePhoto(i) { URL.revokeObjectURL(photos[i].previewUrl); photos.splice(i, 1); if (coverIndex >= photos.length) coverIndex = 0; renderPhotoGrid(); }
-function setCover(i) { coverIndex = i; renderPhotoGrid(); }
-
-function goStep(n) {
-  if (n > currentStep && !validateStep(currentStep)) return;
-  document.getElementById(`step-${currentStep}`).style.display = 'none';
-  currentStep = n;
-  document.getElementById(`step-${n}`).style.display = 'block';
-  updateStepUI();
-  if (n === 4) renderReview();
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-function updateStepUI() {
-  for (let i = 1; i <= 4; i++) {
-    document.getElementById(`dot-${i}`).className = 'step-dot' + (i < currentStep ? ' done' : i === currentStep ? ' active' : '');
-    document.getElementById(`dot-${i}`).innerHTML = i < currentStep ? '' : `<span>${i}</span>`;
-    document.getElementById(`lbl-${i}`).className = 'step-label' + (i === currentStep ? ' active' : '');
-    const line = document.getElementById(`line-${i}`);
-    if (line) line.className = 'step-line' + (i < currentStep ? ' done' : '');
-  }
-}
-
-// ── Resolves the actual area text to use everywhere (review, submit, summary):
-//    the selected dropdown value, or the freehand text if "Other" was chosen. ──
-function getEffectiveArea() {
-  const val = document.getElementById('area').value;
-  if (val === '__other__') return document.getElementById('area_custom').value.trim();
-  return val;
-}
-
-function validateStep(step) {
-  if (step !== 1) return true;
-  let ok = true;
-  [
-    ['title',       'err-title',  v => v.trim().length > 5],
-    ['description', 'err-desc',   v => v.trim().length > 10],
-    ['price',       'err-price',  v => v && parseFloat(v) > 0],
-    ['bedrooms',    'err-bed',    v => v !== ''],
-    ['area',        'err-area',   v => v !== ''],
-    ['phone',       'err-phone',  v => v.replace(/\s/g,'').length >= 9],
-  ].forEach(([id, errId, test]) => {
-    const el = document.getElementById(id);
-    const err = document.getElementById(errId);
-    const valid = test(el.value);
-    el.classList.toggle('error', !valid);
-    err.classList.toggle('show', !valid);
-    if (!valid) ok = false;
-  });
-
-  // If "Other — my area isn't listed" was chosen, the typed-in area is required too
-  if (document.getElementById('area').value === '__other__') {
-    const customEl = document.getElementById('area_custom');
-    const customErr = document.getElementById('err-area-custom');
-    const validCustom = customEl.value.trim().length > 0;
-    customEl.classList.toggle('error', !validCustom);
-    customErr.classList.toggle('show', !validCustom);
-    if (!validCustom) ok = false;
-  }
-
-  if (!ok) showToast('Please fill in all required fields', 'error');
-  return ok;
-}
-
-function renderReview() {
-  const f = {
-    title:       document.getElementById('title').value,
-    description: document.getElementById('description').value,
-    price:       Number(document.getElementById('price').value),
-    bedrooms:    document.getElementById('bedrooms').value,
-    bathrooms:   document.getElementById('bathrooms').value,
-    size:        document.getElementById('size').value,
-    area:        getEffectiveArea(),
-    sub_area:    document.getElementById('sub_area').value,
-    address:     document.getElementById('address').value,
-    phone:       document.getElementById('phone').value,
-    furnished:   document.getElementById('furnished').checked,
-  };
-  document.getElementById('review-content').innerHTML = `
-    <div class="summary-row"><span>Category</span><strong>${selectedCat.charAt(0).toUpperCase()+selectedCat.slice(1)}</strong></div>
-    <div class="summary-row"><span>Title</span><strong>${f.title}</strong></div>
-    <div class="summary-row"><span>Type</span><strong>${priceType === 'sale' ? 'For sale' : 'To let / rent'}</strong></div>
-    <div class="summary-row"><span>Price</span><strong>KES ${f.price.toLocaleString('en-KE')}${priceType === 'rent' ? '/month' : ''}</strong></div>
-    <div class="summary-row"><span>Bedrooms</span><strong>${f.bedrooms === '0' ? 'Bedsitter/studio' : f.bedrooms + ' bedroom(s)'}</strong></div>
-    ${f.bathrooms ? `<div class="summary-row"><span>Bathrooms</span><strong>${f.bathrooms}</strong></div>` : ''}
-    ${f.size ? `<div class="summary-row"><span>Floor area</span><strong>${f.size} m²</strong></div>` : ''}
-    <div class="summary-row"><span>Furnished</span><strong>${f.furnished ? 'Yes' : 'No'}</strong></div>
-    <div class="summary-row"><span>Area</span><strong>${f.area}${f.sub_area ? ' — ' + f.sub_area : ''}</strong></div>
-    ${f.address ? `<div class="summary-row"><span>Address</span><strong>${f.address}</strong></div>` : ''}
-    <div class="summary-row"><span>Contact phone</span><strong>${f.phone}</strong></div>
-    <div class="summary-row"><span>Photos</span><strong>${photos.length} photo(s) added</strong></div>`;
-
-  const isTrial = selectedPlan === 'trial' && trialEligible === true;
-  document.getElementById('trial-applied-banner').style.display = isTrial ? 'flex' : 'none';
-
-  const planPrice = getPlanPrice();
-  const planLabel = isTrial
-    ? `🎉 Free ${TRIAL_DAYS}-day launch trial (first-time seller)`
-    : selectedPlan === 'featured' ? 'Featured listing (90 days)' : 'Standard listing (60 days)';
-  document.getElementById('order-summary').innerHTML = `
-    <div class="summary-row"><span>Plan</span><span>${planLabel}</span></div>
-    <div class="summary-row"><span>Total</span><span>${planPrice ? 'KES ' + planPrice.toLocaleString('en-KE') + ' (pay now or later)' : 'FREE — no payment needed'}</span></div>`;
-}
-
-async function uploadPhotos(listingId) {
-  const uploaded = [];
-  if (!photos.length) return uploaded;
-  const prog = document.getElementById('upload-progress');
-  const bar  = document.getElementById('upload-bar');
-  prog.style.display = 'block';
-  for (let i = 0; i < photos.length; i++) {
-    const { file } = photos[i];
-    const path = `${listingId}/${Date.now()}-${i}.jpg`;
-    const { error } = await db.storage.from('listing-photos').upload(path, file, { cacheControl:'3600', upsert:false });
-    if (error) { console.error('Upload error:', error); continue; }
-    const { data: urlData } = db.storage.from('listing-photos').getPublicUrl(path);
-    uploaded.push({ url: urlData.publicUrl, is_cover: i === coverIndex, position: i });
-    bar.style.width = `${Math.round(((i+1)/photos.length)*100)}%`;
-  }
-  prog.style.display = 'none';
-  return uploaded;
-}
-
-async function submitListing() {
-  if (!currentUser) {
-    showToast('Please sign in first', 'error');
-    setTimeout(() => window.location.href = 'login.html?next=post-listing.html', 1500);
-    return;
-  }
-
-  const btn = document.getElementById('submit-btn');
-  btn.disabled = true;
-  btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> Submitting…`;
-
-  try {
-    const isTrial = selectedPlan === 'trial' && trialEligible === true;
-    const listingData = {
-      title:            document.getElementById('title').value.trim(),
-      description:      document.getElementById('description').value.trim(),
-      price:            parseFloat(document.getElementById('price').value),
-      price_type:       priceType,
-      bedrooms:         parseInt(document.getElementById('bedrooms').value) || 0,
-      bathrooms:        parseInt(document.getElementById('bathrooms').value) || null,
-      size_sqm:         parseFloat(document.getElementById('size').value) || null,
-      furnished:        document.getElementById('furnished').checked,
-      area:             getEffectiveArea(),
-      sub_area:         document.getElementById('sub_area').value.trim() || null,
-      address:          document.getElementById('address').value.trim() || null,
-      category:         selectedCat,
-      is_featured:      selectedPlan === 'featured',
-      is_trial:         isTrial,
-      trial_expires_at: isTrial ? new Date(Date.now() + TRIAL_DAYS*24*60*60*1000).toISOString() : null,
-      status:           'pending',
-      payment_status:   isTrial ? 'trial' : 'unpaid',
-      seller_id:        currentUser.id,
-      views:            0,
-    };
-
-    const { data: listing, error } = await db.from('listings').insert(listingData).select().single();
-    if (error) throw error;
-
-    currentListingId = listing.id;
-    currentPlanPrice = getPlanPrice();
-
-    if (photos.length) {
-      const uploaded = await uploadPhotos(listing.id);
-      if (uploaded.length) {
-        await db.from('listing_photos').insert(uploaded.map(u => ({ ...u, listing_id: listing.id })));
-      }
+    if (!areas.length) {
+      hint.style.display = 'block';
+      hint.textContent = 'No areas listed yet for this county';
+      visible.innerHTML = '';
+      more.innerHTML = '';
+      more.style.display = 'none';
+      toggleBtn.style.display = 'none';
+      return;
     }
-
-    if (isTrial) {
-      document.getElementById('success-message').textContent =
-        `Your free ${TRIAL_DAYS}-day listing has been saved and is pending review. No payment is needed — once approved, it will be live for ${TRIAL_DAYS} days before it expires.`;
-      finishSubmission();
+    hint.style.display = 'none';
+    const shown = areas.slice(0, 8);
+    const rest = areas.slice(8);
+    const checkHtml = a => `<label class="check-item"><input type="checkbox" value="${a}" onchange="applyFilters()"/><label>${a}</label></label>`;
+    visible.innerHTML = shown.map(checkHtml).join('');
+    more.innerHTML = rest.map(checkHtml).join('');
+    more.style.display = 'none';
+    if (rest.length) {
+      toggleBtn.style.display = 'inline';
+      toggleBtn.textContent = `Show all ${areas.length} areas ▾`;
+      toggleBtn.dataset.total = areas.length;
     } else {
-      openPaymentModal();
+      toggleBtn.style.display = 'none';
+    }
+  }
+
+  // County select changed by hand — clear any previously checked areas from a different county
+  function handleCountyFilterChange() {
+    const county = document.getElementById('county-select').value;
+    renderAreaChecklist(county);
+    applyFilters();
+  }
+
+
+  const PAGE_SIZE = 12;
+  let currentPage = 1;
+  let totalCount = 0;
+  let debounceTimer = null;
+
+  // ── Toggle showing all areas for the selected county vs the first 8 ──
+  function toggleMoreAreas() {
+    const more = document.getElementById('area-checks-more');
+    const btn = document.getElementById('area-more-toggle');
+    const total = btn.dataset.total || '';
+    const isHidden = more.style.display === 'none';
+    more.style.display = isHidden ? '' : 'none';
+    btn.textContent = isHidden ? 'Show fewer areas ▴' : `Show all ${total} areas ▾`;
+  }
+
+  // ── Read URL params on load ──
+  function readUrlParams() {
+    const p = new URLSearchParams(window.location.search);
+    if (p.get('q')) {
+      const searchEl = document.getElementById('search-q');
+      searchEl.value = p.get('q');
+      nkFormatSearchInput(searchEl); // in case someone shares a link like ?q=7000
     }
 
-  } catch(err) {
-    console.error('Submit error:', err);
-    showToast(`Error: ${err.message || 'Something went wrong. Please try again.'}`, 'error');
-    btn.disabled = false;
-    btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Submit listing →`;
-  }
-}
+    // Resolve which county to select: an explicit ?county= wins; otherwise an
+    // ?area= link (e.g. from a listing card or the old-style area links) is
+    // traced back to its county via the reverse lookup so the right area
+    // checklist renders before we try to check the box inside it.
+    let county = p.get('county') || '';
+    if (!county && p.get('area')) county = NK_AREA_TO_COUNTY[p.get('area')] || '';
 
-function openPaymentModal() {
-  const amt = `KES ${currentPlanPrice.toLocaleString('en-KE')}`;
-  document.getElementById('pay-amount-display').innerHTML = `${amt} <span>one-time listing fee</span>`;
-  document.getElementById('stk-amount-label').textContent = amt;
-  document.getElementById('bank-amount-label').textContent = amt;
-  document.getElementById('mpesa-phone').value = document.getElementById('phone').value || '';
-  document.getElementById('mpesa-code').value  = '';
-  document.getElementById('bank-ref').value    = '';
-  setStatusHidden();
-  document.getElementById('stk-btn').disabled = false;
-  document.getElementById('stk-btn').textContent = '📱 Send M-Pesa Prompt';
-  switchPayTab('mpesa');
-  document.getElementById('payment-modal').classList.add('show');
-}
+    if (county) {
+      const sel = document.getElementById('county-select');
+      sel.value = county;
+      renderAreaChecklist(county);
+    }
 
-function switchPayTab(tab) {
-  ['mpesa','bank'].forEach(t => {
-    document.getElementById(`tab-${t}`).classList.toggle('active', t === tab);
-    document.getElementById(`panel-${t}`).classList.toggle('active', t === tab);
-  });
-}
-
-function setStatusHidden() {
-  const s = document.getElementById('stk-status');
-  s.className = 'stk-status';
-}
-function setStatusPending(msg) {
-  const s = document.getElementById('stk-status');
-  s.className = 'stk-status pending';
-  document.getElementById('stk-spin').style.display = 'block';
-  document.getElementById('stk-status-text').textContent = msg;
-}
-function setStatusSuccess(msg) {
-  const s = document.getElementById('stk-status');
-  s.className = 'stk-status success';
-  document.getElementById('stk-spin').style.display = 'none';
-  document.getElementById('stk-status-text').textContent = msg;
-}
-function setStatusError(msg) {
-  const s = document.getElementById('stk-status');
-  s.className = 'stk-status error';
-  document.getElementById('stk-spin').style.display = 'none';
-  document.getElementById('stk-status-text').textContent = msg;
-}
-
-async function sendStkPush() {
-  const phone = document.getElementById('mpesa-phone').value.trim();
-  if (phone.replace(/\s/g,'').length < 9) {
-    showToast('Enter a valid M-Pesa phone number', 'error');
-    return;
+    if (p.get('area')) {
+      document.querySelectorAll('#area-checks input').forEach(cb => {
+        if (cb.value === p.get('area')) cb.checked = true;
+      });
+      if (document.querySelector(`#area-checks-more input[value="${p.get('area')}"]`)) {
+        toggleMoreAreas();
+      }
+    }
+    if (p.get('category')) {
+      document.querySelectorAll('#cat-pills .filter-pill').forEach(pill => {
+        pill.classList.toggle('active', pill.dataset.val === p.get('category'));
+      });
+    }
+    if (p.get('type')) {
+      document.querySelectorAll('#type-pills .filter-pill').forEach(pill => {
+        pill.classList.toggle('active', pill.dataset.val === p.get('type'));
+      });
+    }
+    // Arriving from the homepage's "type a price" search — it sends minPrice/maxPrice
+    // directly (already computed as a tight band there), so just seed the existing
+    // price range inputs with them. This reuses the sidebar's normal gte/lte filter,
+    // nothing new to break.
+    if (p.get('minPrice')) document.getElementById('price-min').value = p.get('minPrice');
+    if (p.get('maxPrice')) document.getElementById('price-max').value = p.get('maxPrice');
   }
 
-  const btn = document.getElementById('stk-btn');
-  btn.disabled = true;
-  btn.textContent = 'Sending…';
-  setStatusPending('Sending prompt to your phone…');
-
-  try {
-    const { data: { session } } = await db.auth.getSession();
-    const token = session?.access_token || '';
-
-    const res = await fetch(`${EDGE_URL}/mpesa-stk-push`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-        'apikey': SUPABASE_KEY,
-      },
-      body: JSON.stringify({
-        listingId:  currentListingId,
-        phone,
-        amount:     currentPlanPrice,
-        sellerId:   currentUser?.id,
-      }),
-    });
-
-    const data = await res.json();
-    if (!res.ok || data.error) throw new Error(data.error || 'STK push failed');
-
-    checkoutRequestId = data.checkoutRequestId;
-    setStatusPending('Prompt sent! Enter your M-Pesa PIN on your phone…');
-    btn.textContent = '📱 Resend Prompt';
-    btn.disabled = false;
-
-    startPaymentPolling();
-
-  } catch(err) {
-    console.error('STK error:', err);
-    setStatusError(`Could not send prompt: ${err.message}. Enter your M-Pesa code manually below.`);
-    btn.textContent = '📱 Retry Send Prompt';
-    btn.disabled = false;
+  // ── Pill selector helper ──
+  function setPill(el, groupId) {
+    document.querySelectorAll(`#${groupId} .filter-pill`).forEach(p => p.classList.remove('active'));
+    el.classList.add('active');
+    if (groupId === 'cat-pills') toggleBedroomsFilter(el.dataset.val);
+    applyFilters();
   }
-}
 
-function startPaymentPolling() {
-  if (paymentPollTimer) clearInterval(paymentPollTimer);
-  let attempts = 0;
-  paymentPollTimer = setInterval(async () => {
-    attempts++;
-    if (attempts > 24) {
-      clearInterval(paymentPollTimer);
-      setStatusError('Payment not detected. Please enter your M-Pesa code below to confirm manually.');
+  // ── Hide bedroom filter for commercial category (shops/offices aren't bedroom-based) ──
+  function toggleBedroomsFilter(cat) {
+    const section = document.getElementById('bedrooms-filter-section');
+    if (!section) return;
+    if (cat === 'commercial') {
+      setPill(document.querySelector('#bed-pills .filter-pill[data-val=""]'), 'bed-pills');
+      section.style.display = 'none';
+    } else {
+      section.style.display = '';
+    }
+  }
+
+  // ── Price preset ──
+  function setPreset(min, max) {
+    document.getElementById('price-min').value = min || '';
+    document.getElementById('price-max').value = max || '';
+    applyFilters();
+  }
+
+  // ── Header search box: auto-detect a plain price typed in, same behaviour as the
+  // homepage hero search. If what's left after stripping "KES"/commas/spaces is pure
+  // digits, we're in "price mode": live-format as KES, and remember the raw number so
+  // applyFilters() can turn it into an exact ±1 KES match instead of a text search. ──
+  function nkFormatSearchInput(el) {
+    const raw = el.value;
+    const stripped = raw.replace(/^KES\s?/i, '').replace(/,/g, '').trim();
+    if (stripped.length && /^[0-9]+$/.test(stripped)) {
+      el.value = 'KES ' + Number(stripped).toLocaleString('en-KE');
+      el.dataset.priceValue = stripped;
+    } else {
+      delete el.dataset.priceValue;
+    }
+    debouncedApply();
+  }
+
+  // ── Get active filter values ──
+  function getFilters() {
+    const type = document.querySelector('#type-pills .filter-pill.active')?.dataset.val || '';
+    const cat  = document.querySelector('#cat-pills .filter-pill.active')?.dataset.val || '';
+    const beds = document.querySelector('#bed-pills .filter-pill.active')?.dataset.val || '';
+    const furn = document.querySelector('#furn-pills .filter-pill.active')?.dataset.val || '';
+    const county = document.getElementById('county-select')?.value || '';
+    const areas = [...document.querySelectorAll('#area-checks input:checked')].map(c => c.value);
+    const priceMin = document.getElementById('price-min').value;
+    const priceMax = document.getElementById('price-max').value;
+    const searchEl = document.getElementById('search-q');
+    const q = searchEl.value.trim();
+    // A plain number typed into the header search box means "match only listings
+    // within ±1 KES of this value" — existing free-text search (title/area/address)
+    // is skipped in that case so a price like "7000" doesn't also get treated as a
+    // keyword. Text search behaves exactly as before for anything non-numeric.
+    const priceExact = searchEl.dataset.priceValue ? Number(searchEl.dataset.priceValue) : null;
+    const sort = document.getElementById('sort-select').value;
+    return { type, cat, beds, furn, county, areas, priceMin, priceMax, q, priceExact, sort };
+  }
+
+  // ── Build active filter tags ──
+  function renderActiveTags(f) {
+    const tags = [];
+    if (f.type) tags.push({ label: f.type === 'sale' ? 'For sale' : 'To let', key: 'type' });
+    if (f.cat) tags.push({ label: f.cat.charAt(0).toUpperCase() + f.cat.slice(1), key: 'cat' });
+    if (f.beds) tags.push({ label: `${f.beds}+ beds`, key: 'beds' });
+    if (f.furn === 'true') tags.push({ label: 'Furnished', key: 'furn' });
+    if (f.furn === 'false') tags.push({ label: 'Unfurnished', key: 'furn' });
+    if (f.county && !f.areas.length) tags.push({ label: nkCountyLabel(f.county), key: 'county' });
+    f.areas.forEach(a => tags.push({ label: a, key: 'area-' + a }));
+    if (f.priceMin || f.priceMax) {
+      const label = f.priceMin && f.priceMax
+        ? `KES ${Number(f.priceMin).toLocaleString()} – ${Number(f.priceMax).toLocaleString()}`
+        : f.priceMin ? `From KES ${Number(f.priceMin).toLocaleString()}` : `Up to KES ${Number(f.priceMax).toLocaleString()}`;
+      tags.push({ label, key: 'price' });
+    }
+    if (f.priceExact !== null) {
+      tags.push({ label: `≈ KES ${f.priceExact.toLocaleString()} (±1)`, key: 'q' });
+    } else if (f.q) {
+      tags.push({ label: `"${f.q}"`, key: 'q' });
+    }
+
+    const el = document.getElementById('active-filters');
+    el.innerHTML = tags.map(t => `
+      <span class="filter-tag">${t.label}
+        <button onclick="removeTag('${t.key}')" title="Remove filter">×</button>
+      </span>`).join('');
+  }
+
+  // ── Remove a tag ──
+  function removeTag(key) {
+    if (key === 'type') setPill(document.querySelector('#type-pills .filter-pill[data-val=""]'), 'type-pills');
+    else if (key === 'cat') setPill(document.querySelector('#cat-pills .filter-pill[data-val=""]'), 'cat-pills');
+    else if (key === 'beds') setPill(document.querySelector('#bed-pills .filter-pill[data-val=""]'), 'bed-pills');
+    else if (key === 'furn') setPill(document.querySelector('#furn-pills .filter-pill[data-val=""]'), 'furn-pills');
+    else if (key === 'county') {
+      document.getElementById('county-select').value = '';
+      renderAreaChecklist('');
+      applyFilters();
+    }
+    else if (key.startsWith('area-')) {
+      const area = key.replace('area-', '');
+      const cb = document.querySelector(`#area-checks input[value="${area}"]`);
+      if (cb) { cb.checked = false; applyFilters(); }
+    } else if (key === 'price') {
+      document.getElementById('price-min').value = '';
+      document.getElementById('price-max').value = '';
+      applyFilters();
+    } else if (key === 'q') {
+      const searchEl = document.getElementById('search-q');
+      searchEl.value = '';
+      delete searchEl.dataset.priceValue;
+      applyFilters();
+    }
+  }
+
+  // ── Reset all filters ──
+  function resetAllFilters() {
+    setPill(document.querySelector('#type-pills .filter-pill[data-val=""]'), 'type-pills');
+    setPill(document.querySelector('#cat-pills .filter-pill[data-val=""]'), 'cat-pills');
+    setPill(document.querySelector('#bed-pills .filter-pill[data-val=""]'), 'bed-pills');
+    setPill(document.querySelector('#furn-pills .filter-pill[data-val=""]'), 'furn-pills');
+    document.getElementById('county-select').value = '';
+    renderAreaChecklist('');
+    document.getElementById('price-min').value = '';
+    document.getElementById('price-max').value = '';
+    const searchEl = document.getElementById('search-q');
+    searchEl.value = '';
+    delete searchEl.dataset.priceValue;
+    applyFilters();
+  }
+
+  // ── Build and run Supabase query ──
+  async function applyFilters(page) {
+    if (page) currentPage = page;
+    const f = getFilters();
+    renderActiveTags(f);
+
+    const grid = document.getElementById('listings-grid');
+    grid.innerHTML = Array(6).fill(`<div class="skeleton"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line xshort"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div></div></div>`).join('');
+    document.getElementById('result-count').textContent = 'Loading…';
+
+    let query = db.from('listings').select('*, listing_photos(*)', { count: 'exact' }).eq('status', 'active');
+
+    if (f.type)     query = query.eq('price_type', f.type);
+    if (f.cat)      query = query.eq('category', f.cat);
+    if (f.beds)     query = f.beds === '4' ? query.gte('bedrooms', 4) : query.eq('bedrooms', parseInt(f.beds));
+    if (f.furn !== '') query = query.eq('furnished', f.furn === 'true');
+    if (f.areas.length) {
+      query = query.in('area', f.areas);
+    } else if (f.county) {
+      // County picked but no specific area checked yet — show every area we
+      // cover in that county (same behaviour as the homepage's county cards).
+      const countyAreas = NK_AREAS_BY_COUNTY[f.county] || [];
+      if (countyAreas.length) query = query.in('area', countyAreas);
+    }
+    if (f.priceMin) query = query.gte('price', parseFloat(f.priceMin));
+    if (f.priceMax) query = query.lte('price', parseFloat(f.priceMax));
+
+    if (f.priceExact !== null) {
+      // Exact-ish price typed in the header search box: only listings priced within
+      // ±1 KES of it. Combines (ANDs) with any sidebar price-min/max already set,
+      // so nothing about the existing range filter is overridden — it's additive.
+      query = query.gte('price', f.priceExact - 1).lte('price', f.priceExact + 1);
+    } else if (f.q) {
+      query = query.or(`title.ilike.%${f.q}%,description.ilike.%${f.q}%,area.ilike.%${f.q}%,address.ilike.%${f.q}%`);
+    }
+
+    // Sort
+    if (f.sort === 'price_asc')       query = query.order('price', { ascending: true });
+    else if (f.sort === 'price_desc') query = query.order('price', { ascending: false });
+    else if (f.sort === 'featured')   query = query.order('is_featured', { ascending: false }).order('created_at', { ascending: false });
+    else                              query = query.order('created_at', { ascending: false });
+
+    // Pagination
+    const from = (currentPage - 1) * PAGE_SIZE;
+    query = query.range(from, from + PAGE_SIZE - 1);
+
+    const { data, count, error } = await query;
+    if (error) { console.error(error); return; }
+
+    totalCount = count || 0;
+    renderResults(data || [], totalCount);
+    renderPagination(totalCount);
+  }
+
+  // ── Render listing cards ──
+  function formatPrice(price, type) {
+    const p = Number(price).toLocaleString('en-KE');
+    return type === 'rent' ? `KES ${p}<span>/mo</span>` : `KES ${p}`;
+  }
+
+  function buildCard(l) {
+    const photos = l.listing_photos || [];
+    const cover = photos.find(p => p.is_cover) || photos[0];
+    const imgHtml = cover
+      ? `<img src="${cover.url}" alt="${l.title}" loading="lazy"/>`
+      : `<div class="card-img-placeholder"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg><span style="font-size:11px">No photo</span></div>`;
+    const catBadge = l.category !== 'standard'
+      ? `<span class="badge-cat ${l.category}">${l.category}</span>` : '';
+    return `
+      <div class="card" onclick="window.location='listing.html?id=${l.id}'">
+        <div class="card-img">
+          ${imgHtml}
+          ${l.is_featured ? '<span class="badge-featured">Featured</span>' : ''}
+          <div class="nk-heart-overlay">${NKSaved.buildHeartBtn(l.id)}</div>
+          ${catBadge}
+        </div>
+        <div class="card-body">
+          <div class="card-area">${l.area}${l.sub_area ? ' · ' + l.sub_area : ''}</div>
+          <div class="card-title">${l.title}</div>
+          <div class="card-sub">${l.address || (NK_AREA_TO_COUNTY[l.area] ? l.area + ', ' + nkCountyLabel(NK_AREA_TO_COUNTY[l.area]) : 'Kenya')}</div>
+          <div class="card-price">${formatPrice(l.price, l.price_type)}</div>
+          <div class="card-meta">
+            ${l.bedrooms ? `<div class="card-meta-item"><svg viewBox="0 0 24 24"><path d="M2 4v16M22 4v16M2 12h20M2 8h4a2 2 0 012 2v2H2V8zM16 8h4a2 2 0 012 2v2h-6V8z"/></svg>${l.bedrooms} bed</div>` : ''}
+            ${l.bathrooms ? `<div class="card-meta-item"><svg viewBox="0 0 24 24"><path d="M9 6l1-1a2 2 0 012.83 0l6.17 6.17a1 1 0 010 1.41L17 14M3 20h18M5 20v-4a3 3 0 013-3h1"/></svg>${l.bathrooms} bath</div>` : ''}
+            ${l.size_sqm ? `<div class="card-meta-item"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="1"/></svg>${l.size_sqm}m²</div>` : ''}
+            ${l.furnished ? `<div class="card-meta-item"><svg viewBox="0 0 24 24"><rect x="2" y="8" width="20" height="10" rx="2"/><path d="M6 8V6a2 2 0 012-2h8a2 2 0 012 2v2"/><line x1="6" y1="14" x2="6" y2="18"/><line x1="18" y1="14" x2="18" y2="18"/></svg>Furnished</div>` : ''}
+          </div>
+        </div>
+      </div>`;
+  }
+
+  function renderResults(listings, count) {
+    const grid = document.getElementById('listings-grid');
+    const rc = document.getElementById('result-count');
+    rc.innerHTML = `<strong>${count.toLocaleString()}</strong> listing${count !== 1 ? 's' : ''} found`;
+
+    if (!listings.length) {
+      grid.innerHTML = `<div class="empty-state">
+        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+        <h3>No listings match your filters</h3>
+        <p>Try adjusting your search or <a onclick="resetAllFilters()" style="cursor:pointer">reset all filters</a></p>
+        <button class="btn btn-primary" style="margin-top:14px" onclick="openNotifyModal()">🔔 Notify me when a match is posted</button>
+      </div>`;
       return;
     }
-    try {
-      const { data: payment } = await db
-        .from('payments')
-        .select('status, mpesa_ref')
-        .eq('listing_id', currentListingId)
-        .single();
+    grid.innerHTML = listings.map(buildCard).join('');
+  }
 
-      if (payment?.status === 'confirmed') {
-        clearInterval(paymentPollTimer);
-        setStatusSuccess(`✓ Payment confirmed! M-Pesa ref: ${payment.mpesa_ref}`);
-        showToast('Payment confirmed — your listing is being reviewed ✓', 'success');
-        setTimeout(finishSubmission, 2000);
+  // ── Pagination ──
+  function renderPagination(count) {
+    const totalPages = Math.ceil(count / PAGE_SIZE);
+    const el = document.getElementById('pagination');
+    if (totalPages <= 1) { el.innerHTML = ''; return; }
+
+    let html = `<button class="page-btn" onclick="applyFilters(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>←</button>`;
+    for (let i = 1; i <= totalPages; i++) {
+      if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+        html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="applyFilters(${i})">${i}</button>`;
+      } else if (i === currentPage - 2 || i === currentPage + 2) {
+        html += `<span style="padding:0 4px;color:var(--text-3);font-size:13px">…</span>`;
       }
-    } catch(e) { /* continue polling */ }
-  }, 5000);
-}
-
-async function confirmManualPayment(method) {
-  const codeEl = method === 'mpesa' ? document.getElementById('mpesa-code') : document.getElementById('bank-ref');
-  const code   = codeEl.value.trim().toUpperCase();
-  if (!code) {
-    showToast(method === 'mpesa' ? 'Please enter your M-Pesa code' : 'Please enter your M-Pesa transaction code', 'error');
-    return;
-  }
-
-  document.querySelectorAll('#payment-modal .btn-pay-primary').forEach(b => b.disabled = true);
-
-  try {
-    await db.from('listings').update({ payment_status: 'submitted', payment_method: method }).eq('id', currentListingId);
-    await db.from('payments').insert({
-      listing_id: currentListingId,
-      seller_id:  currentUser?.id || null,
-      amount:     currentPlanPrice,
-      method,
-      reference:  code,
-      status:     'pending_verification',
-    });
-    showToast('Payment details received — our team will verify shortly ✓', 'success');
-    document.getElementById('success-message').textContent =
-      `Your listing is saved and pending review. Your ${method === 'mpesa' ? 'M-Pesa' : 'Paybill'} payment (ref: ${code}) has been recorded and will be verified by our team.`;
-  } catch(err) {
-    console.error('Payment record error:', err);
-    showToast('Listing saved. Payment recording failed — contact support.', 'error');
-  }
-
-  finishSubmission();
-}
-
-function skipPayment() { finishSubmission(); }
-
-function finishSubmission() {
-  if (paymentPollTimer) clearInterval(paymentPollTimer);
-  document.getElementById('payment-modal').classList.remove('show');
-  document.getElementById('step-4').style.display = 'none';
-  document.getElementById('steps-bar').style.display = 'none';
-  document.getElementById('success-screen').style.display = 'block';
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-document.addEventListener('keydown', e => {
-  if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA' && currentStep < 4
-      && !document.getElementById('payment-modal').classList.contains('show')) {
-    goStep(currentStep + 1);
-  }
-});
-
-init();
-</script>
-
-<!-- ── Draggable widget behaviour: shared across pages, keyed to same localStorage ── -->
-<script>
-(function() {
-  const floatie = document.getElementById('trial-floatie');
-  const handle  = document.getElementById('trial-floatie-handle');
-  if (!floatie || !handle) return;
-
-  const DISMISS_KEY = 'nk_trial_floatie_dismissed';
-  const POS_KEY = 'nk_trial_floatie_pos';
-
-  if (localStorage.getItem(DISMISS_KEY)) return; // user closed it before — respect that everywhere
-
-  try {
-    const saved = JSON.parse(localStorage.getItem(POS_KEY) || 'null');
-    if (saved && typeof saved.left === 'number' && typeof saved.top === 'number') {
-      floatie.style.left = Math.min(saved.left, window.innerWidth - 240) + 'px';
-      floatie.style.top  = Math.min(saved.top, window.innerHeight - 100) + 'px';
-      floatie.style.right = 'auto';
-      floatie.style.bottom = 'auto';
     }
-  } catch(e) {}
-
-  let dragging = false, startX, startY, startLeft, startTop, moved = false;
-
-  function clamp(val, min, max) { return Math.min(Math.max(val, min), max); }
-
-  function onPointerDown(e) {
-    dragging = true;
-    moved = false;
-    const rect = floatie.getBoundingClientRect();
-    startLeft = rect.left; startTop = rect.top;
-    startX = e.clientX; startY = e.clientY;
-    floatie.style.right = 'auto'; floatie.style.bottom = 'auto';
-    floatie.style.left = startLeft + 'px';
-    floatie.style.top  = startTop + 'px';
-    document.addEventListener('pointermove', onPointerMove);
-    document.addEventListener('pointerup', onPointerUp);
-    e.preventDefault();
+    html += `<button class="page-btn" onclick="applyFilters(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>→</button>`;
+    el.innerHTML = html;
   }
 
-  function onPointerMove(e) {
-    if (!dragging) return;
-    const dx = e.clientX - startX, dy = e.clientY - startY;
-    if (Math.abs(dx) > 3 || Math.abs(dy) > 3) moved = true;
-    const newLeft = clamp(startLeft + dx, 4, window.innerWidth - floatie.offsetWidth - 4);
-    const newTop  = clamp(startTop + dy, 4, window.innerHeight - floatie.offsetHeight - 4);
-    floatie.style.left = newLeft + 'px';
-    floatie.style.top  = newTop + 'px';
+  // ── Debounce for text inputs ──
+  function debouncedApply() {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(applyFilters, 500);
   }
 
-  function onPointerUp() {
-    dragging = false;
-    document.removeEventListener('pointermove', onPointerMove);
-    document.removeEventListener('pointerup', onPointerUp);
-    const rect = floatie.getBoundingClientRect();
-    localStorage.setItem(POS_KEY, JSON.stringify({ left: rect.left, top: rect.top }));
+  // ── Mobile sidebar ──
+  function openSidebar() {
+    document.getElementById('sidebar').classList.add('open');
+    document.getElementById('overlay').classList.add('open');
+  }
+  function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('overlay').classList.remove('open');
   }
 
-  handle.addEventListener('pointerdown', onPointerDown);
+  // ── Mobile nav toggle ──
+  function toggleMobileMenu() {
+    document.getElementById('mobile-nav').classList.toggle('open');
+  }
+  document.addEventListener('click', e => {
+    const nav = document.getElementById('mobile-nav');
+    const btn = document.querySelector('.mobile-menu-btn');
+    if (nav && nav.classList.contains('open') && !nav.contains(e.target) && !btn.contains(e.target)) {
+      nav.classList.remove('open');
+    }
+  });
 
-  window.dismissTrialFloatie = function() {
-    floatie.classList.remove('show');
-    localStorage.setItem(DISMISS_KEY, '1');
-  };
+  // ── Sign in → My Account when logged in ──
+  (async function () {
+    const _sb = (typeof db !== 'undefined') ? db : supabase.createClient(
+      'https://vliuuloyfhyxcsuchpss.supabase.co',
+      'sb_publishable_oIIcecf3wzKMual5K24Z8Q_zmxVfgsx'
+    );
+    const { data: { session } } = await _sb.auth.getSession();
+    if (!session) return;
 
-  // Only reveal it once we know the launch offer is still live
-  (async () => {
-    try {
-      const { data: slotsLeft } = await db.rpc('get_trial_slots_left');
-      const n = typeof slotsLeft === 'number' ? slotsLeft : 0;
-      if (n <= 0) return;
-      document.getElementById('floatie-spots').textContent = `Only ${n} spot${n === 1 ? '' : 's'} left`;
-      floatie.classList.add('show');
-    } catch(e) { /* fail silently — stays hidden */ }
+    const desktopLink = document.getElementById('nav-account-link');
+    const mobileLink  = document.getElementById('mobile-account-link');
+    if (desktopLink) {
+      desktopLink.textContent = 'My Account';
+      desktopLink.href = 'dashboard.html';
+      desktopLink.style.fontWeight = '600';
+      desktopLink.style.color = 'var(--green)';
+    }
+    if (mobileLink) {
+      mobileLink.textContent = 'My Account';
+      mobileLink.href = 'dashboard.html';
+    }
   })();
-})();
+
+  /* ════════════════════════════════════════════════════
+     NOTIFY ME — "haven't found what you're looking for"
+     Buyers fill this out (name, phone, area/county or a
+     free-typed area, budget, category, bedrooms) and get
+     stored in listing_alerts. A DB trigger auto-matches
+     each new active listing against active alerts and
+     queues a row in listing_alert_matches — the actual
+     email/SMS send needs a Supabase Database Webhook or
+     Edge Function watching that table (see SQL notes).
+  ════════════════════════════════════════════════════ */
+  function dismissNotifyStrip() {
+    // Only hides it for the current view — no persistence, so a page refresh
+    // brings it back (this was previously stored in sessionStorage, which
+    // survives refreshes; that's the behavior we're removing).
+    document.getElementById('notify-strip').style.display = 'none';
+  }
+
+  function nfPopulateCounties() {
+    const sel = document.getElementById('nf-county-select');
+    sel.innerHTML = '<option value="">Any county</option>' +
+      NK_COUNTIES.map(c => `<option value="${c}">${nkCountyLabel(c)}</option>`).join('');
+  }
+
+  function nfHandleCountyChange() {
+    const county = document.getElementById('nf-county-select').value;
+    const areaSel = document.getElementById('nf-area-select');
+    const areas = NK_AREAS_BY_COUNTY[county] || [];
+    areaSel.innerHTML = '<option value="">Any area in this county</option>' +
+      areas.map(a => `<option value="${a}">${a}</option>`).join('');
+  }
+
+  function nfToggleCustomArea() {
+    const checked = document.getElementById('nf-area-not-listed').checked;
+    document.getElementById('nf-area-wrap').style.display = checked ? 'none' : '';
+    document.getElementById('nf-area-custom').style.display = checked ? 'block' : 'none';
+    if (checked) document.getElementById('nf-area-select').value = '';
+  }
+
+  function nfSetPill(el, groupId) {
+    document.querySelectorAll(`#${groupId} .filter-pill`).forEach(p => p.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  function nfResetForm() {
+    document.getElementById('nf-name').value = '';
+    document.getElementById('nf-phone').value = '';
+    document.getElementById('nf-email').value = '';
+    document.getElementById('nf-budget-min').value = '';
+    document.getElementById('nf-budget-max').value = '';
+    document.getElementById('nf-notes').value = '';
+    document.getElementById('nf-area-custom').value = '';
+    document.getElementById('nf-area-custom').style.display = 'none';
+    document.getElementById('nf-area-not-listed').checked = false;
+    document.getElementById('nf-area-wrap').style.display = '';
+    ['nf-type-pills','nf-cat-pills','nf-bed-pills'].forEach(groupId => {
+      nfSetPill(document.querySelector(`#${groupId} .filter-pill[data-val=""]`), groupId);
+    });
+  }
+
+  function openNotifyModal() {
+    nfPopulateCounties();
+    document.getElementById('nf-area-select').innerHTML = '<option value="">Any area in this county</option>';
+    document.getElementById('notify-modal-overlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeNotifyModal() {
+    document.getElementById('notify-modal-overlay').classList.remove('open');
+    document.body.style.overflow = '';
+    // If this modal was opened via the exit-intent "Not quite" flow, cancelling it
+    // (X, Cancel, or clicking outside) means continuing on to wherever they were
+    // trying to go — instantly, no extra step.
+    if (exitNotifyFlowActive) {
+      const href = exitPendingHref;
+      exitNotifyFlowActive = false;
+      exitPendingHref = null;
+      if (href) window.location.href = href;
+    }
+  }
+
+  function showNotifySuccess() {
+    const t = document.getElementById('notify-success-toast');
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 4500);
+  }
+
+  async function submitNotifyAlert() {
+    const name  = document.getElementById('nf-name').value.trim();
+    const phone = document.getElementById('nf-phone').value.trim();
+    const email = document.getElementById('nf-email').value.trim();
+
+    if (!name)  { alert('Please enter your name'); return; }
+    if (!phone) { alert('Please enter a phone number so we can reach you'); return; }
+
+    const priceType = document.querySelector('#nf-type-pills .filter-pill.active')?.dataset.val || null;
+    const category  = document.querySelector('#nf-cat-pills .filter-pill.active')?.dataset.val || null;
+    const bedsVal   = document.querySelector('#nf-bed-pills .filter-pill.active')?.dataset.val || '';
+    const bedrooms  = bedsVal ? parseInt(bedsVal) : null;
+
+    const county        = document.getElementById('nf-county-select').value || null;
+    const customChecked  = document.getElementById('nf-area-not-listed').checked;
+    const areaSelectVal  = document.getElementById('nf-area-select').value || null;
+    const customAreaText = document.getElementById('nf-area-custom').value.trim();
+
+    const area       = customChecked ? null : areaSelectVal;
+    const customArea = customChecked ? (customAreaText || null) : null;
+
+    // When only a county is picked (no specific area, no custom text), send along
+    // the full list of areas we cover in that county — the DB trigger uses this
+    // to auto-match new listings without needing a county↔area table server-side.
+    let countyAreas = null;
+    if (county && !area && !customChecked) {
+      countyAreas = NK_AREAS_BY_COUNTY[county] || null;
+    }
+
+    const budgetMin = document.getElementById('nf-budget-min').value;
+    const budgetMax = document.getElementById('nf-budget-max').value;
+    const notes = document.getElementById('nf-notes').value.trim();
+
+    const btn = document.getElementById('nf-submit-btn');
+    btn.disabled = true; btn.textContent = 'Saving…';
+
+    const { error } = await db.from('listing_alerts').insert({
+      full_name: name,
+      phone,
+      email: email || null,
+      price_type: priceType,
+      category,
+      bedrooms,
+      county,
+      area,
+      county_areas: countyAreas,
+      custom_area: customArea,
+      budget_min: budgetMin ? parseFloat(budgetMin) : null,
+      budget_max: budgetMax ? parseFloat(budgetMax) : null,
+      notes: notes || null,
+    });
+
+    btn.disabled = false; btn.textContent = 'Notify me';
+
+    if (error) {
+      alert('Something went wrong, please try again: ' + error.message);
+      return;
+    }
+
+    document.getElementById('notify-modal-overlay').classList.remove('open');
+    document.body.style.overflow = '';
+    nfResetForm();
+    showNotifySuccess();
+
+    // Successful signup from the exit flow: let the toast show briefly, then
+    // continue on to wherever they were trying to go.
+    if (exitNotifyFlowActive) {
+      const href = exitPendingHref;
+      exitNotifyFlowActive = false;
+      exitPendingHref = null;
+      if (href) setTimeout(() => { window.location.href = href; }, 1200);
+    }
+  }
+
+  // ── Init ──
+  nkPopulateCountySelect();
+  renderAreaChecklist('');
+  readUrlParams();
+  toggleBedroomsFilter(document.querySelector('#cat-pills .filter-pill.active')?.dataset.val || '');
+  applyFilters();
 </script>
+
+<script src="saved-listings.js"></script>
+<script>NKSaved.init();</script>
+
+<script>
+  (function () {
+    const sb = supabase.createClient(
+      'https://vliuuloyfhyxcsuchpss.supabase.co',
+      'sb_publishable_oIIcecf3wzKMual5K24Z8Q_zmxVfgsx'
+    );
+    let sid = localStorage.getItem('nk_sid');
+    if (!sid) {
+      sid = (crypto.randomUUID ? crypto.randomUUID() : Date.now() + '-' + Math.random().toString(36).slice(2));
+      localStorage.setItem('nk_sid', sid);
+    }
+    sb.from('page_views').insert({
+      path: location.pathname,
+      referrer: document.referrer || null,
+      user_agent: navigator.userAgent,
+      session_id: sid
+    });
+  })();
+  /* ════════════════════════════════════════════════════
+     EXIT INTENT — "did you find what you were looking for?"
+     Fires once per session on: (a) mouse leaving toward the
+     top of the window (desktop), or (b) clicking any link
+     that navigates away from this page. Clicking a listing
+     card does NOT count as leaving (that's success).
+  ════════════════════════════════════════════════════ */
+  const EXIT_SESSION_KEY = 'nk_exit_prompt_shown';
+  const EXIT_REVIEW_DONE_KEY = 'nk_platform_review_done'; // shared with listing.html — one review per device, everywhere
+  let exitPendingHref = null;
+  let exitStarRating = 0;
+  let exitTriggered = false;
+  let exitNotifyFlowActive = false; // true while the real Notify-me modal was opened from "Not quite"
+  const exitPageLoadedAt = Date.now();
+
+  function exitAlreadyShown() { return sessionStorage.getItem(EXIT_SESSION_KEY) === '1'; }
+  function exitMarkShown() { sessionStorage.setItem(EXIT_SESSION_KEY, '1'); }
+
+  function exitOpenModal(href) {
+    if (exitTriggered || exitAlreadyShown()) return;
+    if (Date.now() - exitPageLoadedAt < 1200) return; // brief grace period so it doesn't fire on page load itself
+    if (document.getElementById('notify-modal-overlay')?.classList.contains('open')) return; // don't double up with the main notify modal
+    exitTriggered = true;
+    exitMarkShown();
+    exitPendingHref = href || null;
+    exitShowPanel('question');
+    // Add the open class directly and synchronously — no animation delay, appears instantly.
+    document.getElementById('exit-overlay').classList.add('open');
+  }
+
+  function exitShowPanel(name) {
+    ['question', 'review', 'thanks'].forEach(p => {
+      document.getElementById('exit-panel-' + p).style.display = (p === name) ? 'block' : 'none';
+    });
+  }
+
+  // Escape key also counts as "trying to leave" — opens the same exit-intent modal instantly.
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') exitOpenModal(null);
+  });
+
+  function exitClose() { document.getElementById('exit-overlay').classList.remove('open'); }
+  function exitCloseAndGo() {
+    exitClose();
+    if (exitPendingHref) window.location.href = exitPendingHref;
+  }
+
+  // Desktop: mouse moving up toward the tab/address bar
+  document.addEventListener('mouseout', (e) => {
+    if (e.clientY <= 0) exitOpenModal(null);
+  });
+
+  // Any click that navigates away from this page (nav, logo, footer, mobile nav)
+  document.addEventListener('click', (e) => {
+    if (exitAlreadyShown()) return;
+    const a = e.target.closest('a[href]');
+    if (!a) return;
+    const href = a.getAttribute('href');
+    if (!href || href.startsWith('#') || href.startsWith('mailto:') || href.startsWith('tel:') || a.target === '_blank') return;
+    e.preventDefault();
+    exitOpenModal(href);
+  });
+
+  function exitAnswerYes() {
+    if (localStorage.getItem(EXIT_REVIEW_DONE_KEY)) {
+      exitCloseAndGo(); // already reviewed before, anywhere on the site — just let them go
+      return;
+    }
+    exitStarRating = 0;
+    document.getElementById('exit-review-nav').value = '';
+    document.getElementById('exit-review-improve').value = '';
+    document.getElementById('exit-review-name').value = '';
+    document.getElementById('exit-review-anon').checked = false;
+    exitRenderStars();
+    exitShowPanel('review');
+  }
+
+  function exitRenderStars() {
+    const el = document.getElementById('exit-stars');
+    el.innerHTML = [1,2,3,4,5].map(n =>
+      `<svg class="exit-star" data-n="${n}" viewBox="0 0 24 24" onclick="exitSetStar(${n})"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`
+    ).join('');
+  }
+  function exitSetStar(n) {
+    exitStarRating = n;
+    [...document.getElementById('exit-stars').children].forEach((star, i) => star.classList.toggle('filled', i < n));
+  }
+
+  function exitToggleAnon() {
+    const nameInput = document.getElementById('exit-review-name');
+    const checked = document.getElementById('exit-review-anon').checked;
+    if (checked) { nameInput.dataset.saved = nameInput.value; nameInput.value = ''; nameInput.disabled = true; }
+    else { nameInput.disabled = false; nameInput.value = nameInput.dataset.saved || ''; }
+  }
+
+  function exitSkipReview() {
+    exitShowPanel('thanks');
+    document.getElementById('exit-thanks-text').textContent = 'No worries — thanks for visiting!';
+    setTimeout(exitCloseAndGo, 1400);
+  }
+
+  async function exitSubmitReview() {
+    if (!exitStarRating) { alert('Please pick a star rating'); return; }
+    const nav = document.getElementById('exit-review-nav').value.trim();
+    const improve = document.getElementById('exit-review-improve').value.trim();
+    const isAnon = document.getElementById('exit-review-anon').checked;
+    const typedName = document.getElementById('exit-review-name').value.trim();
+    const reviewerName = isAnon ? null : (typedName || null);
+
+    const parts = [];
+    if (nav) parts.push(`Navigation/finding things: ${nav}`);
+    if (improve) parts.push(`Suggested improvement: ${improve}`);
+    const comment = parts.join(' | ') || null;
+
+    const btn = document.getElementById('exit-review-submit');
+    btn.disabled = true; btn.textContent = 'Submitting…';
+
+    const { error } = await db.from('reviews').insert({
+      review_type: 'platform',
+      reviewer_role: 'buyer',
+      reviewer_name: reviewerName,
+      is_anonymous: isAnon,
+      rating: exitStarRating,
+      comment,
+    });
+
+    btn.disabled = false; btn.textContent = 'Submit & continue';
+    if (error) { alert('Something went wrong, please try again: ' + error.message); return; }
+
+    localStorage.setItem(EXIT_REVIEW_DONE_KEY, '1');
+    exitShowPanel('thanks');
+    document.getElementById('exit-thanks-text').textContent = 'Thank you for your feedback! 🎉';
+    setTimeout(exitCloseAndGo, 1400);
+  }
+
+  function exitAnswerNo() {
+    // "Not quite" now goes straight into the real Notify-me modal (same one as the
+    // strip's "Notify me" button) instead of a separate mini-form. Close the exit
+    // overlay instantly and open it — no delay, no duplicate form to maintain.
+    exitNotifyFlowActive = true;
+    exitClose();
+    openNotifyModal();
+  }
+</script>
+
 </body>
 </html>
