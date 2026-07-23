@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Listing — NyumbaKisumu</title>
-  <meta name="description" content="View apartment listing details on NyumbaKisumu — photos, specs, price, and contact the seller directly."/>
+  <title>Listing — Nyumba254</title>
+  <meta name="description" content="View apartment listing details on Nyumba254 — photos, specs, price, and contact the seller directly."/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -299,6 +299,10 @@
     .footer-col h4 { font-size:12px; font-weight:700; color:white; margin-bottom:14px; letter-spacing:.08em; text-transform:uppercase; }
     .footer-col a { display:block; font-size:13px; color:rgba(255,255,255,0.55); margin-bottom:8px; transition:color .15s; }
     .footer-col a:hover { color:white; }
+    .footer-counties { column-count: 2; column-gap: 14px; max-height: 180px; overflow-y: auto; padding-right: 6px; }
+    .footer-counties a { margin-bottom: 8px; break-inside: avoid; }
+    .footer-counties::-webkit-scrollbar { width: 5px; }
+    .footer-counties::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
     .footer-bottom { border-top:1px solid rgba(255,255,255,0.1); padding-top:20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; }
     .footer-bottom p { font-size:12px; }
 
@@ -426,7 +430,7 @@
     <div class="logo-icon">
       <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
     </div>
-    NyumbaKisumu
+    Nyumba254
   </a>
   <div class="nav-links">
     <a href="index.html" class="nav-link">Home</a>
@@ -494,7 +498,7 @@
             </div>
             <div class="seller-disabled-notice">
               <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-              <span>This information is private between you and the NyumbaKisumu admin team. No buyer or visitor can see it.</span>
+              <span>This information is private between you and the Nyumba254 admin team. No buyer or visitor can see it.</span>
             </div>
             <div class="seller-disabled-actions">
               <a href="contact.html" class="btn-contact-admin">
@@ -623,7 +627,7 @@
           <div class="map-card-header">
             <div>
               <h3>Location</h3>
-              <p id="map-sub">Kisumu, Kenya</p>
+              <p id="map-sub">Kenya</p>
             </div>
             <a id="map-open-link" href="#" target="_blank" rel="noopener">
               <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
@@ -784,8 +788,8 @@
   <div class="footer-inner">
     <div class="footer-top">
       <div>
-        <div class="footer-logo">NyumbaKisumu</div>
-        <p class="footer-tagline">Find and list apartments in Kisumu, Maseno, and Luanda — no agents, no commission.</p>
+        <div class="footer-logo">Nyumba254</div>
+        <p class="footer-tagline">Find and list apartments across Kenya — no agents, no commission.</p>
       </div>
       <div class="footer-col">
         <h4>Browse</h4>
@@ -796,12 +800,8 @@
         <a href="listings.html?category=commercial">Shops & offices</a>
       </div>
       <div class="footer-col">
-        <h4>Areas</h4>
-        <a href="listings.html?area=Milimani">Milimani</a>
-        <a href="listings.html?area=Kisumu CBD">Kisumu CBD</a>
-        <a href="listings.html?area=Maseno">Maseno</a>
-        <a href="listings.html?area=Luanda">Luanda</a>
-        <a href="listings.html?area=Kondele">Kondele</a>
+        <h4>Counties</h4>
+        <div class="footer-counties" id="footer-counties"></div>
       </div>
       <div class="footer-col">
         <h4>Platform</h4>
@@ -812,8 +812,8 @@
       </div>
     </div>
     <div class="footer-bottom">
-      <p>© 2025 NyumbaKisumu. All rights reserved.</p>
-      <p>Kisumu · Maseno · Luanda · Western Kenya</p>
+      <p>© 2025 Nyumba254. All rights reserved.</p>
+      <p>Kisumu · Nairobi · Mombasa · Kenya</p>
     </div>
   </div>
 </footer>
@@ -856,7 +856,7 @@
 <div class="nk-review-modal-overlay" id="nk-platform-review-modal">
   <div class="nk-review-modal">
     <h3>One last thing 🙂</h3>
-    <p class="sub">How was your overall experience using NyumbaKisumu to find a home?</p>
+    <p class="sub">How was your overall experience using Nyumba254 to find a home?</p>
     <div class="nk-star-row" id="nk-platform-stars"></div>
     <div class="nk-name-field">
       <label>Your name (shown publicly with your review)</label>
@@ -903,6 +903,108 @@ const SUPABASE_URL = 'https://vliuuloyfhyxcsuchpss.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_oIIcecf3wzKMual5K24Z8Q_zmxVfgsx';
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  const NK_COUNTIES = [
+    "Mombasa","Kwale","Kilifi","Tana River","Lamu","Taita-Taveta","Garissa","Wajir","Mandera",
+    "Marsabit","Isiolo","Meru","Tharaka-Nithi","Embu","Kitui","Machakos","Makueni","Nyandarua",
+    "Nyeri","Kirinyaga","Murang'a","Kiambu","Turkana","West Pokot","Samburu","Trans Nzoia",
+    "Uasin Gishu","Elgeyo-Marakwet","Nandi","Baringo","Laikipia","Nakuru","Narok","Kajiado",
+    "Kericho","Bomet","Kakamega","Vihiga","Bungoma","Busia","Siaya","Kisumu","Homa Bay",
+    "Migori","Kisii","Nyamira","Nairobi"
+  ].sort();
+  const NK_AREAS_BY_COUNTY = {
+    "Kisumu": ["Ahero","Car Wash","Dunga","Elgon View","Kanyakwar","Kibos","Kibuye","Kisumu CBD","Kombewa","Kondele","Luanda","Mamboleo","Manyatta","Maseno","Matibabu","Migosi","Milimani","Nyalenda","Nyamasaria","Obunga","Otonglo","Riat Hills","Sega"],
+    "Nairobi": ["Nairobi CBD","Westlands","Parklands","Highridge","Kangemi","Kitisuru","Runda","Loresho","Muthaiga","Gigiri","Spring Valley","Nyari","Rosslyn","Thome","Garden Estate","Ridgeways","Kilimani","Kileleshwa","Lavington","Kawangware","Hurlingham","Upper Hill","Adams Arcade","Karen","Langata","South B","South C","Nairobi West","Madaraka","Otiende","Kibera","Woodley","Roysambu","Zimmerman","Kahawa West","Githurai","Mirema","Kasarani","Mwiki","Njiru","Ruaraka","Baba Dogo","Mathare","Huruma","Pipeline","Imara Daima","Nyayo Estate","Dandora","Kariobangi","Kayole","Komarock","Utawala","Tassia","Umoja","Buruburu","Donholm","Makadara","Eastleigh","Ngara","Pangani"],
+    "Mombasa": ["Mombasa CBD (Old Town)","Nyali","Bamburi","Kizingo","Tudor","Likoni","Changamwe","Kisauni","Shanzu","Mkomani","Bombolulu","Kiembeni","Port Reitz","Miritini","Chaani","Migadini","Kongowea","Junda","Mwakirunge","Mtopanga","Jomvu","Magongo"],
+    "Nakuru": ["Nakuru CBD","Milimani","Section 58","Langalanga","Pangani","Shabab","Bangladesh","Lanet","Free Area","Freehold","Ngata","Bahati","London","Afraha","Naka","Kiamunyi","White House","Pipeline","Kaptembwa","Rhoda","Menengai","Naivasha"],
+    "Uasin Gishu": ["Eldoret CBD","Kapsoya","Langas","Kimumu","Huruma","Elgon View","Pioneer","Annex","Rupa Village","Hazina","Kamukunji","Munyaka","West Indies"],
+    "Kiambu": ["Thika CBD","Landless","Makongeni","Section 9","Blue Post","Thika Greens","Kiganjo","Tora","Ngoingwa","Bahati Ridge","Kisii Estate","Ruiru","Membley","Kamakis","Juja","Kiambu Town","Kikuyu","Limuru"],
+    "Kilifi": ["Kilifi Town","Malindi CBD","Kisumu Ndogo","Majengo (Malindi)","Silversands","Watamu","Mtwapa","Mariakani","Kaloleni","Mazeras","Magarini"],
+    "Machakos": ["Machakos CBD","Mua Hills","Kalama","Mitaboni","Athi River","Mlolongo","Syokimau","Katani","Kangundo Road","Kola"],
+    "Kakamega": ["Kakamega CBD","Amalemba","Milimani","Shirere","Lurambi","Mahiakalo","Sudi","Mumias","Butere","Malava","Lugari"],
+    "Meru": ["Meru CBD","Makutano","Kinoru","Ntharene","Nkubu","Maua","Timau","Laare","Mikinduri","Kianjai"],
+    "Nyeri": ["Nyeri CBD","Ring Road","Mountain View Estate","Garden Estate","Kamakwa","Ruring'u","Majengo","Karatina","Othaya Town","Mukurweini Town","Naromoru"],
+    "Kericho": ["Kericho CBD","Kapsoit","Ainamoi","Litein","Kipkelion","Fort Ternan","Sosiot","Chepseon","Kedowa","Cheborge"],
+    "Trans Nzoia": ["Kitale CBD","Milimani","Mitume","Matisi","Tuwan","Endebess","Kiminini","Kwanza","Saboti","Cherangany"],
+    "Kwale": ["Kwale Town","Diani","Ukunda","Tiwi","Msambweni","Lunga Lunga","Matuga","Kinango","Waa","Shimoni","Mackinon Road","Vanga"],
+    "Tana River": ["Hola","Garsen","Bura","Galole","Wenje","Kipini","Madogo","Chewele","Bangale","Wayu"],
+    "Lamu": ["Lamu Town","Mokowe","Faza","Matondoni","Mpeketoni","Witu","Hindi","Kizingitini","Shela","Kiunga"],
+    "Taita-Taveta": ["Voi","Taveta","Wundanyi","Mwatate","Mgange","Wesu","Bura (Taita)","Mbale (Taveta)","Tausa","Werugha"],
+    "Garissa": ["Garissa Town","Dadaab","Balambala","Fafi","Ijara","Lagdera","Modogashe","Bura (Garissa)","Sankuri","Hulugho"],
+    "Wajir": ["Wajir Town","Habaswein","Griftu","Eldas","Tarbaj","Bute","Buna","Diif","Elnur","Khorof Harar"],
+    "Mandera": ["Mandera Town","Rhamu","Banissa","Lafey","Takaba","El Wak","Kotulo","Fino","Arabia","Warankara"],
+    "Marsabit": ["Marsabit Town","Moyale","Loiyangalani","North Horr","Laisamis","Sololo","Turbi","Maikona","Illeret","Dukana"],
+    "Isiolo": ["Isiolo Town","Garbatulla","Merti","Kinna","Oldonyiro","Burat","Bulapesa","Wabera","Chari","Cherab"],
+    "Tharaka-Nithi": ["Chuka","Marimanti","Kathwana","Chogoria","Gatunga","Nkondi","Igambang'ombe","Muthambi","Mitheru","Tunyai"],
+    "Embu": ["Embu Town","Runyenjes","Manyatta","Siakago","Ishiara","Kiritiri","Kyeni","Karurumo","Kirimari","Gaturi"],
+    "Kitui": ["Kitui Town","Mwingi","Mutomo","Mutitu","Migwani","Zombe","Kabati","Ikutha","Mutha","Kanyangi"],
+    "Makueni": ["Wote","Emali","Sultan Hamud","Kibwezi","Kilome","Mbooni","Kaiti","Nunguni","Makindu","Tawa"],
+    "Nyandarua": ["Ol Kalou","Engineer","Njabini","Nyahururu","Ndaragwa","Ol Joro Orok","North Kinangop","South Kinangop","Kipipiri","Shamata"],
+    "Kirinyaga": ["Kerugoya","Kutus","Sagana","Kagio","Wang'uru","Baricho","Kianyaga","Kimbimbi","Mwea","Kutus Town"],
+    "Murang'a": ["Murang'a Town","Kenol","Kangema","Maragua","Kandara","Kigumo","Gatanga","Kiria-ini","Kabati","Makuyu"],
+    "Turkana": ["Lodwar","Kakuma","Lokichogio","Lokitaung","Kalokol","Lokichar","Kainuk","Todonyang","Kibish","Katilu"],
+    "West Pokot": ["Kapenguria","Makutano (Pokot)","Chepareria","Kacheliba","Sigor","Alale","Chepnyal","Lomut","Ortum","Kongelai"],
+    "Samburu": ["Maralal","Baragoi","Wamba","Archer's Post","Suguta Marmar","Kirisia","South Horr","Poro","Loosuk","Kisima"],
+    "Elgeyo-Marakwet": ["Iten","Tambach","Kapsowar","Chepkorio","Kapyego","Kapsait","Chesoi","Kaptarakwa","Kamogoi","Kabiemit"],
+    "Nandi": ["Kapsabet","Nandi Hills","Mosoriot","Kabiyet","Kaptumo","Kobujoi","Kapsisiywa","Kapsabet Town","Chepterit","Kilibwoni"],
+    "Baringo": ["Kabarnet","Eldama Ravine","Marigat","Kabartonjo","Mogotio","Kimalel","Kabernet Town","Loruk","Kampi ya Samaki","Mochongoi"],
+    "Laikipia": ["Nanyuki","Nyahururu","Rumuruti","Dol Dol","Kinamba","Ngobit","Sipili","Marmanet","Mukogodo","Salama"],
+    "Narok": ["Narok Town","Kilgoris","Ololulunga","Suswa","Ewaso Ngiro","Nairagie Enkare","Naikarra","Ntulele","Melili","Lolgorian"],
+    "Kajiado": ["Kajiado Town","Ngong","Kitengela","Ongata Rongai","Kiserian","Loitokitok","Namanga","Isinya","Bissil","Mashuuru"],
+    "Bomet": ["Bomet Town","Sotik","Longisa","Mulot","Chepalungu","Silibwet","Sigor (Bomet)","Chebunyo","Kaplong","Mogogosiek"],
+    "Vihiga": ["Mbale","Luanda (Vihiga)","Chavakali","Majengo (Vihiga)","Emuhaya","Sabatia","Hamisi","Wodanga","Bunyore","Gisambai"],
+    "Bungoma": ["Bungoma CBD","Kanduyi","Sikata","Webuye","Kimilili","Chwele","Bumula","Sirisia","Naitiri","Malakisi"],
+    "Busia": ["Busia Town","Malaba","Nambale","Funyula","Budalangi","Amagoro","Port Victoria","Matayos","Alupe","Angurai"],
+    "Siaya": ["Siaya Town","Bondo","Ugunja","Yala","Ukwala","Usenge","Sega (Siaya)","Nyang'oma Kogelo","Uranga","Yenga"],
+    "Homa Bay": ["Homa Bay Central","Asego","Arujo","Kalanya","Kanyabala","Katuma","Posta/Bonde","Oyugis","Kendu Bay","Rangwe","Ndhiwa","Mbita","Sindo","Kabondo","Kasipul","Karachuonyo"],
+    "Migori": ["Migori Town","Rongo","Awendo","Isebania","Kehancha","Macalder","Muhuru Bay","Uriri","Ntimaru","Suna"],
+    "Kisii": ["Kisii CBD","Milimani","Nyanchwa","Nyamataro","Daraja Mbili","Mwembe","Jogoo","Nyamage","Nyakoe","Nyangena","Gesonso"],
+    "Nyamira": ["Nyamira Town","Keroka","Ekerenyo","Nyansiongo","Manga","Ikonge","Magwagwa","Nyamaiya","Bomwagamo","Ainapngetuny"]
+  };
+  const NK_TIER1 = ["Kisumu", "Nairobi", "Mombasa"];
+  const NK_COUNTY_LABEL = {
+    "Uasin Gishu": "Uasin Gishu (Eldoret)",
+    "Trans Nzoia": "Trans Nzoia (Kitale)",
+    "Kiambu": "Kiambu (Thika)",
+    "Kilifi": "Kilifi (Malindi)",
+    "Kwale": "Kwale (Diani)",
+    "Taita-Taveta": "Taita-Taveta (Voi)",
+    "West Pokot": "West Pokot (Kapenguria)",
+    "Vihiga": "Vihiga (Mbale)",
+    "Nyandarua": "Nyandarua (Ol Kalou)",
+    "Turkana": "Turkana (Lodwar)",
+    "Samburu": "Samburu (Maralal)",
+    "Elgeyo-Marakwet": "Elgeyo-Marakwet (Iten)",
+    "Nandi": "Nandi (Kapsabet)",
+    "Baringo": "Baringo (Kabarnet)",
+    "Laikipia": "Laikipia (Nanyuki)",
+    "Tharaka-Nithi": "Tharaka-Nithi (Chuka)",
+    "Kirinyaga": "Kirinyaga (Kerugoya)",
+    "Makueni": "Makueni (Wote)"
+  };
+
+  function nkCountyLabel(county) { return NK_COUNTY_LABEL[county] || county; }
+
+  // Reverse lookup: area name -> county (used to fix location text that used
+  // to hardcode 'Kisumu' — meta description, live map query, WhatsApp share).
+  const NK_AREA_TO_COUNTY = {};
+  for (const [county, areas] of Object.entries(NK_AREAS_BY_COUNTY)) {
+    areas.forEach(a => { NK_AREA_TO_COUNTY[a] = county; });
+  }
+  function nkCountyForArea(area) {
+    return NK_AREA_TO_COUNTY[area] ? nkCountyLabel(NK_AREA_TO_COUNTY[area]) : 'Kenya';
+  }
+
+  function nkPopulateFooterCounties() {
+    const el = document.getElementById('footer-counties');
+    if (!el) return;
+    el.innerHTML = NK_COUNTIES.map(county => {
+      const hasAreas = (NK_AREAS_BY_COUNTY[county] || []).length > 0;
+      const href = hasAreas ? `listings.html?county=${encodeURIComponent(county)}` : '#';
+      return `<a href="${href}">${nkCountyLabel(county)}</a>`;
+    }).join('');
+  }
+
 
 const listingId = new URLSearchParams(window.location.search).get('id');
 
@@ -1084,9 +1186,9 @@ function handleBuyerThread(data) {
 }
 
 function renderListing(l) {
-  document.title = `${l.title} — NyumbaKisumu`;
+  document.title = `${l.title} — Nyumba254`;
   document.querySelector('meta[name="description"]').setAttribute('content',
-    `${l.title} in ${l.area}, Kisumu. ${l.price_type==='rent'?'KES '+Number(l.price).toLocaleString()+'/month rent':'For sale at KES '+Number(l.price).toLocaleString()}. Contact seller on NyumbaKisumu.`);
+    `${l.title} in ${l.area}, ${nkCountyForArea(l.area)}. ${l.price_type==='rent'?'KES '+Number(l.price).toLocaleString()+'/month rent':'For sale at KES '+Number(l.price).toLocaleString()}. Contact seller on Nyumba254.`);
 
   document.getElementById('breadcrumb-area').textContent = l.area;
 
@@ -1147,7 +1249,7 @@ function renderListing(l) {
   const phone    = profile.phone || '';
   const cleanPhone = phone.replace(/\s/g,'');
   const wa254    = cleanPhone.startsWith('0') ? '254'+cleanPhone.slice(1) : cleanPhone;
-  const waMsg    = encodeURIComponent(`Hello, I saw your listing "${l.title}" on NyumbaKisumu and I'm interested. Is it still available?`);
+  const waMsg    = encodeURIComponent(`Hello, I saw your listing "${l.title}" on Nyumba254 and I'm interested. Is it still available?`);
   document.getElementById('btn-call').href = `tel:${cleanPhone}`;
   document.getElementById('btn-call').innerHTML =
     `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="white" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.12 1.2 2 2 0 012.11 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg> Call ${phone||'seller'}`;
@@ -1167,7 +1269,7 @@ function renderLiveMap(l) {
   /* Build human-readable location query */
   const parts = [l.area];
   if (l.sub_area) parts.push(l.sub_area);
-  parts.push('Kisumu', 'Kenya');
+  parts.push(nkCountyForArea(l.area), 'Kenya');
   const query = parts.join(', ');
 
   /* Update header text and "Open in Maps" link */
@@ -1472,7 +1574,7 @@ function shareWhatsApp() {
   const url   = window.location.href;
   const title = listing?.title || 'Apartment listing';
   const price = listing ? `KES ${Number(listing.price).toLocaleString('en-KE')}${listing.price_type==='rent'?'/month':''}` : '';
-  window.open(`https://wa.me/?text=${encodeURIComponent(`🏠 *${title}*\n📍 ${listing?.area||''}, Kisumu\n💰 ${price}\n\nView on NyumbaKisumu: ${url}`)}`, '_blank');
+  window.open(`https://wa.me/?text=${encodeURIComponent(`🏠 *${title}*\n📍 ${listing?.area||''}, ${listing ? nkCountyForArea(listing.area) : 'Kenya'}\n💰 ${price}\n\nView on Nyumba254: ${url}`)}`, '_blank');
 }
 
 function copyLink() {
@@ -1769,6 +1871,7 @@ async function loadSellerReviewStats(sellerId) {
 }
 
 /* Boot */
+nkPopulateFooterCounties();
 loadListing();
 </script>
 
