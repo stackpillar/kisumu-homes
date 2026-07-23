@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Contact Us — NyumbaKisumu</title>
-  <meta name="description" content="Get in touch with NyumbaKisumu. We're here to help with listings, payments, and anything else across Kisumu, Maseno, and Luanda."/>
+  <title>Contact Us — Nyumba254</title>
+  <meta name="description" content="Get in touch with Nyumba254. We're here to help with listings, payments, and anything else across Kenya — starting with Kisumu, Nairobi, and Mombasa."/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -82,7 +82,7 @@
     }
     .hero h1 { font-family: 'Playfair Display', serif; font-size: clamp(28px,4vw,44px); color: white; margin-bottom: 14px; position: relative; }
     .hero h1 span { color: #5DCAA5; }
-    .hero p { font-size: 16px; color: rgba(255,255,255,0.65); max-width: 460px; margin: 0 auto; position: relative; }
+    .hero p { font-size: 16px; color: rgba(255,255,255,0.65); max-width: 480px; margin: 0 auto; position: relative; }
 
     /* ── Layout ── */
     .page-wrap { max-width: 1060px; margin: 0 auto; padding: 56px 24px 80px; }
@@ -143,6 +143,7 @@
     .field { margin-bottom: 16px; }
     .field label { display: block; font-size: 13px; font-weight: 500; color: var(--text-2); margin-bottom: 6px; }
     .field label .req { color: var(--red); margin-left: 2px; }
+    .field label .opt { font-size: 11px; font-weight: 400; color: var(--text-3); }
     .input-wrap { position: relative; }
     .input-wrap .icon { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; stroke: var(--text-3); fill: none; stroke-width: 2; pointer-events: none; transition: stroke .15s; }
     .input-wrap:focus-within .icon { stroke: var(--green); }
@@ -150,6 +151,11 @@
       width: 100%; padding: 10px 14px 10px 40px; border: 1.5px solid var(--border);
       border-radius: var(--radius); font-size: 14px; color: var(--text); font-family: inherit;
       background: var(--surface); outline: none; transition: border-color .15s, background .15s;
+    }
+    .field select {
+      appearance: none; -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234a4a46' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 12px center; background-size: 14px;
     }
     .field textarea { padding-left: 14px; resize: vertical; min-height: 110px; line-height: 1.6; }
     .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--green); background: var(--white); }
@@ -232,7 +238,7 @@
     <div class="logo-icon">
       <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
     </div>
-    NyumbaKisumu
+    Nyumba254
   </a>
   <div class="nav-links">
     <a href="listings.html" class="nav-link">Browse</a>
@@ -270,7 +276,7 @@
 <!-- ── HERO ── -->
 <section class="hero">
   <h1>We're here to <span>help</span></h1>
-  <p>Questions about a listing, payment issues, or just want to say hi — reach out and we'll get back to you fast.</p>
+  <p>Questions about a listing, payment issues, or just want to say hi — reach out and we'll get back to you fast, wherever you are in Kenya.</p>
 </section>
 
 <!-- ── MAIN ── -->
@@ -288,7 +294,7 @@
           <div class="card-body">
             <h3>WhatsApp us</h3>
             <p>Fastest way to reach us. We usually respond within 30 minutes during working hours.</p>
-            <a href="https://wa.me/254706804462?text=Hello%20NyumbaKisumu%2C%20I%20need%20help%20with..." target="_blank" rel="noopener">
+            <a href="https://wa.me/254706804462?text=Hello%20Nyumba254%2C%20I%20need%20help%20with..." target="_blank" rel="noopener">
               Chat on WhatsApp
               <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
             </a>
@@ -302,7 +308,7 @@
           <div class="card-body">
             <h3>Email us</h3>
             <p>For detailed questions, billing issues, or partnership enquiries.</p>
-            <a href="mailto:hello@nyumbakisumu.co.ke">hello@nyumbakisumu.co.ke</a>
+            <a href="mailto:hello@nyumba254.co.ke">hello@nyumba254.co.ke</a>
           </div>
         </div>
 
@@ -321,8 +327,8 @@
             <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
           </div>
           <div class="card-body">
-            <h3>Based in Kisumu</h3>
-            <p>We're a local team serving Kisumu, Maseno, Luanda and the surrounding areas. We know the market.</p>
+            <h3>Serving all of Kenya</h3>
+            <p>We're live in Kisumu, Nairobi, and Mombasa today, with listings and support expanding into every one of Kenya's 47 counties. Wherever your property is, reach out and we'll help.</p>
           </div>
         </div>
 
@@ -369,7 +375,7 @@
             What areas do you cover?
             <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           </button>
-          <div class="faq-a">We cover Kisumu (Milimani, CBD, Kondele, Riat Hills, Mamboleo, Nyalenda), Maseno and areas near Maseno University (Sega, Kombewa), and Luanda including Matibabu and Ahero. We're expanding regularly.</div>
+          <div class="faq-a">We're fully live in Kisumu (our home base), Nairobi, and Mombasa, covering dozens of neighborhoods in each. We also list all 47 counties on the site, and are actively rolling out fuller coverage county by county — if your area isn't showing many listings yet, tell us and we'll prioritize it.</div>
         </div>
 
         <div class="faq-item">
@@ -382,10 +388,50 @@
 
         <div class="faq-item">
           <button class="faq-q" onclick="toggleFaq(this)">
-            Can I list multiple apartments?
+            Can I list multiple apartments or commercial spaces?
             <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           </button>
-          <div class="faq-a">Yes — each listing is priced individually. If you're a landlord or agent with many units, contact us about bulk listing discounts.</div>
+          <div class="faq-a">Yes — each listing is priced individually, and you can list residential apartments as well as shops and offices. If you're a landlord or agent with many units, contact us about bulk listing discounts.</div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            Do you cover areas outside Kisumu, Nairobi, and Mombasa?
+            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+          <div class="faq-a">You can browse and list properties in any of Kenya's 47 counties on Nyumba254. Coverage is deepest in our three tier-1 counties for now, but sellers everywhere else are welcome to post — use the county selector on this form or on the homepage to tell us where your property is.</div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            How do I contact a seller directly?
+            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+          <div class="faq-a">Open any listing and use the "Contact seller" button to call, WhatsApp, or send a message — no middlemen or agents involved. Sellers see and reply to buyer messages from their own dashboard.</div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            Is my personal information kept private?
+            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+          <div class="faq-a">Your contact details are only shared with buyers or sellers you choose to interact with. We never sell your data. See our Privacy Policy for the full details on how we handle information.</div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            What payment methods do you accept?
+            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+          <div class="faq-a">Listing fees are paid via M-Pesa STK Push at checkout. If M-Pesa isn't available to you, message us on WhatsApp and we'll arrange an alternative such as bank transfer.</div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            How is Nyumba254 different from other listing sites?
+            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+          <div class="faq-a">No agents, no commission, and no middlemen — you list directly and buyers reach you directly. We also focus on giving smaller towns and counties the same visibility that's usually reserved for Nairobi-only platforms.</div>
         </div>
 
       </div>
@@ -441,6 +487,16 @@
         </div>
 
         <div class="field">
+          <label for="contact-county">Which county is this about? <span class="opt">optional</span></label>
+          <div class="input-wrap">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <select id="contact-county">
+              <option value="">Not area-specific</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
           <label for="contact-message">Message <span class="req">*</span></label>
           <textarea id="contact-message" placeholder="Describe your issue or question in as much detail as possible…" rows="5"></textarea>
           <div class="field-error" id="err-msg">Please enter a message</div>
@@ -468,8 +524,8 @@
 <footer>
   <div class="footer-top">
     <div>
-      <div class="footer-logo">NyumbaKisumu</div>
-      <p class="footer-tagline">The easiest way to find and list apartments in Kisumu, Maseno, and Luanda — without agents or commissions.</p>
+      <div class="footer-logo">Nyumba254</div>
+      <p class="footer-tagline">The easiest way to find and list apartments, shops, and offices across Kenya — without agents or commissions.</p>
     </div>
     <div class="footer-col">
       <h4>Browse</h4>
@@ -477,13 +533,14 @@
       <a href="listings.html?category=student">Student housing</a>
       <a href="listings.html?category=standard">Standard</a>
       <a href="listings.html?category=luxury">Luxury</a>
+      <a href="listings.html?category=commercial">Shops & offices</a>
     </div>
     <div class="footer-col">
-      <h4>Areas</h4>
-      <a href="listings.html?area=Milimani">Milimani</a>
-      <a href="listings.html?area=Maseno">Maseno</a>
-      <a href="listings.html?area=Luanda">Luanda</a>
-      <a href="listings.html?area=Kondele">Kondele</a>
+      <h4>Counties</h4>
+      <a href="listings.html?county=Kisumu">Kisumu</a>
+      <a href="listings.html?county=Nairobi">Nairobi</a>
+      <a href="listings.html?county=Mombasa">Mombasa</a>
+      <a href="listings.html">All 47 counties</a>
     </div>
     <div class="footer-col">
       <h4>Platform</h4>
@@ -494,8 +551,8 @@
     </div>
   </div>
   <div class="footer-bottom">
-    <p>© 2025 NyumbaKisumu. All rights reserved.</p>
-    <p>Kisumu · Maseno · Luanda · Western Kenya</p>
+    <p>© 2025 Nyumba254. All rights reserved.</p>
+    <p>Kisumu · Nairobi · Mombasa · Nationwide across Kenya</p>
   </div>
 </footer>
 
@@ -506,6 +563,24 @@
   const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
   let selectedSubject = 'Listing help';
+
+  // ── Kenya's 47 counties (same list used on the homepage) ──
+  const NK_COUNTIES = [
+    "Mombasa","Kwale","Kilifi","Tana River","Lamu","Taita-Taveta","Garissa","Wajir","Mandera",
+    "Marsabit","Isiolo","Meru","Tharaka-Nithi","Embu","Kitui","Machakos","Makueni","Nyandarua",
+    "Nyeri","Kirinyaga","Murang'a","Kiambu","Turkana","West Pokot","Samburu","Trans Nzoia",
+    "Uasin Gishu","Elgeyo-Marakwet","Nandi","Baringo","Laikipia","Nakuru","Narok","Kajiado",
+    "Kericho","Bomet","Kakamega","Vihiga","Bungoma","Busia","Siaya","Kisumu","Homa Bay",
+    "Migori","Kisii","Nyamira","Nairobi"
+  ].sort();
+
+  function populateCountySelect() {
+    const sel = document.getElementById('contact-county');
+    if (!sel) return;
+    sel.innerHTML = '<option value="">Not area-specific</option>' +
+      NK_COUNTIES.map(c => `<option value="${c}">${c}</option>`).join('');
+  }
+  populateCountySelect();
 
   function selectSubject(el) {
     document.querySelectorAll('.subject-pill').forEach(p => p.classList.remove('active'));
@@ -550,11 +625,16 @@
     btn.classList.toggle('loading', loading);
   }
 
+  // ── Send message: routes straight into the `enquiries` table so it shows up
+  // in the admin dashboard's Enquiries tab (under "Buyer enquiries"), the same
+  // place buyer-to-seller enquiries land. Subject and county are folded into
+  // the message body since `enquiries` doesn't have dedicated columns for them.
   async function sendMessage() {
     clearErrors();
     const name    = document.getElementById('contact-name').value.trim();
     const email   = document.getElementById('contact-email').value.trim();
     const phone   = document.getElementById('contact-phone').value.trim();
+    const county  = document.getElementById('contact-county').value;
     const message = document.getElementById('contact-message').value.trim();
     let ok = true;
 
@@ -565,18 +645,23 @@
 
     setLoading(true);
 
-    // Save to Supabase — we'll create a contact_messages table
-    const { error } = await db.from('contact_messages').insert({
-      name, email, phone: phone || null,
-      subject: selectedSubject,
-      message
+    const tagLine = `[Contact form · ${selectedSubject}${county ? ' · ' + county : ''}]`;
+    const fullMessage = `${tagLine}\n${message}`;
+
+    const { error } = await db.from('enquiries').insert({
+      buyer_name: name,
+      buyer_email: email,
+      buyer_phone: phone || null,
+      message: fullMessage
     });
 
     setLoading(false);
 
     if (error) {
-      // Table may not exist yet — still show success to user, log error
       console.error('Contact save error:', error);
+      showAlert('Something went wrong sending your message. Please try WhatsApp instead, or try again in a moment.', 'error');
+      setLoading(false);
+      return;
     }
 
     document.getElementById('contact-form').style.display = 'none';
@@ -587,6 +672,7 @@
     document.getElementById('contact-name').value = '';
     document.getElementById('contact-email').value = '';
     document.getElementById('contact-phone').value = '';
+    document.getElementById('contact-county').value = '';
     document.getElementById('contact-message').value = '';
     selectSubject(document.querySelector('.subject-pill[data-val="Listing help"]'));
     document.getElementById('contact-form').style.display = 'block';
