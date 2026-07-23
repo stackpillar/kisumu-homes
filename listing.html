@@ -3,347 +3,434 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Browse Listings — Nyumba254</title>
-  <meta name="description" content="Browse apartments for sale and rent across Kenya. Filter by county, area, price, bedrooms and more."/>
+  <title>Listing — NyumbaKisumu</title>
+  <meta name="description" content="View apartment listing details on NyumbaKisumu — photos, specs, price, and contact the seller directly."/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --green:       #0F6E56;
-      --green-light: #E1F5EE;
-      --green-mid:   #1D9E75;
-      --green-dark:  #085041;
-      --gold:        #BA7517;
-      --gold-light:  #FAEEDA;
-      --text:        #1a1a18;
-      --text-2:      #4a4a46;
-      --text-3:      #888780;
-      --border:      #e0ded8;
-      --surface:     #f7f6f2;
-      --white:       #ffffff;
-      --radius:      10px;
-      --radius-lg:   16px;
+      --green:#0F6E56; --green-light:#E1F5EE; --green-mid:#1D9E75; --green-dark:#085041;
+      --gold:#BA7517; --gold-light:#FAEEDA; --red:#C53030; --red-light:#FFF5F5;
+      --text:#1a1a18; --text-2:#4a4a46; --text-3:#888780;
+      --border:#e0ded8; --surface:#f7f6f2; --white:#ffffff;
+      --radius:10px; --radius-lg:16px;
     }
     html { scroll-behavior: smooth; }
-    body { font-family: 'Inter', sans-serif; color: var(--text); background: var(--surface); font-size: 15px; line-height: 1.6; }
-    a { text-decoration: none; color: inherit; }
-    button { font-family: inherit; cursor: pointer; border: none; }
-    input, select { font-family: inherit; }
+    body { font-family:'Inter',sans-serif; color:var(--text); background:var(--surface); font-size:15px; line-height:1.6; }
+    a { text-decoration:none; color:inherit; }
+    button { font-family:inherit; cursor:pointer; border:none; }
+    input,select,textarea { font-family:inherit; }
 
-    /* ── Navbar ── */
-    nav {
-      position: sticky; top: 0; z-index: 100;
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 0 32px; height: 64px;
-      background: var(--white); border-bottom: 1px solid var(--border);
-    }
-    .logo { display: flex; align-items: center; gap: 10px; font-family: 'Playfair Display', serif; font-size: 20px; color: var(--green-dark); }
-    .logo-icon { width: 34px; height: 34px; background: var(--green); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
-    .logo-icon svg { width: 18px; height: 18px; fill: none; stroke: white; stroke-width: 2; stroke-linecap: round; }
-    .nav-links { display: flex; align-items: center; gap: 6px; }
-    .nav-link { font-size: 14px; color: var(--text-2); padding: 8px 14px; border-radius: var(--radius); transition: background .15s; white-space: nowrap; }
-    .nav-link:hover { background: var(--surface); color: var(--text); }
-    .btn { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 500; padding: 9px 18px; border-radius: var(--radius); transition: all .15s; }
-    .btn-primary { background: var(--green); color: white; }
-    .btn-primary:hover { background: var(--green-dark); }
-    .btn-outline { background: transparent; color: var(--text-2); border: 1.5px solid var(--border); }
-    .btn-outline:hover { border-color: var(--green); color: var(--green); }
+    /* Navbar */
+    nav { position:sticky; top:0; z-index:100; display:flex; align-items:center; justify-content:space-between; padding:0 32px; height:64px; background:var(--white); border-bottom:1px solid var(--border); }
+    .logo { display:flex; align-items:center; gap:10px; font-family:'Playfair Display',serif; font-size:20px; color:var(--green-dark); }
+    .logo-icon { width:34px; height:34px; background:var(--green); border-radius:8px; display:flex; align-items:center; justify-content:center; }
+    .logo-icon svg { width:18px; height:18px; fill:none; stroke:white; stroke-width:2; stroke-linecap:round; }
+    .nav-links { display:flex; align-items:center; gap:8px; }
+    .nav-link { font-size:14px; color:var(--text-2); padding:8px 14px; border-radius:var(--radius); transition:background .15s; }
+    .nav-link:hover { background:var(--surface); }
+    .btn-primary { display:inline-flex; align-items:center; gap:6px; font-size:14px; font-weight:500; padding:9px 18px; border-radius:var(--radius); background:var(--green); color:white; transition:background .15s; }
+    .btn-primary:hover { background:var(--green-dark); }
 
-    /* ── Mobile menu ── */
-    .mobile-menu-btn {
-      display: none; background: none; border: none; cursor: pointer;
-      padding: 6px; border-radius: 6px;
-    }
-    .mobile-menu-btn svg { width: 22px; height: 22px; stroke: var(--text); fill: none; stroke-width: 2; display: block; }
-    .mobile-nav {
-      display: none; position: fixed; top: 64px; left: 0; right: 0;
-      background: var(--white); border-bottom: 1px solid var(--border);
-      padding: 16px; z-index: 99; flex-direction: column; gap: 4px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
-    }
-    .mobile-nav.open { display: flex; }
-    .mobile-nav a { font-size: 15px; color: var(--text-2); padding: 10px 14px; border-radius: var(--radius); }
-    .mobile-nav a:hover { background: var(--surface); }
-    .mobile-nav .btn-primary { text-align: center; justify-content: center; margin-top: 8px; }
+    /* Mobile menu */
+    .mobile-menu-btn { display:none; background:none; border:none; cursor:pointer; padding:6px; border-radius:6px; }
+    .mobile-menu-btn svg { width:22px; height:22px; stroke:var(--text); fill:none; stroke-width:2; display:block; }
+    .mobile-nav { display:none; position:fixed; top:64px; left:0; right:0; background:var(--white); border-bottom:1px solid var(--border); padding:16px; z-index:99; flex-direction:column; gap:4px; box-shadow:0 8px 24px rgba(0,0,0,0.1); }
+    .mobile-nav.open { display:flex; }
+    .mobile-nav a { font-size:15px; color:var(--text-2); padding:10px 14px; border-radius:var(--radius); }
+    .mobile-nav a:hover { background:var(--surface); }
+    .mobile-nav .btn-primary { text-align:center; justify-content:center; margin-top:8px; }
+    @media (max-width:768px) { .nav-links { display:none; } .mobile-menu-btn { display:flex; } }
 
-    /* ── Page header ── */
-    .page-header {
-      background: var(--white); border-bottom: 1px solid var(--border);
-      padding: 24px 32px 0;
-    }
-    .page-header h1 { font-family: 'Playfair Display', serif; font-size: 28px; color: var(--text); margin-bottom: 4px; }
-    .page-header p { font-size: 14px; color: var(--text-3); margin-bottom: 20px; }
+    /* Breadcrumb */
+    .breadcrumb { padding:14px 32px; display:flex; align-items:center; gap:8px; font-size:13px; color:var(--text-3); background:var(--white); border-bottom:1px solid var(--border); }
+    .breadcrumb a { color:var(--text-3); transition:color .15s; }
+    .breadcrumb a:hover { color:var(--green); }
+    .breadcrumb svg { width:14px; height:14px; stroke:var(--border); fill:none; stroke-width:2; flex-shrink:0; }
+    .breadcrumb span { color:var(--text-2); font-weight:500; }
 
-    /* Search bar in header */
-    .header-search { display: flex; gap: 8px; flex-wrap: wrap; padding-bottom: 20px; }
-    .header-search input {
-      flex: 1; min-width: 200px; padding: 9px 14px; border-radius: var(--radius);
-      border: 1.5px solid var(--border); font-size: 14px; color: var(--text); outline: none;
-      background: var(--surface); transition: border-color .15s;
-    }
-    .header-search input:focus { border-color: var(--green); background: white; }
-    .header-search button {
-      padding: 9px 20px; background: var(--green); color: white; border-radius: var(--radius);
-      font-size: 14px; font-weight: 500; transition: background .15s;
-    }
-    .header-search button:hover { background: var(--green-dark); }
-
-    /* ── Layout ── */
-    .layout { display: grid; grid-template-columns: 280px 1fr; gap: 0; min-height: calc(100vh - 200px); }
-
-    /* ── Sidebar filters ── */
-    .sidebar {
-      background: var(--white); border-right: 1px solid var(--border);
-      padding: 24px 20px; position: sticky; top: 64px;
-      height: calc(100vh - 64px); overflow-y: auto;
-    }
-    .sidebar::-webkit-scrollbar { width: 4px; }
-    .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-
-    .filter-section { margin-bottom: 28px; }
-    .filter-label { font-size: 11px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 10px; display: block; }
-    .filter-reset { float: right; font-size: 11px; color: var(--green); cursor: pointer; text-transform: none; letter-spacing: 0; font-weight: 500; }
-    .filter-reset:hover { text-decoration: underline; }
-
-    /* Checkbox filters */
-    .check-list { display: flex; flex-direction: column; gap: 6px; }
-    .check-item { display: flex; align-items: center; gap: 8px; cursor: pointer; }
-    .check-item input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--green); cursor: pointer; }
-    .check-item label { font-size: 13px; color: var(--text-2); cursor: pointer; flex: 1; }
-    .check-item .check-count { font-size: 12px; color: var(--text-3); }
-
-    /* County select in sidebar */
-    .county-select {
-      width: 100%; padding: 9px 12px; border: 1.5px solid var(--border); border-radius: var(--radius);
-      font-size: 13px; color: var(--text); background: white; outline: none; cursor: pointer; margin-bottom: 10px;
-    }
-    .county-select:focus { border-color: var(--green); }
-    .area-hint { font-size: 12px; color: var(--text-3); }
-
-    /* Range inputs */
-    .range-row { display: flex; gap: 8px; align-items: center; }
-    .range-input {
-      flex: 1; padding: 8px 10px; border: 1.5px solid var(--border); border-radius: 8px;
-      font-size: 13px; color: var(--text); outline: none; background: var(--surface);
-      transition: border-color .15s;
-    }
-    .range-input:focus { border-color: var(--green); background: white; }
-    .range-sep { font-size: 12px; color: var(--text-3); }
-
-    /* Pill toggles */
-    .pill-group { display: flex; flex-wrap: wrap; gap: 6px; }
-    .filter-pill {
-      font-size: 12px; padding: 5px 12px; border-radius: 20px;
-      border: 1.5px solid var(--border); background: white; color: var(--text-2);
-      cursor: pointer; transition: all .15s; font-weight: 500;
-    }
-    .filter-pill:hover { border-color: var(--green); color: var(--green); }
-    .filter-pill.active { background: var(--green); color: white; border-color: var(--green); }
-
-    .apply-btn {
-      width: 100%; padding: 11px; background: var(--green); color: white;
-      border-radius: var(--radius); font-size: 14px; font-weight: 600;
-      transition: background .15s; margin-top: 8px;
-    }
-    .apply-btn:hover { background: var(--green-dark); }
-
-    /* ── Main content ── */
-    .main { padding: 24px; }
-
-    /* Toolbar */
-    .toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
-    .result-count { font-size: 14px; color: var(--text-2); }
-    .result-count strong { color: var(--text); font-weight: 600; }
-    .sort-select {
-      padding: 8px 12px; border: 1.5px solid var(--border); border-radius: var(--radius);
-      font-size: 13px; color: var(--text); background: white; outline: none; cursor: pointer;
-    }
-    .sort-select:focus { border-color: var(--green); }
-
-    /* Active filter tags */
-    .active-filters { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
-    .filter-tag {
-      display: inline-flex; align-items: center; gap: 5px;
-      background: var(--green-light); color: var(--green-dark);
-      font-size: 12px; font-weight: 500; padding: 4px 10px; border-radius: 20px;
-      border: 1px solid #9FE1CB;
-    }
-    .filter-tag button { background: none; color: var(--green-dark); font-size: 14px; line-height: 1; padding: 0; margin-left: 2px; opacity: .7; }
-    .filter-tag button:hover { opacity: 1; }
-
-    /* Listings grid */
-    .listings-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
-
-    /* Card */
-    .card {
-      background: white; border-radius: var(--radius-lg); border: 1px solid var(--border);
-      overflow: hidden; transition: transform .2s, box-shadow .2s; cursor: pointer;
-    }
-    .card:hover { transform: translateY(-2px); box-shadow: 0 4px 20px rgba(0,0,0,0.09); }
-    .card-img { height: 180px; background: var(--surface); position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; }
-    .card-img img { width: 100%; height: 100%; object-fit: cover; }
-    .card-img-placeholder { display: flex; flex-direction: column; align-items: center; gap: 6px; color: var(--text-3); }
-    .card-img-placeholder svg { width: 32px; height: 32px; opacity: .3; stroke: currentColor; fill: none; stroke-width: 1.5; }
-    .badge-featured { position: absolute; top: 10px; left: 10px; background: var(--gold); color: white; font-size: 10px; font-weight: 600; padding: 3px 9px; border-radius: 20px; }
-    .badge-cat { position: absolute; top: 10px; right: 10px; font-size: 10px; font-weight: 600; padding: 3px 9px; border-radius: 20px; text-transform: capitalize; }
-    .badge-cat.student { background: var(--green); color: white; }
-    .badge-cat.luxury { background: var(--gold-light); color: var(--gold); border: 1px solid var(--gold); }
-    .badge-cat.commercial { background: #EAEEF7; color: #2A3B7A; border: 1px solid #B9C6EA; }
-    .card-body { padding: 14px 16px; }
-    .card-area { font-size: 11px; font-weight: 600; color: var(--green); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
-    .card-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 3px; line-height: 1.35; }
-    .card-sub { font-size: 12px; color: var(--text-3); margin-bottom: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .card-price { font-size: 17px; font-weight: 700; color: var(--green-dark); margin-bottom: 10px; }
-    .card-price span { font-size: 12px; font-weight: 400; color: var(--text-3); }
-    .card-meta { display: flex; gap: 12px; font-size: 12px; color: var(--text-2); padding-top: 10px; border-top: 1px solid var(--border); }
-    .card-meta-item { display: flex; align-items: center; gap: 4px; }
-    .card-meta-item svg { width: 13px; height: 13px; stroke: var(--text-3); fill: none; stroke-width: 2; }
-
-    /* ── Skeleton loading ── */
-    .skeleton { background: white; border-radius: var(--radius-lg); overflow: hidden; border: 1px solid var(--border); }
-    .skeleton-img { height: 180px; background: linear-gradient(90deg, #f0efe9 25%, #e8e7e1 50%, #f0efe9 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; }
-    .skeleton-body { padding: 14px 16px; }
-    .skeleton-line { height: 11px; background: linear-gradient(90deg, #f0efe9 25%, #e8e7e1 50%, #f0efe9 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; border-radius: 4px; margin-bottom: 9px; }
-    .skeleton-line.short { width: 55%; }
-    .skeleton-line.xshort { width: 35%; }
-    @keyframes shimmer { to { background-position: -200% 0; } }
-
-    /* ── Empty & error states ── */
-    .empty-state { text-align: center; padding: 80px 20px; color: var(--text-3); grid-column: 1/-1; }
-    .empty-state svg { width: 48px; height: 48px; margin: 0 auto 16px; stroke: var(--border); fill: none; stroke-width: 1.5; }
-    .empty-state h3 { font-size: 16px; font-weight: 600; color: var(--text-2); margin-bottom: 6px; }
-    .empty-state p { font-size: 14px; }
-    .empty-state a { color: var(--green); font-weight: 500; }
-
-    /* ── Pagination ── */
-    .pagination { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 32px; }
-    .page-btn {
-      width: 36px; height: 36px; border-radius: 8px; border: 1.5px solid var(--border);
-      background: white; color: var(--text-2); font-size: 13px; font-weight: 500;
-      cursor: pointer; transition: all .15s; display: flex; align-items: center; justify-content: center;
-    }
-    .page-btn:hover { border-color: var(--green); color: var(--green); }
-    .page-btn.active { background: var(--green); color: white; border-color: var(--green); }
-    .page-btn:disabled { opacity: .4; cursor: not-allowed; }
-
-    /* ── Mobile sidebar toggle ── */
-    .filter-toggle {
-      display: none; align-items: center; gap: 6px;
-      padding: 8px 14px; border-radius: var(--radius); border: 1.5px solid var(--border);
-      background: white; font-size: 13px; font-weight: 500; color: var(--text);
-    }
-    .filter-toggle svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; }
-    .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 199; }
-    .sidebar-overlay.open { display: block; }
+    /* Page layout */
+    .page-wrap { max-width:1100px; margin:0 auto; padding:32px 24px 80px; }
+    .layout { display:grid; grid-template-columns:1fr 360px; gap:32px; align-items:start; }
 
     /* ══════════════════════════════════════
-       NOTIFY ME — "haven't found what you're
-       looking for" alert strip + modal form
+       GALLERY — Full quality image display
+       object-fit:contain ensures the image
+       is never cropped or stretched, preserving
+       the original aspect ratio and sharpness.
     ══════════════════════════════════════ */
-    .notify-strip {
-      position: relative;
-      margin-top: 28px;
-      background: linear-gradient(135deg, var(--green-light), #eef8f2);
-      border: 1.5px dashed var(--green-mid);
-      border-radius: var(--radius-lg);
-      padding: 18px 22px;
+    .gallery { border-radius:var(--radius-lg); overflow:hidden; background:#111; margin-bottom:24px; position:relative; }
+    .gallery-main {
+      width:100%; aspect-ratio:16/9; position:relative; overflow:hidden;
+      background:#111; display:flex; align-items:center; justify-content:center;
     }
-    .notify-strip-close {
-      position: absolute; top: 8px; right: 10px; background: none; border: none;
-      color: var(--text-3); cursor: pointer; font-size: 14px; padding: 4px;
+    /* KEY FIX: object-fit:contain keeps full image quality with no cropping.
+       image-rendering:high-quality tells the browser to use best downscaling algorithm. */
+    .gallery-main img {
+      width:100%; height:100%;
+      object-fit:contain;           /* shows full image, no cropping */
+      object-position:center;
+      image-rendering:high-quality; /* best quality scaling */
+      -webkit-image-rendering:high-quality;
+      transition:opacity .3s;
+      background:#111;
     }
-    .notify-strip-close:hover { color: var(--text); }
-    .notify-strip-inner { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
-    .notify-strip-icon { font-size: 26px; flex-shrink: 0; }
-    .notify-strip-text { flex: 1; min-width: 220px; }
-    .notify-strip-text strong { display: block; font-size: 14.5px; color: var(--green-dark); margin-bottom: 2px; }
-    .notify-strip-text span { font-size: 13px; color: var(--text-2); }
+    .gallery-no-photo { display:flex; flex-direction:column; align-items:center; gap:12px; color:var(--text-3); }
+    .gallery-no-photo svg { width:48px; height:48px; stroke:var(--border); fill:none; stroke-width:1.5; }
+    .gallery-arrow { position:absolute; top:50%; transform:translateY(-50%); width:38px; height:38px; border-radius:50%; background:rgba(255,255,255,0.92); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all .15s; z-index:2; }
+    .gallery-arrow:hover { background:white; box-shadow:0 2px 8px rgba(0,0,0,0.12); }
+    .gallery-arrow svg { width:16px; height:16px; stroke:var(--text); fill:none; stroke-width:2.5; }
+    .gallery-arrow.prev { left:12px; }
+    .gallery-arrow.next { right:12px; }
+    .gallery-counter { position:absolute; bottom:12px; right:14px; background:rgba(0,0,0,0.55); color:white; font-size:12px; font-weight:500; padding:3px 10px; border-radius:20px; z-index:2; }
+    .gallery-thumbs { display:flex; gap:8px; padding:10px; overflow-x:auto; background:var(--white); border-top:1px solid var(--border); }
+    .gallery-thumb { width:72px; height:52px; border-radius:6px; overflow:hidden; flex-shrink:0; border:2px solid transparent; cursor:pointer; transition:border-color .15s; }
+    .gallery-thumb.active { border-color:var(--green); }
+    /* Thumbnails use cover since they're small previews */
+    .gallery-thumb img { width:100%; height:100%; object-fit:cover; }
+    .featured-overlay { position:absolute; top:14px; left:14px; z-index:2; background:var(--gold); color:white; font-size:11px; font-weight:700; padding:4px 12px; border-radius:20px; letter-spacing:.04em; display:flex; align-items:center; gap:5px; }
 
-    .notify-modal-overlay {
-      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45);
-      z-index: 500; align-items: center; justify-content: center; padding: 20px;
-    }
-    .notify-modal-overlay.open { display: flex; }
-    .notify-modal {
-      background: white; border-radius: var(--radius-lg); max-width: 520px; width: 100%;
-      max-height: 90vh; overflow-y: auto; box-shadow: 0 8px 40px rgba(0,0,0,0.18);
-    }
-    .notify-modal-head {
-      padding: 20px 24px 14px; border-bottom: 1px solid var(--border);
-      display: flex; align-items: center; justify-content: space-between;
-      position: sticky; top: 0; background: white; z-index: 2;
-    }
-    .notify-modal-head h3 { font-size: 17px; font-weight: 600; color: var(--text); font-family: 'Playfair Display', serif; }
-    .notify-modal-close { background: none; border: none; font-size: 20px; color: var(--text-3); cursor: pointer; padding: 2px 6px; }
-    .notify-modal-close:hover { color: var(--text); }
-    .notify-modal-body { padding: 20px 24px; }
-    .notify-modal-sub { font-size: 13px; color: var(--text-3); margin-bottom: 18px; line-height: 1.6; }
-    .nf-field { margin-bottom: 16px; }
-    .nf-field label { display: block; font-size: 12px; font-weight: 600; color: var(--text-2); margin-bottom: 6px; }
-    .nf-optional { font-weight: 400; color: var(--text-3); font-size: 11px; }
-    .nf-field input[type="text"], .nf-field input[type="tel"], .nf-field input[type="email"],
-    .nf-field input[type="number"], .nf-field select, .nf-field textarea {
-      width: 100%; padding: 10px 13px; border: 1.5px solid var(--border); border-radius: var(--radius);
-      font-size: 13px; color: var(--text); outline: none; background: var(--surface);
-      transition: border-color .15s, background .15s; font-family: inherit;
-    }
-    .nf-field input:focus, .nf-field select:focus, .nf-field textarea:focus { border-color: var(--green); background: white; }
-    .nf-field textarea { resize: vertical; min-height: 60px; }
-    .nf-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .nf-check { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--text-2); cursor: pointer; font-weight: 500; }
-    .nf-check input { width: 15px; height: 15px; accent-color: var(--green); cursor: pointer; }
-    .notify-modal-foot {
-      padding: 16px 24px; border-top: 1px solid var(--border); display: flex; gap: 10px;
-      justify-content: flex-end; position: sticky; bottom: 0; background: white;
-    }
-    .notify-success-toast {
-      position: fixed; bottom: 24px; right: 24px; z-index: 999;
-      background: var(--green-dark); color: white; padding: 13px 20px; border-radius: var(--radius);
-      font-size: 13px; font-weight: 500; box-shadow: 0 8px 24px rgba(0,0,0,0.18);
-      transform: translateY(80px); opacity: 0; transition: all .3s; max-width: 320px;
-    }
-    .notify-success-toast.show { transform: translateY(0); opacity: 1; }
+    /* Action row */
+    .action-row { display:flex; align-items:center; gap:8px; margin-bottom:20px; flex-wrap:wrap; }
+    .action-pill { display:inline-flex; align-items:center; gap:6px; padding:7px 14px; border-radius:20px; border:1.5px solid var(--border); background:var(--white); font-size:13px; font-weight:500; color:var(--text-2); cursor:pointer; transition:all .15s; }
+    .action-pill:hover { border-color:var(--green); color:var(--green); }
+    .action-pill svg { width:14px; height:14px; stroke:currentColor; fill:none; stroke-width:2; }
 
-    /* ── Responsive ── */
-    @media (max-width: 900px) {
-      .layout { grid-template-columns: 1fr; }
-      .sidebar {
-        position: fixed; top: 0; left: -300px; width: 280px; height: 100vh;
-        z-index: 200; transition: left .25s; padding-top: 16px;
-      }
-      .sidebar.open { left: 0; }
-      .filter-toggle { display: flex; }
-      .page-header { padding: 20px 16px 0; }
-      .main { padding: 16px; }
+    /* Listing header */
+    .listing-header { margin-bottom:20px; }
+    .listing-badges { display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; }
+    .badge { display:inline-flex; align-items:center; gap:4px; font-size:12px; font-weight:600; padding:4px 10px; border-radius:20px; }
+    .badge.student  { background:var(--green-light); color:var(--green-dark); }
+    .badge.standard { background:var(--surface); color:var(--text-2); border:1px solid var(--border); }
+    .badge.luxury   { background:var(--gold-light); color:var(--gold); }
+    .badge.commercial { background:#EAEEF7; color:#2A3B7A; border:1px solid #B9C6EA; }
+    .badge.sale     { background:var(--green-light); color:var(--green-dark); }
+    .badge.rent     { background:#E6F1FB; color:#185FA5; }
+    .listing-title  { font-family:'Playfair Display',serif; font-size:clamp(22px,3vw,32px); color:var(--text); line-height:1.2; margin-bottom:10px; }
+    .listing-location { display:flex; align-items:center; gap:6px; font-size:14px; color:var(--text-3); }
+    .listing-location svg { width:15px; height:15px; stroke:var(--green); fill:none; stroke-width:2; flex-shrink:0; }
+
+    /* Price block */
+    .price-block { background:var(--white); border:1px solid var(--border); border-radius:var(--radius-lg); padding:20px 24px; margin-bottom:20px; display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; }
+    .price-main { font-family:'Playfair Display',serif; font-size:34px; font-weight:700; color:var(--green-dark); }
+    .price-main span { font-family:'Inter',sans-serif; font-size:15px; font-weight:400; color:var(--text-3); }
+    .price-meta { font-size:13px; color:var(--text-3); margin-top:4px; }
+    .price-views { display:flex; align-items:center; gap:5px; font-size:13px; color:var(--text-3); }
+    .price-views svg { width:15px; height:15px; stroke:var(--text-3); fill:none; stroke-width:2; }
+
+    /* Specs */
+    .specs-card { background:var(--white); border:1px solid var(--border); border-radius:var(--radius-lg); padding:24px; margin-bottom:20px; }
+    .specs-card h3 { font-size:15px; font-weight:600; color:var(--text); margin-bottom:18px; }
+    .specs-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(130px,1fr)); gap:14px; }
+    .spec-item { display:flex; flex-direction:column; align-items:center; text-align:center; padding:14px 10px; background:var(--surface); border-radius:var(--radius); }
+    .spec-icon { width:36px; height:36px; border-radius:8px; background:var(--green-light); display:flex; align-items:center; justify-content:center; margin-bottom:8px; }
+    .spec-icon svg { width:18px; height:18px; stroke:var(--green); fill:none; stroke-width:1.8; stroke-linecap:round; }
+    .spec-val { font-size:15px; font-weight:700; color:var(--text); line-height:1.2; }
+    .spec-lbl { font-size:11px; color:var(--text-3); margin-top:3px; }
+
+    /* Description */
+    .desc-card { background:var(--white); border:1px solid var(--border); border-radius:var(--radius-lg); padding:24px; margin-bottom:20px; }
+    .desc-card h3 { font-size:15px; font-weight:600; color:var(--text); margin-bottom:14px; }
+    .desc-text { font-size:14px; color:var(--text-2); line-height:1.8; white-space:pre-line; }
+    .desc-text.collapsed { display:-webkit-box; -webkit-line-clamp:5; -webkit-box-orient:vertical; overflow:hidden; }
+    .read-more { font-size:13px; color:var(--green); font-weight:500; margin-top:10px; cursor:pointer; display:inline-block; }
+
+    /* ══════════════════════════════════════
+       MAP CARD — Live Google Maps embed
+    ══════════════════════════════════════ */
+    .map-card { background:var(--white); border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden; margin-bottom:20px; }
+    .map-card-header { padding:16px 20px 12px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+    .map-card-header h3 { font-size:15px; font-weight:600; color:var(--text); }
+    .map-card-header p { font-size:12px; color:var(--text-3); margin-top:2px; }
+    .map-card-header a { font-size:12px; color:var(--green); font-weight:500; white-space:nowrap; display:flex; align-items:center; gap:4px; }
+    .map-card-header a svg { width:13px; height:13px; stroke:var(--green); fill:none; stroke-width:2; }
+    /* The live map iframe */
+    .map-iframe-wrap { position:relative; width:100%; height:300px; background:var(--surface); }
+    .map-iframe-wrap iframe { position:absolute; top:0; left:0; width:100%; height:100%; border:none; }
+    /* Fallback shown while iframe loads */
+    .map-loading { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; color:var(--text-3); z-index:1; pointer-events:none; }
+    .map-loading.hidden { display:none; }
+    .map-loading svg { width:32px; height:32px; stroke:var(--border); fill:none; stroke-width:1.5; }
+    .map-privacy-note { padding:8px 16px; font-size:11px; color:var(--text-3); background:var(--surface); border-top:1px solid var(--border); display:flex; align-items:center; gap:6px; }
+    .map-privacy-note svg { width:12px; height:12px; stroke:var(--text-3); fill:none; stroke-width:2; flex-shrink:0; }
+
+    /* Similar listings */
+    .similar-section { margin-top:8px; }
+    .similar-section h3 { font-size:16px; font-weight:600; color:var(--text); margin-bottom:16px; }
+    .similar-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:14px; }
+    .similar-card { background:var(--white); border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden; cursor:pointer; transition:transform .2s,box-shadow .2s; }
+    .similar-card:hover { transform:translateY(-2px); box-shadow:0 4px 16px rgba(0,0,0,0.08); }
+    .similar-img { height:130px; background:var(--surface); overflow:hidden; }
+    .similar-img img { width:100%; height:100%; object-fit:cover; }
+    .similar-body { padding:12px 14px; }
+    .similar-area { font-size:11px; font-weight:600; color:var(--green); text-transform:uppercase; letter-spacing:.06em; margin-bottom:3px; }
+    .similar-title { font-size:13px; font-weight:600; color:var(--text); margin-bottom:6px; line-height:1.3; }
+    .similar-price { font-size:15px; font-weight:700; color:var(--green-dark); }
+
+    /* Contact card */
+    .contact-card { background:var(--white); border:1px solid var(--border); border-radius:var(--radius-lg); padding:24px; position:sticky; top:80px; }
+    .contact-card-title { font-size:16px; font-weight:600; color:var(--text); margin-bottom:4px; }
+    .contact-card-sub { font-size:13px; color:var(--text-3); margin-bottom:20px; }
+    .seller-row { display:flex; align-items:center; gap:12px; padding:14px 0; border-top:1px solid var(--border); border-bottom:1px solid var(--border); margin-bottom:20px; }
+    .seller-avatar { width:42px; height:42px; border-radius:50%; background:var(--green-light); display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:700; color:var(--green-dark); flex-shrink:0; }
+    .seller-name { font-size:14px; font-weight:600; color:var(--text); }
+    .seller-since { font-size:12px; color:var(--text-3); }
+    .verified-badge { display:inline-flex; align-items:center; gap:3px; font-size:11px; color:var(--green); font-weight:600; margin-top:3px; }
+    .verified-badge svg { width:12px; height:12px; stroke:var(--green); fill:none; stroke-width:2.5; }
+    .contact-btns { display:flex; flex-direction:column; gap:10px; margin-bottom:20px; }
+    .btn-call { display:flex; align-items:center; justify-content:center; gap:8px; padding:13px; border-radius:var(--radius); font-size:15px; font-weight:600; background:var(--green); color:white; transition:background .15s; }
+    .btn-call:hover { background:var(--green-dark); }
+    .btn-whatsapp { display:flex; align-items:center; justify-content:center; gap:8px; padding:13px; border-radius:var(--radius); font-size:15px; font-weight:600; background:#25D366; color:white; transition:background .15s; }
+    .btn-whatsapp:hover { background:#128C3E; }
+    .or-divider { display:flex; align-items:center; gap:10px; font-size:12px; color:var(--text-3); margin-bottom:18px; }
+    .or-divider::before,.or-divider::after { content:''; flex:1; height:1px; background:var(--border); }
+
+    /* Enquiry form */
+    .field { margin-bottom:14px; }
+    .field label { display:block; font-size:12px; font-weight:600; color:var(--text-2); text-transform:uppercase; letter-spacing:.05em; margin-bottom:5px; }
+    .field input,.field textarea { width:100%; padding:10px 14px; border:1.5px solid var(--border); border-radius:var(--radius); font-size:14px; color:var(--text); background:var(--surface); outline:none; transition:border-color .15s,background .15s; }
+    .field input:focus,.field textarea:focus { border-color:var(--green); background:var(--white); }
+    .field input.error,.field textarea.error { border-color:var(--red); }
+    .field textarea { resize:vertical; min-height:80px; line-height:1.6; }
+    .field-error { font-size:11px; color:var(--red); margin-top:4px; display:none; }
+    .field-error.show { display:block; }
+    .btn-enquire { width:100%; padding:13px; background:var(--green); color:white; font-size:15px; font-weight:600; border-radius:var(--radius); transition:background .15s; display:flex; align-items:center; justify-content:center; gap:8px; }
+    .btn-enquire:hover:not(:disabled) { background:var(--green-dark); }
+    .btn-enquire:disabled { opacity:.6; cursor:not-allowed; }
+    .spinner { width:16px; height:16px; border:2px solid rgba(255,255,255,.3); border-top-color:white; border-radius:50%; animation:spin .7s linear infinite; display:none; }
+    .btn-enquire.loading .spinner { display:block; }
+    .btn-enquire.loading .btn-text { display:none; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    .enquiry-note { font-size:11px; color:var(--text-3); text-align:center; margin-top:10px; line-height:1.5; }
+
+    /* Thread */
+    .thread-section { margin-top:0; }
+    .thread-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+    .thread-header h4 { font-size:14px; font-weight:600; color:var(--text); }
+    .thread-header button { font-size:12px; color:var(--text-3); background:none; border:none; cursor:pointer; }
+    .thread-header button:hover { color:var(--green); }
+    .chat-window { border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; margin-bottom:14px; }
+    .chat-messages-box { max-height:280px; overflow-y:auto; padding:14px; background:var(--surface); display:flex; flex-direction:column; gap:8px; }
+    .chat-messages-box::-webkit-scrollbar { width:3px; }
+    .chat-messages-box::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
+    .chat-bubble-row { display:flex; gap:6px; align-items:flex-end; }
+    .chat-bubble-row.seller-row-msg { flex-direction:row-reverse; }
+    .bubble-av { width:26px; height:26px; border-radius:50%; font-size:9px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .bubble-av.buyer-av { background:var(--green-light); color:var(--green-dark); }
+    .bubble-av.seller-av { background:var(--green); color:white; }
+    .chat-bubble { max-width:80%; padding:8px 12px; border-radius:14px; font-size:13px; line-height:1.5; }
+    .chat-bubble.buyer-b { background:var(--white); border:1px solid var(--border); border-bottom-left-radius:4px; }
+    .chat-bubble.seller-b { background:var(--green); color:white; border-bottom-right-radius:4px; }
+    .bubble-time { font-size:10px; color:var(--text-3); margin-top:2px; }
+    .chat-bubble-row.seller-row-msg .bubble-time { text-align:right; }
+    .chat-input-row { display:flex; gap:8px; padding:10px 12px; background:var(--white); border-top:1px solid var(--border); align-items:flex-end; }
+    .chat-input-row textarea { flex:1; resize:none; border:1.5px solid var(--border); border-radius:var(--radius); padding:8px 12px; font-size:13px; outline:none; min-height:38px; max-height:100px; line-height:1.5; background:var(--surface); transition:border-color .15s; }
+    .chat-input-row textarea:focus { border-color:var(--green); background:white; }
+    .chat-send { width:36px; height:36px; border-radius:50%; background:var(--green); color:white; display:flex; align-items:center; justify-content:center; border:none; cursor:pointer; flex-shrink:0; transition:background .15s; }
+    .chat-send:hover { background:var(--green-dark); }
+    .chat-send:disabled { opacity:.5; cursor:not-allowed; }
+    .chat-send svg { width:14px; height:14px; stroke:white; fill:none; stroke-width:2; }
+    .chat-date-sep { text-align:center; font-size:10px; color:var(--text-3); padding:4px 0; }
+    .chat-wa-note { font-size:11px; color:var(--text-3); text-align:center; margin-bottom:10px; display:flex; align-items:center; justify-content:center; gap:4px; }
+
+    /* Not found */
+    .not-found { text-align:center; padding:80px 24px; }
+    .not-found svg { width:48px; height:48px; stroke:var(--border); fill:none; stroke-width:1.5; margin:0 auto 16px; display:block; }
+    .not-found h2 { font-size:20px; font-weight:600; color:var(--text); margin-bottom:8px; }
+    .not-found p { font-size:14px; color:var(--text-3); margin-bottom:20px; }
+
+    /* Seller disabled view */
+    .seller-disabled-wrap { max-width:620px; margin:48px auto; }
+    .seller-disabled-banner { background:var(--red-light); border:1.5px solid #feb2b2; border-radius:var(--radius-lg); padding:32px 28px; }
+    .seller-disabled-banner-inner { display:flex; gap:20px; align-items:flex-start; }
+    .seller-disabled-icon { width:52px; height:52px; border-radius:50%; background:#FED7D7; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .seller-disabled-icon svg { width:26px; height:26px; stroke:var(--red); fill:none; stroke-width:2; }
+    .seller-disabled-content h2 { font-size:18px; font-weight:700; color:var(--red); margin-bottom:6px; }
+    .seller-disabled-content p { font-size:13px; color:var(--text-2); line-height:1.7; margin-bottom:10px; }
+    .seller-disabled-reason { background:white; border:1px solid #feb2b2; border-radius:var(--radius); padding:12px 16px; font-size:13px; color:var(--text-2); margin:12px 0; line-height:1.6; }
+    .seller-disabled-reason strong { color:var(--red); display:block; font-size:11px; text-transform:uppercase; letter-spacing:.06em; margin-bottom:4px; }
+    .seller-disabled-notice { background:#FFF5F5; border:1px solid #FEB2B2; border-radius:var(--radius); padding:10px 14px; font-size:12px; color:#742A2A; display:flex; gap:8px; align-items:flex-start; margin-top:12px; line-height:1.6; }
+    .seller-disabled-notice svg { width:14px; height:14px; stroke:#C53030; fill:none; stroke-width:2; flex-shrink:0; margin-top:1px; }
+    .seller-disabled-actions { display:flex; gap:10px; margin-top:20px; flex-wrap:wrap; }
+    .seller-disabled-actions a, .seller-disabled-actions button { padding:9px 18px; border-radius:var(--radius); font-size:13px; font-weight:600; cursor:pointer; transition:all .15s; text-decoration:none; display:inline-flex; align-items:center; gap:6px; }
+    .btn-contact-admin { background:var(--green); color:white; border:none; }
+    .btn-contact-admin:hover { background:var(--green-dark); }
+    .btn-browse-more { background:white; color:var(--text-2); border:1.5px solid var(--border); }
+    .btn-browse-more:hover { border-color:var(--green); color:var(--green); }
+    .seller-recycle-banner { background:#FFFBEB; border:1.5px solid #F6E05E; border-radius:var(--radius-lg); padding:32px 28px; margin-top:16px; }
+    .seller-recycle-banner h3 { font-size:14px; font-weight:600; color:#744210; margin-bottom:6px; }
+    .seller-recycle-banner p { font-size:13px; color:var(--text-2); line-height:1.7; }
+    .countdown-pill { display:inline-flex; align-items:center; gap:6px; background:#FEF3C7; border:1px solid #F6E05E; border-radius:20px; font-size:12px; font-weight:700; color:#92400E; padding:4px 12px; margin-top:8px; }
+    .countdown-pill svg { width:13px; height:13px; stroke:currentColor; fill:none; stroke-width:2; }
+
+    /* Enquiry success */
+    .enquiry-success { display:none; text-align:center; padding:16px 0; }
+    .enquiry-success-icon { width:52px; height:52px; background:var(--green-light); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 12px; }
+    .enquiry-success-icon svg { width:24px; height:24px; stroke:var(--green); fill:none; stroke-width:2.5; }
+    .enquiry-success h4 { font-size:15px; font-weight:600; color:var(--text); margin-bottom:6px; }
+    .enquiry-success p { font-size:13px; color:var(--text-3); margin-bottom:12px; }
+
+    /* Safety tip */
+    .safety-tip { margin-top:16px; padding:12px 14px; background:var(--gold-light); border-radius:var(--radius); border:1px solid #FAC775; font-size:12px; color:#5C3A00; line-height:1.6; display:flex; gap:8px; }
+    .safety-tip svg { width:14px; height:14px; stroke:var(--gold); fill:none; stroke-width:2; flex-shrink:0; margin-top:2px; }
+
+    /* ══════════════════════════════════════
+       VIEWS BADGE — Live counter
+    ══════════════════════════════════════ */
+    .views-loading { opacity:.4; }
+    @keyframes views-pulse { 0%,100%{opacity:.4} 50%{opacity:1} }
+    .views-loading { animation: views-pulse .8s ease-in-out infinite; }
+
+    /* Skeleton */
+    .skel { height:14px; background:linear-gradient(90deg,#f0efe9 25%,#e8e7e1 50%,#f0efe9 75%); background-size:200% 100%; animation:shimmer 1.4s infinite; border-radius:4px; }
+    .skel.short { width:55%; }
+    .skel.xshort { width:35%; }
+    .skel-block { background:linear-gradient(90deg,#f0efe9 25%,#e8e7e1 50%,#f0efe9 75%); background-size:200% 100%; animation:shimmer 1.4s infinite; border-radius:var(--radius-lg); }
+    @keyframes shimmer { to { background-position:-200% 0; } }
+
+    /* Footer */
+    footer { background:var(--text); color:rgba(255,255,255,0.6); padding:48px 32px 28px; }
+    .footer-inner { max-width:1100px; margin:0 auto; }
+    .footer-top { display:grid; grid-template-columns:2fr 1fr 1fr 1fr; gap:40px; margin-bottom:40px; }
+    .footer-logo { font-family:'Playfair Display',serif; font-size:20px; color:white; margin-bottom:10px; }
+    .footer-tagline { font-size:13px; line-height:1.7; max-width:240px; }
+    .footer-col h4 { font-size:12px; font-weight:700; color:white; margin-bottom:14px; letter-spacing:.08em; text-transform:uppercase; }
+    .footer-col a { display:block; font-size:13px; color:rgba(255,255,255,0.55); margin-bottom:8px; transition:color .15s; }
+    .footer-col a:hover { color:white; }
+    .footer-bottom { border-top:1px solid rgba(255,255,255,0.1); padding-top:20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; }
+    .footer-bottom p { font-size:12px; }
+
+    @media(max-width:900px) {
+      .layout { grid-template-columns:1fr; }
+      .contact-card { position:static; }
+      nav { padding:0 16px; }
+      .breadcrumb { padding:12px 16px; }
+      .page-wrap { padding:20px 16px 60px; }
+      footer { padding:40px 16px 24px; }
+      .footer-top { grid-template-columns:1fr 1fr; gap:28px; }
+      .seller-disabled-banner-inner { flex-direction:column; }
+      .map-iframe-wrap { height:220px; }
     }
-    @media (max-width: 768px) {
-      nav { padding: 0 16px; }
-      .nav-links { display: none; }
-      .mobile-menu-btn { display: flex; }
+    @media(max-width:480px) {
+      .specs-grid { grid-template-columns:repeat(2,1fr); }
+      .footer-top { grid-template-columns:1fr; }
+      .similar-grid { grid-template-columns:1fr 1fr; }
     }
-    @media (max-width: 600px) {
-      .nf-row { grid-template-columns: 1fr; }
+
+    /* ══════════════════════════════════════
+       REVIEWS & REPORTS — banner + modals
+    ══════════════════════════════════════ */
+    #nk-review-banner {
+      position:fixed; bottom:24px; left:50%; transform:translateX(-50%);
+      z-index:2000; background:var(--white); border:1px solid var(--border);
+      border-radius:var(--radius-lg); box-shadow:0 8px 32px rgba(0,0,0,0.15);
+      padding:16px 20px; max-width:460px; width:calc(100% - 32px);
+      display:none; align-items:center; gap:14px;
     }
-    @media (max-width: 480px) {
-      .header-search { flex-direction: column; }
-      .header-search input, .header-search button { width: 100%; }
+    #nk-review-banner.show { display:flex; }
+    #nk-review-banner .rb-icon { width:38px;height:38px;border-radius:50%;background:var(--green-light);display:flex;align-items:center;justify-content:center;flex-shrink:0; }
+    #nk-review-banner .rb-icon svg { width:18px;height:18px;stroke:var(--green);fill:none;stroke-width:2; }
+    #nk-review-banner .rb-text { flex:1;font-size:13px;color:var(--text);line-height:1.5; }
+    #nk-review-banner .rb-text strong { display:block;font-size:13.5px;margin-bottom:2px; }
+    #nk-review-banner .rb-actions { display:flex;flex-direction:column;gap:6px;flex-shrink:0; }
+    #nk-review-banner button { font-size:12px;font-weight:600;padding:7px 12px;border-radius:8px;border:none;cursor:pointer;white-space:nowrap;font-family:inherit; }
+    .rb-yes { background:var(--green);color:white; }
+    .rb-yes:hover { background:var(--green-dark); }
+    .rb-no  { background:var(--surface);color:var(--text-2);border:1px solid var(--border) !important; }
+    .rb-close { position:absolute;top:8px;right:10px;background:none;border:none;color:var(--text-3);font-size:16px;cursor:pointer;padding:2px; }
+
+    .nk-review-modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:2100; align-items:center; justify-content:center; padding:20px; }
+    .nk-review-modal-overlay.open { display:flex; }
+    .nk-review-modal { background:var(--white); border-radius:var(--radius-lg); max-width:440px; width:100%; padding:28px 26px; box-shadow:0 8px 32px rgba(0,0,0,0.18); }
+    .nk-review-modal h3 { font-family:'Playfair Display',serif;font-size:19px;margin-bottom:6px;color:var(--text); }
+    .nk-review-modal p.sub { font-size:13px;color:var(--text-3);margin-bottom:20px;line-height:1.6; }
+    .nk-star-row { display:flex;gap:6px;margin-bottom:18px;justify-content:center; }
+    .nk-star { width:34px;height:34px;cursor:pointer;stroke:var(--border);fill:none;stroke-width:1.5;transition:all .15s; }
+    .nk-star.filled { fill:var(--gold);stroke:var(--gold); }
+    .nk-review-modal textarea { width:100%;min-height:90px;padding:11px 13px;border:1.5px solid var(--border);border-radius:var(--radius);font-family:inherit;font-size:13px;color:var(--text);outline:none;resize:vertical;margin-bottom:16px; }
+    .nk-review-modal textarea:focus { border-color:var(--green); }
+    .nk-review-modal .nk-modal-actions { display:flex;gap:10px;justify-content:flex-end; }
+    .nk-review-modal .nk-btn-primary { background:var(--green);color:white;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;border:none;cursor:pointer; }
+    .nk-review-modal .nk-btn-primary:hover { background:var(--green-dark); }
+    .nk-review-modal .nk-btn-cancel { background:var(--surface);color:var(--text-2);padding:10px 18px;border-radius:8px;font-size:13px;border:none;cursor:pointer; }
+    .nk-name-field { margin-bottom:16px; }
+    .nk-name-field label { display:block; font-size:12px; font-weight:600; color:var(--text-2); margin-bottom:6px; }
+    .nk-name-field input[type="text"] { width:100%; padding:10px 13px; border:1.5px solid var(--border); border-radius:var(--radius); font-family:inherit; font-size:13px; color:var(--text); outline:none; margin-bottom:8px; transition:border-color .15s,background .15s; }
+    .nk-name-field input[type="text"]:focus { border-color:var(--green); }
+    .nk-name-field input[type="text"]:disabled { background:var(--surface); color:var(--text-3); cursor:not-allowed; }
+    .nk-anon-check { display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--text-2); font-weight:500; cursor:pointer; }
+    .nk-anon-check input { width:15px; height:15px; accent-color:var(--green); cursor:pointer; }
+
+    #seller-rating { display:flex; align-items:center; gap:2px; }
+    #nk-report-trigger { font-size:12px;color:var(--text-3);text-decoration:underline;cursor:pointer;background:none;border:none;font-family:inherit; }
+    #nk-report-trigger:hover { color:var(--red); }
+
+    /* ══ Prominent scam/fraud report button ══ */
+    .report-scam-btn {
+      display:flex; align-items:center; justify-content:center; gap:8px;
+      width:100%; padding:11px; margin-bottom:18px;
+      background:var(--red-light); color:var(--red); border:1.5px solid #feb2b2;
+      border-radius:var(--radius); font-size:13px; font-weight:600;
+      cursor:pointer; transition:all .15s; font-family:inherit;
+    }
+    .report-scam-btn:hover { background:#fed7d7; border-color:var(--red); }
+    .report-scam-btn svg { width:15px; height:15px; stroke:var(--red); fill:none; stroke-width:2; flex-shrink:0; }
+    .report-scam-btn.reported { background:var(--surface); color:var(--text-3); border-color:var(--border); cursor:default; }
+    .report-scam-btn.reported:hover { background:var(--surface); border-color:var(--border); }
+    .report-scam-btn.reported svg { stroke:var(--text-3); }
+
+    /* ══ Full-screen photo lightbox ══ */
+    #nk-lightbox {
+      display:none; position:fixed; inset:0; background:rgba(0,0,0,0.94); z-index:3000;
+      align-items:center; justify-content:center; flex-direction:column;
+    }
+    #nk-lightbox.open { display:flex; }
+    #nk-lightbox-img-wrap { flex:1; width:100%; display:flex; align-items:center; justify-content:center; overflow:hidden; padding:20px; }
+    #nk-lightbox-img { max-width:100%; max-height:100%; object-fit:contain; user-select:none; }
+    .nk-lb-close {
+      position:absolute; top:18px; right:22px; width:40px; height:40px; border-radius:50%;
+      background:rgba(255,255,255,0.12); border:none; cursor:pointer; z-index:2;
+      display:flex; align-items:center; justify-content:center; transition:background .15s;
+    }
+    .nk-lb-close:hover { background:rgba(255,255,255,0.22); }
+    .nk-lb-close svg { width:20px; height:20px; stroke:white; fill:none; stroke-width:2; }
+    .nk-lb-arrow {
+      position:absolute; top:50%; transform:translateY(-50%); width:48px; height:48px; border-radius:50%;
+      background:rgba(255,255,255,0.1); border:none; cursor:pointer; z-index:2;
+      display:flex; align-items:center; justify-content:center; transition:background .15s;
+    }
+    .nk-lb-arrow:hover { background:rgba(255,255,255,0.2); }
+    .nk-lb-arrow svg { width:22px; height:22px; stroke:white; fill:none; stroke-width:2.5; }
+    .nk-lb-arrow.prev { left:16px; }
+    .nk-lb-arrow.next { right:16px; }
+    #nk-lightbox-counter {
+      position:absolute; bottom:18px; left:50%; transform:translateX(-50%);
+      background:rgba(255,255,255,0.12); color:white; font-size:13px; font-weight:500;
+      padding:5px 14px; border-radius:20px;
+    }
+    .gallery-main img { cursor:zoom-in; }
+    @media(max-width:600px) {
+      .nk-lb-arrow { width:38px; height:38px; }
+      .nk-lb-arrow svg { width:18px; height:18px; }
+      #nk-lightbox-img-wrap { padding:8px; }
     }
   </style>
 </head>
 <body>
 
-<!-- ── NAVBAR ── -->
+<!-- NAVBAR -->
 <nav>
   <a href="index.html" class="logo">
     <div class="logo-icon">
       <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
     </div>
-    Nyumba254
+    NyumbaKisumu
   </a>
   <div class="nav-links">
-    <a href="listings.html" class="nav-link" style="color:var(--green);font-weight:500">Browse</a>
+    <a href="index.html" class="nav-link">Home</a>
+    <a href="listings.html" class="nav-link">Browse</a>
     <a href="how-it-works.html" class="nav-link">How it works</a>
     <a href="about.html" class="nav-link">About us</a>
     <a href="pricing.html" class="nav-link">Pricing</a>
@@ -353,973 +440,1353 @@
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
       Saved
     </a>
-    <a href="post-listing.html" class="btn btn-primary">List your apartment</a>
+    <a href="post-listing.html" class="btn-primary">List your apartment</a>
   </div>
   <button class="mobile-menu-btn" onclick="toggleMobileMenu()" aria-label="Open menu">
     <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
   </button>
 </nav>
 
-<!-- ── MOBILE NAV ── -->
 <div class="mobile-nav" id="mobile-nav">
+  <a href="index.html" class="nav-link">Home</a>
   <a href="listings.html">Browse listings</a>
   <a href="how-it-works.html">How it works</a>
   <a href="about.html" class="nav-link">About us</a>
   <a href="pricing.html">Pricing</a>
   <a href="contact.html">Contact</a>
   <a href="login.html" id="mobile-account-link">Sign in</a>
-  <a href="saved.html">
-    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
-    Saved
-  </a>
-  <a href="post-listing.html" class="btn btn-primary">List your apartment</a>
+  <a href="saved.html">Saved</a>
+  <a href="post-listing.html" class="btn-primary">List your apartment</a>
 </div>
 
-<!-- ── PAGE HEADER ── -->
-<div class="page-header">
-  <h1 id="page-title">Browse listings</h1>
-  <p id="page-desc">Apartments, shops, and offices for sale and rent across Kenya</p>
-  <div class="header-search">
-    <input type="text" id="search-q" placeholder="Search by keyword, area, or price (e.g. 7000)…" oninput="nkFormatSearchInput(this)" onkeydown="if(event.key==='Enter'){event.preventDefault();applyFilters();}"/>
-    <button onclick="applyFilters()">Search</button>
+<div class="breadcrumb" id="breadcrumb">
+  <a href="index.html">Home</a>
+  <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+  <a href="listings.html">Listings</a>
+  <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+  <span id="breadcrumb-area">Loading…</span>
+</div>
+
+<div class="page-wrap">
+
+  <!-- NOT FOUND -->
+  <div class="not-found" id="not-found" style="display:none">
+    <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    <h2>Listing not found</h2>
+    <p>This listing may have been removed or the link is incorrect.</p>
+    <a href="listings.html" class="btn-primary" style="display:inline-flex;margin:0 auto">Browse all listings</a>
   </div>
-</div>
 
-<!-- ── MOBILE SIDEBAR OVERLAY ── -->
-<div class="sidebar-overlay" id="overlay" onclick="closeSidebar()"></div>
-
-<!-- ── LAYOUT ── -->
-<div class="layout">
-
-  <!-- SIDEBAR -->
-  <aside class="sidebar" id="sidebar">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
-      <span style="font-size:15px;font-weight:600;color:var(--text)">Filters</span>
-      <button onclick="resetAllFilters()" style="font-size:12px;color:var(--green);background:none;font-weight:500">Reset all</button>
-    </div>
-
-    <!-- Listing type -->
-    <div class="filter-section">
-      <span class="filter-label">Listing type</span>
-      <div class="pill-group" id="type-pills">
-        <div class="filter-pill active" data-val="" onclick="setPill(this,'type-pills')">All</div>
-        <div class="filter-pill" data-val="sale" onclick="setPill(this,'type-pills')">For sale</div>
-        <div class="filter-pill" data-val="rent" onclick="setPill(this,'type-pills')">To let / rent</div>
-      </div>
-    </div>
-
-    <!-- Category -->
-    <div class="filter-section">
-      <span class="filter-label">Property category</span>
-      <div class="pill-group" id="cat-pills">
-        <div class="filter-pill active" data-val="" onclick="setPill(this,'cat-pills')">All</div>
-        <div class="filter-pill" data-val="student" onclick="setPill(this,'cat-pills')">Student</div>
-        <div class="filter-pill" data-val="standard" onclick="setPill(this,'cat-pills')">Standard</div>
-        <div class="filter-pill" data-val="luxury" onclick="setPill(this,'cat-pills')">Luxury</div>
-        <div class="filter-pill" data-val="commercial" onclick="setPill(this,'cat-pills')">Commercial</div>
-      </div>
-    </div>
-
-    <!-- County & Area -->
-    <div class="filter-section">
-      <span class="filter-label">County & area</span>
-      <select class="county-select" id="county-select" onchange="handleCountyFilterChange()">
-        <option value="">All counties</option>
-      </select>
-      <div id="area-checks">
-        <p class="area-hint" id="area-hint">Pick a county above to filter by area</p>
-        <div class="check-list" id="area-checks-visible"></div>
-        <div class="check-list" id="area-checks-more" style="display:none; margin-top:6px"></div>
-        <button type="button" id="area-more-toggle" onclick="toggleMoreAreas()" style="display:none;background:none;color:var(--green);font-size:12px;font-weight:500;margin-top:8px;padding:0">Show all areas ▾</button>
-      </div>
-    </div>
-
-    <!-- Price range -->
-    <div class="filter-section">
-      <span class="filter-label">Price (KES)</span>
-      <div class="range-row">
-        <input type="number" class="range-input" id="price-min" placeholder="Min" oninput="debouncedApply()"/>
-        <span class="range-sep">–</span>
-        <input type="number" class="range-input" id="price-max" placeholder="Max" oninput="debouncedApply()"/>
-      </div>
-      <div class="pill-group" style="margin-top:8px" id="price-presets">
-        <div class="filter-pill" onclick="setPreset(0,2000000)">Under 2M</div>
-        <div class="filter-pill" onclick="setPreset(2000000,5000000)">2M–5M</div>
-        <div class="filter-pill" onclick="setPreset(5000000,10000000)">5M–10M</div>
-        <div class="filter-pill" onclick="setPreset(10000000,null)">10M+</div>
-      </div>
-    </div>
-
-    <!-- Bedrooms -->
-    <div class="filter-section" id="bedrooms-filter-section">
-      <span class="filter-label">Bedrooms</span>
-      <div class="pill-group" id="bed-pills">
-        <div class="filter-pill active" data-val="" onclick="setPill(this,'bed-pills')">Any</div>
-        <div class="filter-pill" data-val="1" onclick="setPill(this,'bed-pills')">1</div>
-        <div class="filter-pill" data-val="2" onclick="setPill(this,'bed-pills')">2</div>
-        <div class="filter-pill" data-val="3" onclick="setPill(this,'bed-pills')">3</div>
-        <div class="filter-pill" data-val="4" onclick="setPill(this,'bed-pills')">4+</div>
-      </div>
-    </div>
-
-    <!-- Furnished -->
-    <div class="filter-section">
-      <span class="filter-label">Furnishing</span>
-      <div class="pill-group" id="furn-pills">
-        <div class="filter-pill active" data-val="" onclick="setPill(this,'furn-pills')">Any</div>
-        <div class="filter-pill" data-val="true" onclick="setPill(this,'furn-pills')">Furnished</div>
-        <div class="filter-pill" data-val="false" onclick="setPill(this,'furn-pills')">Unfurnished</div>
-      </div>
-    </div>
-
-    <button class="apply-btn" onclick="applyFilters(); closeSidebar()">Apply filters</button>
-  </aside>
-
-  <!-- MAIN -->
-  <main class="main">
-
-    <!-- Toolbar -->
-    <div class="toolbar">
-      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-        <button class="filter-toggle" onclick="openSidebar()">
-          <svg viewBox="0 0 24 24"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="20" y2="12"/><line x1="12" y1="18" x2="20" y2="18"/></svg>
-          Filters
-        </button>
-        <span class="result-count" id="result-count">Loading…</span>
-      </div>
-      <select class="sort-select" id="sort-select" onchange="applyFilters()">
-        <option value="created_at_desc">Newest first</option>
-        <option value="price_asc">Price: low to high</option>
-        <option value="price_desc">Price: high to low</option>
-        <option value="featured">Featured first</option>
-      </select>
-    </div>
-
-    <!-- Active filter tags -->
-    <div class="active-filters" id="active-filters"></div>
-
-    <!-- Results grid -->
-    <div id="results">
-      <div class="listings-grid" id="listings-grid">
-        <div class="skeleton"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line xshort"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div></div></div>
-        <div class="skeleton"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line xshort"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div></div></div>
-        <div class="skeleton"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line xshort"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div></div></div>
-        <div class="skeleton"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line xshort"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div></div></div>
-        <div class="skeleton"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line xshort"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div></div></div>
-        <div class="skeleton"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line xshort"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div></div></div>
-      </div>
-    </div>
-
-    <!-- ══ NOTIFY ME STRIP — always visible below results, never blocks browsing ══ -->
-    <div class="notify-strip" id="notify-strip">
-      <button class="notify-strip-close" onclick="dismissNotifyStrip()" aria-label="Dismiss">✕</button>
-      <div class="notify-strip-inner">
-        <div class="notify-strip-icon">🔔</div>
-        <div class="notify-strip-text">
-          <strong>Haven't found what you're looking for?</strong>
-          <span>Tell us what you want and we'll notify you the moment a matching listing goes live.</span>
-        </div>
-        <button class="btn btn-primary" onclick="openNotifyModal()">Notify me</button>
-      </div>
-    </div>
-
-    <!-- Pagination -->
-    <div class="pagination" id="pagination"></div>
-  </main>
-</div>
-
-<!-- ══ NOTIFY ME MODAL ══ -->
-<div class="notify-modal-overlay" id="notify-modal-overlay" onclick="if(event.target===this) closeNotifyModal()">
-  <div class="notify-modal">
-    <div class="notify-modal-head">
-      <h3>Get notified about new listings</h3>
-      <button class="notify-modal-close" onclick="closeNotifyModal()">✕</button>
-    </div>
-    <div class="notify-modal-body">
-      <p class="notify-modal-sub">Fill in what you're looking for — we'll reach out the moment a matching listing is posted. No spam.</p>
-
-      <div class="nf-field">
-        <label>Your name</label>
-        <input type="text" id="nf-name" placeholder="e.g. Brian Otieno"/>
-      </div>
-      <div class="nf-row">
-        <div class="nf-field">
-          <label>Phone number</label>
-          <input type="tel" id="nf-phone" placeholder="07XX XXX XXX"/>
-        </div>
-        <div class="nf-field">
-          <label>Email <span class="nf-optional">optional but recommended</span></label>
-          <input type="email" id="nf-email" placeholder="you@example.com"/>
-        </div>
-      </div>
-
-      <div class="nf-field">
-        <label>Listing type</label>
-        <div class="pill-group" id="nf-type-pills">
-          <div class="filter-pill active" data-val="" onclick="nfSetPill(this,'nf-type-pills')">Any</div>
-          <div class="filter-pill" data-val="sale" onclick="nfSetPill(this,'nf-type-pills')">For sale</div>
-          <div class="filter-pill" data-val="rent" onclick="nfSetPill(this,'nf-type-pills')">To let / rent</div>
-        </div>
-      </div>
-
-      <div class="nf-field">
-        <label>Property category</label>
-        <div class="pill-group" id="nf-cat-pills">
-          <div class="filter-pill active" data-val="" onclick="nfSetPill(this,'nf-cat-pills')">Any</div>
-          <div class="filter-pill" data-val="student" onclick="nfSetPill(this,'nf-cat-pills')">Student</div>
-          <div class="filter-pill" data-val="standard" onclick="nfSetPill(this,'nf-cat-pills')">Standard</div>
-          <div class="filter-pill" data-val="luxury" onclick="nfSetPill(this,'nf-cat-pills')">Luxury</div>
-          <div class="filter-pill" data-val="commercial" onclick="nfSetPill(this,'nf-cat-pills')">Commercial</div>
-        </div>
-      </div>
-
-      <div class="nf-field">
-        <label>County</label>
-        <select class="county-select" id="nf-county-select" onchange="nfHandleCountyChange()" style="margin-bottom:0"></select>
-      </div>
-      <div class="nf-field" id="nf-area-wrap">
-        <label>Preferred area <span class="nf-optional">optional</span></label>
-        <select class="county-select" id="nf-area-select" style="margin-bottom:0"><option value="">Any area in this county</option></select>
-      </div>
-      <div class="nf-field">
-        <label class="nf-check">
-          <input type="checkbox" id="nf-area-not-listed" onchange="nfToggleCustomArea()"/>
-          My area isn't listed — let me type it
-        </label>
-        <input type="text" id="nf-area-custom" placeholder="e.g. Kericho town, near the market" style="display:none;margin-top:8px"/>
-      </div>
-
-      <div class="nf-field">
-        <label>Budget (KES)</label>
-        <div class="range-row">
-          <input type="number" class="range-input" id="nf-budget-min" placeholder="Min"/>
-          <span class="range-sep">–</span>
-          <input type="number" class="range-input" id="nf-budget-max" placeholder="Max"/>
-        </div>
-      </div>
-
-      <div class="nf-field">
-        <label>Bedrooms <span class="nf-optional">optional</span></label>
-        <div class="pill-group" id="nf-bed-pills">
-          <div class="filter-pill active" data-val="" onclick="nfSetPill(this,'nf-bed-pills')">Any</div>
-          <div class="filter-pill" data-val="1" onclick="nfSetPill(this,'nf-bed-pills')">1</div>
-          <div class="filter-pill" data-val="2" onclick="nfSetPill(this,'nf-bed-pills')">2</div>
-          <div class="filter-pill" data-val="3" onclick="nfSetPill(this,'nf-bed-pills')">3</div>
-          <div class="filter-pill" data-val="4" onclick="nfSetPill(this,'nf-bed-pills')">4+</div>
-        </div>
-      </div>
-
-      <div class="nf-field">
-        <label>Anything else? <span class="nf-optional">optional</span></label>
-        <textarea id="nf-notes" rows="2" placeholder="e.g. must have parking, near a school…"></textarea>
-      </div>
-    </div>
-    <div class="notify-modal-foot">
-      <button class="btn btn-outline" onclick="closeNotifyModal()">Cancel</button>
-      <button class="btn btn-primary" id="nf-submit-btn" onclick="submitNotifyAlert()">Notify me</button>
-    </div>
-  </div>
-</div>
-<div class="notify-success-toast" id="notify-success-toast">✓ You're set! We'll reach out the moment a match goes live.</div>
-
-<script>
-  const SUPABASE_URL = 'https://vliuuloyfhyxcsuchpss.supabase.co';
-  const SUPABASE_KEY = 'sb_publishable_oIIcecf3wzKMual5K24Z8Q_zmxVfgsx';
-  const { createClient } = supabase;
-  const db = createClient(SUPABASE_URL, SUPABASE_KEY);
-
-  const NK_COUNTIES = [
-    "Mombasa","Kwale","Kilifi","Tana River","Lamu","Taita-Taveta","Garissa","Wajir","Mandera",
-    "Marsabit","Isiolo","Meru","Tharaka-Nithi","Embu","Kitui","Machakos","Makueni","Nyandarua",
-    "Nyeri","Kirinyaga","Murang'a","Kiambu","Turkana","West Pokot","Samburu","Trans Nzoia",
-    "Uasin Gishu","Elgeyo-Marakwet","Nandi","Baringo","Laikipia","Nakuru","Narok","Kajiado",
-    "Kericho","Bomet","Kakamega","Vihiga","Bungoma","Busia","Siaya","Kisumu","Homa Bay",
-    "Migori","Kisii","Nyamira","Nairobi"
-  ].sort();
-  const NK_AREAS_BY_COUNTY = {
-    "Kisumu": ["Ahero","Car Wash","Dunga","Elgon View","Kanyakwar","Kibos","Kibuye","Kisumu CBD","Kombewa","Kondele","Luanda","Mamboleo","Manyatta","Maseno","Matibabu","Migosi","Milimani","Nyalenda","Nyamasaria","Obunga","Otonglo","Riat Hills","Sega"],
-    "Nairobi": ["Nairobi CBD","Westlands","Parklands","Highridge","Kangemi","Kitisuru","Runda","Loresho","Muthaiga","Gigiri","Spring Valley","Nyari","Rosslyn","Thome","Garden Estate","Ridgeways","Kilimani","Kileleshwa","Lavington","Kawangware","Hurlingham","Upper Hill","Adams Arcade","Karen","Langata","South B","South C","Nairobi West","Madaraka","Otiende","Kibera","Woodley","Roysambu","Zimmerman","Kahawa West","Githurai","Mirema","Kasarani","Mwiki","Njiru","Ruaraka","Baba Dogo","Mathare","Huruma","Pipeline","Imara Daima","Nyayo Estate","Dandora","Kariobangi","Kayole","Komarock","Utawala","Tassia","Umoja","Buruburu","Donholm","Makadara","Eastleigh","Ngara","Pangani"],
-    "Mombasa": ["Mombasa CBD (Old Town)","Nyali","Bamburi","Kizingo","Tudor","Likoni","Changamwe","Kisauni","Shanzu","Mkomani","Bombolulu","Kiembeni","Port Reitz","Miritini","Chaani","Migadini","Kongowea","Junda","Mwakirunge","Mtopanga","Jomvu","Magongo"],
-    "Nakuru": ["Nakuru CBD","Milimani","Section 58","Langalanga","Pangani","Shabab","Bangladesh","Lanet","Free Area","Freehold","Ngata","Bahati","London","Afraha","Naka","Kiamunyi","White House","Pipeline","Kaptembwa","Rhoda","Menengai","Naivasha"],
-    "Uasin Gishu": ["Eldoret CBD","Kapsoya","Langas","Kimumu","Huruma","Elgon View","Pioneer","Annex","Rupa Village","Hazina","Kamukunji","Munyaka","West Indies"],
-    "Kiambu": ["Thika CBD","Landless","Makongeni","Section 9","Blue Post","Thika Greens","Kiganjo","Tora","Ngoingwa","Bahati Ridge","Kisii Estate","Ruiru","Membley","Kamakis","Juja","Kiambu Town","Kikuyu","Limuru"],
-    "Kilifi": ["Kilifi Town","Malindi CBD","Kisumu Ndogo","Majengo (Malindi)","Silversands","Watamu","Mtwapa","Mariakani","Kaloleni","Mazeras","Magarini"],
-    "Machakos": ["Machakos CBD","Mua Hills","Kalama","Mitaboni","Athi River","Mlolongo","Syokimau","Katani","Kangundo Road","Kola"],
-    "Kakamega": ["Kakamega CBD","Amalemba","Milimani","Shirere","Lurambi","Mahiakalo","Sudi","Mumias","Butere","Malava","Lugari"],
-    "Meru": ["Meru CBD","Makutano","Kinoru","Ntharene","Nkubu","Maua","Timau","Laare","Mikinduri","Kianjai"],
-    "Nyeri": ["Nyeri CBD","Ring Road","Mountain View Estate","Garden Estate","Kamakwa","Ruring'u","Majengo","Karatina","Othaya Town","Mukurweini Town","Naromoru"],
-    "Kericho": ["Kericho CBD","Kapsoit","Ainamoi","Litein","Kipkelion","Fort Ternan","Sosiot","Chepseon","Kedowa","Cheborge"],
-    "Trans Nzoia": ["Kitale CBD","Milimani","Mitume","Matisi","Tuwan","Endebess","Kiminini","Kwanza","Saboti","Cherangany"],
-    "Kwale": ["Kwale Town","Diani","Ukunda","Tiwi","Msambweni","Lunga Lunga","Matuga","Kinango","Waa","Shimoni","Mackinon Road","Vanga"],
-    "Tana River": ["Hola","Garsen","Bura","Galole","Wenje","Kipini","Madogo","Chewele","Bangale","Wayu"],
-    "Lamu": ["Lamu Town","Mokowe","Faza","Matondoni","Mpeketoni","Witu","Hindi","Kizingitini","Shela","Kiunga"],
-    "Taita-Taveta": ["Voi","Taveta","Wundanyi","Mwatate","Mgange","Wesu","Bura (Taita)","Mbale (Taveta)","Tausa","Werugha"],
-    "Garissa": ["Garissa Town","Dadaab","Balambala","Fafi","Ijara","Lagdera","Modogashe","Bura (Garissa)","Sankuri","Hulugho"],
-    "Wajir": ["Wajir Town","Habaswein","Griftu","Eldas","Tarbaj","Bute","Buna","Diif","Elnur","Khorof Harar"],
-    "Mandera": ["Mandera Town","Rhamu","Banissa","Lafey","Takaba","El Wak","Kotulo","Fino","Arabia","Warankara"],
-    "Marsabit": ["Marsabit Town","Moyale","Loiyangalani","North Horr","Laisamis","Sololo","Turbi","Maikona","Illeret","Dukana"],
-    "Isiolo": ["Isiolo Town","Garbatulla","Merti","Kinna","Oldonyiro","Burat","Bulapesa","Wabera","Chari","Cherab"],
-    "Tharaka-Nithi": ["Chuka","Marimanti","Kathwana","Chogoria","Gatunga","Nkondi","Igambang'ombe","Muthambi","Mitheru","Tunyai"],
-    "Embu": ["Embu Town","Runyenjes","Manyatta","Siakago","Ishiara","Kiritiri","Kyeni","Karurumo","Kirimari","Gaturi"],
-    "Kitui": ["Kitui Town","Mwingi","Mutomo","Mutitu","Migwani","Zombe","Kabati","Ikutha","Mutha","Kanyangi"],
-    "Makueni": ["Wote","Emali","Sultan Hamud","Kibwezi","Kilome","Mbooni","Kaiti","Nunguni","Makindu","Tawa"],
-    "Nyandarua": ["Ol Kalou","Engineer","Njabini","Nyahururu","Ndaragwa","Ol Joro Orok","North Kinangop","South Kinangop","Kipipiri","Shamata"],
-    "Kirinyaga": ["Kerugoya","Kutus","Sagana","Kagio","Wang'uru","Baricho","Kianyaga","Kimbimbi","Mwea","Kutus Town"],
-    "Murang'a": ["Murang'a Town","Kenol","Kangema","Maragua","Kandara","Kigumo","Gatanga","Kiria-ini","Kabati","Makuyu"],
-    "Turkana": ["Lodwar","Kakuma","Lokichogio","Lokitaung","Kalokol","Lokichar","Kainuk","Todonyang","Kibish","Katilu"],
-    "West Pokot": ["Kapenguria","Makutano (Pokot)","Chepareria","Kacheliba","Sigor","Alale","Chepnyal","Lomut","Ortum","Kongelai"],
-    "Samburu": ["Maralal","Baragoi","Wamba","Archer's Post","Suguta Marmar","Kirisia","South Horr","Poro","Loosuk","Kisima"],
-    "Elgeyo-Marakwet": ["Iten","Tambach","Kapsowar","Chepkorio","Kapyego","Kapsait","Chesoi","Kaptarakwa","Kamogoi","Kabiemit"],
-    "Nandi": ["Kapsabet","Nandi Hills","Mosoriot","Kabiyet","Kaptumo","Kobujoi","Kapsisiywa","Kapsabet Town","Chepterit","Kilibwoni"],
-    "Baringo": ["Kabarnet","Eldama Ravine","Marigat","Kabartonjo","Mogotio","Kimalel","Kabernet Town","Loruk","Kampi ya Samaki","Mochongoi"],
-    "Laikipia": ["Nanyuki","Nyahururu","Rumuruti","Dol Dol","Kinamba","Ngobit","Sipili","Marmanet","Mukogodo","Salama"],
-    "Narok": ["Narok Town","Kilgoris","Ololulunga","Suswa","Ewaso Ngiro","Nairagie Enkare","Naikarra","Ntulele","Melili","Lolgorian"],
-    "Kajiado": ["Kajiado Town","Ngong","Kitengela","Ongata Rongai","Kiserian","Loitokitok","Namanga","Isinya","Bissil","Mashuuru"],
-    "Bomet": ["Bomet Town","Sotik","Longisa","Mulot","Chepalungu","Silibwet","Sigor (Bomet)","Chebunyo","Kaplong","Mogogosiek"],
-    "Vihiga": ["Mbale","Luanda (Vihiga)","Chavakali","Majengo (Vihiga)","Emuhaya","Sabatia","Hamisi","Wodanga","Bunyore","Gisambai"],
-    "Bungoma": ["Bungoma CBD","Kanduyi","Sikata","Webuye","Kimilili","Chwele","Bumula","Sirisia","Naitiri","Malakisi"],
-    "Busia": ["Busia Town","Malaba","Nambale","Funyula","Budalangi","Amagoro","Port Victoria","Matayos","Alupe","Angurai"],
-    "Siaya": ["Siaya Town","Bondo","Ugunja","Yala","Ukwala","Usenge","Sega (Siaya)","Nyang'oma Kogelo","Uranga","Yenga"],
-    "Homa Bay": ["Homa Bay Central","Asego","Arujo","Kalanya","Kanyabala","Katuma","Posta/Bonde","Oyugis","Kendu Bay","Rangwe","Ndhiwa","Mbita","Sindo","Kabondo","Kasipul","Karachuonyo"],
-    "Migori": ["Migori Town","Rongo","Awendo","Isebania","Kehancha","Macalder","Muhuru Bay","Uriri","Ntimaru","Suna"],
-    "Kisii": ["Kisii CBD","Milimani","Nyanchwa","Nyamataro","Daraja Mbili","Mwembe","Jogoo","Nyamage","Nyakoe","Nyangena","Gesonso"],
-    "Nyamira": ["Nyamira Town","Keroka","Ekerenyo","Nyansiongo","Manga","Ikonge","Magwagwa","Nyamaiya","Bomwagamo","Ainapngetuny"]
-  };
-  const NK_TIER1 = ["Kisumu", "Nairobi", "Mombasa"];
-  const NK_COUNTY_LABEL = {
-    "Uasin Gishu": "Uasin Gishu (Eldoret)",
-    "Trans Nzoia": "Trans Nzoia (Kitale)",
-    "Kiambu": "Kiambu (Thika)",
-    "Kilifi": "Kilifi (Malindi)",
-    "Kwale": "Kwale (Diani)",
-    "Taita-Taveta": "Taita-Taveta (Voi)",
-    "West Pokot": "West Pokot (Kapenguria)",
-    "Vihiga": "Vihiga (Mbale)",
-    "Nyandarua": "Nyandarua (Ol Kalou)",
-    "Turkana": "Turkana (Lodwar)",
-    "Samburu": "Samburu (Maralal)",
-    "Elgeyo-Marakwet": "Elgeyo-Marakwet (Iten)",
-    "Nandi": "Nandi (Kapsabet)",
-    "Baringo": "Baringo (Kabarnet)",
-    "Laikipia": "Laikipia (Nanyuki)",
-    "Tharaka-Nithi": "Tharaka-Nithi (Chuka)",
-    "Kirinyaga": "Kirinyaga (Kerugoya)",
-    "Makueni": "Makueni (Wote)"
-  };
-
-  function nkCountyLabel(county) { return NK_COUNTY_LABEL[county] || county; }
-
-  // Reverse lookup: area name -> county (used for URL ?area= links and the card fallback address)
-  const NK_AREA_TO_COUNTY = {};
-  for (const [county, areas] of Object.entries(NK_AREAS_BY_COUNTY)) {
-    areas.forEach(a => { NK_AREA_TO_COUNTY[a] = county; });
-  }
-
-  function nkPopulateCountySelect() {
-    const sel = document.getElementById('county-select');
-    if (!sel) return;
-    sel.innerHTML = '<option value="">All counties</option>' +
-      NK_COUNTIES.map(c => `<option value="${c}">${nkCountyLabel(c)}</option>`).join('');
-  }
-
-  // Rebuild the area checkbox list for a chosen county (first 8 visible, rest behind "Show all")
-  function renderAreaChecklist(county) {
-    const hint = document.getElementById('area-hint');
-    const visible = document.getElementById('area-checks-visible');
-    const more = document.getElementById('area-checks-more');
-    const toggleBtn = document.getElementById('area-more-toggle');
-    const areas = NK_AREAS_BY_COUNTY[county] || [];
-
-    if (!county) {
-      hint.style.display = 'block';
-      hint.textContent = 'Pick a county above to filter by area';
-      visible.innerHTML = '';
-      more.innerHTML = '';
-      more.style.display = 'none';
-      toggleBtn.style.display = 'none';
-      return;
-    }
-    if (!areas.length) {
-      hint.style.display = 'block';
-      hint.textContent = 'No areas listed yet for this county';
-      visible.innerHTML = '';
-      more.innerHTML = '';
-      more.style.display = 'none';
-      toggleBtn.style.display = 'none';
-      return;
-    }
-    hint.style.display = 'none';
-    const shown = areas.slice(0, 8);
-    const rest = areas.slice(8);
-    const checkHtml = a => `<label class="check-item"><input type="checkbox" value="${a}" onchange="applyFilters()"/><label>${a}</label></label>`;
-    visible.innerHTML = shown.map(checkHtml).join('');
-    more.innerHTML = rest.map(checkHtml).join('');
-    more.style.display = 'none';
-    if (rest.length) {
-      toggleBtn.style.display = 'inline';
-      toggleBtn.textContent = `Show all ${areas.length} areas ▾`;
-      toggleBtn.dataset.total = areas.length;
-    } else {
-      toggleBtn.style.display = 'none';
-    }
-  }
-
-  // County select changed by hand — clear any previously checked areas from a different county
-  function handleCountyFilterChange() {
-    const county = document.getElementById('county-select').value;
-    renderAreaChecklist(county);
-    applyFilters();
-  }
-
-
-  const PAGE_SIZE = 12;
-  let currentPage = 1;
-  let totalCount = 0;
-  let debounceTimer = null;
-
-  // ── Toggle showing all areas for the selected county vs the first 8 ──
-  function toggleMoreAreas() {
-    const more = document.getElementById('area-checks-more');
-    const btn = document.getElementById('area-more-toggle');
-    const total = btn.dataset.total || '';
-    const isHidden = more.style.display === 'none';
-    more.style.display = isHidden ? '' : 'none';
-    btn.textContent = isHidden ? 'Show fewer areas ▴' : `Show all ${total} areas ▾`;
-  }
-
-  // ── Read URL params on load ──
-  function readUrlParams() {
-    const p = new URLSearchParams(window.location.search);
-    if (p.get('q')) {
-      const searchEl = document.getElementById('search-q');
-      searchEl.value = p.get('q');
-      nkFormatSearchInput(searchEl); // in case someone shares a link like ?q=7000
-    }
-
-    // Resolve which county to select: an explicit ?county= wins; otherwise an
-    // ?area= link (e.g. from a listing card or the old-style area links) is
-    // traced back to its county via the reverse lookup so the right area
-    // checklist renders before we try to check the box inside it.
-    let county = p.get('county') || '';
-    if (!county && p.get('area')) county = NK_AREA_TO_COUNTY[p.get('area')] || '';
-
-    if (county) {
-      const sel = document.getElementById('county-select');
-      sel.value = county;
-      renderAreaChecklist(county);
-    }
-
-    if (p.get('area')) {
-      document.querySelectorAll('#area-checks input').forEach(cb => {
-        if (cb.value === p.get('area')) cb.checked = true;
-      });
-      if (document.querySelector(`#area-checks-more input[value="${p.get('area')}"]`)) {
-        toggleMoreAreas();
-      }
-    }
-    if (p.get('category')) {
-      document.querySelectorAll('#cat-pills .filter-pill').forEach(pill => {
-        pill.classList.toggle('active', pill.dataset.val === p.get('category'));
-      });
-    }
-    if (p.get('type')) {
-      document.querySelectorAll('#type-pills .filter-pill').forEach(pill => {
-        pill.classList.toggle('active', pill.dataset.val === p.get('type'));
-      });
-    }
-    // Arriving from the homepage's "type a price" search — it sends minPrice/maxPrice
-    // directly (already computed as a tight band there), so just seed the existing
-    // price range inputs with them. This reuses the sidebar's normal gte/lte filter,
-    // nothing new to break.
-    if (p.get('minPrice')) document.getElementById('price-min').value = p.get('minPrice');
-    if (p.get('maxPrice')) document.getElementById('price-max').value = p.get('maxPrice');
-  }
-
-  // ── Pill selector helper ──
-  function setPill(el, groupId) {
-    document.querySelectorAll(`#${groupId} .filter-pill`).forEach(p => p.classList.remove('active'));
-    el.classList.add('active');
-    if (groupId === 'cat-pills') toggleBedroomsFilter(el.dataset.val);
-    applyFilters();
-  }
-
-  // ── Hide bedroom filter for commercial category (shops/offices aren't bedroom-based) ──
-  function toggleBedroomsFilter(cat) {
-    const section = document.getElementById('bedrooms-filter-section');
-    if (!section) return;
-    if (cat === 'commercial') {
-      setPill(document.querySelector('#bed-pills .filter-pill[data-val=""]'), 'bed-pills');
-      section.style.display = 'none';
-    } else {
-      section.style.display = '';
-    }
-  }
-
-  // ── Price preset ──
-  function setPreset(min, max) {
-    document.getElementById('price-min').value = min || '';
-    document.getElementById('price-max').value = max || '';
-    applyFilters();
-  }
-
-  // ── Header search box: auto-detect a plain price typed in, same behaviour as the
-  // homepage hero search. If what's left after stripping "KES"/commas/spaces is pure
-  // digits, we're in "price mode": live-format as KES, and remember the raw number so
-  // applyFilters() can turn it into an exact ±1 KES match instead of a text search. ──
-  function nkFormatSearchInput(el) {
-    const raw = el.value;
-    const stripped = raw.replace(/^KES\s?/i, '').replace(/,/g, '').trim();
-    if (stripped.length && /^[0-9]+$/.test(stripped)) {
-      el.value = 'KES ' + Number(stripped).toLocaleString('en-KE');
-      el.dataset.priceValue = stripped;
-    } else {
-      delete el.dataset.priceValue;
-    }
-    debouncedApply();
-  }
-
-  // ── Get active filter values ──
-  function getFilters() {
-    const type = document.querySelector('#type-pills .filter-pill.active')?.dataset.val || '';
-    const cat  = document.querySelector('#cat-pills .filter-pill.active')?.dataset.val || '';
-    const beds = document.querySelector('#bed-pills .filter-pill.active')?.dataset.val || '';
-    const furn = document.querySelector('#furn-pills .filter-pill.active')?.dataset.val || '';
-    const county = document.getElementById('county-select')?.value || '';
-    const areas = [...document.querySelectorAll('#area-checks input:checked')].map(c => c.value);
-    const priceMin = document.getElementById('price-min').value;
-    const priceMax = document.getElementById('price-max').value;
-    const searchEl = document.getElementById('search-q');
-    const q = searchEl.value.trim();
-    // A plain number typed into the header search box means "match only listings
-    // within ±1 KES of this value" — existing free-text search (title/area/address)
-    // is skipped in that case so a price like "7000" doesn't also get treated as a
-    // keyword. Text search behaves exactly as before for anything non-numeric.
-    const priceExact = searchEl.dataset.priceValue ? Number(searchEl.dataset.priceValue) : null;
-    const sort = document.getElementById('sort-select').value;
-    return { type, cat, beds, furn, county, areas, priceMin, priceMax, q, priceExact, sort };
-  }
-
-  // ── Build active filter tags ──
-  function renderActiveTags(f) {
-    const tags = [];
-    if (f.type) tags.push({ label: f.type === 'sale' ? 'For sale' : 'To let', key: 'type' });
-    if (f.cat) tags.push({ label: f.cat.charAt(0).toUpperCase() + f.cat.slice(1), key: 'cat' });
-    if (f.beds) tags.push({ label: `${f.beds}+ beds`, key: 'beds' });
-    if (f.furn === 'true') tags.push({ label: 'Furnished', key: 'furn' });
-    if (f.furn === 'false') tags.push({ label: 'Unfurnished', key: 'furn' });
-    if (f.county && !f.areas.length) tags.push({ label: nkCountyLabel(f.county), key: 'county' });
-    f.areas.forEach(a => tags.push({ label: a, key: 'area-' + a }));
-    if (f.priceMin || f.priceMax) {
-      const label = f.priceMin && f.priceMax
-        ? `KES ${Number(f.priceMin).toLocaleString()} – ${Number(f.priceMax).toLocaleString()}`
-        : f.priceMin ? `From KES ${Number(f.priceMin).toLocaleString()}` : `Up to KES ${Number(f.priceMax).toLocaleString()}`;
-      tags.push({ label, key: 'price' });
-    }
-    if (f.priceExact !== null) {
-      tags.push({ label: `≈ KES ${f.priceExact.toLocaleString()} (±1)`, key: 'q' });
-    } else if (f.q) {
-      tags.push({ label: `"${f.q}"`, key: 'q' });
-    }
-
-    const el = document.getElementById('active-filters');
-    el.innerHTML = tags.map(t => `
-      <span class="filter-tag">${t.label}
-        <button onclick="removeTag('${t.key}')" title="Remove filter">×</button>
-      </span>`).join('');
-  }
-
-  // ── Remove a tag ──
-  function removeTag(key) {
-    if (key === 'type') setPill(document.querySelector('#type-pills .filter-pill[data-val=""]'), 'type-pills');
-    else if (key === 'cat') setPill(document.querySelector('#cat-pills .filter-pill[data-val=""]'), 'cat-pills');
-    else if (key === 'beds') setPill(document.querySelector('#bed-pills .filter-pill[data-val=""]'), 'bed-pills');
-    else if (key === 'furn') setPill(document.querySelector('#furn-pills .filter-pill[data-val=""]'), 'furn-pills');
-    else if (key === 'county') {
-      document.getElementById('county-select').value = '';
-      renderAreaChecklist('');
-      applyFilters();
-    }
-    else if (key.startsWith('area-')) {
-      const area = key.replace('area-', '');
-      const cb = document.querySelector(`#area-checks input[value="${area}"]`);
-      if (cb) { cb.checked = false; applyFilters(); }
-    } else if (key === 'price') {
-      document.getElementById('price-min').value = '';
-      document.getElementById('price-max').value = '';
-      applyFilters();
-    } else if (key === 'q') {
-      const searchEl = document.getElementById('search-q');
-      searchEl.value = '';
-      delete searchEl.dataset.priceValue;
-      applyFilters();
-    }
-  }
-
-  // ── Reset all filters ──
-  function resetAllFilters() {
-    setPill(document.querySelector('#type-pills .filter-pill[data-val=""]'), 'type-pills');
-    setPill(document.querySelector('#cat-pills .filter-pill[data-val=""]'), 'cat-pills');
-    setPill(document.querySelector('#bed-pills .filter-pill[data-val=""]'), 'bed-pills');
-    setPill(document.querySelector('#furn-pills .filter-pill[data-val=""]'), 'furn-pills');
-    document.getElementById('county-select').value = '';
-    renderAreaChecklist('');
-    document.getElementById('price-min').value = '';
-    document.getElementById('price-max').value = '';
-    const searchEl = document.getElementById('search-q');
-    searchEl.value = '';
-    delete searchEl.dataset.priceValue;
-    applyFilters();
-  }
-
-  // ── Build and run Supabase query ──
-  async function applyFilters(page) {
-    if (page) currentPage = page;
-    const f = getFilters();
-    renderActiveTags(f);
-
-    const grid = document.getElementById('listings-grid');
-    grid.innerHTML = Array(6).fill(`<div class="skeleton"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line xshort"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div></div></div>`).join('');
-    document.getElementById('result-count').textContent = 'Loading…';
-
-    let query = db.from('listings').select('*, listing_photos(*)', { count: 'exact' }).eq('status', 'active');
-
-    if (f.type)     query = query.eq('price_type', f.type);
-    if (f.cat)      query = query.eq('category', f.cat);
-    if (f.beds)     query = f.beds === '4' ? query.gte('bedrooms', 4) : query.eq('bedrooms', parseInt(f.beds));
-    if (f.furn !== '') query = query.eq('furnished', f.furn === 'true');
-    if (f.areas.length) {
-      query = query.in('area', f.areas);
-    } else if (f.county) {
-      // County picked but no specific area checked yet — show every area we
-      // cover in that county (same behaviour as the homepage's county cards).
-      const countyAreas = NK_AREAS_BY_COUNTY[f.county] || [];
-      if (countyAreas.length) query = query.in('area', countyAreas);
-    }
-    if (f.priceMin) query = query.gte('price', parseFloat(f.priceMin));
-    if (f.priceMax) query = query.lte('price', parseFloat(f.priceMax));
-
-    if (f.priceExact !== null) {
-      // Exact-ish price typed in the header search box: only listings priced within
-      // ±1 KES of it. Combines (ANDs) with any sidebar price-min/max already set,
-      // so nothing about the existing range filter is overridden — it's additive.
-      query = query.gte('price', f.priceExact - 1).lte('price', f.priceExact + 1);
-    } else if (f.q) {
-      query = query.or(`title.ilike.%${f.q}%,description.ilike.%${f.q}%,area.ilike.%${f.q}%,address.ilike.%${f.q}%`);
-    }
-
-    // Sort
-    if (f.sort === 'price_asc')       query = query.order('price', { ascending: true });
-    else if (f.sort === 'price_desc') query = query.order('price', { ascending: false });
-    else if (f.sort === 'featured')   query = query.order('is_featured', { ascending: false }).order('created_at', { ascending: false });
-    else                              query = query.order('created_at', { ascending: false });
-
-    // Pagination
-    const from = (currentPage - 1) * PAGE_SIZE;
-    query = query.range(from, from + PAGE_SIZE - 1);
-
-    const { data, count, error } = await query;
-    if (error) { console.error(error); return; }
-
-    totalCount = count || 0;
-    renderResults(data || [], totalCount);
-    renderPagination(totalCount);
-  }
-
-  // ── Render listing cards ──
-  function formatPrice(price, type) {
-    const p = Number(price).toLocaleString('en-KE');
-    return type === 'rent' ? `KES ${p}<span>/mo</span>` : `KES ${p}`;
-  }
-
-  function buildCard(l) {
-    const photos = l.listing_photos || [];
-    const cover = photos.find(p => p.is_cover) || photos[0];
-    const imgHtml = cover
-      ? `<img src="${cover.url}" alt="${l.title}" loading="lazy"/>`
-      : `<div class="card-img-placeholder"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg><span style="font-size:11px">No photo</span></div>`;
-    const catBadge = l.category !== 'standard'
-      ? `<span class="badge-cat ${l.category}">${l.category}</span>` : '';
-    return `
-      <div class="card" onclick="window.location='listing.html?id=${l.id}'">
-        <div class="card-img">
-          ${imgHtml}
-          ${l.is_featured ? '<span class="badge-featured">Featured</span>' : ''}
-          <div class="nk-heart-overlay">${NKSaved.buildHeartBtn(l.id)}</div>
-          ${catBadge}
-        </div>
-        <div class="card-body">
-          <div class="card-area">${l.area}${l.sub_area ? ' · ' + l.sub_area : ''}</div>
-          <div class="card-title">${l.title}</div>
-          <div class="card-sub">${l.address || (NK_AREA_TO_COUNTY[l.area] ? l.area + ', ' + nkCountyLabel(NK_AREA_TO_COUNTY[l.area]) : 'Kenya')}</div>
-          <div class="card-price">${formatPrice(l.price, l.price_type)}</div>
-          <div class="card-meta">
-            ${l.bedrooms ? `<div class="card-meta-item"><svg viewBox="0 0 24 24"><path d="M2 4v16M22 4v16M2 12h20M2 8h4a2 2 0 012 2v2H2V8zM16 8h4a2 2 0 012 2v2h-6V8z"/></svg>${l.bedrooms} bed</div>` : ''}
-            ${l.bathrooms ? `<div class="card-meta-item"><svg viewBox="0 0 24 24"><path d="M9 6l1-1a2 2 0 012.83 0l6.17 6.17a1 1 0 010 1.41L17 14M3 20h18M5 20v-4a3 3 0 013-3h1"/></svg>${l.bathrooms} bath</div>` : ''}
-            ${l.size_sqm ? `<div class="card-meta-item"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="1"/></svg>${l.size_sqm}m²</div>` : ''}
-            ${l.furnished ? `<div class="card-meta-item"><svg viewBox="0 0 24 24"><rect x="2" y="8" width="20" height="10" rx="2"/><path d="M6 8V6a2 2 0 012-2h8a2 2 0 012 2v2"/><line x1="6" y1="14" x2="6" y2="18"/><line x1="18" y1="14" x2="18" y2="18"/></svg>Furnished</div>` : ''}
+  <!-- SELLER-PRIVATE DISABLED VIEW -->
+  <div id="seller-disabled-view" style="display:none">
+    <div class="seller-disabled-wrap">
+      <div class="seller-disabled-banner">
+        <div class="seller-disabled-banner-inner">
+          <div class="seller-disabled-icon">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+          </div>
+          <div class="seller-disabled-content">
+            <h2 id="seller-disabled-heading">Your listing has been deactivated</h2>
+            <p id="seller-disabled-intro">This listing is currently hidden from the public site. Only you and the admin team can see this notice — visitors will see a generic "not found" page.</p>
+            <div class="seller-disabled-reason" id="seller-disabled-reason-box" style="display:none">
+              <strong>Reason provided by admin</strong>
+              <span id="seller-disabled-reason-text"></span>
+            </div>
+            <div class="seller-disabled-notice">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              <span>This information is private between you and the NyumbaKisumu admin team. No buyer or visitor can see it.</span>
+            </div>
+            <div class="seller-disabled-actions">
+              <a href="contact.html" class="btn-contact-admin">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="white" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                Contact admin
+              </a>
+              <a href="dashboard.html" class="btn-browse-more">My dashboard</a>
+              <a href="listings.html" class="btn-browse-more">Browse listings</a>
+            </div>
           </div>
         </div>
-      </div>`;
-  }
+      </div>
+      <div class="seller-recycle-banner" id="seller-recycle-extra" style="display:none">
+        <h3>⚠ Scheduled for permanent deletion</h3>
+        <p>This listing has been moved to the recycle bin by an admin. It will be permanently deleted after the grace period unless the admin restores it. Contact the support team immediately if this is a mistake.</p>
+        <div class="countdown-pill" id="seller-recycle-countdown">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <span id="seller-recycle-days">…</span>
+        </div>
+      </div>
+    </div>
+  </div>
 
-  function renderResults(listings, count) {
-    const grid = document.getElementById('listings-grid');
-    const rc = document.getElementById('result-count');
-    rc.innerHTML = `<strong>${count.toLocaleString()}</strong> listing${count !== 1 ? 's' : ''} found`;
+  <!-- SKELETON -->
+  <div id="skeleton-wrap">
+    <div class="layout">
+      <div>
+        <div class="skel-block" style="width:100%;aspect-ratio:16/9;margin-bottom:20px"></div>
+        <div class="skel short" style="margin-bottom:12px"></div>
+        <div class="skel" style="margin-bottom:8px;height:28px"></div>
+        <div class="skel xshort" style="margin-bottom:24px"></div>
+        <div class="skel-block" style="height:120px;margin-bottom:20px"></div>
+        <div class="skel-block" style="height:300px"></div>
+      </div>
+      <div><div class="skel-block" style="height:420px"></div></div>
+    </div>
+  </div>
 
-    if (!listings.length) {
-      grid.innerHTML = `<div class="empty-state">
-        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
-        <h3>No listings match your filters</h3>
-        <p>Try adjusting your search or <a onclick="resetAllFilters()" style="cursor:pointer">reset all filters</a></p>
-        <button class="btn btn-primary" style="margin-top:14px" onclick="openNotifyModal()">🔔 Notify me when a match is posted</button>
-      </div>`;
-      return;
-    }
-    grid.innerHTML = listings.map(buildCard).join('');
-  }
+  <!-- LISTING CONTENT -->
+  <div id="listing-content" style="display:none">
+    <div class="layout">
 
-  // ── Pagination ──
-  function renderPagination(count) {
-    const totalPages = Math.ceil(count / PAGE_SIZE);
-    const el = document.getElementById('pagination');
-    if (totalPages <= 1) { el.innerHTML = ''; return; }
+      <!-- LEFT -->
+      <div>
+        <!-- Gallery -->
+        <div class="gallery" id="gallery">
+          <div class="gallery-main" id="gallery-main">
+            <div class="gallery-no-photo" id="gallery-no-photo" style="display:none">
+              <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              <p>No photos for this listing yet</p>
+            </div>
+            <img id="gallery-img" src="" alt="" style="display:none" onclick="openLightbox()"/>
+            <button class="gallery-arrow prev" id="prev-btn" onclick="changePhoto(-1)" style="display:none">
+              <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+            <button class="gallery-arrow next" id="next-btn" onclick="changePhoto(1)" style="display:none">
+              <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+            <div class="gallery-counter" id="gallery-counter" style="display:none"></div>
+            <div class="featured-overlay" id="featured-badge" style="display:none">
+              <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              Featured listing
+            </div>
+          </div>
+          <div class="gallery-thumbs" id="gallery-thumbs" style="display:none"></div>
+        </div>
 
-    let html = `<button class="page-btn" onclick="applyFilters(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>←</button>`;
-    for (let i = 1; i <= totalPages; i++) {
-      if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
-        html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="applyFilters(${i})">${i}</button>`;
-      } else if (i === currentPage - 2 || i === currentPage + 2) {
-        html += `<span style="padding:0 4px;color:var(--text-3);font-size:13px">…</span>`;
-      }
-    }
-    html += `<button class="page-btn" onclick="applyFilters(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>→</button>`;
-    el.innerHTML = html;
-  }
+        <!-- Action pills -->
+        <div class="action-row">
+          <button class="action-pill" onclick="shareWhatsApp()">
+            <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+            Share on WhatsApp
+          </button>
+          <button class="action-pill" onclick="copyLink()">
+            <svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+            Copy link
+          </button>
+          <button class="action-pill" onclick="window.print()">
+            <svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+            Print
+          </button>
+        </div>
 
-  // ── Debounce for text inputs ──
-  function debouncedApply() {
-    clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(applyFilters, 500);
-  }
+        <!-- Title & location -->
+        <div class="listing-header">
+          <div class="listing-badges" id="listing-badges"></div>
+          <h1 class="listing-title" id="listing-title"></h1>
+          <div class="listing-location">
+            <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <span id="listing-loc-text"></span>
+          </div>
+        </div>
 
-  // ── Mobile sidebar ──
-  function openSidebar() {
-    document.getElementById('sidebar').classList.add('open');
-    document.getElementById('overlay').classList.add('open');
-  }
-  function closeSidebar() {
-    document.getElementById('sidebar').classList.remove('open');
-    document.getElementById('overlay').classList.remove('open');
-  }
+        <!-- Price -->
+        <div class="price-block">
+          <div>
+            <div class="price-main" id="listing-price"></div>
+            <div class="price-meta" id="listing-price-meta"></div>
+          </div>
+          <div class="price-views">
+            <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            <span id="listing-views" class="views-loading">— views</span>
+          </div>
+        </div>
 
-  // ── Mobile nav toggle ──
-  function toggleMobileMenu() {
-    document.getElementById('mobile-nav').classList.toggle('open');
-  }
-  document.addEventListener('click', e => {
-    const nav = document.getElementById('mobile-nav');
-    const btn = document.querySelector('.mobile-menu-btn');
-    if (nav && nav.classList.contains('open') && !nav.contains(e.target) && !btn.contains(e.target)) {
-      nav.classList.remove('open');
-    }
-  });
+        <!-- Specs -->
+        <div class="specs-card">
+          <h3>Property details</h3>
+          <div class="specs-grid" id="specs-grid"></div>
+        </div>
 
-  // ── Sign in → My Account when logged in ──
-  (async function () {
-    const _sb = (typeof db !== 'undefined') ? db : supabase.createClient(
-      'https://vliuuloyfhyxcsuchpss.supabase.co',
-      'sb_publishable_oIIcecf3wzKMual5K24Z8Q_zmxVfgsx'
-    );
-    const { data: { session } } = await _sb.auth.getSession();
-    if (!session) return;
+        <!-- Description -->
+        <div class="desc-card" id="desc-card" style="display:none">
+          <h3>About this property</h3>
+          <div class="desc-text collapsed" id="desc-text"></div>
+          <span class="read-more" id="read-more" onclick="toggleDesc()">Read more ↓</span>
+        </div>
 
-    const desktopLink = document.getElementById('nav-account-link');
-    const mobileLink  = document.getElementById('mobile-account-link');
-    if (desktopLink) {
-      desktopLink.textContent = 'My Account';
-      desktopLink.href = 'dashboard.html';
-      desktopLink.style.fontWeight = '600';
-      desktopLink.style.color = 'var(--green)';
-    }
-    if (mobileLink) {
-      mobileLink.textContent = 'My Account';
-      mobileLink.href = 'dashboard.html';
-    }
-  })();
+        <!-- ══════════════════════════════════════
+             LIVE MAP — Google Maps embed
+             Renders the real area on a map using
+             the Google Maps embed API (no key needed
+             for the basic embed URL).
+        ══════════════════════════════════════ -->
+        <div class="map-card">
+          <div class="map-card-header">
+            <div>
+              <h3>Location</h3>
+              <p id="map-sub">Kisumu, Kenya</p>
+            </div>
+            <a id="map-open-link" href="#" target="_blank" rel="noopener">
+              <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              Open in Google Maps
+            </a>
+          </div>
+          <div class="map-iframe-wrap">
+            <div class="map-loading" id="map-loading">
+              <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              <span style="font-size:13px">Loading map…</span>
+            </div>
+            <!-- iframe injected by JS after listing loads -->
+            <div id="map-iframe-container"></div>
+          </div>
+          <div class="map-privacy-note">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            Exact address is shared with buyers only after they send an enquiry, for seller privacy.
+          </div>
+        </div>
 
-  /* ════════════════════════════════════════════════════
-     NOTIFY ME — "haven't found what you're looking for"
-     Buyers fill this out (name, phone, area/county or a
-     free-typed area, budget, category, bedrooms) and get
-     stored in listing_alerts. A DB trigger auto-matches
-     each new active listing against active alerts and
-     queues a row in listing_alert_matches — the actual
-     email/SMS send needs a Supabase Database Webhook or
-     Edge Function watching that table (see SQL notes).
-  ════════════════════════════════════════════════════ */
-  function dismissNotifyStrip() {
-    document.getElementById('notify-strip').style.display = 'none';
-    sessionStorage.setItem('nk_notify_strip_dismissed', '1');
-  }
+        <!-- Similar listings -->
+        <div class="similar-section">
+          <h3>Similar listings in this area</h3>
+          <div class="similar-grid" id="similar-grid">
+            <div class="skel-block" style="height:200px"></div>
+            <div class="skel-block" style="height:200px"></div>
+            <div class="skel-block" style="height:200px"></div>
+          </div>
+        </div>
+      </div>
 
-  function nfPopulateCounties() {
-    const sel = document.getElementById('nf-county-select');
-    sel.innerHTML = '<option value="">Any county</option>' +
-      NK_COUNTIES.map(c => `<option value="${c}">${nkCountyLabel(c)}</option>`).join('');
-  }
+      <!-- RIGHT -->
+      <div>
+        <div class="contact-card">
+          <div class="contact-card-title">Interested in this property?</div>
+          <div class="contact-card-sub">Contact the seller directly — no agents, no commission.</div>
 
-  function nfHandleCountyChange() {
-    const county = document.getElementById('nf-county-select').value;
-    const areaSel = document.getElementById('nf-area-select');
-    const areas = NK_AREAS_BY_COUNTY[county] || [];
-    areaSel.innerHTML = '<option value="">Any area in this county</option>' +
-      areas.map(a => `<option value="${a}">${a}</option>`).join('');
-  }
+          <div class="seller-row">
+            <div class="seller-avatar" id="seller-avatar">?</div>
+            <div>
+              <div class="seller-name" id="seller-name">Loading…</div>
+              <div class="verified-badge">
+                <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                Verified seller
+              </div>
+              <div class="seller-since" id="seller-since"></div>
+              <div id="seller-rating" style="display:none;margin-top:4px"></div>
+            </div>
+          </div>
 
-  function nfToggleCustomArea() {
-    const checked = document.getElementById('nf-area-not-listed').checked;
-    document.getElementById('nf-area-wrap').style.display = checked ? 'none' : '';
-    document.getElementById('nf-area-custom').style.display = checked ? 'block' : 'none';
-    if (checked) document.getElementById('nf-area-select').value = '';
-  }
+          <button class="report-scam-btn" id="report-scam-btn" onclick="nkOpenReportModal('listing', listingId)">
+            <svg viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+            Report scam or suspicious listing
+          </button>
 
-  function nfSetPill(el, groupId) {
-    document.querySelectorAll(`#${groupId} .filter-pill`).forEach(p => p.classList.remove('active'));
-    el.classList.add('active');
-  }
+          <div class="contact-btns">
+            <a class="btn-call" id="btn-call" href="#">
+              <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.12 1.2 2 2 0 012.11 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>
+              Call seller
+            </a>
+            <a class="btn-whatsapp" id="btn-whatsapp" href="#" target="_blank" rel="noopener">
+              <svg viewBox="0 0 24 24" width="18" height="18"><path fill="white" d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+              WhatsApp seller
+            </a>
+          </div>
 
-  function nfResetForm() {
-    document.getElementById('nf-name').value = '';
-    document.getElementById('nf-phone').value = '';
-    document.getElementById('nf-email').value = '';
-    document.getElementById('nf-budget-min').value = '';
-    document.getElementById('nf-budget-max').value = '';
-    document.getElementById('nf-notes').value = '';
-    document.getElementById('nf-area-custom').value = '';
-    document.getElementById('nf-area-custom').style.display = 'none';
-    document.getElementById('nf-area-not-listed').checked = false;
-    document.getElementById('nf-area-wrap').style.display = '';
-    ['nf-type-pills','nf-cat-pills','nf-bed-pills'].forEach(groupId => {
-      nfSetPill(document.querySelector(`#${groupId} .filter-pill[data-val=""]`), groupId);
-    });
-  }
+          <div class="or-divider">or send a message</div>
 
-  function openNotifyModal() {
-    nfPopulateCounties();
-    document.getElementById('nf-area-select').innerHTML = '<option value="">Any area in this county</option>';
-    document.getElementById('notify-modal-overlay').classList.add('open');
-    document.body.style.overflow = 'hidden';
-  }
-  function closeNotifyModal() {
-    document.getElementById('notify-modal-overlay').classList.remove('open');
-    document.body.style.overflow = '';
-  }
+          <!-- Enquiry form -->
+          <div id="enquiry-form">
+            <div class="field">
+              <label>Your name</label>
+              <input type="text" id="enq-name" placeholder="e.g. Brian Otieno"/>
+              <div class="field-error" id="err-enq-name">Please enter your name</div>
+            </div>
+            <div class="field">
+              <label>Phone number</label>
+              <input type="tel" id="enq-phone" placeholder="07XX XXX XXX"/>
+              <div class="field-error" id="err-enq-phone">Please enter your phone number</div>
+            </div>
+            <div class="field">
+              <label>Email <span style="font-size:10px;font-weight:400;color:var(--text-3)">optional</span></label>
+              <input type="email" id="enq-email" placeholder="you@example.com"/>
+            </div>
+            <div class="field">
+              <label>Message</label>
+              <textarea id="enq-message" rows="3" placeholder="Hi, I'm interested in this apartment. Is it still available?"></textarea>
+              <div class="field-error" id="err-enq-msg">Please enter a message</div>
+            </div>
+            <button class="btn-enquire" id="btn-enquire" onclick="sendEnquiry()">
+              <div class="spinner"></div>
+              <span class="btn-text">Send message</span>
+            </button>
+            <p class="enquiry-note">Your contact details are shared only with the seller of this listing.</p>
+          </div>
 
-  function showNotifySuccess() {
-    const t = document.getElementById('notify-success-toast');
-    t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 4500);
-  }
+          <!-- Success -->
+          <div class="enquiry-success" id="enquiry-success">
+            <div class="enquiry-success-icon">
+              <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <h4>Message sent!</h4>
+            <p>The seller will reply here and may also contact you on your phone. Check back on this page to see their reply.</p>
+            <button onclick="showThread()" style="margin-top:8px;font-size:13px;color:var(--green);background:none;border:none;cursor:pointer;font-weight:500">View conversation →</button>
+          </div>
 
-  async function submitNotifyAlert() {
-    const name  = document.getElementById('nf-name').value.trim();
-    const phone = document.getElementById('nf-phone').value.trim();
-    const email = document.getElementById('nf-email').value.trim();
+          <!-- Thread -->
+          <div id="thread-section" class="thread-section" style="display:none">
+            <div class="thread-header">
+              <h4>Your conversation</h4>
+              <button onclick="clearThread()">Start new enquiry</button>
+            </div>
+            <div class="chat-window">
+              <div class="chat-messages-box" id="chat-messages-box">
+                <div style="text-align:center;font-size:12px;color:var(--text-3);padding:16px">Loading messages…</div>
+              </div>
+              <div class="chat-input-row">
+                <textarea id="chat-follow-input" placeholder="Send a follow-up message…" rows="1" oninput="autoResizeTa(this)" onkeydown="handleFollowKeydown(event)"></textarea>
+                <button class="chat-send" id="chat-follow-send" onclick="sendFollowUp()">
+                  <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                </button>
+              </div>
+            </div>
+            <div class="chat-wa-note" id="chat-wa-note"></div>
+          </div>
 
-    if (!name)  { alert('Please enter your name'); return; }
-    if (!phone) { alert('Please enter a phone number so we can reach you'); return; }
+          <!-- Safety tip -->
+          <div class="safety-tip">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <span>Always view the property in person before making any payment. Never send money before seeing the apartment.</span>
+          </div>
+        </div>
+      </div>
 
-    const priceType = document.querySelector('#nf-type-pills .filter-pill.active')?.dataset.val || null;
-    const category  = document.querySelector('#nf-cat-pills .filter-pill.active')?.dataset.val || null;
-    const bedsVal   = document.querySelector('#nf-bed-pills .filter-pill.active')?.dataset.val || '';
-    const bedrooms  = bedsVal ? parseInt(bedsVal) : null;
+    </div>
+  </div>
+</div>
 
-    const county        = document.getElementById('nf-county-select').value || null;
-    const customChecked  = document.getElementById('nf-area-not-listed').checked;
-    const areaSelectVal  = document.getElementById('nf-area-select').value || null;
-    const customAreaText = document.getElementById('nf-area-custom').value.trim();
+<!-- ══ FULL-SCREEN PHOTO LIGHTBOX ══ -->
+<div id="nk-lightbox" onclick="nkLightboxBackdropClick(event)">
+  <button class="nk-lb-close" onclick="closeLightbox()" aria-label="Close">
+    <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+  </button>
+  <button class="nk-lb-arrow prev" id="nk-lb-prev" onclick="lightboxChange(-1)" aria-label="Previous photo">
+    <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+  </button>
+  <div id="nk-lightbox-img-wrap">
+    <img id="nk-lightbox-img" src="" alt=""/>
+  </div>
+  <button class="nk-lb-arrow next" id="nk-lb-next" onclick="lightboxChange(1)" aria-label="Next photo">
+    <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+  </button>
+  <div id="nk-lightbox-counter"></div>
+</div>
 
-    const area       = customChecked ? null : areaSelectVal;
-    const customArea = customChecked ? (customAreaText || null) : null;
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div>
+        <div class="footer-logo">NyumbaKisumu</div>
+        <p class="footer-tagline">Find and list apartments in Kisumu, Maseno, and Luanda — no agents, no commission.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Browse</h4>
+        <a href="listings.html">All listings</a>
+        <a href="listings.html?category=student">Student housing</a>
+        <a href="listings.html?category=standard">Standard</a>
+        <a href="listings.html?category=luxury">Luxury</a>
+        <a href="listings.html?category=commercial">Shops & offices</a>
+      </div>
+      <div class="footer-col">
+        <h4>Areas</h4>
+        <a href="listings.html?area=Milimani">Milimani</a>
+        <a href="listings.html?area=Kisumu CBD">Kisumu CBD</a>
+        <a href="listings.html?area=Maseno">Maseno</a>
+        <a href="listings.html?area=Luanda">Luanda</a>
+        <a href="listings.html?area=Kondele">Kondele</a>
+      </div>
+      <div class="footer-col">
+        <h4>Platform</h4>
+        <a href="post-listing.html">List a property</a>
+        <a href="login.html">Seller login</a>
+        <a href="how-it-works.html">How it works</a>
+        <a href="contact.html">Contact us</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 NyumbaKisumu. All rights reserved.</p>
+      <p>Kisumu · Maseno · Luanda · Western Kenya</p>
+    </div>
+  </div>
+</footer>
 
-    // When only a county is picked (no specific area, no custom text), send along
-    // the full list of areas we cover in that county — the DB trigger uses this
-    // to auto-match new listings without needing a county↔area table server-side.
-    let countyAreas = null;
-    if (county && !area && !customChecked) {
-      countyAreas = NK_AREAS_BY_COUNTY[county] || null;
-    }
+<!-- ══ REVIEW PROMPT BANNER ══ -->
+<div id="nk-review-banner">
+  <button class="rb-close" onclick="nkDismissBanner()">✕</button>
+  <div class="rb-icon"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></div>
+  <div class="rb-text"><strong id="nk-rb-title">Did you secure this property?</strong><span id="nk-rb-sub">Takes one minute — it really helps other buyers.</span></div>
+  <div class="rb-actions">
+    <button class="rb-yes" onclick="nkBannerYes()">Yes, I got it</button>
+    <button class="rb-no"  onclick="nkBannerNotYet()">Not yet</button>
+    <button class="rb-no"  onclick="nkBannerNo()">No, moved on</button>
+  </div>
+</div>
 
-    const budgetMin = document.getElementById('nf-budget-min').value;
-    const budgetMax = document.getElementById('nf-budget-max').value;
-    const notes = document.getElementById('nf-notes').value.trim();
+<!-- ══ Seller review modal ══ -->
+<div class="nk-review-modal-overlay" id="nk-seller-review-modal">
+  <div class="nk-review-modal">
+    <h3>How was <span id="nk-review-seller-name">the seller</span>?</h3>
+    <p class="sub">Your review helps other buyers know what to expect. Takes about a minute.</p>
+    <div class="nk-star-row" id="nk-seller-stars"></div>
+    <div class="nk-name-field">
+      <label>Your name (shown publicly with your review)</label>
+      <input type="text" id="nk-seller-review-name" placeholder="e.g. Brian Otieno" maxlength="60"/>
+      <label class="nk-anon-check">
+        <input type="checkbox" id="nk-seller-review-anon" onchange="nkToggleAnon('seller')"/>
+        Post anonymously instead
+      </label>
+    </div>
+    <textarea id="nk-seller-review-text" placeholder="What went well, or what should other buyers know? (optional)"></textarea>
+    <div class="nk-modal-actions">
+      <button class="nk-btn-cancel" onclick="nkCloseReviewModal('nk-seller-review-modal')">Skip</button>
+      <button class="nk-btn-primary" onclick="nkSubmitSellerReview()">Submit review</button>
+    </div>
+  </div>
+</div>
 
-    const btn = document.getElementById('nf-submit-btn');
-    btn.disabled = true; btn.textContent = 'Saving…';
+<!-- ══ Platform review modal ══ -->
+<div class="nk-review-modal-overlay" id="nk-platform-review-modal">
+  <div class="nk-review-modal">
+    <h3>One last thing 🙂</h3>
+    <p class="sub">How was your overall experience using NyumbaKisumu to find a home?</p>
+    <div class="nk-star-row" id="nk-platform-stars"></div>
+    <div class="nk-name-field">
+      <label>Your name (shown publicly with your review)</label>
+      <input type="text" id="nk-platform-review-name" placeholder="e.g. Brian Otieno" maxlength="60"/>
+      <label class="nk-anon-check">
+        <input type="checkbox" id="nk-platform-review-anon" onchange="nkToggleAnon('platform')"/>
+        Post anonymously instead
+      </label>
+    </div>
+    <textarea id="nk-platform-review-text" placeholder="Anything we could do better? (optional)"></textarea>
+    <div class="nk-modal-actions">
+      <button class="nk-btn-cancel" onclick="nkCloseReviewModal('nk-platform-review-modal')">Skip</button>
+      <button class="nk-btn-primary" onclick="nkSubmitPlatformReview()">Submit review</button>
+    </div>
+  </div>
+</div>
 
-    const { error } = await db.from('listing_alerts').insert({
-      full_name: name,
-      phone,
-      email: email || null,
-      price_type: priceType,
-      category,
-      bedrooms,
-      county,
-      area,
-      county_areas: countyAreas,
-      custom_area: customArea,
-      budget_min: budgetMin ? parseFloat(budgetMin) : null,
-      budget_max: budgetMax ? parseFloat(budgetMax) : null,
-      notes: notes || null,
-    });
-
-    btn.disabled = false; btn.textContent = 'Notify me';
-
-    if (error) {
-      alert('Something went wrong, please try again: ' + error.message);
-      return;
-    }
-
-    closeNotifyModal();
-    nfResetForm();
-    showNotifySuccess();
-  }
-
-  // ── Init ──
-  nkPopulateCountySelect();
-  renderAreaChecklist('');
-  readUrlParams();
-  toggleBedroomsFilter(document.querySelector('#cat-pills .filter-pill.active')?.dataset.val || '');
-  applyFilters();
-  if (sessionStorage.getItem('nk_notify_strip_dismissed')) {
-    const stripEl = document.getElementById('notify-strip');
-    if (stripEl) stripEl.style.display = 'none';
-  }
-</script>
-
-<script src="saved-listings.js"></script>
-<script>NKSaved.init();</script>
+<!-- ══ Report modal ══ -->
+<div class="nk-review-modal-overlay" id="nk-report-modal">
+  <div class="nk-review-modal">
+    <h3>Report a problem</h3>
+    <p class="sub">Tell us what's wrong — fake listing, suspicious seller, scam attempt, anything. We review every report.</p>
+    <select id="nk-report-reason" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;margin-bottom:12px;font-family:inherit">
+      <option value="">Select a reason…</option>
+      <option value="fake_listing">This listing looks fake</option>
+      <option value="scam_attempt">Seller asked for money upfront / scam attempt</option>
+      <option value="wrong_info">Listing details don't match reality</option>
+      <option value="offensive">Offensive or inappropriate content</option>
+      <option value="other">Something else</option>
+    </select>
+    <textarea id="nk-report-details" placeholder="Give us a few details…"></textarea>
+    <div class="nk-modal-actions">
+      <button class="nk-btn-cancel" onclick="nkCloseReportModal()">Cancel</button>
+      <button class="nk-btn-primary" onclick="nkSubmitReport()">Send report</button>
+    </div>
+  </div>
+</div>
 
 <script>
-  (function () {
-    const sb = supabase.createClient(
-      'https://vliuuloyfhyxcsuchpss.supabase.co',
-      'sb_publishable_oIIcecf3wzKMual5K24Z8Q_zmxVfgsx'
-    );
-    let sid = localStorage.getItem('nk_sid');
-    if (!sid) {
-      sid = (crypto.randomUUID ? crypto.randomUUID() : Date.now() + '-' + Math.random().toString(36).slice(2));
-      localStorage.setItem('nk_sid', sid);
+/* ════════════════════════════════════════════════════
+   CONFIG
+════════════════════════════════════════════════════ */
+const SUPABASE_URL = 'https://vliuuloyfhyxcsuchpss.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_oIIcecf3wzKMual5K24Z8Q_zmxVfgsx';
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const listingId = new URLSearchParams(window.location.search).get('id');
+
+let listing      = null;
+let photos       = [];
+let currentPhoto = 0;
+let buyerToken   = null;
+let buyerName    = '';
+let buyerPhone   = '';
+let threadMessages = [];
+
+/* ── Buyer token ── */
+function getBuyerToken()    { return localStorage.getItem('nk_buyer_' + listingId); }
+function setBuyerToken(t)   { localStorage.setItem('nk_buyer_' + listingId, t); localStorage.setItem('nk_buyer_name_' + listingId, buyerName); localStorage.setItem('nk_buyer_phone_' + listingId, buyerPhone); }
+function getSavedBuyerInfo(){ buyerName = localStorage.getItem('nk_buyer_name_' + listingId)||''; buyerPhone = localStorage.getItem('nk_buyer_phone_' + listingId)||''; }
+
+/* ════════════════════════════════════════════════════
+   MAIN LOADER
+════════════════════════════════════════════════════ */
+async function loadListing() {
+  if (!listingId) { showNotFound(); return; }
+
+  const { data, error } = await db
+    .from('listings')
+    .select('*, profiles(full_name, phone, created_at), listing_photos(*)')
+    .eq('id', listingId)
+    .single();
+
+  if (error || !data) { showNotFound(); return; }
+  listing = data;
+
+  const isFullyActive = (data.status === 'active') && !data.is_disabled && !data.recycle_bin;
+
+  if (isFullyActive) {
+    trackView(data);   // ← handles one-per-device atomically
+    renderListing(data);
+    renderLiveMap(data);
+    loadSimilar(data.area, data.id);
+    handleBuyerThread(data);
+    loadSellerReviewStats(data.seller_id);   // ★ seller rating summary
+    nkCheckReviewPrompt(data.id);            // ★ "did you secure this property?" prompt
+    nkUpdateReportButtonState(data.id);      // ★ show "Reported ✓" if already flagged from this browser
+    return;
+  }
+
+  /* Disabled/recycled/pending — check if seller or admin */
+  const { data: { session } } = await db.auth.getSession();
+  const viewerUserId = session?.user?.id || null;
+  let isOwner = false, isAdmin = false;
+
+  if (viewerUserId) {
+    isOwner = (data.seller_id === viewerUserId);
+    if (!isOwner) {
+      const { data: profile } = await db.from('profiles').select('role').eq('id', viewerUserId).single();
+      isAdmin = (profile?.role === 'admin');
     }
-    sb.from('page_views').insert({
-      path: location.pathname,
-      referrer: document.referrer || null,
-      user_agent: navigator.userAgent,
-      session_id: sid
+  }
+
+  if (isOwner || isAdmin) showSellerDisabledView(data);
+  else showNotFound();
+}
+
+/* ════════════════════════════════════════════════════
+   VIEWS — One per device per listing, atomic increment
+   ════════════════════════════════════════════════════
+   HOW IT WORKS:
+   1. We check localStorage for the key 'nk_viewed_<id>'.
+   2. If NOT present → this device hasn't counted yet:
+        a. Set the key immediately (prevents double-fire
+           if user has two tabs open at the same time).
+        b. Call the Supabase RPC which atomically does
+           UPDATE listings SET views = views + 1 WHERE id = ?
+           and returns the new value.
+        c. Display the returned (fresh) count.
+   3. If key IS present → already counted, just show
+      the current value from the fetched listing data.
+   This means repeated visits, refreshes, or multiple
+   tabs on the same device never double-count.
+════════════════════════════════════════════════════ */
+async function trackView(data) {
+  const viewedKey = 'nk_viewed_' + listingId;
+  const alreadyCounted = !!localStorage.getItem(viewedKey);
+
+  if (!alreadyCounted) {
+    /* Mark immediately to block any race (second tab, double load) */
+    localStorage.setItem(viewedKey, '1');
+
+    /* Atomic server-side increment via RPC */
+    const { data: newCount, error } = await db.rpc('increment_listing_views', {
+      listing_id: listingId
     });
-  })();
+
+    if (!error && newCount !== null) {
+      /* Show the fresh server count */
+      updateViewsDisplay(newCount);
+    } else {
+      /* RPC not available yet — fall back to client-side increment */
+      const fallbackCount = (data.views || 0) + 1;
+      await db.from('listings').update({ views: fallbackCount }).eq('id', listingId);
+      updateViewsDisplay(fallbackCount);
+    }
+  } else {
+    /* Already counted — just display stored value */
+    updateViewsDisplay(data.views || 0);
+  }
+}
+
+function updateViewsDisplay(count) {
+  const el = document.getElementById('listing-views');
+  if (el) {
+    el.textContent = `${Number(count).toLocaleString('en-KE')} view${count !== 1 ? 's' : ''}`;
+    el.classList.remove('views-loading');
+  }
+}
+
+/* ════════════════════════════════════════════════════
+   DISABLED VIEW
+════════════════════════════════════════════════════ */
+function showNotFound() {
+  document.getElementById('skeleton-wrap').style.display = 'none';
+  document.getElementById('not-found').style.display = 'block';
+  document.getElementById('breadcrumb-area').textContent = 'Not found';
+}
+
+function showSellerDisabledView(data) {
+  document.getElementById('skeleton-wrap').style.display = 'none';
+  document.getElementById('breadcrumb-area').textContent = escHtml(data.title || 'Your listing');
+
+  const isRecycleBin = !!data.recycle_bin;
+  const isPending    = data.status === 'pending';
+  const isRejected   = data.status === 'rejected';
+
+  let heading = 'Your listing has been deactivated';
+  let intro   = 'This listing is currently hidden from the public site. Only you and the admin team can see this notice — visitors will see a generic "not found" page.';
+
+  if (isRecycleBin) {
+    heading = 'Your listing is in the recycle bin';
+    intro   = 'An admin has moved this listing to the recycle bin. It is hidden from the public and will be permanently deleted after the grace period.';
+  } else if (isPending) {
+    heading = 'Your listing is pending review';
+    intro   = 'Your listing is under review by our admin team. It will be visible to the public once approved — usually within a few hours.';
+  } else if (isRejected) {
+    heading = 'Your listing was rejected';
+    intro   = 'Your listing was rejected by the admin team. Please review the reason below and resubmit via your dashboard.';
+  }
+
+  document.getElementById('seller-disabled-heading').textContent = heading;
+  document.getElementById('seller-disabled-intro').textContent   = intro;
+
+  const reason = data.disabled_reason || null;
+  if (reason) {
+    document.getElementById('seller-disabled-reason-text').textContent = reason;
+    document.getElementById('seller-disabled-reason-box').style.display = 'block';
+  }
+
+  if (isRecycleBin && data.purge_at) {
+    const daysLeft = Math.max(0, Math.ceil((new Date(data.purge_at) - new Date()) / 86400000));
+    document.getElementById('seller-recycle-days').textContent =
+      daysLeft > 0 ? `Permanent deletion in ${daysLeft} day${daysLeft !== 1 ? 's' : ''}` : 'Deletion imminent — contact admin now';
+    document.getElementById('seller-recycle-extra').style.display = 'block';
+  }
+
+  document.getElementById('seller-disabled-view').style.display = 'block';
+}
+
+/* ════════════════════════════════════════════════════
+   RENDER LISTING
+════════════════════════════════════════════════════ */
+function handleBuyerThread(data) {
+  buyerToken = getBuyerToken();
+  if (buyerToken) {
+    getSavedBuyerInfo();
+    document.getElementById('enquiry-form').style.display = 'none';
+    showThread();
+  } else {
+    document.getElementById('enq-message').value =
+      `Hello, I'm interested in "${data.title}". Is it still available?`;
+  }
+}
+
+function renderListing(l) {
+  document.title = `${l.title} — NyumbaKisumu`;
+  document.querySelector('meta[name="description"]').setAttribute('content',
+    `${l.title} in ${l.area}, Kisumu. ${l.price_type==='rent'?'KES '+Number(l.price).toLocaleString()+'/month rent':'For sale at KES '+Number(l.price).toLocaleString()}. Contact seller on NyumbaKisumu.`);
+
+  document.getElementById('breadcrumb-area').textContent = l.area;
+
+  photos = (l.listing_photos || []).sort((a,b) => a.position - b.position);
+  const cover = photos.find(p=>p.is_cover) || photos[0];
+  currentPhoto = cover ? Math.max(0, photos.indexOf(cover)) : 0;
+  renderGallery();
+
+  if (l.is_featured) document.getElementById('featured-badge').style.display = 'flex';
+
+  const catLabel = l.category.charAt(0).toUpperCase() + l.category.slice(1);
+  document.getElementById('listing-badges').innerHTML = `
+    <span class="badge ${l.category}">${catLabel}</span>
+    <span class="badge ${l.price_type}">${l.price_type==='sale'?'For sale':'To let / rent'}</span>
+    ${l.furnished?'<span class="badge standard">Furnished</span>':''}
+  `;
+
+  document.getElementById('listing-title').textContent = l.title;
+  document.getElementById('listing-loc-text').textContent =
+    `${l.area}${l.sub_area?', '+l.sub_area:''}${l.address?' — '+l.address:''}`;
+
+  document.getElementById('listing-price').innerHTML =
+    `KES ${Number(l.price).toLocaleString('en-KE')}${l.price_type==='rent'?'<span>/month</span>':''}`;
+  document.getElementById('listing-price-meta').textContent =
+    l.price_type==='rent'?'Monthly rent — negotiable':'Asking price — negotiable';
+  /* Views shown as loading until trackView() resolves */
+  document.getElementById('listing-views').textContent = `${l.views||0} views`;
+
+  const specs = [];
+  if (l.bedrooms !== null) specs.push({ icon:bedIcon, val:l.bedrooms==0?'Studio':l.bedrooms, lbl:l.bedrooms==0?'Bedsitter':'Bedrooms' });
+  if (l.bathrooms)  specs.push({ icon:bathIcon, val:l.bathrooms, lbl:'Bathrooms' });
+  if (l.size_sqm)   specs.push({ icon:sizeIcon, val:l.size_sqm+'m²', lbl:'Floor area' });
+  specs.push({ icon:furnIcon, val:l.furnished?'Yes':'No', lbl:'Furnished' });
+  specs.push({ icon:typeIcon, val:l.price_type==='rent'?'Rent':'Sale', lbl:'Listing type' });
+  specs.push({ icon:catIcon,  val:catLabel, lbl:'Category' });
+  document.getElementById('specs-grid').innerHTML = specs.map(s=>`
+    <div class="spec-item">
+      <div class="spec-icon">${s.icon}</div>
+      <div class="spec-val">${s.val}</div>
+      <div class="spec-lbl">${s.lbl}</div>
+    </div>`).join('');
+
+  if (l.description) {
+    document.getElementById('desc-card').style.display = 'block';
+    document.getElementById('desc-text').textContent = l.description;
+  }
+
+  /* Seller card */
+  const profile = l.profiles || {};
+  const name = profile.full_name || 'Seller';
+  const initials = name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
+  document.getElementById('seller-avatar').textContent = initials;
+  document.getElementById('seller-name').textContent = name;
+  document.getElementById('seller-since').textContent = profile.created_at
+    ? `Member since ${new Date(profile.created_at).toLocaleDateString('en-KE',{month:'long',year:'numeric'})}`
+    : '';
+
+  const phone    = profile.phone || '';
+  const cleanPhone = phone.replace(/\s/g,'');
+  const wa254    = cleanPhone.startsWith('0') ? '254'+cleanPhone.slice(1) : cleanPhone;
+  const waMsg    = encodeURIComponent(`Hello, I saw your listing "${l.title}" on NyumbaKisumu and I'm interested. Is it still available?`);
+  document.getElementById('btn-call').href = `tel:${cleanPhone}`;
+  document.getElementById('btn-call').innerHTML =
+    `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="white" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.12 1.2 2 2 0 012.11 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg> Call ${phone||'seller'}`;
+  document.getElementById('btn-whatsapp').href = `https://wa.me/${wa254}?text=${waMsg}`;
+
+  document.getElementById('skeleton-wrap').style.display = 'none';
+  document.getElementById('listing-content').style.display = 'block';
+}
+
+/* ════════════════════════════════════════════════════
+   LIVE MAP — Google Maps embed
+   Uses the free embed URL (no API key required).
+   Builds a search query from area + sub_area + address
+   so the map centres on the right neighbourhood.
+════════════════════════════════════════════════════ */
+function renderLiveMap(l) {
+  /* Build human-readable location query */
+  const parts = [l.area];
+  if (l.sub_area) parts.push(l.sub_area);
+  parts.push('Kisumu', 'Kenya');
+  const query = parts.join(', ');
+
+  /* Update header text and "Open in Maps" link */
+  document.getElementById('map-sub').textContent = query;
+  const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+  document.getElementById('map-open-link').href = mapsUrl;
+
+  /* Build the embed iframe.
+     The embed URL https://maps.google.com/maps?q=...&output=embed
+     works without an API key for basic map display. */
+  const embedUrl = `https://maps.google.com/maps?q=${encodeURIComponent(query)}&z=15&output=embed&hl=en`;
+
+  const iframe = document.createElement('iframe');
+  iframe.src = embedUrl;
+  iframe.width = '100%';
+  iframe.height = '100%';
+  iframe.style.border = 'none';
+  iframe.style.position = 'absolute';
+  iframe.style.top = '0';
+  iframe.style.left = '0';
+  iframe.loading = 'lazy';
+  iframe.referrerpolicy = 'no-referrer-when-downgrade';
+  iframe.title = `Map showing ${query}`;
+  iframe.allow = 'fullscreen';
+
+  /* Hide the loading placeholder once the iframe fires load */
+  iframe.addEventListener('load', () => {
+    const loader = document.getElementById('map-loading');
+    if (loader) loader.classList.add('hidden');
+  });
+
+  document.getElementById('map-iframe-container').appendChild(iframe);
+}
+
+/* ════════════════════════════════════════════════════
+   GALLERY
+════════════════════════════════════════════════════ */
+function renderGallery() {
+  const img      = document.getElementById('gallery-img');
+  const noPhoto  = document.getElementById('gallery-no-photo');
+  const thumbWrap= document.getElementById('gallery-thumbs');
+  const counter  = document.getElementById('gallery-counter');
+  const prevBtn  = document.getElementById('prev-btn');
+  const nextBtn  = document.getElementById('next-btn');
+
+  if (!photos.length) { noPhoto.style.display='flex'; img.style.display='none'; return; }
+
+  noPhoto.style.display = 'none';
+  img.style.display = 'block';
+  img.src = photos[currentPhoto].url;
+  img.alt = listing?.title || 'Apartment photo';
+
+  if (photos.length > 1) {
+    counter.style.display = 'block';
+    counter.textContent   = `${currentPhoto+1} / ${photos.length}`;
+    prevBtn.style.display = 'flex';
+    nextBtn.style.display = 'flex';
+    thumbWrap.style.display = 'flex';
+    thumbWrap.innerHTML = photos.map((p,i) => `
+      <div class="gallery-thumb ${i===currentPhoto?'active':''}" onclick="goPhoto(${i})">
+        <img src="${p.url}" alt="Photo ${i+1}" loading="lazy"/>
+      </div>`).join('');
+  }
+}
+
+function changePhoto(dir) { currentPhoto=(currentPhoto+dir+photos.length)%photos.length; renderGallery(); if (document.getElementById('nk-lightbox').classList.contains('open')) renderLightbox(); }
+function goPhoto(i) { currentPhoto=i; renderGallery(); }
+document.addEventListener('keydown', e => {
+  const lbOpen = document.getElementById('nk-lightbox').classList.contains('open');
+  if (lbOpen) {
+    if (e.key==='ArrowLeft')  lightboxChange(-1);
+    if (e.key==='ArrowRight') lightboxChange(1);
+    if (e.key==='Escape')     closeLightbox();
+    return;
+  }
+  if (e.key==='ArrowLeft')  changePhoto(-1);
+  if (e.key==='ArrowRight') changePhoto(1);
+});
+
+/* ════════════════════════════════════════════════════
+   FULL-SCREEN PHOTO LIGHTBOX
+   Opens on click of the main gallery image, showing the
+   photo at full resolution with prev/next navigation that
+   stays in sync with the gallery's current photo index.
+════════════════════════════════════════════════════ */
+function openLightbox() {
+  if (!photos.length) return;
+  renderLightbox();
+  document.getElementById('nk-lightbox').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox() {
+  document.getElementById('nk-lightbox').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function nkLightboxBackdropClick(e) {
+  // Only close when clicking the dark backdrop itself, not the image or controls
+  if (e.target.id === 'nk-lightbox' || e.target.id === 'nk-lightbox-img-wrap') closeLightbox();
+}
+
+function lightboxChange(dir) {
+  currentPhoto = (currentPhoto + dir + photos.length) % photos.length;
+  renderLightbox();
+  renderGallery(); // keep thumbnail strip in sync
+}
+
+function renderLightbox() {
+  const img = document.getElementById('nk-lightbox-img');
+  img.src = photos[currentPhoto].url;
+  img.alt = listing?.title || 'Apartment photo';
+  const multi = photos.length > 1;
+  document.getElementById('nk-lb-prev').style.display = multi ? 'flex' : 'none';
+  document.getElementById('nk-lb-next').style.display = multi ? 'flex' : 'none';
+  const counter = document.getElementById('nk-lightbox-counter');
+  counter.style.display = multi ? 'block' : 'none';
+  counter.textContent = `${currentPhoto+1} / ${photos.length}`;
+}
+
+let descExpanded = false;
+function toggleDesc() {
+  descExpanded = !descExpanded;
+  document.getElementById('desc-text').classList.toggle('collapsed', !descExpanded);
+  document.getElementById('read-more').textContent = descExpanded ? 'Show less ↑' : 'Read more ↓';
+}
+
+/* ════════════════════════════════════════════════════
+   SIMILAR LISTINGS
+════════════════════════════════════════════════════ */
+async function loadSimilar(area, excludeId) {
+  const { data } = await db
+    .from('listings')
+    .select('*, listing_photos(*)')
+    .eq('status', 'active')
+    .eq('is_disabled', false)
+    .eq('recycle_bin', false)
+    .eq('area', area)
+    .neq('id', excludeId)
+    .limit(3);
+
+  const grid = document.getElementById('similar-grid');
+  if (!data?.length) {
+    grid.innerHTML = '<p style="font-size:13px;color:var(--text-3);grid-column:1/-1">No similar listings in this area yet.</p>';
+    return;
+  }
+  grid.innerHTML = data.map(l => {
+    const cover = (l.listing_photos||[]).find(p=>p.is_cover)||(l.listing_photos||[])[0];
+    return `<div class="similar-card" onclick="window.location='listing.html?id=${l.id}'">
+      <div class="similar-img">${cover?`<img src="${cover.url}" alt="${escHtml(l.title)}" loading="lazy"/>`:''}</div>
+      <div class="similar-body">
+        <div class="similar-area">${escHtml(l.area)}</div>
+        <div class="similar-title">${escHtml(l.title)}</div>
+        <div class="similar-price">KES ${Number(l.price).toLocaleString('en-KE')}${l.price_type==='rent'?'<span style="font-size:12px;font-weight:400;color:var(--text-3)">/mo</span>':''}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ════════════════════════════════════════════════════
+   ENQUIRY / MESSAGING
+════════════════════════════════════════════════════ */
+async function sendEnquiry() {
+  const name    = document.getElementById('enq-name').value.trim();
+  const phone   = document.getElementById('enq-phone').value.trim();
+  const email   = document.getElementById('enq-email').value.trim();
+  const message = document.getElementById('enq-message').value.trim();
+  let ok = true;
+
+  ['enq-name','enq-phone','enq-message'].forEach(id => document.getElementById(id).classList.remove('error'));
+  ['err-enq-name','err-enq-phone','err-enq-msg'].forEach(id => document.getElementById(id).classList.remove('show'));
+
+  if (!name)    { document.getElementById('enq-name').classList.add('error');    document.getElementById('err-enq-name').classList.add('show');  ok=false; }
+  if (!phone || phone.replace(/\s/g,'').length < 9) { document.getElementById('enq-phone').classList.add('error'); document.getElementById('err-enq-phone').classList.add('show'); ok=false; }
+  if (!message) { document.getElementById('enq-message').classList.add('error'); document.getElementById('err-enq-msg').classList.add('show');   ok=false; }
+  if (!ok) return;
+
+  const btn = document.getElementById('btn-enquire');
+  btn.disabled = true; btn.classList.add('loading');
+
+  const token = (crypto.randomUUID ? crypto.randomUUID() : Date.now()+'-'+Math.random().toString(36).slice(2));
+  buyerToken = token; buyerName = name; buyerPhone = phone;
+
+  await db.from('enquiries').insert({
+    listing_id: listingId, buyer_name: name, buyer_phone: phone,
+    buyer_email: email||null, buyer_token: token, message
+  });
+
+  const { error: msgErr } = await db.from('messages').insert({
+    listing_id: listingId, buyer_token: token, buyer_name: name,
+    buyer_phone: phone, sender: 'buyer', content: message
+  });
+
+  btn.disabled = false; btn.classList.remove('loading');
+  if (msgErr) { alert('Something went wrong. Please try calling the seller directly.'); return; }
+
+  setBuyerToken(token);
+
+  /* ★ Track this contact so we can prompt for a review later, once the
+     buyer has had a realistic chance to actually secure the property. */
+  nkTrackContact(listingId, listing?.seller_id, listing?.profiles?.full_name || 'the seller');
+
+  document.getElementById('enquiry-form').style.display   = 'none';
+  document.getElementById('enquiry-success').style.display = 'block';
+}
+
+async function showThread() {
+  document.getElementById('enquiry-form').style.display    = 'none';
+  document.getElementById('enquiry-success').style.display = 'none';
+  document.getElementById('thread-section').style.display  = 'block';
+
+  const waNote = document.getElementById('chat-wa-note');
+  if (buyerPhone) {
+    waNote.innerHTML = `<svg viewBox="0 0 24 24" width="12" height="12" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/></svg>
+    Seller replies are saved here and may also reach you via WhatsApp.`;
+  } else {
+    waNote.innerHTML = 'Revisit this page anytime to check for replies from the seller.';
+  }
+  await loadThread();
+}
+
+async function loadThread() {
+  if (!buyerToken) return;
+  const { data } = await db
+    .from('messages')
+    .select('*')
+    .eq('listing_id', listingId)
+    .eq('buyer_token', buyerToken)
+    .order('created_at', { ascending: true });
+  threadMessages = data || [];
+  renderThread();
+}
+
+function renderThread() {
+  const box = document.getElementById('chat-messages-box');
+  if (!threadMessages.length) {
+    box.innerHTML = '<div style="text-align:center;font-size:12px;color:var(--text-3);padding:16px">No messages yet</div>';
+    return;
+  }
+  const sellerName = listing?.profiles?.full_name || 'Seller';
+  const sellerInit = sellerName.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase() || 'S';
+  const buyerInit  = buyerName.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase() || 'B';
+  let lastDate = '';
+  box.innerHTML = threadMessages.map(m => {
+    const isSeller = m.sender === 'seller';
+    const d = new Date(m.created_at);
+    const dateStr = d.toLocaleDateString('en-KE',{weekday:'short',day:'numeric',month:'short'});
+    const timeStr = d.toLocaleTimeString('en-KE',{hour:'2-digit',minute:'2-digit'});
+    const sep = dateStr !== lastDate ? `<div class="chat-date-sep">${dateStr}</div>` : '';
+    lastDate = dateStr;
+    const init   = isSeller ? sellerInit : buyerInit;
+    const avCls  = isSeller ? 'seller-av' : 'buyer-av';
+    const bubCls = isSeller ? 'seller-b'  : 'buyer-b';
+    const rowCls = isSeller ? 'seller-row-msg' : '';
+    return `${sep}
+      <div class="chat-bubble-row ${rowCls}">
+        <div class="bubble-av ${avCls}">${init}</div>
+        <div>
+          <div class="chat-bubble ${bubCls}">${escHtml(m.content||m.message||'')}</div>
+          <div class="bubble-time">${timeStr}${isSeller?' · Seller':''}</div>
+        </div>
+      </div>`;
+  }).join('');
+  box.scrollTop = box.scrollHeight;
+}
+
+async function sendFollowUp() {
+  const input = document.getElementById('chat-follow-input');
+  const text  = input.value.trim();
+  if (!text || !buyerToken) return;
+  const btn = document.getElementById('chat-follow-send');
+  btn.disabled = true;
+  const { data, error } = await db.from('messages').insert({
+    listing_id: listingId, buyer_token: buyerToken,
+    buyer_name: buyerName, buyer_phone: buyerPhone||null,
+    sender: 'buyer', content: text
+  }).select().single();
+  btn.disabled = false;
+  if (error) { alert('Could not send message. Please try again.'); return; }
+  threadMessages.push(data || { sender:'buyer', content:text, created_at:new Date().toISOString() });
+  input.value = ''; input.style.height = 'auto';
+  renderThread();
+}
+
+function clearThread() {
+  if (!confirm('This will clear your conversation history from this device. The seller will still have the messages. Continue?')) return;
+  localStorage.removeItem('nk_buyer_' + listingId);
+  localStorage.removeItem('nk_buyer_name_' + listingId);
+  localStorage.removeItem('nk_buyer_phone_' + listingId);
+  buyerToken = null; buyerName = ''; buyerPhone = '';
+  document.getElementById('thread-section').style.display  = 'none';
+  document.getElementById('enquiry-success').style.display = 'none';
+  document.getElementById('enquiry-form').style.display    = 'block';
+  document.getElementById('enq-message').value = `Hello, I'm interested in "${listing?.title}". Is it still available?`;
+}
+
+function handleFollowKeydown(e) { if (e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendFollowUp(); } }
+function autoResizeTa(el) { el.style.height='auto'; el.style.height=Math.min(el.scrollHeight,100)+'px'; }
+
+/* Share */
+function shareWhatsApp() {
+  const url   = window.location.href;
+  const title = listing?.title || 'Apartment listing';
+  const price = listing ? `KES ${Number(listing.price).toLocaleString('en-KE')}${listing.price_type==='rent'?'/month':''}` : '';
+  window.open(`https://wa.me/?text=${encodeURIComponent(`🏠 *${title}*\n📍 ${listing?.area||''}, Kisumu\n💰 ${price}\n\nView on NyumbaKisumu: ${url}`)}`, '_blank');
+}
+
+function copyLink() {
+  navigator.clipboard.writeText(window.location.href).then(() => {
+    const btn = event.target.closest('.action-pill');
+    const orig = btn.innerHTML;
+    btn.innerHTML = `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Copied!`;
+    btn.style.borderColor='var(--green)'; btn.style.color='var(--green)';
+    setTimeout(() => { btn.innerHTML=orig; btn.style.borderColor=''; btn.style.color=''; }, 2000);
+  });
+}
+
+/* Utils */
+function escHtml(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* SVG icons */
+const bedIcon  = `<svg viewBox="0 0 24 24"><path d="M2 4v16M22 4v16M2 12h20M2 8h4a2 2 0 012 2v2H2V8zM16 8h4a2 2 0 012 2v2h-6V8z"/></svg>`;
+const bathIcon = `<svg viewBox="0 0 24 24"><path d="M9 6l1-1a2 2 0 012.83 0l6.17 6.17a1 1 0 010 1.41L17 14M3 20h18M5 20v-4a3 3 0 013-3h1"/></svg>`;
+const sizeIcon = `<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="1"/><path d="M3 9h18M9 21V9"/></svg>`;
+const furnIcon = `<svg viewBox="0 0 24 24"><rect x="2" y="8" width="20" height="10" rx="2"/><path d="M6 8V6a2 2 0 012-2h8a2 2 0 012 2v2"/><line x1="6" y1="14" x2="6" y2="18"/><line x1="18" y1="14" x2="18" y2="18"/></svg>`;
+const typeIcon = `<svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`;
+const catIcon  = `<svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
+
+/* Page view tracking */
+(function() {
+  let sid = localStorage.getItem('nk_sid');
+  if (!sid) { sid=(crypto.randomUUID?crypto.randomUUID():Date.now()+'-'+Math.random().toString(36).slice(2)); localStorage.setItem('nk_sid',sid); }
+  db.from('page_views').insert({ path:location.pathname, referrer:document.referrer||null, user_agent:navigator.userAgent, session_id:sid });
+})();
+
+/* Mobile menu */
+function toggleMobileMenu() { document.getElementById('mobile-nav').classList.toggle('open'); }
+document.addEventListener('click', e => {
+  const nav = document.getElementById('mobile-nav');
+  const btn = document.querySelector('.mobile-menu-btn');
+  if (nav && nav.classList.contains('open') && !nav.contains(e.target) && !btn.contains(e.target)) nav.classList.remove('open');
+});
+
+/* Nav: Sign in → My Account when logged in */
+(async function () {
+  const { data: { session } } = await db.auth.getSession();
+  if (!session) return;
+  const d = document.getElementById('nav-account-link');
+  const m = document.getElementById('mobile-account-link');
+  if (d) { d.textContent='My Account'; d.href='dashboard.html'; d.style.fontWeight='600'; d.style.color='var(--green)'; }
+  if (m) { m.textContent='My Account'; m.href='dashboard.html'; }
+})();
+
+/* ════════════════════════════════════════════════════
+   REVIEWS & REPORTS
+   ════════════════════════════════════════════════════
+   - nkTrackContact()      → called from sendEnquiry() once a buyer messages a seller
+   - nkCheckReviewPrompt() → called on page load; shows the "did you secure this
+                             property?" banner if this buyer contacted a seller
+                             (on any listing) and hasn't been asked yet
+   - loadSellerReviewStats() → shows ★ average + review count next to the seller
+════════════════════════════════════════════════════ */
+const NK_REVIEW_PENDING_KEY  = 'nk_pending_reviews';
+const NK_PLATFORM_REVIEW_KEY = 'nk_platform_review_done';
+let nkCurrentPendingEntry = null;
+let nkSellerStarRating    = 0;
+let nkPlatformStarRating  = 0;
+let nkReportTargetType    = 'listing';
+let nkReportTargetId      = null;
+
+function nkTrackContact(lId, sellerId, sellerName) {
+  if (!lId) return;
+  const pending = JSON.parse(localStorage.getItem(NK_REVIEW_PENDING_KEY) || '[]');
+  if (!pending.some(p => p.listingId === lId)) {
+    pending.push({ listingId: lId, sellerId, sellerName, contactedAt: Date.now(), snoozedUntil: 0, done: false });
+    localStorage.setItem(NK_REVIEW_PENDING_KEY, JSON.stringify(pending));
+  }
+}
+
+function nkCheckReviewPrompt(currentListingId) {
+  const pending = JSON.parse(localStorage.getItem(NK_REVIEW_PENDING_KEY) || '[]');
+  const now = Date.now();
+  let entry = pending.find(p => !p.done && p.listingId === currentListingId && now > p.snoozedUntil);
+  if (!entry) entry = pending.find(p => !p.done && now > p.snoozedUntil);
+  if (!entry) return;
+  nkCurrentPendingEntry = entry;
+  document.getElementById('nk-review-banner').classList.add('show');
+}
+
+function nkSavePending(pending) { localStorage.setItem(NK_REVIEW_PENDING_KEY, JSON.stringify(pending)); }
+function nkDismissBanner() { document.getElementById('nk-review-banner').classList.remove('show'); }
+
+function nkBannerYes() {
+  document.getElementById('nk-review-banner').classList.remove('show');
+  document.getElementById('nk-review-seller-name').textContent = nkCurrentPendingEntry.sellerName || 'the seller';
+  nkRenderStars('nk-seller-stars', 'seller');
+  const nameInput = document.getElementById('nk-seller-review-name');
+  nameInput.value = buyerName || '';
+  nameInput.disabled = false;
+  document.getElementById('nk-seller-review-anon').checked = false;
+  document.getElementById('nk-seller-review-modal').classList.add('open');
+}
+
+function nkBannerNotYet() {
+  const pending = JSON.parse(localStorage.getItem(NK_REVIEW_PENDING_KEY) || '[]');
+  const e = pending.find(p => p.listingId === nkCurrentPendingEntry.listingId);
+  if (e) e.snoozedUntil = Date.now() + 3 * 24 * 60 * 60 * 1000; // ask again in 3 days
+  nkSavePending(pending);
+  nkDismissBanner();
+}
+
+function nkBannerNo() {
+  const pending = JSON.parse(localStorage.getItem(NK_REVIEW_PENDING_KEY) || '[]');
+  const e = pending.find(p => p.listingId === nkCurrentPendingEntry.listingId);
+  if (e) e.done = true; // no transaction happened — stop asking about this one
+  nkSavePending(pending);
+  nkDismissBanner();
+}
+
+function nkRenderStars(containerId, kind) {
+  const el = document.getElementById(containerId);
+  el.innerHTML = [1,2,3,4,5].map(n =>
+    `<svg class="nk-star" data-n="${n}" viewBox="0 0 24 24" onclick="nkSetStar('${kind}',${n})"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`
+  ).join('');
+}
+
+function nkSetStar(kind, n) {
+  if (kind === 'seller') nkSellerStarRating = n; else nkPlatformStarRating = n;
+  const container = document.getElementById(kind === 'seller' ? 'nk-seller-stars' : 'nk-platform-stars');
+  [...container.children].forEach((star, i) => star.classList.toggle('filled', i < n));
+}
+function nkToggleAnon(kind) {
+  const nameInput = document.getElementById(`nk-${kind}-review-name`);
+  const anonBox   = document.getElementById(`nk-${kind}-review-anon`);
+  if (anonBox.checked) {
+    nameInput.dataset.savedValue = nameInput.value;
+    nameInput.value = '';
+    nameInput.disabled = true;
+  } else {
+    nameInput.disabled = false;
+    nameInput.value = nameInput.dataset.savedValue || buyerName || '';
+  }
+}
+
+function nkCloseReviewModal(id) {
+  document.getElementById(id).classList.remove('open');
+  if (id === 'nk-seller-review-modal') nkMaybePromptPlatformReview();
+}
+
+async function nkSubmitSellerReview() {
+  if (!nkSellerStarRating) { alert('Please pick a star rating'); return; }
+  const comment    = document.getElementById('nk-seller-review-text').value.trim();
+  const isAnon     = document.getElementById('nk-seller-review-anon').checked;
+  const typedName  = document.getElementById('nk-seller-review-name').value.trim();
+  const reviewerName = isAnon ? null : (typedName || buyerName || null);
+
+  await db.from('reviews').insert({
+    review_type: 'seller',
+    target_seller_id: nkCurrentPendingEntry.sellerId,
+    listing_id: nkCurrentPendingEntry.listingId,
+    reviewer_role: 'buyer',
+    reviewer_name: reviewerName,
+    is_anonymous: isAnon,
+    rating: nkSellerStarRating,
+    comment: comment || null,
+  });
+
+  const pending = JSON.parse(localStorage.getItem(NK_REVIEW_PENDING_KEY) || '[]');
+  const e = pending.find(p => p.listingId === nkCurrentPendingEntry.listingId);
+  if (e) e.done = true;
+  nkSavePending(pending);
+
+  document.getElementById('nk-seller-review-modal').classList.remove('open');
+  document.getElementById('nk-seller-review-text').value = '';
+  document.getElementById('nk-seller-review-name').value = '';
+  document.getElementById('nk-seller-review-name').disabled = false;
+  document.getElementById('nk-seller-review-anon').checked = false;
+  nkSellerStarRating = 0;
+  loadSellerReviewStats(nkCurrentPendingEntry.sellerId); // refresh the visible average immediately
+  nkMaybePromptPlatformReview();
+}
+
+function nkMaybePromptPlatformReview() {
+  if (localStorage.getItem(NK_PLATFORM_REVIEW_KEY)) return; // ask at most once, ever
+  nkPlatformStarRating = 0;
+  nkRenderStars('nk-platform-stars', 'platform');
+  const nameInput = document.getElementById('nk-platform-review-name');
+  nameInput.value = buyerName || '';
+  nameInput.disabled = false;
+  document.getElementById('nk-platform-review-anon').checked = false;
+  setTimeout(() => document.getElementById('nk-platform-review-modal').classList.add('open'), 400);
+}
+
+async function nkSubmitPlatformReview() {
+  if (!nkPlatformStarRating) { alert('Please pick a star rating'); return; }
+  const comment    = document.getElementById('nk-platform-review-text').value.trim();
+  const isAnon     = document.getElementById('nk-platform-review-anon').checked;
+  const typedName  = document.getElementById('nk-platform-review-name').value.trim();
+  const reviewerName = isAnon ? null : (typedName || buyerName || null);
+
+  await db.from('reviews').insert({
+    review_type: 'platform',
+    reviewer_role: 'buyer',
+    reviewer_name: reviewerName,
+    is_anonymous: isAnon,
+    rating: nkPlatformStarRating,
+    comment: comment || null,
+  });
+
+  localStorage.setItem(NK_PLATFORM_REVIEW_KEY, '1');
+  document.getElementById('nk-platform-review-modal').classList.remove('open');
+  document.getElementById('nk-platform-review-text').value = '';
+  document.getElementById('nk-platform-review-name').value = '';
+  document.getElementById('nk-platform-review-name').disabled = false;
+  document.getElementById('nk-platform-review-anon').checked = false;
+}
+
+/* ── Report a listing ── */
+function nkOpenReportModal(targetType, targetId) {
+  nkReportTargetType = targetType || 'listing';
+  nkReportTargetId   = targetId || null;
+  document.getElementById('nk-report-modal').classList.add('open');
+}
+
+function nkCloseReportModal() {
+  document.getElementById('nk-report-modal').classList.remove('open');
+}
+
+async function nkSubmitReport() {
+  const reason  = document.getElementById('nk-report-reason').value;
+  const details = document.getElementById('nk-report-details').value.trim();
+  if (!reason) { alert('Please select a reason'); return; }
+
+  await db.from('reports').insert({
+    target_type: nkReportTargetType,
+    target_id: nkReportTargetId,
+    reason,
+    details: details || null,
+  });
+
+  document.getElementById('nk-report-modal').classList.remove('open');
+  document.getElementById('nk-report-reason').value = '';
+  document.getElementById('nk-report-details').value = '';
+
+  if (nkReportTargetType === 'listing' && nkReportTargetId) {
+    nkMarkListingReported(nkReportTargetId);
+  }
+
+  alert("Thanks — we've received your report. Our team reviews every one, and impostor or scam accounts get suspended immediately once confirmed.");
+}
+
+/* ── Remembers which listings this browser has already reported, so the
+   button gives clear feedback instead of inviting repeat spam-clicking. ── */
+function nkMarkListingReported(lId) {
+  const key = 'nk_reported_listings';
+  const reported = JSON.parse(localStorage.getItem(key) || '[]');
+  if (!reported.includes(lId)) { reported.push(lId); localStorage.setItem(key, JSON.stringify(reported)); }
+  nkUpdateReportButtonState(lId);
+}
+
+function nkUpdateReportButtonState(lId) {
+  const reported = JSON.parse(localStorage.getItem('nk_reported_listings') || '[]');
+  const btn = document.getElementById('report-scam-btn');
+  if (!btn) return;
+  if (reported.includes(lId)) {
+    btn.classList.add('reported');
+    btn.innerHTML = `<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Reported — thank you`;
+    btn.onclick = () => { if (confirm('You already reported this listing. Submit another report anyway?')) nkOpenReportModal('listing', lId); };
+  }
+}
+
+/* ── Seller rating summary shown in the contact card ── */
+async function loadSellerReviewStats(sellerId) {
+  if (!sellerId) return;
+  const { data, error } = await db
+    .from('reviews')
+    .select('rating')
+    .eq('review_type', 'seller')
+    .eq('target_seller_id', sellerId)
+    .eq('status', 'published');
+
+  const wrap = document.getElementById('seller-rating');
+  if (error || !data || !data.length) { wrap.style.display = 'none'; return; }
+
+  const avg = data.reduce((s,r) => s + r.rating, 0) / data.length;
+  const rounded = Math.round(avg * 10) / 10;
+  const fullStars = Math.round(avg);
+
+  wrap.innerHTML = `
+    <span style="display:inline-flex;gap:1px;vertical-align:middle">${[1,2,3,4,5].map(n => `
+      <svg viewBox="0 0 24 24" width="13" height="13" style="${n<=fullStars?'fill:var(--gold);stroke:var(--gold)':'fill:none;stroke:var(--border)'};stroke-width:1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`).join('')}</span>
+    <span style="font-size:12px;color:var(--text-2);font-weight:600;margin-left:4px">${rounded}</span>
+    <span style="font-size:11px;color:var(--text-3)">(${data.length} review${data.length!==1?'s':''})</span>`;
+  wrap.style.display = 'flex';
+  wrap.style.alignItems = 'center';
+}
+
+/* Boot */
+loadListing();
 </script>
+
+<!-- Saved listings heart button -->
+<script src="saved-listings.js"></script>
+<script>
+  NKSaved.init().then(() => {
+    const lid = new URLSearchParams(location.search).get('id');
+    if (!lid) return;
+    const btn = document.createElement('div');
+    btn.style.cssText = 'position:absolute;top:14px;right:14px;z-index:3';
+    btn.innerHTML = NKSaved.buildHeartBtn(lid);
+    document.querySelector('.gallery-main')?.appendChild(btn);
+  });
+</script>
+<script src="listing-chat-realtime.js"></script>
+
+<!-- Live Chat Widget — paste your nk-chat widget block here -->
 
 </body>
 </html>
