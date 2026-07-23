@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Browse Listings — NyumbaKisumu</title>
-  <meta name="description" content="Browse apartments for sale and rent in Kisumu, Maseno, and Luanda. Filter by area, price, bedrooms and more."/>
+  <title>Browse Listings — Nyumba254</title>
+  <meta name="description" content="Browse apartments for sale and rent across Kenya. Filter by county, area, price, bedrooms and more."/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -111,6 +111,14 @@
     .check-item input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--green); cursor: pointer; }
     .check-item label { font-size: 13px; color: var(--text-2); cursor: pointer; flex: 1; }
     .check-item .check-count { font-size: 12px; color: var(--text-3); }
+
+    /* County select in sidebar */
+    .county-select {
+      width: 100%; padding: 9px 12px; border: 1.5px solid var(--border); border-radius: var(--radius);
+      font-size: 13px; color: var(--text); background: white; outline: none; cursor: pointer; margin-bottom: 10px;
+    }
+    .county-select:focus { border-color: var(--green); }
+    .area-hint { font-size: 12px; color: var(--text-3); }
 
     /* Range inputs */
     .range-row { display: flex; gap: 8px; align-items: center; }
@@ -259,7 +267,7 @@
     <div class="logo-icon">
       <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
     </div>
-    NyumbaKisumu
+    Nyumba254
   </a>
   <div class="nav-links">
     <a href="listings.html" class="nav-link" style="color:var(--green);font-weight:500">Browse</a>
@@ -297,9 +305,9 @@
 <!-- ── PAGE HEADER ── -->
 <div class="page-header">
   <h1 id="page-title">Browse listings</h1>
-  <p id="page-desc">Apartments, shops, and offices for sale and rent across Kisumu, Maseno, and Luanda</p>
+  <p id="page-desc">Apartments, shops, and offices for sale and rent across Kenya</p>
   <div class="header-search">
-    <input type="text" id="search-q" placeholder="Search by keyword, area, or street name…"/>
+    <input type="text" id="search-q" placeholder="Search by keyword, area, or price (e.g. 7000)…" oninput="nkFormatSearchInput(this)" onkeydown="if(event.key==='Enter'){event.preventDefault();applyFilters();}"/>
     <button onclick="applyFilters()">Search</button>
   </div>
 </div>
@@ -339,38 +347,17 @@
       </div>
     </div>
 
-    <!-- Area -->
+    <!-- County & Area -->
     <div class="filter-section">
-      <span class="filter-label">Area</span>
+      <span class="filter-label">County & area</span>
+      <select class="county-select" id="county-select" onchange="handleCountyFilterChange()">
+        <option value="">All counties</option>
+      </select>
       <div id="area-checks">
-      <div class="check-list" id="area-checks-visible">
-        <label class="check-item"><input type="checkbox" value="Milimani" onchange="applyFilters()"/><label>Milimani</label></label>
-        <label class="check-item"><input type="checkbox" value="Kisumu CBD" onchange="applyFilters()"/><label>Kisumu CBD</label></label>
-        <label class="check-item"><input type="checkbox" value="Kondele" onchange="applyFilters()"/><label>Kondele</label></label>
-        <label class="check-item"><input type="checkbox" value="Riat Hills" onchange="applyFilters()"/><label>Riat Hills</label></label>
-        <label class="check-item"><input type="checkbox" value="Mamboleo" onchange="applyFilters()"/><label>Mamboleo</label></label>
-        <label class="check-item"><input type="checkbox" value="Maseno" onchange="applyFilters()"/><label>Maseno</label></label>
-        <label class="check-item"><input type="checkbox" value="Luanda" onchange="applyFilters()"/><label>Luanda</label></label>
-        <label class="check-item"><input type="checkbox" value="Ahero" onchange="applyFilters()"/><label>Ahero</label></label>
-      </div>
-      <div class="check-list" id="area-checks-more" style="display:none; margin-top:6px">
-        <label class="check-item"><input type="checkbox" value="Car Wash" onchange="applyFilters()"/><label>Car Wash</label></label>
-        <label class="check-item"><input type="checkbox" value="Dunga" onchange="applyFilters()"/><label>Dunga</label></label>
-        <label class="check-item"><input type="checkbox" value="Elgon View" onchange="applyFilters()"/><label>Elgon View</label></label>
-        <label class="check-item"><input type="checkbox" value="Kanyakwar" onchange="applyFilters()"/><label>Kanyakwar</label></label>
-        <label class="check-item"><input type="checkbox" value="Kibos" onchange="applyFilters()"/><label>Kibos</label></label>
-        <label class="check-item"><input type="checkbox" value="Kibuye" onchange="applyFilters()"/><label>Kibuye</label></label>
-        <label class="check-item"><input type="checkbox" value="Kombewa" onchange="applyFilters()"/><label>Kombewa</label></label>
-        <label class="check-item"><input type="checkbox" value="Manyatta" onchange="applyFilters()"/><label>Manyatta</label></label>
-        <label class="check-item"><input type="checkbox" value="Matibabu" onchange="applyFilters()"/><label>Matibabu</label></label>
-        <label class="check-item"><input type="checkbox" value="Migosi" onchange="applyFilters()"/><label>Migosi</label></label>
-        <label class="check-item"><input type="checkbox" value="Nyalenda" onchange="applyFilters()"/><label>Nyalenda</label></label>
-        <label class="check-item"><input type="checkbox" value="Nyamasaria" onchange="applyFilters()"/><label>Nyamasaria</label></label>
-        <label class="check-item"><input type="checkbox" value="Obunga" onchange="applyFilters()"/><label>Obunga</label></label>
-        <label class="check-item"><input type="checkbox" value="Otonglo" onchange="applyFilters()"/><label>Otonglo</label></label>
-        <label class="check-item"><input type="checkbox" value="Sega" onchange="applyFilters()"/><label>Sega</label></label>
-      </div>
-      <button type="button" id="area-more-toggle" onclick="toggleMoreAreas()" style="background:none;color:var(--green);font-size:12px;font-weight:500;margin-top:8px;padding:0">Show all 23 areas ▾</button>
+        <p class="area-hint" id="area-hint">Pick a county above to filter by area</p>
+        <div class="check-list" id="area-checks-visible"></div>
+        <div class="check-list" id="area-checks-more" style="display:none; margin-top:6px"></div>
+        <button type="button" id="area-more-toggle" onclick="toggleMoreAreas()" style="display:none;background:none;color:var(--green);font-size:12px;font-weight:500;margin-top:8px;padding:0">Show all areas ▾</button>
       </div>
     </div>
 
@@ -461,24 +448,187 @@
   const { createClient } = supabase;
   const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
+  const NK_COUNTIES = [
+    "Mombasa","Kwale","Kilifi","Tana River","Lamu","Taita-Taveta","Garissa","Wajir","Mandera",
+    "Marsabit","Isiolo","Meru","Tharaka-Nithi","Embu","Kitui","Machakos","Makueni","Nyandarua",
+    "Nyeri","Kirinyaga","Murang'a","Kiambu","Turkana","West Pokot","Samburu","Trans Nzoia",
+    "Uasin Gishu","Elgeyo-Marakwet","Nandi","Baringo","Laikipia","Nakuru","Narok","Kajiado",
+    "Kericho","Bomet","Kakamega","Vihiga","Bungoma","Busia","Siaya","Kisumu","Homa Bay",
+    "Migori","Kisii","Nyamira","Nairobi"
+  ].sort();
+  const NK_AREAS_BY_COUNTY = {
+    "Kisumu": ["Ahero","Car Wash","Dunga","Elgon View","Kanyakwar","Kibos","Kibuye","Kisumu CBD","Kombewa","Kondele","Luanda","Mamboleo","Manyatta","Maseno","Matibabu","Migosi","Milimani","Nyalenda","Nyamasaria","Obunga","Otonglo","Riat Hills","Sega"],
+    "Nairobi": ["Nairobi CBD","Westlands","Parklands","Highridge","Kangemi","Kitisuru","Runda","Loresho","Muthaiga","Gigiri","Spring Valley","Nyari","Rosslyn","Thome","Garden Estate","Ridgeways","Kilimani","Kileleshwa","Lavington","Kawangware","Hurlingham","Upper Hill","Adams Arcade","Karen","Langata","South B","South C","Nairobi West","Madaraka","Otiende","Kibera","Woodley","Roysambu","Zimmerman","Kahawa West","Githurai","Mirema","Kasarani","Mwiki","Njiru","Ruaraka","Baba Dogo","Mathare","Huruma","Pipeline","Imara Daima","Nyayo Estate","Dandora","Kariobangi","Kayole","Komarock","Utawala","Tassia","Umoja","Buruburu","Donholm","Makadara","Eastleigh","Ngara","Pangani"],
+    "Mombasa": ["Mombasa CBD (Old Town)","Nyali","Bamburi","Kizingo","Tudor","Likoni","Changamwe","Kisauni","Shanzu","Mkomani","Bombolulu","Kiembeni","Port Reitz","Miritini","Chaani","Migadini","Kongowea","Junda","Mwakirunge","Mtopanga","Jomvu","Magongo"],
+    "Nakuru": ["Nakuru CBD","Milimani","Section 58","Langalanga","Pangani","Shabab","Bangladesh","Lanet","Free Area","Freehold","Ngata","Bahati","London","Afraha","Naka","Kiamunyi","White House","Pipeline","Kaptembwa","Rhoda","Menengai","Naivasha"],
+    "Uasin Gishu": ["Eldoret CBD","Kapsoya","Langas","Kimumu","Huruma","Elgon View","Pioneer","Annex","Rupa Village","Hazina","Kamukunji","Munyaka","West Indies"],
+    "Kiambu": ["Thika CBD","Landless","Makongeni","Section 9","Blue Post","Thika Greens","Kiganjo","Tora","Ngoingwa","Bahati Ridge","Kisii Estate","Ruiru","Membley","Kamakis","Juja","Kiambu Town","Kikuyu","Limuru"],
+    "Kilifi": ["Kilifi Town","Malindi CBD","Kisumu Ndogo","Majengo (Malindi)","Silversands","Watamu","Mtwapa","Mariakani","Kaloleni","Mazeras","Magarini"],
+    "Machakos": ["Machakos CBD","Mua Hills","Kalama","Mitaboni","Athi River","Mlolongo","Syokimau","Katani","Kangundo Road","Kola"],
+    "Kakamega": ["Kakamega CBD","Amalemba","Milimani","Shirere","Lurambi","Mahiakalo","Sudi","Mumias","Butere","Malava","Lugari"],
+    "Meru": ["Meru CBD","Makutano","Kinoru","Ntharene","Nkubu","Maua","Timau","Laare","Mikinduri","Kianjai"],
+    "Nyeri": ["Nyeri CBD","Ring Road","Mountain View Estate","Garden Estate","Kamakwa","Ruring'u","Majengo","Karatina","Othaya Town","Mukurweini Town","Naromoru"],
+    "Kericho": ["Kericho CBD","Kapsoit","Ainamoi","Litein","Kipkelion","Fort Ternan","Sosiot","Chepseon","Kedowa","Cheborge"],
+    "Trans Nzoia": ["Kitale CBD","Milimani","Mitume","Matisi","Tuwan","Endebess","Kiminini","Kwanza","Saboti","Cherangany"],
+    "Kwale": ["Kwale Town","Diani","Ukunda","Tiwi","Msambweni","Lunga Lunga","Matuga","Kinango","Waa","Shimoni","Mackinon Road","Vanga"],
+    "Tana River": ["Hola","Garsen","Bura","Galole","Wenje","Kipini","Madogo","Chewele","Bangale","Wayu"],
+    "Lamu": ["Lamu Town","Mokowe","Faza","Matondoni","Mpeketoni","Witu","Hindi","Kizingitini","Shela","Kiunga"],
+    "Taita-Taveta": ["Voi","Taveta","Wundanyi","Mwatate","Mgange","Wesu","Bura (Taita)","Mbale (Taveta)","Tausa","Werugha"],
+    "Garissa": ["Garissa Town","Dadaab","Balambala","Fafi","Ijara","Lagdera","Modogashe","Bura (Garissa)","Sankuri","Hulugho"],
+    "Wajir": ["Wajir Town","Habaswein","Griftu","Eldas","Tarbaj","Bute","Buna","Diif","Elnur","Khorof Harar"],
+    "Mandera": ["Mandera Town","Rhamu","Banissa","Lafey","Takaba","El Wak","Kotulo","Fino","Arabia","Warankara"],
+    "Marsabit": ["Marsabit Town","Moyale","Loiyangalani","North Horr","Laisamis","Sololo","Turbi","Maikona","Illeret","Dukana"],
+    "Isiolo": ["Isiolo Town","Garbatulla","Merti","Kinna","Oldonyiro","Burat","Bulapesa","Wabera","Chari","Cherab"],
+    "Tharaka-Nithi": ["Chuka","Marimanti","Kathwana","Chogoria","Gatunga","Nkondi","Igambang'ombe","Muthambi","Mitheru","Tunyai"],
+    "Embu": ["Embu Town","Runyenjes","Manyatta","Siakago","Ishiara","Kiritiri","Kyeni","Karurumo","Kirimari","Gaturi"],
+    "Kitui": ["Kitui Town","Mwingi","Mutomo","Mutitu","Migwani","Zombe","Kabati","Ikutha","Mutha","Kanyangi"],
+    "Makueni": ["Wote","Emali","Sultan Hamud","Kibwezi","Kilome","Mbooni","Kaiti","Nunguni","Makindu","Tawa"],
+    "Nyandarua": ["Ol Kalou","Engineer","Njabini","Nyahururu","Ndaragwa","Ol Joro Orok","North Kinangop","South Kinangop","Kipipiri","Shamata"],
+    "Kirinyaga": ["Kerugoya","Kutus","Sagana","Kagio","Wang'uru","Baricho","Kianyaga","Kimbimbi","Mwea","Kutus Town"],
+    "Murang'a": ["Murang'a Town","Kenol","Kangema","Maragua","Kandara","Kigumo","Gatanga","Kiria-ini","Kabati","Makuyu"],
+    "Turkana": ["Lodwar","Kakuma","Lokichogio","Lokitaung","Kalokol","Lokichar","Kainuk","Todonyang","Kibish","Katilu"],
+    "West Pokot": ["Kapenguria","Makutano (Pokot)","Chepareria","Kacheliba","Sigor","Alale","Chepnyal","Lomut","Ortum","Kongelai"],
+    "Samburu": ["Maralal","Baragoi","Wamba","Archer's Post","Suguta Marmar","Kirisia","South Horr","Poro","Loosuk","Kisima"],
+    "Elgeyo-Marakwet": ["Iten","Tambach","Kapsowar","Chepkorio","Kapyego","Kapsait","Chesoi","Kaptarakwa","Kamogoi","Kabiemit"],
+    "Nandi": ["Kapsabet","Nandi Hills","Mosoriot","Kabiyet","Kaptumo","Kobujoi","Kapsisiywa","Kapsabet Town","Chepterit","Kilibwoni"],
+    "Baringo": ["Kabarnet","Eldama Ravine","Marigat","Kabartonjo","Mogotio","Kimalel","Kabernet Town","Loruk","Kampi ya Samaki","Mochongoi"],
+    "Laikipia": ["Nanyuki","Nyahururu","Rumuruti","Dol Dol","Kinamba","Ngobit","Sipili","Marmanet","Mukogodo","Salama"],
+    "Narok": ["Narok Town","Kilgoris","Ololulunga","Suswa","Ewaso Ngiro","Nairagie Enkare","Naikarra","Ntulele","Melili","Lolgorian"],
+    "Kajiado": ["Kajiado Town","Ngong","Kitengela","Ongata Rongai","Kiserian","Loitokitok","Namanga","Isinya","Bissil","Mashuuru"],
+    "Bomet": ["Bomet Town","Sotik","Longisa","Mulot","Chepalungu","Silibwet","Sigor (Bomet)","Chebunyo","Kaplong","Mogogosiek"],
+    "Vihiga": ["Mbale","Luanda (Vihiga)","Chavakali","Majengo (Vihiga)","Emuhaya","Sabatia","Hamisi","Wodanga","Bunyore","Gisambai"],
+    "Bungoma": ["Bungoma CBD","Kanduyi","Sikata","Webuye","Kimilili","Chwele","Bumula","Sirisia","Naitiri","Malakisi"],
+    "Busia": ["Busia Town","Malaba","Nambale","Funyula","Budalangi","Amagoro","Port Victoria","Matayos","Alupe","Angurai"],
+    "Siaya": ["Siaya Town","Bondo","Ugunja","Yala","Ukwala","Usenge","Sega (Siaya)","Nyang'oma Kogelo","Uranga","Yenga"],
+    "Homa Bay": ["Homa Bay Central","Asego","Arujo","Kalanya","Kanyabala","Katuma","Posta/Bonde","Oyugis","Kendu Bay","Rangwe","Ndhiwa","Mbita","Sindo","Kabondo","Kasipul","Karachuonyo"],
+    "Migori": ["Migori Town","Rongo","Awendo","Isebania","Kehancha","Macalder","Muhuru Bay","Uriri","Ntimaru","Suna"],
+    "Kisii": ["Kisii CBD","Milimani","Nyanchwa","Nyamataro","Daraja Mbili","Mwembe","Jogoo","Nyamage","Nyakoe","Nyangena","Gesonso"],
+    "Nyamira": ["Nyamira Town","Keroka","Ekerenyo","Nyansiongo","Manga","Ikonge","Magwagwa","Nyamaiya","Bomwagamo","Ainapngetuny"]
+  };
+  const NK_TIER1 = ["Kisumu", "Nairobi", "Mombasa"];
+  const NK_COUNTY_LABEL = {
+    "Uasin Gishu": "Uasin Gishu (Eldoret)",
+    "Trans Nzoia": "Trans Nzoia (Kitale)",
+    "Kiambu": "Kiambu (Thika)",
+    "Kilifi": "Kilifi (Malindi)",
+    "Kwale": "Kwale (Diani)",
+    "Taita-Taveta": "Taita-Taveta (Voi)",
+    "West Pokot": "West Pokot (Kapenguria)",
+    "Vihiga": "Vihiga (Mbale)",
+    "Nyandarua": "Nyandarua (Ol Kalou)",
+    "Turkana": "Turkana (Lodwar)",
+    "Samburu": "Samburu (Maralal)",
+    "Elgeyo-Marakwet": "Elgeyo-Marakwet (Iten)",
+    "Nandi": "Nandi (Kapsabet)",
+    "Baringo": "Baringo (Kabarnet)",
+    "Laikipia": "Laikipia (Nanyuki)",
+    "Tharaka-Nithi": "Tharaka-Nithi (Chuka)",
+    "Kirinyaga": "Kirinyaga (Kerugoya)",
+    "Makueni": "Makueni (Wote)"
+  };
+
+  function nkCountyLabel(county) { return NK_COUNTY_LABEL[county] || county; }
+
+  // Reverse lookup: area name -> county (used for URL ?area= links and the card fallback address)
+  const NK_AREA_TO_COUNTY = {};
+  for (const [county, areas] of Object.entries(NK_AREAS_BY_COUNTY)) {
+    areas.forEach(a => { NK_AREA_TO_COUNTY[a] = county; });
+  }
+
+  function nkPopulateCountySelect() {
+    const sel = document.getElementById('county-select');
+    if (!sel) return;
+    sel.innerHTML = '<option value="">All counties</option>' +
+      NK_COUNTIES.map(c => `<option value="${c}">${nkCountyLabel(c)}</option>`).join('');
+  }
+
+  // Rebuild the area checkbox list for a chosen county (first 8 visible, rest behind "Show all")
+  function renderAreaChecklist(county) {
+    const hint = document.getElementById('area-hint');
+    const visible = document.getElementById('area-checks-visible');
+    const more = document.getElementById('area-checks-more');
+    const toggleBtn = document.getElementById('area-more-toggle');
+    const areas = NK_AREAS_BY_COUNTY[county] || [];
+
+    if (!county) {
+      hint.style.display = 'block';
+      hint.textContent = 'Pick a county above to filter by area';
+      visible.innerHTML = '';
+      more.innerHTML = '';
+      more.style.display = 'none';
+      toggleBtn.style.display = 'none';
+      return;
+    }
+    if (!areas.length) {
+      hint.style.display = 'block';
+      hint.textContent = 'No areas listed yet for this county';
+      visible.innerHTML = '';
+      more.innerHTML = '';
+      more.style.display = 'none';
+      toggleBtn.style.display = 'none';
+      return;
+    }
+    hint.style.display = 'none';
+    const shown = areas.slice(0, 8);
+    const rest = areas.slice(8);
+    const checkHtml = a => `<label class="check-item"><input type="checkbox" value="${a}" onchange="applyFilters()"/><label>${a}</label></label>`;
+    visible.innerHTML = shown.map(checkHtml).join('');
+    more.innerHTML = rest.map(checkHtml).join('');
+    more.style.display = 'none';
+    if (rest.length) {
+      toggleBtn.style.display = 'inline';
+      toggleBtn.textContent = `Show all ${areas.length} areas ▾`;
+      toggleBtn.dataset.total = areas.length;
+    } else {
+      toggleBtn.style.display = 'none';
+    }
+  }
+
+  // County select changed by hand — clear any previously checked areas from a different county
+  function handleCountyFilterChange() {
+    const county = document.getElementById('county-select').value;
+    renderAreaChecklist(county);
+    applyFilters();
+  }
+
+
   const PAGE_SIZE = 12;
   let currentPage = 1;
   let totalCount = 0;
   let debounceTimer = null;
 
-  // ── Toggle showing all 23 areas vs the top 8 ──
+  // ── Toggle showing all areas for the selected county vs the first 8 ──
   function toggleMoreAreas() {
     const more = document.getElementById('area-checks-more');
     const btn = document.getElementById('area-more-toggle');
+    const total = btn.dataset.total || '';
     const isHidden = more.style.display === 'none';
     more.style.display = isHidden ? '' : 'none';
-    btn.textContent = isHidden ? 'Show fewer areas ▴' : 'Show all 23 areas ▾';
+    btn.textContent = isHidden ? 'Show fewer areas ▴' : `Show all ${total} areas ▾`;
   }
 
   // ── Read URL params on load ──
   function readUrlParams() {
     const p = new URLSearchParams(window.location.search);
-    if (p.get('q')) document.getElementById('search-q').value = p.get('q');
+    if (p.get('q')) {
+      const searchEl = document.getElementById('search-q');
+      searchEl.value = p.get('q');
+      nkFormatSearchInput(searchEl); // in case someone shares a link like ?q=7000
+    }
+
+    // Resolve which county to select: an explicit ?county= wins; otherwise an
+    // ?area= link (e.g. from a listing card or the old-style area links) is
+    // traced back to its county via the reverse lookup so the right area
+    // checklist renders before we try to check the box inside it.
+    let county = p.get('county') || '';
+    if (!county && p.get('area')) county = NK_AREA_TO_COUNTY[p.get('area')] || '';
+
+    if (county) {
+      const sel = document.getElementById('county-select');
+      sel.value = county;
+      renderAreaChecklist(county);
+    }
+
     if (p.get('area')) {
       document.querySelectorAll('#area-checks input').forEach(cb => {
         if (cb.value === p.get('area')) cb.checked = true;
@@ -497,6 +647,12 @@
         pill.classList.toggle('active', pill.dataset.val === p.get('type'));
       });
     }
+    // Arriving from the homepage's "type a price" search — it sends minPrice/maxPrice
+    // directly (already computed as a tight band there), so just seed the existing
+    // price range inputs with them. This reuses the sidebar's normal gte/lte filter,
+    // nothing new to break.
+    if (p.get('minPrice')) document.getElementById('price-min').value = p.get('minPrice');
+    if (p.get('maxPrice')) document.getElementById('price-max').value = p.get('maxPrice');
   }
 
   // ── Pill selector helper ──
@@ -526,18 +682,41 @@
     applyFilters();
   }
 
+  // ── Header search box: auto-detect a plain price typed in, same behaviour as the
+  // homepage hero search. If what's left after stripping "KES"/commas/spaces is pure
+  // digits, we're in "price mode": live-format as KES, and remember the raw number so
+  // applyFilters() can turn it into an exact ±1 KES match instead of a text search. ──
+  function nkFormatSearchInput(el) {
+    const raw = el.value;
+    const stripped = raw.replace(/^KES\s?/i, '').replace(/,/g, '').trim();
+    if (stripped.length && /^[0-9]+$/.test(stripped)) {
+      el.value = 'KES ' + Number(stripped).toLocaleString('en-KE');
+      el.dataset.priceValue = stripped;
+    } else {
+      delete el.dataset.priceValue;
+    }
+    debouncedApply();
+  }
+
   // ── Get active filter values ──
   function getFilters() {
     const type = document.querySelector('#type-pills .filter-pill.active')?.dataset.val || '';
     const cat  = document.querySelector('#cat-pills .filter-pill.active')?.dataset.val || '';
     const beds = document.querySelector('#bed-pills .filter-pill.active')?.dataset.val || '';
     const furn = document.querySelector('#furn-pills .filter-pill.active')?.dataset.val || '';
+    const county = document.getElementById('county-select')?.value || '';
     const areas = [...document.querySelectorAll('#area-checks input:checked')].map(c => c.value);
     const priceMin = document.getElementById('price-min').value;
     const priceMax = document.getElementById('price-max').value;
-    const q = document.getElementById('search-q').value.trim();
+    const searchEl = document.getElementById('search-q');
+    const q = searchEl.value.trim();
+    // A plain number typed into the header search box means "match only listings
+    // within ±1 KES of this value" — existing free-text search (title/area/address)
+    // is skipped in that case so a price like "7000" doesn't also get treated as a
+    // keyword. Text search behaves exactly as before for anything non-numeric.
+    const priceExact = searchEl.dataset.priceValue ? Number(searchEl.dataset.priceValue) : null;
     const sort = document.getElementById('sort-select').value;
-    return { type, cat, beds, furn, areas, priceMin, priceMax, q, sort };
+    return { type, cat, beds, furn, county, areas, priceMin, priceMax, q, priceExact, sort };
   }
 
   // ── Build active filter tags ──
@@ -548,6 +727,7 @@
     if (f.beds) tags.push({ label: `${f.beds}+ beds`, key: 'beds' });
     if (f.furn === 'true') tags.push({ label: 'Furnished', key: 'furn' });
     if (f.furn === 'false') tags.push({ label: 'Unfurnished', key: 'furn' });
+    if (f.county && !f.areas.length) tags.push({ label: nkCountyLabel(f.county), key: 'county' });
     f.areas.forEach(a => tags.push({ label: a, key: 'area-' + a }));
     if (f.priceMin || f.priceMax) {
       const label = f.priceMin && f.priceMax
@@ -555,7 +735,11 @@
         : f.priceMin ? `From KES ${Number(f.priceMin).toLocaleString()}` : `Up to KES ${Number(f.priceMax).toLocaleString()}`;
       tags.push({ label, key: 'price' });
     }
-    if (f.q) tags.push({ label: `"${f.q}"`, key: 'q' });
+    if (f.priceExact !== null) {
+      tags.push({ label: `≈ KES ${f.priceExact.toLocaleString()} (±1)`, key: 'q' });
+    } else if (f.q) {
+      tags.push({ label: `"${f.q}"`, key: 'q' });
+    }
 
     const el = document.getElementById('active-filters');
     el.innerHTML = tags.map(t => `
@@ -570,6 +754,11 @@
     else if (key === 'cat') setPill(document.querySelector('#cat-pills .filter-pill[data-val=""]'), 'cat-pills');
     else if (key === 'beds') setPill(document.querySelector('#bed-pills .filter-pill[data-val=""]'), 'bed-pills');
     else if (key === 'furn') setPill(document.querySelector('#furn-pills .filter-pill[data-val=""]'), 'furn-pills');
+    else if (key === 'county') {
+      document.getElementById('county-select').value = '';
+      renderAreaChecklist('');
+      applyFilters();
+    }
     else if (key.startsWith('area-')) {
       const area = key.replace('area-', '');
       const cb = document.querySelector(`#area-checks input[value="${area}"]`);
@@ -579,7 +768,9 @@
       document.getElementById('price-max').value = '';
       applyFilters();
     } else if (key === 'q') {
-      document.getElementById('search-q').value = '';
+      const searchEl = document.getElementById('search-q');
+      searchEl.value = '';
+      delete searchEl.dataset.priceValue;
       applyFilters();
     }
   }
@@ -590,10 +781,13 @@
     setPill(document.querySelector('#cat-pills .filter-pill[data-val=""]'), 'cat-pills');
     setPill(document.querySelector('#bed-pills .filter-pill[data-val=""]'), 'bed-pills');
     setPill(document.querySelector('#furn-pills .filter-pill[data-val=""]'), 'furn-pills');
-    document.querySelectorAll('#area-checks input').forEach(cb => cb.checked = false);
+    document.getElementById('county-select').value = '';
+    renderAreaChecklist('');
     document.getElementById('price-min').value = '';
     document.getElementById('price-max').value = '';
-    document.getElementById('search-q').value = '';
+    const searchEl = document.getElementById('search-q');
+    searchEl.value = '';
+    delete searchEl.dataset.priceValue;
     applyFilters();
   }
 
@@ -613,10 +807,25 @@
     if (f.cat)      query = query.eq('category', f.cat);
     if (f.beds)     query = f.beds === '4' ? query.gte('bedrooms', 4) : query.eq('bedrooms', parseInt(f.beds));
     if (f.furn !== '') query = query.eq('furnished', f.furn === 'true');
-    if (f.areas.length) query = query.in('area', f.areas);
+    if (f.areas.length) {
+      query = query.in('area', f.areas);
+    } else if (f.county) {
+      // County picked but no specific area checked yet — show every area we
+      // cover in that county (same behaviour as the homepage's county cards).
+      const countyAreas = NK_AREAS_BY_COUNTY[f.county] || [];
+      if (countyAreas.length) query = query.in('area', countyAreas);
+    }
     if (f.priceMin) query = query.gte('price', parseFloat(f.priceMin));
     if (f.priceMax) query = query.lte('price', parseFloat(f.priceMax));
-    if (f.q)        query = query.or(`title.ilike.%${f.q}%,description.ilike.%${f.q}%,area.ilike.%${f.q}%,address.ilike.%${f.q}%`);
+
+    if (f.priceExact !== null) {
+      // Exact-ish price typed in the header search box: only listings priced within
+      // ±1 KES of it. Combines (ANDs) with any sidebar price-min/max already set,
+      // so nothing about the existing range filter is overridden — it's additive.
+      query = query.gte('price', f.priceExact - 1).lte('price', f.priceExact + 1);
+    } else if (f.q) {
+      query = query.or(`title.ilike.%${f.q}%,description.ilike.%${f.q}%,area.ilike.%${f.q}%,address.ilike.%${f.q}%`);
+    }
 
     // Sort
     if (f.sort === 'price_asc')       query = query.order('price', { ascending: true });
@@ -661,7 +870,7 @@
         <div class="card-body">
           <div class="card-area">${l.area}${l.sub_area ? ' · ' + l.sub_area : ''}</div>
           <div class="card-title">${l.title}</div>
-          <div class="card-sub">${l.address || 'Kisumu, Kenya'}</div>
+          <div class="card-sub">${l.address || (NK_AREA_TO_COUNTY[l.area] ? l.area + ', ' + nkCountyLabel(NK_AREA_TO_COUNTY[l.area]) : 'Kenya')}</div>
           <div class="card-price">${formatPrice(l.price, l.price_type)}</div>
           <div class="card-meta">
             ${l.bedrooms ? `<div class="card-meta-item"><svg viewBox="0 0 24 24"><path d="M2 4v16M22 4v16M2 12h20M2 8h4a2 2 0 012 2v2H2V8zM16 8h4a2 2 0 012 2v2h-6V8z"/></svg>${l.bedrooms} bed</div>` : ''}
@@ -759,6 +968,8 @@
   })();
 
   // ── Init ──
+  nkPopulateCountySelect();
+  renderAreaChecklist('');
   readUrlParams();
   toggleBedroomsFilter(document.querySelector('#cat-pills .filter-pill.active')?.dataset.val || '');
   applyFilters();
@@ -785,237 +996,6 @@
       session_id: sid
     });
   })();
-</script>
-
-<!-- ── LIVE CHAT WIDGET ── -->
-<style>
-#nk-chat-btn {
-  position: fixed; bottom: 24px; right: 24px; z-index: 1000;
-  width: 52px; height: 52px; border-radius: 50%;
-  background: #0F6E56; border: none; cursor: pointer;
-  box-shadow: 0 4px 16px rgba(15,110,86,0.35);
-  display: flex; align-items: center; justify-content: center;
-  transition: transform .2s, background .2s;
-}
-#nk-chat-btn:hover { background: #085041; transform: scale(1.07); }
-#nk-chat-btn svg { width: 24px; height: 24px; stroke: white; fill: none; stroke-width: 2; stroke-linecap: round; }
-#nk-chat-btn .nk-badge {
-  position: absolute; top: -2px; right: -2px;
-  width: 18px; height: 18px; border-radius: 50%;
-  background: #BA7517; color: white; font-size: 10px; font-weight: 700;
-  display: none; align-items: center; justify-content: center;
-  font-family: 'Inter', sans-serif; border: 2px solid white;
-}
-#nk-chat-panel {
-  position: fixed; bottom: 88px; right: 24px; z-index: 1000;
-  width: 340px; max-height: 520px;
-  background: #ffffff; border: 1px solid #e0ded8;
-  border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.14);
-  display: none; flex-direction: column;
-  font-family: 'Inter', sans-serif; font-size: 14px; overflow: hidden;
-  animation: nkSlideUp .2s ease;
-}
-@keyframes nkSlideUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
-#nk-chat-panel.open { display: flex; }
-.nk-head { background: #0F6E56; padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
-.nk-head-left { display: flex; align-items: center; gap: 10px; }
-.nk-head-avatar { width: 36px; height: 36px; border-radius: 50%; background: #1D9E75; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.nk-head-avatar svg { width: 18px; height: 18px; stroke: white; fill: none; stroke-width: 2; }
-.nk-head-title { font-size: 14px; font-weight: 600; color: white; }
-.nk-head-sub { font-size: 11px; color: rgba(255,255,255,0.65); margin-top: 1px; }
-.nk-head-close { background: none; border: none; cursor: pointer; color: rgba(255,255,255,0.7); font-size: 20px; line-height: 1; padding: 2px 4px; transition: color .15s; }
-.nk-head-close:hover { color: white; }
-.nk-msgs { flex: 1; overflow-y: auto; padding: 16px 14px 8px; display: flex; flex-direction: column; gap: 10px; scroll-behavior: smooth; }
-.nk-msgs::-webkit-scrollbar { width: 4px; }
-.nk-msgs::-webkit-scrollbar-thumb { background: #e0ded8; border-radius: 2px; }
-.nk-greeting { background: #f7f6f2; border-radius: 12px 12px 12px 2px; padding: 12px 14px; font-size: 13px; color: #4a4a46; line-height: 1.6; max-width: 90%; }
-.nk-greeting strong { color: #1a1a18; display: block; margin-bottom: 4px; font-size: 14px; }
-.nk-quick-replies { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
-.nk-qr { font-size: 12px; font-weight: 500; padding: 5px 11px; border-radius: 20px; border: 1.5px solid #0F6E56; color: #0F6E56; background: white; cursor: pointer; transition: all .15s; font-family: inherit; }
-.nk-qr:hover { background: #0F6E56; color: white; }
-.nk-bubble-wrap { display: flex; flex-direction: column; }
-.nk-bubble-wrap.visitor { align-items: flex-end; }
-.nk-bubble-wrap.admin { align-items: flex-start; }
-.nk-bubble { max-width: 82%; padding: 9px 13px; font-size: 13px; line-height: 1.55; word-break: break-word; }
-.nk-bubble.visitor { background: #0F6E56; color: white; border-radius: 14px 14px 2px 14px; }
-.nk-bubble.admin { background: #f7f6f2; color: #1a1a18; border-radius: 14px 14px 14px 2px; border: 1px solid #e0ded8; }
-.nk-bubble-time { font-size: 10px; color: #888780; margin-top: 3px; padding: 0 2px; }
-.nk-typing { display: none; align-items: flex-start; gap: 6px; }
-.nk-typing.show { display: flex; }
-.nk-typing-bubble { background: #f7f6f2; border: 1px solid #e0ded8; border-radius: 14px 14px 14px 2px; padding: 10px 14px; display: flex; gap: 4px; align-items: center; }
-.nk-typing-dot { width: 6px; height: 6px; border-radius: 50%; background: #888780; animation: nkDot 1.2s infinite; }
-.nk-typing-dot:nth-child(2) { animation-delay: .2s; }
-.nk-typing-dot:nth-child(3) { animation-delay: .4s; }
-@keyframes nkDot { 0%,80%,100%{transform:scale(.7);opacity:.4} 40%{transform:scale(1);opacity:1} }
-.nk-input-bar { padding: 10px 12px; border-top: 1px solid #e0ded8; display: flex; align-items: flex-end; gap: 8px; flex-shrink: 0; }
-#nk-input { flex: 1; border: 1.5px solid #e0ded8; border-radius: 20px; padding: 9px 14px; font-size: 13px; font-family: inherit; color: #1a1a18; background: #f7f6f2; outline: none; resize: none; max-height: 100px; overflow-y: auto; line-height: 1.5; transition: border-color .15s; }
-#nk-input:focus { border-color: #0F6E56; background: white; }
-#nk-send { width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0; background: #0F6E56; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background .15s; align-self: flex-end; }
-#nk-send:hover { background: #085041; }
-#nk-send svg { width: 16px; height: 16px; stroke: white; fill: none; stroke-width: 2.5; }
-#nk-send:disabled { opacity: .5; cursor: not-allowed; }
-.nk-resolved { display: none; text-align: center; padding: 10px 14px; font-size: 12px; color: #888780; border-top: 1px solid #e0ded8; background: #f7f6f2; flex-shrink: 0; }
-.nk-resolved.show { display: block; }
-@media (max-width: 400px) { #nk-chat-panel { width: calc(100vw - 16px); right: 8px; bottom: 80px; } }
-</style>
-
-<button id="nk-chat-btn" onclick="nkToggle()" aria-label="Open chat support">
-  <svg id="nk-icon-chat" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-  <svg id="nk-icon-close" viewBox="0 0 24 24" style="display:none"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-  <span class="nk-badge" id="nk-visitor-badge"></span>
-</button>
-
-<div id="nk-chat-panel">
-  <div class="nk-head">
-    <div class="nk-head-left">
-      <div class="nk-head-avatar">
-        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-      </div>
-      <div>
-        <div class="nk-head-title">NyumbaKisumu</div>
-        <div class="nk-head-sub" id="nk-status-line">We usually reply within a few minutes</div>
-      </div>
-    </div>
-    <button class="nk-head-close" onclick="nkToggle()" aria-label="Close chat">✕</button>
-  </div>
-  <div class="nk-msgs" id="nk-msgs"></div>
-  <div class="nk-resolved" id="nk-resolved-banner">
-    ✓ This conversation has been resolved. Start a new message below to reopen it.
-  </div>
-  <div class="nk-input-bar">
-    <textarea id="nk-input" rows="1" placeholder="Type a message…" oninput="nkAutoResize(this)" onkeydown="nkKeyDown(event)"></textarea>
-    <button id="nk-send" onclick="nkSend()" aria-label="Send message" disabled>
-      <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-    </button>
-  </div>
-</div>
-
-<script>
-(function () {
-  const NK_URL = 'https://vliuuloyfhyxcsuchpss.supabase.co';
-  const NK_KEY = 'sb_publishable_oIIcecf3wzKMual5K24Z8Q_zmxVfgsx';
-  const nkDb = (typeof supabase !== 'undefined' && typeof db !== 'undefined') ? db : supabase.createClient(NK_URL, NK_KEY);
-
-  let nkSessionId = null, nkOpen = false, nkChannel = null, nkMessages = [], nkNewFromAdmin = 0;
-  const QUICK_REPLIES = ['How do I list my apartment?', 'Is listing free?', 'What areas do you cover?'];
-
-  function getOrCreateKey() {
-    let key = localStorage.getItem('nk_chat_key');
-    if (!key) { key = 'nk_' + Date.now() + '_' + Math.random().toString(36).slice(2, 9); localStorage.setItem('nk_chat_key', key); }
-    return key;
-  }
-
-  async function nkInit() {
-    const key = getOrCreateKey();
-    const { data: existing } = await nkDb.from('chat_sessions').select('*').eq('session_key', key).single();
-    if (existing) { nkSessionId = existing.id; await loadMessages(); } else { renderGreeting(); }
-    subscribeRealtime();
-  }
-
-  async function ensureSession() {
-    if (nkSessionId) return;
-    const key = getOrCreateKey();
-    const { data } = await nkDb.from('chat_sessions').insert({ session_key: key, page: window.location.pathname }).select().single();
-    if (data) nkSessionId = data.id;
-  }
-
-  async function loadMessages() {
-    const { data } = await nkDb.from('chat_messages').select('*').eq('session_id', nkSessionId).order('created_at', { ascending: true });
-    nkMessages = data || [];
-    renderMessages();
-  }
-
-  function renderGreeting() {
-    document.getElementById('nk-msgs').innerHTML = `
-      <div class="nk-greeting"><strong>👋 Hi there!</strong>Have a question about finding or listing an apartment in Kisumu? We're here to help.</div>
-      <div class="nk-quick-replies" id="nk-qr-wrap">
-        ${QUICK_REPLIES.map(q => `<button class="nk-qr" onclick="nkQuickReply(this,'${q.replace(/'/g,"\\'")}'">${q}</button>`).join('')}
-      </div>`;
-  }
-
-  function renderMessages() {
-    const msgsEl = document.getElementById('nk-msgs');
-    if (!nkMessages.length) { renderGreeting(); return; }
-    msgsEl.innerHTML = nkMessages.map(m => bubbleHtml(m)).join('');
-    appendTypingIndicator();
-    scrollBottom();
-  }
-
-  function bubbleHtml(m) {
-    const time = new Date(m.created_at).toLocaleTimeString('en-KE', { hour: '2-digit', minute: '2-digit' });
-    return `<div class="nk-bubble-wrap ${m.sender}"><div class="nk-bubble ${m.sender}">${escHtml(m.body)}</div><div class="nk-bubble-time">${time}</div></div>`;
-  }
-
-  function appendTypingIndicator() {
-    document.getElementById('nk-msgs').insertAdjacentHTML('beforeend', `<div class="nk-typing" id="nk-typing"><div class="nk-typing-bubble"><div class="nk-typing-dot"></div><div class="nk-typing-dot"></div><div class="nk-typing-dot"></div></div></div>`);
-  }
-
-  function appendBubble(m) {
-    const typing = document.getElementById('nk-typing');
-    const html = bubbleHtml(m);
-    if (typing) typing.insertAdjacentHTML('beforebegin', html);
-    else document.getElementById('nk-msgs').insertAdjacentHTML('beforeend', html);
-    scrollBottom();
-  }
-
-  function scrollBottom() { const el = document.getElementById('nk-msgs'); if (el) el.scrollTop = el.scrollHeight; }
-
-  function subscribeRealtime() {
-    if (nkChannel) nkChannel.unsubscribe();
-    nkChannel = nkDb.channel('nk-chat-visitor')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages', filter: nkSessionId ? `session_id=eq.${nkSessionId}` : undefined }, (payload) => {
-        const msg = payload.new;
-        if (msg.session_id !== nkSessionId) return;
-        if (nkMessages.find(m => m.id === msg.id)) return;
-        nkMessages.push(msg);
-        appendBubble(msg);
-        if (msg.sender === 'admin') { updateStatusLine('Admin is online'); if (!nkOpen) { nkNewFromAdmin++; showVisitorBadge(nkNewFromAdmin); } }
-      })
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'chat_sessions', filter: nkSessionId ? `id=eq.${nkSessionId}` : undefined }, (payload) => {
-        if (payload.new.is_resolved) { document.getElementById('nk-resolved-banner').classList.add('show'); updateStatusLine('Conversation resolved'); }
-      })
-      .subscribe();
-  }
-
-  async function nkSend() {
-    const input = document.getElementById('nk-input');
-    const body = input.value.trim();
-    if (!body) return;
-    input.value = ''; nkAutoResize(input);
-    document.getElementById('nk-send').disabled = true;
-    const qr = document.getElementById('nk-qr-wrap'); if (qr) qr.remove();
-    await ensureSession();
-    const { data: msg } = await nkDb.from('chat_messages').insert({ session_id: nkSessionId, sender: 'visitor', body }).select().single();
-    if (msg) { nkMessages.push(msg); appendBubble(msg); subscribeRealtime(); }
-    await nkDb.from('chat_sessions').update({ last_msg_at: new Date().toISOString(), unread_admin: (await getUnreadCount()) + 1 }).eq('id', nkSessionId);
-    document.getElementById('nk-send').disabled = false;
-    input.focus();
-  }
-
-  async function getUnreadCount() {
-    const { data } = await nkDb.from('chat_sessions').select('unread_admin').eq('id', nkSessionId).single();
-    return data?.unread_admin || 0;
-  }
-
-  function nkQuickReply(btn, text) { document.getElementById('nk-input').value = text; document.getElementById('nk-send').disabled = false; nkSend(); }
-
-  function nkToggle() {
-    nkOpen = !nkOpen;
-    document.getElementById('nk-chat-panel').classList.toggle('open', nkOpen);
-    document.getElementById('nk-icon-chat').style.display  = nkOpen ? 'none' : 'block';
-    document.getElementById('nk-icon-close').style.display = nkOpen ? 'block' : 'none';
-    if (nkOpen) { nkNewFromAdmin = 0; showVisitorBadge(0); scrollBottom(); document.getElementById('nk-input').focus(); }
-  }
-
-  function showVisitorBadge(n) { const b = document.getElementById('nk-visitor-badge'); b.style.display = n > 0 ? 'flex' : 'none'; b.textContent = n; }
-  function updateStatusLine(text) { document.getElementById('nk-status-line').textContent = text; }
-  function nkAutoResize(el) { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 100) + 'px'; document.getElementById('nk-send').disabled = !el.value.trim(); }
-  function nkKeyDown(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); nkSend(); } }
-  function escHtml(str) { return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/\n/g,'<br>'); }
-
-  window.nkToggle = nkToggle; window.nkSend = nkSend; window.nkAutoResize = nkAutoResize; window.nkKeyDown = nkKeyDown; window.nkQuickReply = nkQuickReply;
-  nkInit();
-})();
 </script>
 
 </body>
