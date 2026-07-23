@@ -1,1002 +1,164 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Browse Listings — Nyumba254</title>
-  <meta name="description" content="Browse apartments for sale and rent across Kenya. Filter by county, area, price, bedrooms and more."/>
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet"/>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --green:       #0F6E56;
-      --green-light: #E1F5EE;
-      --green-mid:   #1D9E75;
-      --green-dark:  #085041;
-      --gold:        #BA7517;
-      --gold-light:  #FAEEDA;
-      --text:        #1a1a18;
-      --text-2:      #4a4a46;
-      --text-3:      #888780;
-      --border:      #e0ded8;
-      --surface:     #f7f6f2;
-      --white:       #ffffff;
-      --radius:      10px;
-      --radius-lg:   16px;
-    }
-    html { scroll-behavior: smooth; }
-    body { font-family: 'Inter', sans-serif; color: var(--text); background: var(--surface); font-size: 15px; line-height: 1.6; }
-    a { text-decoration: none; color: inherit; }
-    button { font-family: inherit; cursor: pointer; border: none; }
-    input, select { font-family: inherit; }
+/* ════════════════════════════════════════════════════
+     EXIT INTENT — "did you find what you were looking for?"
+     Fires once per session on: (a) mouse leaving toward the
+     top of the window (desktop), or (b) clicking any link
+     that navigates away from this page. Clicking a listing
+     card does NOT count as leaving (that's success).
+  ════════════════════════════════════════════════════ */
+  const EXIT_SESSION_KEY = 'nk_exit_prompt_shown';
+  const EXIT_REVIEW_DONE_KEY = 'nk_platform_review_done'; // shared with listing.html — one review per device, everywhere
+  let exitPendingHref = null;
+  let exitStarRating = 0;
+  let exitTriggered = false;
+  const exitPageLoadedAt = Date.now();
 
-    /* ── Navbar ── */
-    nav {
-      position: sticky; top: 0; z-index: 100;
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 0 32px; height: 64px;
-      background: var(--white); border-bottom: 1px solid var(--border);
-    }
-    .logo { display: flex; align-items: center; gap: 10px; font-family: 'Playfair Display', serif; font-size: 20px; color: var(--green-dark); }
-    .logo-icon { width: 34px; height: 34px; background: var(--green); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
-    .logo-icon svg { width: 18px; height: 18px; fill: none; stroke: white; stroke-width: 2; stroke-linecap: round; }
-    .nav-links { display: flex; align-items: center; gap: 6px; }
-    .nav-link { font-size: 14px; color: var(--text-2); padding: 8px 14px; border-radius: var(--radius); transition: background .15s; white-space: nowrap; }
-    .nav-link:hover { background: var(--surface); color: var(--text); }
-    .btn { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 500; padding: 9px 18px; border-radius: var(--radius); transition: all .15s; }
-    .btn-primary { background: var(--green); color: white; }
-    .btn-primary:hover { background: var(--green-dark); }
+  function exitAlreadyShown() { return sessionStorage.getItem(EXIT_SESSION_KEY) === '1'; }
+  function exitMarkShown() { sessionStorage.setItem(EXIT_SESSION_KEY, '1'); }
 
-    /* ── Mobile menu ── */
-    .mobile-menu-btn {
-      display: none; background: none; border: none; cursor: pointer;
-      padding: 6px; border-radius: 6px;
-    }
-    .mobile-menu-btn svg { width: 22px; height: 22px; stroke: var(--text); fill: none; stroke-width: 2; display: block; }
-    .mobile-nav {
-      display: none; position: fixed; top: 64px; left: 0; right: 0;
-      background: var(--white); border-bottom: 1px solid var(--border);
-      padding: 16px; z-index: 99; flex-direction: column; gap: 4px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
-    }
-    .mobile-nav.open { display: flex; }
-    .mobile-nav a { font-size: 15px; color: var(--text-2); padding: 10px 14px; border-radius: var(--radius); }
-    .mobile-nav a:hover { background: var(--surface); }
-    .mobile-nav .btn-primary { text-align: center; justify-content: center; margin-top: 8px; }
-
-    /* ── Page header ── */
-    .page-header {
-      background: var(--white); border-bottom: 1px solid var(--border);
-      padding: 24px 32px 0;
-    }
-    .page-header h1 { font-family: 'Playfair Display', serif; font-size: 28px; color: var(--text); margin-bottom: 4px; }
-    .page-header p { font-size: 14px; color: var(--text-3); margin-bottom: 20px; }
-
-    /* Search bar in header */
-    .header-search { display: flex; gap: 8px; flex-wrap: wrap; padding-bottom: 20px; }
-    .header-search input {
-      flex: 1; min-width: 200px; padding: 9px 14px; border-radius: var(--radius);
-      border: 1.5px solid var(--border); font-size: 14px; color: var(--text); outline: none;
-      background: var(--surface); transition: border-color .15s;
-    }
-    .header-search input:focus { border-color: var(--green); background: white; }
-    .header-search button {
-      padding: 9px 20px; background: var(--green); color: white; border-radius: var(--radius);
-      font-size: 14px; font-weight: 500; transition: background .15s;
-    }
-    .header-search button:hover { background: var(--green-dark); }
-
-    /* ── Layout ── */
-    .layout { display: grid; grid-template-columns: 280px 1fr; gap: 0; min-height: calc(100vh - 200px); }
-
-    /* ── Sidebar filters ── */
-    .sidebar {
-      background: var(--white); border-right: 1px solid var(--border);
-      padding: 24px 20px; position: sticky; top: 64px;
-      height: calc(100vh - 64px); overflow-y: auto;
-    }
-    .sidebar::-webkit-scrollbar { width: 4px; }
-    .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-
-    .filter-section { margin-bottom: 28px; }
-    .filter-label { font-size: 11px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 10px; display: block; }
-    .filter-reset { float: right; font-size: 11px; color: var(--green); cursor: pointer; text-transform: none; letter-spacing: 0; font-weight: 500; }
-    .filter-reset:hover { text-decoration: underline; }
-
-    /* Checkbox filters */
-    .check-list { display: flex; flex-direction: column; gap: 6px; }
-    .check-item { display: flex; align-items: center; gap: 8px; cursor: pointer; }
-    .check-item input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--green); cursor: pointer; }
-    .check-item label { font-size: 13px; color: var(--text-2); cursor: pointer; flex: 1; }
-    .check-item .check-count { font-size: 12px; color: var(--text-3); }
-
-    /* County select in sidebar */
-    .county-select {
-      width: 100%; padding: 9px 12px; border: 1.5px solid var(--border); border-radius: var(--radius);
-      font-size: 13px; color: var(--text); background: white; outline: none; cursor: pointer; margin-bottom: 10px;
-    }
-    .county-select:focus { border-color: var(--green); }
-    .area-hint { font-size: 12px; color: var(--text-3); }
-
-    /* Range inputs */
-    .range-row { display: flex; gap: 8px; align-items: center; }
-    .range-input {
-      flex: 1; padding: 8px 10px; border: 1.5px solid var(--border); border-radius: 8px;
-      font-size: 13px; color: var(--text); outline: none; background: var(--surface);
-      transition: border-color .15s;
-    }
-    .range-input:focus { border-color: var(--green); background: white; }
-    .range-sep { font-size: 12px; color: var(--text-3); }
-
-    /* Pill toggles */
-    .pill-group { display: flex; flex-wrap: wrap; gap: 6px; }
-    .filter-pill {
-      font-size: 12px; padding: 5px 12px; border-radius: 20px;
-      border: 1.5px solid var(--border); background: white; color: var(--text-2);
-      cursor: pointer; transition: all .15s; font-weight: 500;
-    }
-    .filter-pill:hover { border-color: var(--green); color: var(--green); }
-    .filter-pill.active { background: var(--green); color: white; border-color: var(--green); }
-
-    .apply-btn {
-      width: 100%; padding: 11px; background: var(--green); color: white;
-      border-radius: var(--radius); font-size: 14px; font-weight: 600;
-      transition: background .15s; margin-top: 8px;
-    }
-    .apply-btn:hover { background: var(--green-dark); }
-
-    /* ── Main content ── */
-    .main { padding: 24px; }
-
-    /* Toolbar */
-    .toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
-    .result-count { font-size: 14px; color: var(--text-2); }
-    .result-count strong { color: var(--text); font-weight: 600; }
-    .sort-select {
-      padding: 8px 12px; border: 1.5px solid var(--border); border-radius: var(--radius);
-      font-size: 13px; color: var(--text); background: white; outline: none; cursor: pointer;
-    }
-    .sort-select:focus { border-color: var(--green); }
-
-    /* Active filter tags */
-    .active-filters { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
-    .filter-tag {
-      display: inline-flex; align-items: center; gap: 5px;
-      background: var(--green-light); color: var(--green-dark);
-      font-size: 12px; font-weight: 500; padding: 4px 10px; border-radius: 20px;
-      border: 1px solid #9FE1CB;
-    }
-    .filter-tag button { background: none; color: var(--green-dark); font-size: 14px; line-height: 1; padding: 0; margin-left: 2px; opacity: .7; }
-    .filter-tag button:hover { opacity: 1; }
-
-    /* Listings grid */
-    .listings-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
-
-    /* Card */
-    .card {
-      background: white; border-radius: var(--radius-lg); border: 1px solid var(--border);
-      overflow: hidden; transition: transform .2s, box-shadow .2s; cursor: pointer;
-    }
-    .card:hover { transform: translateY(-2px); box-shadow: 0 4px 20px rgba(0,0,0,0.09); }
-    .card-img { height: 180px; background: var(--surface); position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; }
-    .card-img img { width: 100%; height: 100%; object-fit: cover; }
-    .card-img-placeholder { display: flex; flex-direction: column; align-items: center; gap: 6px; color: var(--text-3); }
-    .card-img-placeholder svg { width: 32px; height: 32px; opacity: .3; stroke: currentColor; fill: none; stroke-width: 1.5; }
-    .badge-featured { position: absolute; top: 10px; left: 10px; background: var(--gold); color: white; font-size: 10px; font-weight: 600; padding: 3px 9px; border-radius: 20px; }
-    .badge-cat { position: absolute; top: 10px; right: 10px; font-size: 10px; font-weight: 600; padding: 3px 9px; border-radius: 20px; text-transform: capitalize; }
-    .badge-cat.student { background: var(--green); color: white; }
-    .badge-cat.luxury { background: var(--gold-light); color: var(--gold); border: 1px solid var(--gold); }
-    .badge-cat.commercial { background: #EAEEF7; color: #2A3B7A; border: 1px solid #B9C6EA; }
-    .card-body { padding: 14px 16px; }
-    .card-area { font-size: 11px; font-weight: 600; color: var(--green); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
-    .card-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 3px; line-height: 1.35; }
-    .card-sub { font-size: 12px; color: var(--text-3); margin-bottom: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .card-price { font-size: 17px; font-weight: 700; color: var(--green-dark); margin-bottom: 10px; }
-    .card-price span { font-size: 12px; font-weight: 400; color: var(--text-3); }
-    .card-meta { display: flex; gap: 12px; font-size: 12px; color: var(--text-2); padding-top: 10px; border-top: 1px solid var(--border); }
-    .card-meta-item { display: flex; align-items: center; gap: 4px; }
-    .card-meta-item svg { width: 13px; height: 13px; stroke: var(--text-3); fill: none; stroke-width: 2; }
-
-    /* ── Skeleton loading ── */
-    .skeleton { background: white; border-radius: var(--radius-lg); overflow: hidden; border: 1px solid var(--border); }
-    .skeleton-img { height: 180px; background: linear-gradient(90deg, #f0efe9 25%, #e8e7e1 50%, #f0efe9 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; }
-    .skeleton-body { padding: 14px 16px; }
-    .skeleton-line { height: 11px; background: linear-gradient(90deg, #f0efe9 25%, #e8e7e1 50%, #f0efe9 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; border-radius: 4px; margin-bottom: 9px; }
-    .skeleton-line.short { width: 55%; }
-    .skeleton-line.xshort { width: 35%; }
-    @keyframes shimmer { to { background-position: -200% 0; } }
-
-    /* ── Empty & error states ── */
-    .empty-state { text-align: center; padding: 80px 20px; color: var(--text-3); grid-column: 1/-1; }
-    .empty-state svg { width: 48px; height: 48px; margin: 0 auto 16px; stroke: var(--border); fill: none; stroke-width: 1.5; }
-    .empty-state h3 { font-size: 16px; font-weight: 600; color: var(--text-2); margin-bottom: 6px; }
-    .empty-state p { font-size: 14px; }
-    .empty-state a { color: var(--green); font-weight: 500; }
-
-    /* ── Pagination ── */
-    .pagination { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 32px; }
-    .page-btn {
-      width: 36px; height: 36px; border-radius: 8px; border: 1.5px solid var(--border);
-      background: white; color: var(--text-2); font-size: 13px; font-weight: 500;
-      cursor: pointer; transition: all .15s; display: flex; align-items: center; justify-content: center;
-    }
-    .page-btn:hover { border-color: var(--green); color: var(--green); }
-    .page-btn.active { background: var(--green); color: white; border-color: var(--green); }
-    .page-btn:disabled { opacity: .4; cursor: not-allowed; }
-
-    /* ── Mobile sidebar toggle ── */
-    .filter-toggle {
-      display: none; align-items: center; gap: 6px;
-      padding: 8px 14px; border-radius: var(--radius); border: 1.5px solid var(--border);
-      background: white; font-size: 13px; font-weight: 500; color: var(--text);
-    }
-    .filter-toggle svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; }
-    .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 199; }
-    .sidebar-overlay.open { display: block; }
-
-    /* ── Responsive ── */
-    @media (max-width: 900px) {
-      .layout { grid-template-columns: 1fr; }
-      .sidebar {
-        position: fixed; top: 0; left: -300px; width: 280px; height: 100vh;
-        z-index: 200; transition: left .25s; padding-top: 16px;
-      }
-      .sidebar.open { left: 0; }
-      .filter-toggle { display: flex; }
-      .page-header { padding: 20px 16px 0; }
-      .main { padding: 16px; }
-    }
-    @media (max-width: 768px) {
-      nav { padding: 0 16px; }
-      .nav-links { display: none; }
-      .mobile-menu-btn { display: flex; }
-    }
-    @media (max-width: 480px) {
-      .header-search { flex-direction: column; }
-      .header-search input, .header-search button { width: 100%; }
-    }
-  </style>
-</head>
-<body>
-
-<!-- ── NAVBAR ── -->
-<nav>
-  <a href="index.html" class="logo">
-    <div class="logo-icon">
-      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-    </div>
-    Nyumba254
-  </a>
-  <div class="nav-links">
-    <a href="listings.html" class="nav-link" style="color:var(--green);font-weight:500">Browse</a>
-    <a href="how-it-works.html" class="nav-link">How it works</a>
-    <a href="about.html" class="nav-link">About us</a>
-    <a href="pricing.html" class="nav-link">Pricing</a>
-    <a href="contact.html" class="nav-link">Contact</a>
-    <a href="login.html" class="nav-link" id="nav-account-link">Sign in</a>
-    <a href="saved.html" class="nav-link">
-      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
-      Saved
-    </a>
-    <a href="post-listing.html" class="btn btn-primary">List your apartment</a>
-  </div>
-  <button class="mobile-menu-btn" onclick="toggleMobileMenu()" aria-label="Open menu">
-    <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-  </button>
-</nav>
-
-<!-- ── MOBILE NAV ── -->
-<div class="mobile-nav" id="mobile-nav">
-  <a href="listings.html">Browse listings</a>
-  <a href="how-it-works.html">How it works</a>
-  <a href="about.html" class="nav-link">About us</a>
-  <a href="pricing.html">Pricing</a>
-  <a href="contact.html">Contact</a>
-  <a href="login.html" id="mobile-account-link">Sign in</a>
-  <a href="saved.html">
-    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
-    Saved
-  </a>
-  <a href="post-listing.html" class="btn btn-primary">List your apartment</a>
-</div>
-
-<!-- ── PAGE HEADER ── -->
-<div class="page-header">
-  <h1 id="page-title">Browse listings</h1>
-  <p id="page-desc">Apartments, shops, and offices for sale and rent across Kenya</p>
-  <div class="header-search">
-    <input type="text" id="search-q" placeholder="Search by keyword, area, or price (e.g. 7000)…" oninput="nkFormatSearchInput(this)" onkeydown="if(event.key==='Enter'){event.preventDefault();applyFilters();}"/>
-    <button onclick="applyFilters()">Search</button>
-  </div>
-</div>
-
-<!-- ── MOBILE SIDEBAR OVERLAY ── -->
-<div class="sidebar-overlay" id="overlay" onclick="closeSidebar()"></div>
-
-<!-- ── LAYOUT ── -->
-<div class="layout">
-
-  <!-- SIDEBAR -->
-  <aside class="sidebar" id="sidebar">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
-      <span style="font-size:15px;font-weight:600;color:var(--text)">Filters</span>
-      <button onclick="resetAllFilters()" style="font-size:12px;color:var(--green);background:none;font-weight:500">Reset all</button>
-    </div>
-
-    <!-- Listing type -->
-    <div class="filter-section">
-      <span class="filter-label">Listing type</span>
-      <div class="pill-group" id="type-pills">
-        <div class="filter-pill active" data-val="" onclick="setPill(this,'type-pills')">All</div>
-        <div class="filter-pill" data-val="sale" onclick="setPill(this,'type-pills')">For sale</div>
-        <div class="filter-pill" data-val="rent" onclick="setPill(this,'type-pills')">To let / rent</div>
-      </div>
-    </div>
-
-    <!-- Category -->
-    <div class="filter-section">
-      <span class="filter-label">Property category</span>
-      <div class="pill-group" id="cat-pills">
-        <div class="filter-pill active" data-val="" onclick="setPill(this,'cat-pills')">All</div>
-        <div class="filter-pill" data-val="student" onclick="setPill(this,'cat-pills')">Student</div>
-        <div class="filter-pill" data-val="standard" onclick="setPill(this,'cat-pills')">Standard</div>
-        <div class="filter-pill" data-val="luxury" onclick="setPill(this,'cat-pills')">Luxury</div>
-        <div class="filter-pill" data-val="commercial" onclick="setPill(this,'cat-pills')">Commercial</div>
-      </div>
-    </div>
-
-    <!-- County & Area -->
-    <div class="filter-section">
-      <span class="filter-label">County & area</span>
-      <select class="county-select" id="county-select" onchange="handleCountyFilterChange()">
-        <option value="">All counties</option>
-      </select>
-      <div id="area-checks">
-        <p class="area-hint" id="area-hint">Pick a county above to filter by area</p>
-        <div class="check-list" id="area-checks-visible"></div>
-        <div class="check-list" id="area-checks-more" style="display:none; margin-top:6px"></div>
-        <button type="button" id="area-more-toggle" onclick="toggleMoreAreas()" style="display:none;background:none;color:var(--green);font-size:12px;font-weight:500;margin-top:8px;padding:0">Show all areas ▾</button>
-      </div>
-    </div>
-
-    <!-- Price range -->
-    <div class="filter-section">
-      <span class="filter-label">Price (KES)</span>
-      <div class="range-row">
-        <input type="number" class="range-input" id="price-min" placeholder="Min" oninput="debouncedApply()"/>
-        <span class="range-sep">–</span>
-        <input type="number" class="range-input" id="price-max" placeholder="Max" oninput="debouncedApply()"/>
-      </div>
-      <div class="pill-group" style="margin-top:8px" id="price-presets">
-        <div class="filter-pill" onclick="setPreset(0,2000000)">Under 2M</div>
-        <div class="filter-pill" onclick="setPreset(2000000,5000000)">2M–5M</div>
-        <div class="filter-pill" onclick="setPreset(5000000,10000000)">5M–10M</div>
-        <div class="filter-pill" onclick="setPreset(10000000,null)">10M+</div>
-      </div>
-    </div>
-
-    <!-- Bedrooms -->
-    <div class="filter-section" id="bedrooms-filter-section">
-      <span class="filter-label">Bedrooms</span>
-      <div class="pill-group" id="bed-pills">
-        <div class="filter-pill active" data-val="" onclick="setPill(this,'bed-pills')">Any</div>
-        <div class="filter-pill" data-val="1" onclick="setPill(this,'bed-pills')">1</div>
-        <div class="filter-pill" data-val="2" onclick="setPill(this,'bed-pills')">2</div>
-        <div class="filter-pill" data-val="3" onclick="setPill(this,'bed-pills')">3</div>
-        <div class="filter-pill" data-val="4" onclick="setPill(this,'bed-pills')">4+</div>
-      </div>
-    </div>
-
-    <!-- Furnished -->
-    <div class="filter-section">
-      <span class="filter-label">Furnishing</span>
-      <div class="pill-group" id="furn-pills">
-        <div class="filter-pill active" data-val="" onclick="setPill(this,'furn-pills')">Any</div>
-        <div class="filter-pill" data-val="true" onclick="setPill(this,'furn-pills')">Furnished</div>
-        <div class="filter-pill" data-val="false" onclick="setPill(this,'furn-pills')">Unfurnished</div>
-      </div>
-    </div>
-
-    <button class="apply-btn" onclick="applyFilters(); closeSidebar()">Apply filters</button>
-  </aside>
-
-  <!-- MAIN -->
-  <main class="main">
-
-    <!-- Toolbar -->
-    <div class="toolbar">
-      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-        <button class="filter-toggle" onclick="openSidebar()">
-          <svg viewBox="0 0 24 24"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="20" y2="12"/><line x1="12" y1="18" x2="20" y2="18"/></svg>
-          Filters
-        </button>
-        <span class="result-count" id="result-count">Loading…</span>
-      </div>
-      <select class="sort-select" id="sort-select" onchange="applyFilters()">
-        <option value="created_at_desc">Newest first</option>
-        <option value="price_asc">Price: low to high</option>
-        <option value="price_desc">Price: high to low</option>
-        <option value="featured">Featured first</option>
-      </select>
-    </div>
-
-    <!-- Active filter tags -->
-    <div class="active-filters" id="active-filters"></div>
-
-    <!-- Results grid -->
-    <div id="results">
-      <div class="listings-grid" id="listings-grid">
-        <div class="skeleton"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line xshort"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div></div></div>
-        <div class="skeleton"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line xshort"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div></div></div>
-        <div class="skeleton"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line xshort"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div></div></div>
-        <div class="skeleton"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line xshort"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div></div></div>
-        <div class="skeleton"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line xshort"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div></div></div>
-        <div class="skeleton"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line xshort"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div></div></div>
-      </div>
-    </div>
-
-    <!-- Pagination -->
-    <div class="pagination" id="pagination"></div>
-  </main>
-</div>
-
-<script>
-  const SUPABASE_URL = 'https://vliuuloyfhyxcsuchpss.supabase.co';
-  const SUPABASE_KEY = 'sb_publishable_oIIcecf3wzKMual5K24Z8Q_zmxVfgsx';
-  const { createClient } = supabase;
-  const db = createClient(SUPABASE_URL, SUPABASE_KEY);
-
-  const NK_COUNTIES = [
-    "Mombasa","Kwale","Kilifi","Tana River","Lamu","Taita-Taveta","Garissa","Wajir","Mandera",
-    "Marsabit","Isiolo","Meru","Tharaka-Nithi","Embu","Kitui","Machakos","Makueni","Nyandarua",
-    "Nyeri","Kirinyaga","Murang'a","Kiambu","Turkana","West Pokot","Samburu","Trans Nzoia",
-    "Uasin Gishu","Elgeyo-Marakwet","Nandi","Baringo","Laikipia","Nakuru","Narok","Kajiado",
-    "Kericho","Bomet","Kakamega","Vihiga","Bungoma","Busia","Siaya","Kisumu","Homa Bay",
-    "Migori","Kisii","Nyamira","Nairobi"
-  ].sort();
-  const NK_AREAS_BY_COUNTY = {
-    "Kisumu": ["Ahero","Car Wash","Dunga","Elgon View","Kanyakwar","Kibos","Kibuye","Kisumu CBD","Kombewa","Kondele","Luanda","Mamboleo","Manyatta","Maseno","Matibabu","Migosi","Milimani","Nyalenda","Nyamasaria","Obunga","Otonglo","Riat Hills","Sega"],
-    "Nairobi": ["Nairobi CBD","Westlands","Parklands","Highridge","Kangemi","Kitisuru","Runda","Loresho","Muthaiga","Gigiri","Spring Valley","Nyari","Rosslyn","Thome","Garden Estate","Ridgeways","Kilimani","Kileleshwa","Lavington","Kawangware","Hurlingham","Upper Hill","Adams Arcade","Karen","Langata","South B","South C","Nairobi West","Madaraka","Otiende","Kibera","Woodley","Roysambu","Zimmerman","Kahawa West","Githurai","Mirema","Kasarani","Mwiki","Njiru","Ruaraka","Baba Dogo","Mathare","Huruma","Pipeline","Imara Daima","Nyayo Estate","Dandora","Kariobangi","Kayole","Komarock","Utawala","Tassia","Umoja","Buruburu","Donholm","Makadara","Eastleigh","Ngara","Pangani"],
-    "Mombasa": ["Mombasa CBD (Old Town)","Nyali","Bamburi","Kizingo","Tudor","Likoni","Changamwe","Kisauni","Shanzu","Mkomani","Bombolulu","Kiembeni","Port Reitz","Miritini","Chaani","Migadini","Kongowea","Junda","Mwakirunge","Mtopanga","Jomvu","Magongo"],
-    "Nakuru": ["Nakuru CBD","Milimani","Section 58","Langalanga","Pangani","Shabab","Bangladesh","Lanet","Free Area","Freehold","Ngata","Bahati","London","Afraha","Naka","Kiamunyi","White House","Pipeline","Kaptembwa","Rhoda","Menengai","Naivasha"],
-    "Uasin Gishu": ["Eldoret CBD","Kapsoya","Langas","Kimumu","Huruma","Elgon View","Pioneer","Annex","Rupa Village","Hazina","Kamukunji","Munyaka","West Indies"],
-    "Kiambu": ["Thika CBD","Landless","Makongeni","Section 9","Blue Post","Thika Greens","Kiganjo","Tora","Ngoingwa","Bahati Ridge","Kisii Estate","Ruiru","Membley","Kamakis","Juja","Kiambu Town","Kikuyu","Limuru"],
-    "Kilifi": ["Kilifi Town","Malindi CBD","Kisumu Ndogo","Majengo (Malindi)","Silversands","Watamu","Mtwapa","Mariakani","Kaloleni","Mazeras","Magarini"],
-    "Machakos": ["Machakos CBD","Mua Hills","Kalama","Mitaboni","Athi River","Mlolongo","Syokimau","Katani","Kangundo Road","Kola"],
-    "Kakamega": ["Kakamega CBD","Amalemba","Milimani","Shirere","Lurambi","Mahiakalo","Sudi","Mumias","Butere","Malava","Lugari"],
-    "Meru": ["Meru CBD","Makutano","Kinoru","Ntharene","Nkubu","Maua","Timau","Laare","Mikinduri","Kianjai"],
-    "Nyeri": ["Nyeri CBD","Ring Road","Mountain View Estate","Garden Estate","Kamakwa","Ruring'u","Majengo","Karatina","Othaya Town","Mukurweini Town","Naromoru"],
-    "Kericho": ["Kericho CBD","Kapsoit","Ainamoi","Litein","Kipkelion","Fort Ternan","Sosiot","Chepseon","Kedowa","Cheborge"],
-    "Trans Nzoia": ["Kitale CBD","Milimani","Mitume","Matisi","Tuwan","Endebess","Kiminini","Kwanza","Saboti","Cherangany"],
-    "Kwale": ["Kwale Town","Diani","Ukunda","Tiwi","Msambweni","Lunga Lunga","Matuga","Kinango","Waa","Shimoni","Mackinon Road","Vanga"],
-    "Tana River": ["Hola","Garsen","Bura","Galole","Wenje","Kipini","Madogo","Chewele","Bangale","Wayu"],
-    "Lamu": ["Lamu Town","Mokowe","Faza","Matondoni","Mpeketoni","Witu","Hindi","Kizingitini","Shela","Kiunga"],
-    "Taita-Taveta": ["Voi","Taveta","Wundanyi","Mwatate","Mgange","Wesu","Bura (Taita)","Mbale (Taveta)","Tausa","Werugha"],
-    "Garissa": ["Garissa Town","Dadaab","Balambala","Fafi","Ijara","Lagdera","Modogashe","Bura (Garissa)","Sankuri","Hulugho"],
-    "Wajir": ["Wajir Town","Habaswein","Griftu","Eldas","Tarbaj","Bute","Buna","Diif","Elnur","Khorof Harar"],
-    "Mandera": ["Mandera Town","Rhamu","Banissa","Lafey","Takaba","El Wak","Kotulo","Fino","Arabia","Warankara"],
-    "Marsabit": ["Marsabit Town","Moyale","Loiyangalani","North Horr","Laisamis","Sololo","Turbi","Maikona","Illeret","Dukana"],
-    "Isiolo": ["Isiolo Town","Garbatulla","Merti","Kinna","Oldonyiro","Burat","Bulapesa","Wabera","Chari","Cherab"],
-    "Tharaka-Nithi": ["Chuka","Marimanti","Kathwana","Chogoria","Gatunga","Nkondi","Igambang'ombe","Muthambi","Mitheru","Tunyai"],
-    "Embu": ["Embu Town","Runyenjes","Manyatta","Siakago","Ishiara","Kiritiri","Kyeni","Karurumo","Kirimari","Gaturi"],
-    "Kitui": ["Kitui Town","Mwingi","Mutomo","Mutitu","Migwani","Zombe","Kabati","Ikutha","Mutha","Kanyangi"],
-    "Makueni": ["Wote","Emali","Sultan Hamud","Kibwezi","Kilome","Mbooni","Kaiti","Nunguni","Makindu","Tawa"],
-    "Nyandarua": ["Ol Kalou","Engineer","Njabini","Nyahururu","Ndaragwa","Ol Joro Orok","North Kinangop","South Kinangop","Kipipiri","Shamata"],
-    "Kirinyaga": ["Kerugoya","Kutus","Sagana","Kagio","Wang'uru","Baricho","Kianyaga","Kimbimbi","Mwea","Kutus Town"],
-    "Murang'a": ["Murang'a Town","Kenol","Kangema","Maragua","Kandara","Kigumo","Gatanga","Kiria-ini","Kabati","Makuyu"],
-    "Turkana": ["Lodwar","Kakuma","Lokichogio","Lokitaung","Kalokol","Lokichar","Kainuk","Todonyang","Kibish","Katilu"],
-    "West Pokot": ["Kapenguria","Makutano (Pokot)","Chepareria","Kacheliba","Sigor","Alale","Chepnyal","Lomut","Ortum","Kongelai"],
-    "Samburu": ["Maralal","Baragoi","Wamba","Archer's Post","Suguta Marmar","Kirisia","South Horr","Poro","Loosuk","Kisima"],
-    "Elgeyo-Marakwet": ["Iten","Tambach","Kapsowar","Chepkorio","Kapyego","Kapsait","Chesoi","Kaptarakwa","Kamogoi","Kabiemit"],
-    "Nandi": ["Kapsabet","Nandi Hills","Mosoriot","Kabiyet","Kaptumo","Kobujoi","Kapsisiywa","Kapsabet Town","Chepterit","Kilibwoni"],
-    "Baringo": ["Kabarnet","Eldama Ravine","Marigat","Kabartonjo","Mogotio","Kimalel","Kabernet Town","Loruk","Kampi ya Samaki","Mochongoi"],
-    "Laikipia": ["Nanyuki","Nyahururu","Rumuruti","Dol Dol","Kinamba","Ngobit","Sipili","Marmanet","Mukogodo","Salama"],
-    "Narok": ["Narok Town","Kilgoris","Ololulunga","Suswa","Ewaso Ngiro","Nairagie Enkare","Naikarra","Ntulele","Melili","Lolgorian"],
-    "Kajiado": ["Kajiado Town","Ngong","Kitengela","Ongata Rongai","Kiserian","Loitokitok","Namanga","Isinya","Bissil","Mashuuru"],
-    "Bomet": ["Bomet Town","Sotik","Longisa","Mulot","Chepalungu","Silibwet","Sigor (Bomet)","Chebunyo","Kaplong","Mogogosiek"],
-    "Vihiga": ["Mbale","Luanda (Vihiga)","Chavakali","Majengo (Vihiga)","Emuhaya","Sabatia","Hamisi","Wodanga","Bunyore","Gisambai"],
-    "Bungoma": ["Bungoma CBD","Kanduyi","Sikata","Webuye","Kimilili","Chwele","Bumula","Sirisia","Naitiri","Malakisi"],
-    "Busia": ["Busia Town","Malaba","Nambale","Funyula","Budalangi","Amagoro","Port Victoria","Matayos","Alupe","Angurai"],
-    "Siaya": ["Siaya Town","Bondo","Ugunja","Yala","Ukwala","Usenge","Sega (Siaya)","Nyang'oma Kogelo","Uranga","Yenga"],
-    "Homa Bay": ["Homa Bay Central","Asego","Arujo","Kalanya","Kanyabala","Katuma","Posta/Bonde","Oyugis","Kendu Bay","Rangwe","Ndhiwa","Mbita","Sindo","Kabondo","Kasipul","Karachuonyo"],
-    "Migori": ["Migori Town","Rongo","Awendo","Isebania","Kehancha","Macalder","Muhuru Bay","Uriri","Ntimaru","Suna"],
-    "Kisii": ["Kisii CBD","Milimani","Nyanchwa","Nyamataro","Daraja Mbili","Mwembe","Jogoo","Nyamage","Nyakoe","Nyangena","Gesonso"],
-    "Nyamira": ["Nyamira Town","Keroka","Ekerenyo","Nyansiongo","Manga","Ikonge","Magwagwa","Nyamaiya","Bomwagamo","Ainapngetuny"]
-  };
-  const NK_TIER1 = ["Kisumu", "Nairobi", "Mombasa"];
-  const NK_COUNTY_LABEL = {
-    "Uasin Gishu": "Uasin Gishu (Eldoret)",
-    "Trans Nzoia": "Trans Nzoia (Kitale)",
-    "Kiambu": "Kiambu (Thika)",
-    "Kilifi": "Kilifi (Malindi)",
-    "Kwale": "Kwale (Diani)",
-    "Taita-Taveta": "Taita-Taveta (Voi)",
-    "West Pokot": "West Pokot (Kapenguria)",
-    "Vihiga": "Vihiga (Mbale)",
-    "Nyandarua": "Nyandarua (Ol Kalou)",
-    "Turkana": "Turkana (Lodwar)",
-    "Samburu": "Samburu (Maralal)",
-    "Elgeyo-Marakwet": "Elgeyo-Marakwet (Iten)",
-    "Nandi": "Nandi (Kapsabet)",
-    "Baringo": "Baringo (Kabarnet)",
-    "Laikipia": "Laikipia (Nanyuki)",
-    "Tharaka-Nithi": "Tharaka-Nithi (Chuka)",
-    "Kirinyaga": "Kirinyaga (Kerugoya)",
-    "Makueni": "Makueni (Wote)"
-  };
-
-  function nkCountyLabel(county) { return NK_COUNTY_LABEL[county] || county; }
-
-  // Reverse lookup: area name -> county (used for URL ?area= links and the card fallback address)
-  const NK_AREA_TO_COUNTY = {};
-  for (const [county, areas] of Object.entries(NK_AREAS_BY_COUNTY)) {
-    areas.forEach(a => { NK_AREA_TO_COUNTY[a] = county; });
+  function exitOpenModal(href) {
+    if (exitTriggered || exitAlreadyShown()) return;
+    if (Date.now() - exitPageLoadedAt < 4000) return; // ignore stray triggers right after page load
+    if (document.getElementById('notify-modal-overlay')?.classList.contains('open')) return; // don't double up with the main notify modal
+    exitTriggered = true;
+    exitMarkShown();
+    exitPendingHref = href || null;
+    exitShowPanel('question');
+    document.getElementById('exit-overlay').classList.add('open');
   }
 
-  function nkPopulateCountySelect() {
-    const sel = document.getElementById('county-select');
-    if (!sel) return;
-    sel.innerHTML = '<option value="">All counties</option>' +
-      NK_COUNTIES.map(c => `<option value="${c}">${nkCountyLabel(c)}</option>`).join('');
+  function exitShowPanel(name) {
+    ['question', 'review', 'lite', 'thanks'].forEach(p => {
+      document.getElementById('exit-panel-' + p).style.display = (p === name) ? 'block' : 'none';
+    });
   }
 
-  // Rebuild the area checkbox list for a chosen county (first 8 visible, rest behind "Show all")
-  function renderAreaChecklist(county) {
-    const hint = document.getElementById('area-hint');
-    const visible = document.getElementById('area-checks-visible');
-    const more = document.getElementById('area-checks-more');
-    const toggleBtn = document.getElementById('area-more-toggle');
-    const areas = NK_AREAS_BY_COUNTY[county] || [];
-
-    if (!county) {
-      hint.style.display = 'block';
-      hint.textContent = 'Pick a county above to filter by area';
-      visible.innerHTML = '';
-      more.innerHTML = '';
-      more.style.display = 'none';
-      toggleBtn.style.display = 'none';
-      return;
-    }
-    if (!areas.length) {
-      hint.style.display = 'block';
-      hint.textContent = 'No areas listed yet for this county';
-      visible.innerHTML = '';
-      more.innerHTML = '';
-      more.style.display = 'none';
-      toggleBtn.style.display = 'none';
-      return;
-    }
-    hint.style.display = 'none';
-    const shown = areas.slice(0, 8);
-    const rest = areas.slice(8);
-    const checkHtml = a => `<label class="check-item"><input type="checkbox" value="${a}" onchange="applyFilters()"/><label>${a}</label></label>`;
-    visible.innerHTML = shown.map(checkHtml).join('');
-    more.innerHTML = rest.map(checkHtml).join('');
-    more.style.display = 'none';
-    if (rest.length) {
-      toggleBtn.style.display = 'inline';
-      toggleBtn.textContent = `Show all ${areas.length} areas ▾`;
-      toggleBtn.dataset.total = areas.length;
-    } else {
-      toggleBtn.style.display = 'none';
-    }
+  function exitClose() { document.getElementById('exit-overlay').classList.remove('open'); }
+  function exitCloseAndGo() {
+    exitClose();
+    if (exitPendingHref) window.location.href = exitPendingHref;
   }
 
-  // County select changed by hand — clear any previously checked areas from a different county
-  function handleCountyFilterChange() {
-    const county = document.getElementById('county-select').value;
-    renderAreaChecklist(county);
-    applyFilters();
-  }
-
-
-  const PAGE_SIZE = 12;
-  let currentPage = 1;
-  let totalCount = 0;
-  let debounceTimer = null;
-
-  // ── Toggle showing all areas for the selected county vs the first 8 ──
-  function toggleMoreAreas() {
-    const more = document.getElementById('area-checks-more');
-    const btn = document.getElementById('area-more-toggle');
-    const total = btn.dataset.total || '';
-    const isHidden = more.style.display === 'none';
-    more.style.display = isHidden ? '' : 'none';
-    btn.textContent = isHidden ? 'Show fewer areas ▴' : `Show all ${total} areas ▾`;
-  }
-
-  // ── Read URL params on load ──
-  function readUrlParams() {
-    const p = new URLSearchParams(window.location.search);
-    if (p.get('q')) {
-      const searchEl = document.getElementById('search-q');
-      searchEl.value = p.get('q');
-      nkFormatSearchInput(searchEl); // in case someone shares a link like ?q=7000
-    }
-
-    // Resolve which county to select: an explicit ?county= wins; otherwise an
-    // ?area= link (e.g. from a listing card or the old-style area links) is
-    // traced back to its county via the reverse lookup so the right area
-    // checklist renders before we try to check the box inside it.
-    let county = p.get('county') || '';
-    if (!county && p.get('area')) county = NK_AREA_TO_COUNTY[p.get('area')] || '';
-
-    if (county) {
-      const sel = document.getElementById('county-select');
-      sel.value = county;
-      renderAreaChecklist(county);
-    }
-
-    if (p.get('area')) {
-      document.querySelectorAll('#area-checks input').forEach(cb => {
-        if (cb.value === p.get('area')) cb.checked = true;
-      });
-      if (document.querySelector(`#area-checks-more input[value="${p.get('area')}"]`)) {
-        toggleMoreAreas();
-      }
-    }
-    if (p.get('category')) {
-      document.querySelectorAll('#cat-pills .filter-pill').forEach(pill => {
-        pill.classList.toggle('active', pill.dataset.val === p.get('category'));
-      });
-    }
-    if (p.get('type')) {
-      document.querySelectorAll('#type-pills .filter-pill').forEach(pill => {
-        pill.classList.toggle('active', pill.dataset.val === p.get('type'));
-      });
-    }
-    // Arriving from the homepage's "type a price" search — it sends minPrice/maxPrice
-    // directly (already computed as a tight band there), so just seed the existing
-    // price range inputs with them. This reuses the sidebar's normal gte/lte filter,
-    // nothing new to break.
-    if (p.get('minPrice')) document.getElementById('price-min').value = p.get('minPrice');
-    if (p.get('maxPrice')) document.getElementById('price-max').value = p.get('maxPrice');
-  }
-
-  // ── Pill selector helper ──
-  function setPill(el, groupId) {
-    document.querySelectorAll(`#${groupId} .filter-pill`).forEach(p => p.classList.remove('active'));
-    el.classList.add('active');
-    if (groupId === 'cat-pills') toggleBedroomsFilter(el.dataset.val);
-    applyFilters();
-  }
-
-  // ── Hide bedroom filter for commercial category (shops/offices aren't bedroom-based) ──
-  function toggleBedroomsFilter(cat) {
-    const section = document.getElementById('bedrooms-filter-section');
-    if (!section) return;
-    if (cat === 'commercial') {
-      setPill(document.querySelector('#bed-pills .filter-pill[data-val=""]'), 'bed-pills');
-      section.style.display = 'none';
-    } else {
-      section.style.display = '';
-    }
-  }
-
-  // ── Price preset ──
-  function setPreset(min, max) {
-    document.getElementById('price-min').value = min || '';
-    document.getElementById('price-max').value = max || '';
-    applyFilters();
-  }
-
-  // ── Header search box: auto-detect a plain price typed in, same behaviour as the
-  // homepage hero search. If what's left after stripping "KES"/commas/spaces is pure
-  // digits, we're in "price mode": live-format as KES, and remember the raw number so
-  // applyFilters() can turn it into an exact ±1 KES match instead of a text search. ──
-  function nkFormatSearchInput(el) {
-    const raw = el.value;
-    const stripped = raw.replace(/^KES\s?/i, '').replace(/,/g, '').trim();
-    if (stripped.length && /^[0-9]+$/.test(stripped)) {
-      el.value = 'KES ' + Number(stripped).toLocaleString('en-KE');
-      el.dataset.priceValue = stripped;
-    } else {
-      delete el.dataset.priceValue;
-    }
-    debouncedApply();
-  }
-
-  // ── Get active filter values ──
-  function getFilters() {
-    const type = document.querySelector('#type-pills .filter-pill.active')?.dataset.val || '';
-    const cat  = document.querySelector('#cat-pills .filter-pill.active')?.dataset.val || '';
-    const beds = document.querySelector('#bed-pills .filter-pill.active')?.dataset.val || '';
-    const furn = document.querySelector('#furn-pills .filter-pill.active')?.dataset.val || '';
-    const county = document.getElementById('county-select')?.value || '';
-    const areas = [...document.querySelectorAll('#area-checks input:checked')].map(c => c.value);
-    const priceMin = document.getElementById('price-min').value;
-    const priceMax = document.getElementById('price-max').value;
-    const searchEl = document.getElementById('search-q');
-    const q = searchEl.value.trim();
-    // A plain number typed into the header search box means "match only listings
-    // within ±1 KES of this value" — existing free-text search (title/area/address)
-    // is skipped in that case so a price like "7000" doesn't also get treated as a
-    // keyword. Text search behaves exactly as before for anything non-numeric.
-    const priceExact = searchEl.dataset.priceValue ? Number(searchEl.dataset.priceValue) : null;
-    const sort = document.getElementById('sort-select').value;
-    return { type, cat, beds, furn, county, areas, priceMin, priceMax, q, priceExact, sort };
-  }
-
-  // ── Build active filter tags ──
-  function renderActiveTags(f) {
-    const tags = [];
-    if (f.type) tags.push({ label: f.type === 'sale' ? 'For sale' : 'To let', key: 'type' });
-    if (f.cat) tags.push({ label: f.cat.charAt(0).toUpperCase() + f.cat.slice(1), key: 'cat' });
-    if (f.beds) tags.push({ label: `${f.beds}+ beds`, key: 'beds' });
-    if (f.furn === 'true') tags.push({ label: 'Furnished', key: 'furn' });
-    if (f.furn === 'false') tags.push({ label: 'Unfurnished', key: 'furn' });
-    if (f.county && !f.areas.length) tags.push({ label: nkCountyLabel(f.county), key: 'county' });
-    f.areas.forEach(a => tags.push({ label: a, key: 'area-' + a }));
-    if (f.priceMin || f.priceMax) {
-      const label = f.priceMin && f.priceMax
-        ? `KES ${Number(f.priceMin).toLocaleString()} – ${Number(f.priceMax).toLocaleString()}`
-        : f.priceMin ? `From KES ${Number(f.priceMin).toLocaleString()}` : `Up to KES ${Number(f.priceMax).toLocaleString()}`;
-      tags.push({ label, key: 'price' });
-    }
-    if (f.priceExact !== null) {
-      tags.push({ label: `≈ KES ${f.priceExact.toLocaleString()} (±1)`, key: 'q' });
-    } else if (f.q) {
-      tags.push({ label: `"${f.q}"`, key: 'q' });
-    }
-
-    const el = document.getElementById('active-filters');
-    el.innerHTML = tags.map(t => `
-      <span class="filter-tag">${t.label}
-        <button onclick="removeTag('${t.key}')" title="Remove filter">×</button>
-      </span>`).join('');
-  }
-
-  // ── Remove a tag ──
-  function removeTag(key) {
-    if (key === 'type') setPill(document.querySelector('#type-pills .filter-pill[data-val=""]'), 'type-pills');
-    else if (key === 'cat') setPill(document.querySelector('#cat-pills .filter-pill[data-val=""]'), 'cat-pills');
-    else if (key === 'beds') setPill(document.querySelector('#bed-pills .filter-pill[data-val=""]'), 'bed-pills');
-    else if (key === 'furn') setPill(document.querySelector('#furn-pills .filter-pill[data-val=""]'), 'furn-pills');
-    else if (key === 'county') {
-      document.getElementById('county-select').value = '';
-      renderAreaChecklist('');
-      applyFilters();
-    }
-    else if (key.startsWith('area-')) {
-      const area = key.replace('area-', '');
-      const cb = document.querySelector(`#area-checks input[value="${area}"]`);
-      if (cb) { cb.checked = false; applyFilters(); }
-    } else if (key === 'price') {
-      document.getElementById('price-min').value = '';
-      document.getElementById('price-max').value = '';
-      applyFilters();
-    } else if (key === 'q') {
-      const searchEl = document.getElementById('search-q');
-      searchEl.value = '';
-      delete searchEl.dataset.priceValue;
-      applyFilters();
-    }
-  }
-
-  // ── Reset all filters ──
-  function resetAllFilters() {
-    setPill(document.querySelector('#type-pills .filter-pill[data-val=""]'), 'type-pills');
-    setPill(document.querySelector('#cat-pills .filter-pill[data-val=""]'), 'cat-pills');
-    setPill(document.querySelector('#bed-pills .filter-pill[data-val=""]'), 'bed-pills');
-    setPill(document.querySelector('#furn-pills .filter-pill[data-val=""]'), 'furn-pills');
-    document.getElementById('county-select').value = '';
-    renderAreaChecklist('');
-    document.getElementById('price-min').value = '';
-    document.getElementById('price-max').value = '';
-    const searchEl = document.getElementById('search-q');
-    searchEl.value = '';
-    delete searchEl.dataset.priceValue;
-    applyFilters();
-  }
-
-  // ── Build and run Supabase query ──
-  async function applyFilters(page) {
-    if (page) currentPage = page;
-    const f = getFilters();
-    renderActiveTags(f);
-
-    const grid = document.getElementById('listings-grid');
-    grid.innerHTML = Array(6).fill(`<div class="skeleton"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line xshort"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div></div></div>`).join('');
-    document.getElementById('result-count').textContent = 'Loading…';
-
-    let query = db.from('listings').select('*, listing_photos(*)', { count: 'exact' }).eq('status', 'active');
-
-    if (f.type)     query = query.eq('price_type', f.type);
-    if (f.cat)      query = query.eq('category', f.cat);
-    if (f.beds)     query = f.beds === '4' ? query.gte('bedrooms', 4) : query.eq('bedrooms', parseInt(f.beds));
-    if (f.furn !== '') query = query.eq('furnished', f.furn === 'true');
-    if (f.areas.length) {
-      query = query.in('area', f.areas);
-    } else if (f.county) {
-      // County picked but no specific area checked yet — show every area we
-      // cover in that county (same behaviour as the homepage's county cards).
-      const countyAreas = NK_AREAS_BY_COUNTY[f.county] || [];
-      if (countyAreas.length) query = query.in('area', countyAreas);
-    }
-    if (f.priceMin) query = query.gte('price', parseFloat(f.priceMin));
-    if (f.priceMax) query = query.lte('price', parseFloat(f.priceMax));
-
-    if (f.priceExact !== null) {
-      // Exact-ish price typed in the header search box: only listings priced within
-      // ±1 KES of it. Combines (ANDs) with any sidebar price-min/max already set,
-      // so nothing about the existing range filter is overridden — it's additive.
-      query = query.gte('price', f.priceExact - 1).lte('price', f.priceExact + 1);
-    } else if (f.q) {
-      query = query.or(`title.ilike.%${f.q}%,description.ilike.%${f.q}%,area.ilike.%${f.q}%,address.ilike.%${f.q}%`);
-    }
-
-    // Sort
-    if (f.sort === 'price_asc')       query = query.order('price', { ascending: true });
-    else if (f.sort === 'price_desc') query = query.order('price', { ascending: false });
-    else if (f.sort === 'featured')   query = query.order('is_featured', { ascending: false }).order('created_at', { ascending: false });
-    else                              query = query.order('created_at', { ascending: false });
-
-    // Pagination
-    const from = (currentPage - 1) * PAGE_SIZE;
-    query = query.range(from, from + PAGE_SIZE - 1);
-
-    const { data, count, error } = await query;
-    if (error) { console.error(error); return; }
-
-    totalCount = count || 0;
-    renderResults(data || [], totalCount);
-    renderPagination(totalCount);
-  }
-
-  // ── Render listing cards ──
-  function formatPrice(price, type) {
-    const p = Number(price).toLocaleString('en-KE');
-    return type === 'rent' ? `KES ${p}<span>/mo</span>` : `KES ${p}`;
-  }
-
-  function buildCard(l) {
-    const photos = l.listing_photos || [];
-    const cover = photos.find(p => p.is_cover) || photos[0];
-    const imgHtml = cover
-      ? `<img src="${cover.url}" alt="${l.title}" loading="lazy"/>`
-      : `<div class="card-img-placeholder"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg><span style="font-size:11px">No photo</span></div>`;
-    const catBadge = l.category !== 'standard'
-      ? `<span class="badge-cat ${l.category}">${l.category}</span>` : '';
-    return `
-      <div class="card" onclick="window.location='listing.html?id=${l.id}'">
-        <div class="card-img">
-          ${imgHtml}
-          ${l.is_featured ? '<span class="badge-featured">Featured</span>' : ''}
-          <div class="nk-heart-overlay">${NKSaved.buildHeartBtn(l.id)}</div>
-          ${catBadge}
-        </div>
-        <div class="card-body">
-          <div class="card-area">${l.area}${l.sub_area ? ' · ' + l.sub_area : ''}</div>
-          <div class="card-title">${l.title}</div>
-          <div class="card-sub">${l.address || (NK_AREA_TO_COUNTY[l.area] ? l.area + ', ' + nkCountyLabel(NK_AREA_TO_COUNTY[l.area]) : 'Kenya')}</div>
-          <div class="card-price">${formatPrice(l.price, l.price_type)}</div>
-          <div class="card-meta">
-            ${l.bedrooms ? `<div class="card-meta-item"><svg viewBox="0 0 24 24"><path d="M2 4v16M22 4v16M2 12h20M2 8h4a2 2 0 012 2v2H2V8zM16 8h4a2 2 0 012 2v2h-6V8z"/></svg>${l.bedrooms} bed</div>` : ''}
-            ${l.bathrooms ? `<div class="card-meta-item"><svg viewBox="0 0 24 24"><path d="M9 6l1-1a2 2 0 012.83 0l6.17 6.17a1 1 0 010 1.41L17 14M3 20h18M5 20v-4a3 3 0 013-3h1"/></svg>${l.bathrooms} bath</div>` : ''}
-            ${l.size_sqm ? `<div class="card-meta-item"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="1"/></svg>${l.size_sqm}m²</div>` : ''}
-            ${l.furnished ? `<div class="card-meta-item"><svg viewBox="0 0 24 24"><rect x="2" y="8" width="20" height="10" rx="2"/><path d="M6 8V6a2 2 0 012-2h8a2 2 0 012 2v2"/><line x1="6" y1="14" x2="6" y2="18"/><line x1="18" y1="14" x2="18" y2="18"/></svg>Furnished</div>` : ''}
-          </div>
-        </div>
-      </div>`;
-  }
-
-  function renderResults(listings, count) {
-    const grid = document.getElementById('listings-grid');
-    const rc = document.getElementById('result-count');
-    rc.innerHTML = `<strong>${count.toLocaleString()}</strong> listing${count !== 1 ? 's' : ''} found`;
-
-    if (!listings.length) {
-      grid.innerHTML = `<div class="empty-state">
-        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
-        <h3>No listings match your filters</h3>
-        <p>Try adjusting your search or <a onclick="resetAllFilters()" style="cursor:pointer">reset all filters</a></p>
-      </div>`;
-      return;
-    }
-    grid.innerHTML = listings.map(buildCard).join('');
-  }
-
-  // ── Pagination ──
-  function renderPagination(count) {
-    const totalPages = Math.ceil(count / PAGE_SIZE);
-    const el = document.getElementById('pagination');
-    if (totalPages <= 1) { el.innerHTML = ''; return; }
-
-    let html = `<button class="page-btn" onclick="applyFilters(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>←</button>`;
-    for (let i = 1; i <= totalPages; i++) {
-      if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
-        html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="applyFilters(${i})">${i}</button>`;
-      } else if (i === currentPage - 2 || i === currentPage + 2) {
-        html += `<span style="padding:0 4px;color:var(--text-3);font-size:13px">…</span>`;
-      }
-    }
-    html += `<button class="page-btn" onclick="applyFilters(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>→</button>`;
-    el.innerHTML = html;
-  }
-
-  // ── Debounce for text inputs ──
-  function debouncedApply() {
-    clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(applyFilters, 500);
-  }
-
-  // ── Mobile sidebar ──
-  function openSidebar() {
-    document.getElementById('sidebar').classList.add('open');
-    document.getElementById('overlay').classList.add('open');
-  }
-  function closeSidebar() {
-    document.getElementById('sidebar').classList.remove('open');
-    document.getElementById('overlay').classList.remove('open');
-  }
-
-  // ── Mobile nav toggle ──
-  function toggleMobileMenu() {
-    document.getElementById('mobile-nav').classList.toggle('open');
-  }
-  document.addEventListener('click', e => {
-    const nav = document.getElementById('mobile-nav');
-    const btn = document.querySelector('.mobile-menu-btn');
-    if (nav && nav.classList.contains('open') && !nav.contains(e.target) && !btn.contains(e.target)) {
-      nav.classList.remove('open');
-    }
+  // Desktop: mouse moving up toward the tab/address bar
+  document.addEventListener('mouseout', (e) => {
+    if (e.clientY <= 0) exitOpenModal(null);
   });
 
-  // ── Sign in → My Account when logged in ──
-  (async function () {
-    const _sb = (typeof db !== 'undefined') ? db : supabase.createClient(
-      'https://vliuuloyfhyxcsuchpss.supabase.co',
-      'sb_publishable_oIIcecf3wzKMual5K24Z8Q_zmxVfgsx'
-    );
-    const { data: { session } } = await _sb.auth.getSession();
-    if (!session) return;
+  // Any click that navigates away from this page (nav, logo, footer, mobile nav)
+  document.addEventListener('click', (e) => {
+    if (exitAlreadyShown()) return;
+    const a = e.target.closest('a[href]');
+    if (!a) return;
+    const href = a.getAttribute('href');
+    if (!href || href.startsWith('#') || href.startsWith('mailto:') || href.startsWith('tel:') || a.target === '_blank') return;
+    e.preventDefault();
+    exitOpenModal(href);
+  });
 
-    const desktopLink = document.getElementById('nav-account-link');
-    const mobileLink  = document.getElementById('mobile-account-link');
-    if (desktopLink) {
-      desktopLink.textContent = 'My Account';
-      desktopLink.href = 'dashboard.html';
-      desktopLink.style.fontWeight = '600';
-      desktopLink.style.color = 'var(--green)';
+  function exitAnswerYes() {
+    if (localStorage.getItem(EXIT_REVIEW_DONE_KEY)) {
+      exitCloseAndGo(); // already reviewed before, anywhere on the site — just let them go
+      return;
     }
-    if (mobileLink) {
-      mobileLink.textContent = 'My Account';
-      mobileLink.href = 'dashboard.html';
-    }
-  })();
+    exitStarRating = 0;
+    document.getElementById('exit-review-nav').value = '';
+    document.getElementById('exit-review-improve').value = '';
+    document.getElementById('exit-review-name').value = '';
+    document.getElementById('exit-review-anon').checked = false;
+    exitRenderStars();
+    exitShowPanel('review');
+  }
 
-  // ── Init ──
-  nkPopulateCountySelect();
-  renderAreaChecklist('');
-  readUrlParams();
-  toggleBedroomsFilter(document.querySelector('#cat-pills .filter-pill.active')?.dataset.val || '');
-  applyFilters();
-</script>
+  function exitRenderStars() {
+    const el = document.getElementById('exit-stars');
+    el.innerHTML = [1,2,3,4,5].map(n =>
+      `<svg class="exit-star" data-n="${n}" viewBox="0 0 24 24" onclick="exitSetStar(${n})"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`
+    ).join('');
+  }
+  function exitSetStar(n) {
+    exitStarRating = n;
+    [...document.getElementById('exit-stars').children].forEach((star, i) => star.classList.toggle('filled', i < n));
+  }
 
-<script src="saved-listings.js"></script>
-<script>NKSaved.init();</script>
+  function exitToggleAnon() {
+    const nameInput = document.getElementById('exit-review-name');
+    const checked = document.getElementById('exit-review-anon').checked;
+    if (checked) { nameInput.dataset.saved = nameInput.value; nameInput.value = ''; nameInput.disabled = true; }
+    else { nameInput.disabled = false; nameInput.value = nameInput.dataset.saved || ''; }
+  }
 
-<script>
-  (function () {
-    const sb = supabase.createClient(
-      'https://vliuuloyfhyxcsuchpss.supabase.co',
-      'sb_publishable_oIIcecf3wzKMual5K24Z8Q_zmxVfgsx'
-    );
-    let sid = localStorage.getItem('nk_sid');
-    if (!sid) {
-      sid = (crypto.randomUUID ? crypto.randomUUID() : Date.now() + '-' + Math.random().toString(36).slice(2));
-      localStorage.setItem('nk_sid', sid);
-    }
-    sb.from('page_views').insert({
-      path: location.pathname,
-      referrer: document.referrer || null,
-      user_agent: navigator.userAgent,
-      session_id: sid
+  function exitSkipReview() {
+    exitShowPanel('thanks');
+    document.getElementById('exit-thanks-text').textContent = 'No worries — thanks for visiting!';
+    setTimeout(exitCloseAndGo, 1400);
+  }
+
+  async function exitSubmitReview() {
+    if (!exitStarRating) { alert('Please pick a star rating'); return; }
+    const nav = document.getElementById('exit-review-nav').value.trim();
+    const improve = document.getElementById('exit-review-improve').value.trim();
+    const isAnon = document.getElementById('exit-review-anon').checked;
+    const typedName = document.getElementById('exit-review-name').value.trim();
+    const reviewerName = isAnon ? null : (typedName || null);
+
+    const parts = [];
+    if (nav) parts.push(`Navigation/finding things: ${nav}`);
+    if (improve) parts.push(`Suggested improvement: ${improve}`);
+    const comment = parts.join(' | ') || null;
+
+    const btn = document.getElementById('exit-review-submit');
+    btn.disabled = true; btn.textContent = 'Submitting…';
+
+    const { error } = await db.from('reviews').insert({
+      review_type: 'platform',
+      reviewer_role: 'buyer',
+      reviewer_name: reviewerName,
+      is_anonymous: isAnon,
+      rating: exitStarRating,
+      comment,
     });
-  })();
-</script>
 
-</body>
-</html>
+    btn.disabled = false; btn.textContent = 'Submit & continue';
+    if (error) { alert('Something went wrong, please try again: ' + error.message); return; }
+
+    localStorage.setItem(EXIT_REVIEW_DONE_KEY, '1');
+    exitShowPanel('thanks');
+    document.getElementById('exit-thanks-text').textContent = 'Thank you for your feedback! 🎉';
+    setTimeout(exitCloseAndGo, 1400);
+  }
+
+  function exitAnswerNo() {
+    // Only show the lightweight follow-up form some of the time — not every visit
+    const showForm = Math.random() < 0.4;
+    if (showForm) {
+      document.getElementById('exit-lite-name').value = '';
+      document.getElementById('exit-lite-phone').value = '';
+      document.getElementById('exit-lite-notes').value = '';
+      exitShowPanel('lite');
+    } else {
+      exitShowPanel('thanks');
+      document.getElementById('exit-thanks-text').innerHTML =
+        `Sorry we couldn't help this time. <span style="text-decoration:underline;cursor:pointer;color:var(--green)" onclick="exitShowPanel('lite')">Tell us what you need →</span>`;
+      setTimeout(() => {
+        if (document.getElementById('exit-panel-thanks').style.display !== 'none') exitCloseAndGo();
+      }, 3500);
+    }
+  }
+
+  async function exitSubmitLite() {
+    const name = document.getElementById('exit-lite-name').value.trim();
+    const phone = document.getElementById('exit-lite-phone').value.trim();
+    const notes = document.getElementById('exit-lite-notes').value.trim();
+    if (!name || !phone) { alert('Please add your name and phone so we can reach you'); return; }
+
+    const btn = document.getElementById('exit-lite-submit');
+    btn.disabled = true; btn.textContent = 'Saving…';
+
+    const { error } = await db.from('listing_alerts').insert({ full_name: name, phone, notes: notes || null });
+
+    btn.disabled = false; btn.textContent = 'Notify me';
+    if (error) { alert('Something went wrong: ' + error.message); return; }
+
+    exitShowPanel('thanks');
+    document.getElementById('exit-thanks-text').textContent = "Got it! We'll be in touch the moment something matches.";
+    setTimeout(exitCloseAndGo, 1600);
+  }
