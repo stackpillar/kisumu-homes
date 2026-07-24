@@ -499,6 +499,10 @@
   const { createClient } = supabase;
   const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
+  // ── Production site base — used for ALL auth email redirects so links ──
+  // ── always work no matter where signup/reset was triggered from       ──
+  const SITE_BASE = 'https://stackpillar.github.io/kisumu-homes';
+
   // ── Redirect destination ──
   // If user came from post-listing page, send them back after login
   const redirectTo = new URLSearchParams(window.location.search).get('next') || 'dashboard.html';
@@ -639,7 +643,7 @@
       const { error } = await db.auth.resend({
         type: 'signup',
         email: email,
-        options: { emailRedirectTo: window.location.origin + window.location.pathname.replace('login.html','verify-email.html') }
+        options: { emailRedirectTo: SITE_BASE + '/verify-email.html' }
       });
       if (error) {
         link.textContent = error.message.includes('rate limit') || error.message.includes('after')
@@ -673,7 +677,10 @@
     setLoading('btn-register', true);
     const { data, error } = await db.auth.signUp({
       email, password: pw,
-      options: { data: { full_name: `${first} ${last}`, phone } }
+      options: {
+        data: { full_name: `${first} ${last}`, phone },
+        emailRedirectTo: SITE_BASE + '/verify-email.html'
+      }
     });
     setLoading('btn-register', false);
 
@@ -711,7 +718,7 @@
 
     setLoading('btn-reset', true);
     const { error } = await db.auth.resetPasswordForEmail(email, {
-      redirectTo: window.location.origin + '/reset-confirm.html'
+      redirectTo: SITE_BASE + '/reset-confirm.html'
     });
     setLoading('btn-reset', false);
 
