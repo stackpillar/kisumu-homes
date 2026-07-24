@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script>window.__scwEarlyErrors=[];window.addEventListener('error',function(e){window.__scwEarlyErrors.push((e&&e.message)?e.message:'Unknown error at '+(e&&e.filename||'?')+':'+(e&&e.lineno||'?'));});</script>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Dashboard — Nyumba254</title>
@@ -350,8 +351,8 @@
     .scw-view-head h4{font-size:15px;font-weight:700;color:var(--text)}
     .scw-new-btn{font-size:12px;font-weight:700;color:var(--green-dark);background:var(--green-light);border:none;padding:6px 12px;border-radius:20px;cursor:pointer}
     .scw-new-btn:hover{background:#cdeee0}
-    .scw-ticket-list{padding:0 18px 18px;display:flex;flex-direction:column;gap:10px;overflow-y:auto}
-    .scw-ticket-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:13px 15px;cursor:pointer;transition:box-shadow .15s}
+    .scw-ticket-list{padding:0 18px 18px;display:flex;flex-direction:column;gap:10px;overflow-y:auto;flex:1;min-height:0}
+    .scw-ticket-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:13px 15px;cursor:pointer;transition:box-shadow .15s;flex-shrink:0}
     .scw-ticket-card:hover{box-shadow:var(--shadow)}
     .scw-ticket-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;gap:8px}
     .scw-ticket-topic{font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -385,13 +386,14 @@
     .scw-send{width:36px;height:36px;border-radius:50%;background:var(--green);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
     .scw-send:hover{background:var(--green-dark)}
     .scw-send svg{width:14px;height:14px;stroke:white;fill:none;stroke-width:2}
-    .scw-search-wrap{position:relative;margin:0 18px 12px}
+    .scw-search-wrap{position:relative;margin:0 18px 12px;flex-shrink:0}
     .scw-search-wrap svg{position:absolute;left:11px;top:11px;width:13px;height:13px;stroke:var(--text-3);fill:none;stroke-width:2}
     .scw-search-input{width:100%;padding:9px 12px 9px 32px;border:1.5px solid var(--border);border-radius:10px;font-size:12.5px;outline:none;background:white;color:var(--text)}
     .scw-search-input:focus{border-color:var(--green)}
-    .scw-faq-list{padding:0 18px 18px;display:flex;flex-direction:column;gap:8px;overflow-y:auto}
-    .scw-faq-item{background:var(--white);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+    .scw-faq-list{padding:0 18px 18px;display:flex;flex-direction:column;gap:8px;overflow-y:auto;flex:1;min-height:0}
+    .scw-faq-item{background:var(--white);border:1px solid var(--border);border-radius:12px;overflow:hidden;flex-shrink:0}
     .scw-faq-q{padding:12px 14px;font-size:13px;font-weight:600;color:var(--text);cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:10px}
+    .scw-faq-q-text{flex:1;min-width:0;word-break:break-word;white-space:normal}
     .scw-faq-q .chev{font-size:11px;color:var(--text-3);transition:transform .15s;flex-shrink:0}
     .scw-faq-item.open .scw-faq-q .chev{transform:rotate(90deg)}
     .scw-faq-a{max-height:0;overflow:hidden;transition:max-height .2s ease}
@@ -1446,7 +1448,7 @@ function escHtml(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replac
 function escAttr(s){if(!s)return'';return String(s).replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 
 /* ══════════════════════════════════════
-   SUPPORT CHAT WIDGET v3 — Home / Messages
+   SUPPORT CHAT WIDGET v4 — Home / Messages
    / Tickets / Help.
 
    Flow: tapping a topic creates ONE ticket
@@ -1456,8 +1458,15 @@ function escAttr(s){if(!s)return'';return String(s).replace(/"/g,'&quot;').repla
    specific issue, get the canned answer,
    then "Did this solve it?":
      Yes → ticket auto-resolves (closed forever)
-     No  → hands off to a human agent, ticket
-           stays open and free-text unlocks
+     No  → bot tries one more keyword-matched
+           suggestion before handing off to a
+           human agent; ticket stays open and
+           free-text unlocks
+   The bot also scans a seller's first free-text
+   message after handoff for a likely answer,
+   so it keeps trying to help before an agent
+   ever has to type — but only once, and never
+   after a real human has already replied.
    Sellers can also hit "Mark resolved" on an
    open ticket at any time. Resolved/closed
    tickets are permanently read-only — start a
@@ -1476,7 +1485,8 @@ const SCW_TOPICS=[
 ];
 
 // Per-topic drill-down. Each leaf either has an `a` (canned answer, offered
-// with a Yes/No resolve check) or `handoff:true` (skips straight to a human).
+// with a Yes/No resolve check) or `handoff:true` (skips straight to a human,
+// though the bot will still try one keyword-matched suggestion first).
 const SCW_TREE={
   payments:[
     {label:'My listing still shows trial/pending after paying',a:'Confirmed M-Pesa payments usually reflect within 2–5 minutes. If it\'s been longer, share your M-Pesa reference code and we\'ll trace it.'},
@@ -1514,14 +1524,38 @@ const SCW_TREE={
   other:[],
 };
 
-// Flat FAQ list for the Help tab (pure lookup, no chat involved).
-const SCW_FAQ=(()=>{
-  const seen=new Set(),out=[];
-  Object.values(SCW_TREE).forEach(opts=>opts.forEach(o=>{if(o.a&&!seen.has(o.label)){seen.add(o.label);out.push({q:o.label,a:o.a});}}));
+// Flat FAQ list for the Help tab AND for the bot's keyword-matched suggestions.
+const SCW_FAQ=(function(){
+  var seen={}, out=[];
+  Object.keys(SCW_TREE).forEach(function(k){
+    SCW_TREE[k].forEach(function(o){
+      if(o.a && !seen[o.label]){seen[o.label]=true;out.push({q:o.label,a:o.a});}
+    });
+  });
   return out;
 })();
 
 function scwName(){return(scwSellerName||'there').split(' ')[0]||'there';}
+function scwTicketRef(t){return t&&t.id?('NK-'+String(t.id).replace(/-/g,'').slice(0,7).toUpperCase()):'—';}
+
+// Very small keyword-overlap matcher — no network, instant, good enough for
+// short support phrasing. Returns the best FAQ hit or null if nothing scores.
+function scwMatchFaq(text){
+  if(!text)return null;
+  const words=text.toLowerCase().replace(/[^a-z0-9\s]/g,' ').split(/\s+/).filter(w=>w.length>2);
+  if(!words.length)return null;
+  const stop=new Set(['the','and','for','with','about','this','that','have','you','your','are','was','were','not','how','can','get','has']);
+  const sig=words.filter(w=>!stop.has(w));
+  if(!sig.length)return null;
+  let best=null,bestScore=0;
+  SCW_FAQ.forEach(f=>{
+    const hay=(f.q+' '+f.a).toLowerCase();
+    let score=0;
+    sig.forEach(w=>{if(hay.includes(w))score++;});
+    if(score>bestScore){bestScore=score;best=f;}
+  });
+  return bestScore>=1?best:null;
+}
 
 function scwToggle(){
   scwOpen=!scwOpen;
@@ -1529,8 +1563,8 @@ function scwToggle(){
   document.getElementById('scw-overlay').classList.toggle('open',scwOpen);
   if(scwOpen){
     document.getElementById('scw-fab-badge')?.classList.remove('show');
+    scwRenderHomeFaq();scwRenderHelp(document.getElementById('scw-help-search')?.value||'');
     if(!scwLoaded){scwLoaded=true;scwInit();}
-    else{scwRenderHomeFaq();scwRenderHelp(document.getElementById('scw-help-search')?.value||'');}
   }
 }
 
@@ -1540,8 +1574,6 @@ async function scwInit(){
     scwSellerInits=scwSellerName.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase()||'S';
     const nameEl=document.getElementById('scw-greet-name');if(nameEl)nameEl.textContent=scwName();
   }catch(err){console.error('SCW profile error:',err);}
-  scwRenderHomeFaq();
-  scwRenderHelp('');
   try{await scwLoadTickets();}catch(err){console.error('SCW load error:',err);}
   scwPollTimer=setInterval(scwPoll,20000);
 }
@@ -1550,7 +1582,11 @@ async function scwLoadTickets(){
   const{data,error}=await db.from('chat_sessions').select('*').eq('session_type','seller')
     .like('session_key','seller_'+currentUser.id+'_%').order('last_msg_at',{ascending:false});
   if(error){console.error(error);return;}
-  scwTickets=(data||[]).map(t=>({...t,status:t.status||(t.is_resolved?'resolved':'open'),_messages:null,_unread:0,_botStage:null}));
+  const prevById={};scwTickets.forEach(t=>{prevById[t.id]=t;});
+  scwTickets=(data||[]).map(t=>{
+    const prev=prevById[t.id];
+    return{...t,status:t.status||(t.is_resolved?'resolved':'open'),_messages:prev?prev._messages:null,_unread:0,_topicId:prev?prev._topicId:null,_botMsgs:prev?prev._botMsgs:{},_suggested:prev?prev._suggested:false,_textSuggested:prev?prev._textSuggested:false};
+  });
   await scwRefreshUnreadCounts();
   scwRenderRecentTicket();
   if(document.getElementById('scw-view-tickets')?.classList.contains('active'))scwRenderTicketList();
@@ -1569,7 +1605,7 @@ async function scwPoll(){
   await scwLoadTickets();
   if(scwOpen&&scwActiveTicket){
     const fresh=scwTickets.find(x=>String(x.id)===String(scwActiveTicket.id));
-    if(fresh){fresh._messages=scwActiveTicket._messages;fresh._botStage=scwActiveTicket._botStage;scwActiveTicket=fresh;}
+    if(fresh){fresh._messages=scwActiveTicket._messages;scwActiveTicket=fresh;}
     if(scwTab==='messages')scwRenderThreadHead(scwActiveTicket);
   }
 }
@@ -1601,14 +1637,25 @@ function scwRenderRecentTicket(){
   const t=scwTickets[0];
   el.innerHTML=`<div class="scw-recent-card" onclick="scwOpenTicket('${t.id}')">
     <div class="scw-recent-icon"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
-    <div class="scw-recent-body"><div class="scw-recent-topic">${escHtml(t.topic||'General enquiry')}</div><div class="scw-recent-preview">${t.status==='open'?'Open':(t.status==='resolved'?'Resolved':'Closed')}</div></div>
+    <div class="scw-recent-body"><div class="scw-recent-topic">${escHtml(t.topic||'General enquiry')}</div><div class="scw-recent-preview">${scwTicketRef(t)} · ${t.status==='open'?'Open':(t.status==='resolved'?'Resolved':'Closed')}</div></div>
     <div class="scw-recent-meta">${timeAgo(t.last_msg_at)}</div>
   </div>`;
 }
 function scwRenderHomeFaq(){
   const el=document.getElementById('scw-home-faq');if(!el)return;
-  if(!SCW_FAQ.length){el.innerHTML='<div class="scw-empty-mini">No quick answers yet.</div>';return;}
-  el.innerHTML=SCW_FAQ.slice(0,3).map(f=>`<div class="scw-mini-faq" onclick="scwSetTab('help')"><strong>${escHtml(f.q)}</strong>${escHtml(f.a.replace(/<[^>]+>/g,'').slice(0,70))}…</div>`).join('');
+  try{
+    if(typeof SCW_FAQ==='undefined'){el.innerHTML='<div class="scw-empty-mini" style="color:var(--red)">Widget error: SCW_FAQ is not defined — the script likely failed to load fully. Check the browser console for a red error.</div>';return;}
+    if(!SCW_FAQ.length){el.innerHTML='<div class="scw-empty-mini">No quick answers configured yet.</div>';return;}
+    el.innerHTML=SCW_FAQ.slice(0,3).map(f=>`<div class="scw-mini-faq" onclick="scwOpenHelpAndExpand('${escAttr(f.q)}')"><strong>${escHtml(f.q)}</strong>${escHtml(f.a.replace(/<[^>]+>/g,'').slice(0,70))}…</div>`).join('');
+  }catch(err){
+    console.error('scwRenderHomeFaq error:',err);
+    el.innerHTML=`<div class="scw-empty-mini" style="color:var(--red)">Widget error: ${escHtml(err.message||String(err))}</div>`;
+  }
+}
+function scwOpenHelpAndExpand(question){
+  scwSetTab('help');
+  const idx=SCW_FAQ.findIndex(f=>f.q===question);
+  if(idx>=0)setTimeout(()=>{document.getElementById('scw-faq-'+idx)?.classList.add('open');document.getElementById('scw-faq-'+idx)?.scrollIntoView({block:'nearest'});},50);
 }
 function scwShowTopicPicker(from){
   const wrapId=from==='home'?'scw-topic-picker':'scw-tickets-topic-picker';
@@ -1624,7 +1671,7 @@ async function scwCreateTicket(topicId,topicLabel){
   const payload={session_key:sessionKey,session_type:'seller',visitor_name:scwSellerName,page:'dashboard.html',topic:topicLabel,status:'open',is_resolved:false,last_msg_at:new Date().toISOString()};
   const{data,error}=await db.from('chat_sessions').insert(payload).select().single();
   if(error){showToast('Could not start ticket: '+error.message,'error');return;}
-  const ticket={...data,status:'open',_messages:[],_unread:0,_topicId:topicId,_botStage:'menu'};
+  const ticket={...data,status:'open',_messages:[],_unread:0,_topicId:topicId,_botMsgs:{},_suggested:false,_textSuggested:false};
   scwTickets.unshift(ticket);
   document.getElementById('scw-topic-picker').style.display='none';
   document.getElementById('scw-tickets-topic-picker').style.display='none';
@@ -1637,18 +1684,17 @@ function scwStartNewTicket(){scwShowTopicPicker('home');}
 async function scwOpenTicket(id,isNew){
   const t=scwTickets.find(x=>String(x.id)===String(id));if(!t)return;
   scwActiveTicket=t;
-  if(!isNew)await scwLoadTicketMessages(t);
+  if(!isNew&&t._messages===null)await scwLoadTicketMessages(t);
   scwSetTab('messages');
   document.getElementById('scw-msg-empty').style.display='none';
   document.getElementById('scw-msg-active').style.display='flex';
   scwRenderThreadHead(t);
   document.getElementById('scw-msgs').innerHTML='';
+  (t._messages||[]).forEach(m=>scwAppendBubble(m.sender,m.body));
   if(isNew){
-    (t._messages||[]).forEach(m=>scwAppendBubble(m.sender,m.body));
-    scwRunBotMenu(t);
-  }else{
-    (t._messages||[]).forEach(m=>scwAppendBubble(m.sender,m.body));
-    if(t.status==='open'&&(!t._messages||!t._messages.length))scwRunBotMenu(t);
+    await scwRunBotMenu(t);
+  }else if(t.status==='open'&&(!t._messages||!t._messages.length)){
+    await scwRunBotMenu(t);
   }
   await scwMarkTicketRead(t);
 }
@@ -1661,7 +1707,7 @@ async function scwLoadTicketMessages(t){
 function scwRenderThreadHead(t){
   const closed=t.status!=='open';
   document.getElementById('scw-thread-head').innerHTML=`
-    <div><div class="scw-thread-head-topic">${escHtml(t.topic||'General enquiry')}</div><div class="scw-thread-head-ref">Ticket · ${(t.status||'open').toUpperCase()}</div></div>
+    <div><div class="scw-thread-head-topic">${escHtml(t.topic||'General enquiry')}</div><div class="scw-thread-head-ref">${scwTicketRef(t)} · ${(t.status||'open').toUpperCase()}</div></div>
     ${!closed?`<div class="scw-thread-head-action"><button class="scw-chip-btn" onclick="scwResolveTicket('${t.id}')">✓ Mark resolved</button></div>`:''}
   `;
   document.getElementById('scw-closed-banner').style.display=closed?'block':'none';
@@ -1690,17 +1736,22 @@ function scwShowOptions(buttons){
   scwRemoveOptions();
   const mc=document.getElementById('scw-msgs');if(!mc)return;
   const wrap=document.createElement('div');wrap.className='scw-options';wrap.id='scw-options-wrap';
-  wrap.innerHTML=buttons.map((b,i)=>`<button class="scw-option-btn" onclick="${b.onclick}">${escHtml(b.label)}</button>`).join('');
+  wrap.innerHTML=buttons.map(b=>`<button class="scw-option-btn" onclick="${b.onclick}">${escHtml(b.label)}</button>`).join('');
   mc.appendChild(wrap);mc.scrollTop=mc.scrollHeight;
 }
 
-async function scwPersist(ticket,sender,body){
-  const{data,error}=await db.from('chat_messages').insert({session_id:ticket.id,sender,body}).select().single();
+async function scwPersistVisitor(ticket,body){
+  const{data,error}=await db.from('chat_messages').insert({session_id:ticket.id,sender:'visitor',body}).select().single();
   if(!error&&data){ticket._messages=ticket._messages||[];ticket._messages.push(data);ticket.last_msg_at=data.created_at;await db.from('chat_sessions').update({last_msg_at:data.created_at}).eq('id',ticket.id);}
   return data;
 }
+async function scwPersistBot(ticket,body){
+  const{data,error}=await db.from('chat_messages').insert({session_id:ticket.id,sender:'admin',body,read_at:new Date().toISOString()}).select().single();
+  if(!error&&data){ticket._messages=ticket._messages||[];ticket._messages.push(data);ticket._botMsgs=ticket._botMsgs||{};ticket._botMsgs[data.id]=true;ticket.last_msg_at=data.created_at;await db.from('chat_sessions').update({last_msg_at:data.created_at}).eq('id',ticket.id);}
+  return data;
+}
 
-/* Robotic drill-down: root menu → leaf answer → resolved check → handoff */
+/* Robotic drill-down: root menu → leaf answer → resolved check → suggestion → handoff */
 async function scwRunBotMenu(ticket){
   scwBotBusy=true;
   document.getElementById('scw-input-bar').style.display='none';
@@ -1709,7 +1760,7 @@ async function scwRunBotMenu(ticket){
   scwHideTyping();
   const greet=`Hi ${scwName()}! You picked "<strong>${escHtml(ticket.topic)}</strong>" — what specifically is it about?`;
   scwAppendBubble('admin',greet);
-  await scwPersist(ticket,'admin',greet);
+  await scwPersistBot(ticket,greet);
   const opts=SCW_TREE[ticket._topicId]||[];
   if(!opts.length){await scwGoToHandoff(ticket,ticket.topic);return;}
   scwShowOptions(opts.map((o,i)=>({label:o.label,onclick:`scwPickLeaf('${ticket.id}',${i})`})));
@@ -1725,14 +1776,14 @@ async function scwPickLeaf(ticketId,idx){
   const opts=SCW_TREE[ticket._topicId]||[];
   const opt=opts[idx];if(!opt){scwBotBusy=false;return;}
   scwAppendBubble('visitor',opt.label);
-  await scwPersist(ticket,'visitor',opt.label);
+  await scwPersistVisitor(ticket,opt.label);
   if(opt.handoff){await scwGoToHandoff(ticket,opt.label);return;}
   scwShowTyping();await scwWait(700);scwHideTyping();
   scwAppendBubble('admin',opt.a);
-  await scwPersist(ticket,'admin',opt.a);
+  await scwPersistBot(ticket,opt.a);
   await scwWait(250);
   scwAppendBubble('admin','Did that solve it?');
-  await scwPersist(ticket,'admin','Did that solve it?');
+  await scwPersistBot(ticket,'Did that solve it?');
   scwShowOptions([
     {label:'✅ Yes, that solved it',onclick:`scwResolveByBot('${ticket.id}')`},
     {label:'❌ No, I need an agent',onclick:`scwGoToHandoff('${ticket.id}','${escAttr(opt.label)}')`},
@@ -1741,28 +1792,48 @@ async function scwPickLeaf(ticketId,idx){
 }
 
 async function scwResolveByBot(ticketId){
-  const ticket=typeof ticketId==='string'&&scwFindTicket(ticketId)?scwFindTicket(ticketId):ticketId;
+  const ticket=scwFindTicket(ticketId);
   if(!ticket||scwBotBusy)return;
   scwBotBusy=true;scwRemoveOptions();
   scwAppendBubble('visitor','Yes, that solved it — thanks!');
-  await scwPersist(ticket,'visitor','Yes, that solved it — thanks!');
+  await scwPersistVisitor(ticket,'Yes, that solved it — thanks!');
   scwShowTyping();await scwWait(500);scwHideTyping();
   const bye='Glad we could help! 🎉 This ticket is now closed — start a new topic any time if you need more help.';
   scwAppendBubble('admin',bye);
-  await scwPersist(ticket,'admin',bye);
+  await scwPersistBot(ticket,bye);
   await scwResolveTicket(ticket.id,true);
   scwBotBusy=false;
 }
 
+// Tries one keyword-matched suggestion before the real human handoff. Only
+// fires once per ticket (ticket._suggested) so it never nags.
 async function scwGoToHandoff(ticketOrId,category){
   const ticket=typeof ticketOrId==='string'?scwFindTicket(ticketOrId):ticketOrId;
   if(!ticket)return;
   scwBotBusy=true;scwRemoveOptions();
-  // If arrived here via the "No" button, log the visitor's choice first.
+  if(!ticket._suggested){
+    ticket._suggested=true;
+    const match=scwMatchFaq((category||'')+' '+(ticket.topic||''));
+    if(match){
+      scwShowTyping();await scwWait(650);scwHideTyping();
+      const sugg=`Before I connect you — this might help:<br><strong>${escHtml(match.q)}</strong><br>${match.a}`;
+      scwAppendBubble('admin',sugg);
+      await scwPersistBot(ticket,sugg);
+      await scwWait(200);
+      scwAppendBubble('admin','Did that solve it?');
+      await scwPersistBot(ticket,'Did that solve it?');
+      scwShowOptions([
+        {label:'✅ Yes, that solved it',onclick:`scwResolveByBot('${ticket.id}')`},
+        {label:'🙋 No, connect me to an agent',onclick:`scwGoToHandoff('${ticket.id}','${escAttr(category||ticket.topic)}')`},
+      ]);
+      scwBotBusy=false;
+      return;
+    }
+  }
   scwShowTyping();await scwWait(650);scwHideTyping();
   const msg=`Got it — connecting you with an agent about "<strong>${escHtml(category||ticket.topic)}</strong>". Describe it below and someone will reply right here as soon as they're available.`;
   scwAppendBubble('admin',msg);
-  await scwPersist(ticket,'admin',msg);
+  await scwPersistBot(ticket,msg);
   scwBotBusy=false;
   document.getElementById('scw-input-bar').style.display='flex';
   document.getElementById('scw-input')?.focus();
@@ -1796,7 +1867,7 @@ function scwRenderTicketList(){
     return `<div class="scw-ticket-card" onclick="scwOpenTicket('${t.id}')">
       <div class="scw-ticket-top"><span class="scw-ticket-topic">${escHtml(t.topic||'General enquiry')}</span><span class="scw-ticket-status ${t.status}">${t.status}</span></div>
       <div class="scw-ticket-preview">${escHtml(preview)}</div>
-      <div class="scw-ticket-meta">${timeAgo(t.last_msg_at)}${t._unread?` · ${t._unread} new`:''}</div>
+      <div class="scw-ticket-meta">${scwTicketRef(t)} · ${timeAgo(t.last_msg_at)}${t._unread?` · ${t._unread} new`:''}</div>
     </div>`;
   }).join('');
 }
@@ -1807,8 +1878,39 @@ async function scwSend(){
   const input=document.getElementById('scw-input');const body=input.value.trim();if(!body)return;
   input.value='';input.style.height='auto';
   scwAppendBubble('visitor',body);
-  await scwPersist(t,'visitor',body);
+  await scwPersistVisitor(t,body);
   scwRenderRecentTicket();
+
+  // One-shot smart suggestion on the seller's first free-text message, but
+  // only if no real human has replied in this ticket yet.
+  const visitorMsgCount=(t._messages||[]).filter(m=>m.sender==='visitor').length;
+  const hasHumanReply=(t._messages||[]).some(m=>m.sender==='admin'&&!(t._botMsgs&&t._botMsgs[m.id]));
+  if(visitorMsgCount===1&&!t._textSuggested&&!hasHumanReply){
+    const match=scwMatchFaq(body);
+    if(match){
+      t._textSuggested=true;
+      scwBotBusy=true;
+      scwShowTyping();await scwWait(600);scwHideTyping();
+      const sugg=`While you wait — this might help:<br><strong>${escHtml(match.q)}</strong><br>${match.a}`;
+      scwAppendBubble('admin',sugg);
+      await scwPersistBot(t,sugg);
+      await scwWait(200);
+      scwAppendBubble('admin','Did that solve it, or should we keep this with an agent?');
+      await scwPersistBot(t,'Did that solve it, or should we keep this with an agent?');
+      scwShowOptions([
+        {label:'✅ Yes, that solved it',onclick:`scwResolveByBot('${t.id}')`},
+        {label:'🙋 Keep it with an agent',onclick:`scwDismissSuggestion('${t.id}')`},
+      ]);
+      scwBotBusy=false;
+    }
+  }
+}
+async function scwDismissSuggestion(ticketId){
+  const t=scwFindTicket(ticketId);if(!t)return;
+  scwRemoveOptions();
+  const msg='No problem — an agent will follow up here shortly.';
+  scwAppendBubble('admin',msg);
+  await scwPersistBot(t,msg);
 }
 function scwKeydown(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();scwSend();}}
 function scwResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,100)+'px';}
@@ -1816,16 +1918,70 @@ function scwResize(el){el.style.height='auto';el.style.height=Math.min(el.scroll
 /* ---- Help tab (pure FAQ, no chat) ---- */
 function scwRenderHelp(query){
   const el=document.getElementById('scw-faq-list');if(!el)return;
-  const q=(query||'').toLowerCase();
-  const items=SCW_FAQ.filter(f=>!q||f.q.toLowerCase().includes(q)||f.a.toLowerCase().includes(q));
-  if(!items.length){el.innerHTML='<div class="scw-empty-mini">No articles match that search.</div>';return;}
-  el.innerHTML=items.map((f,i)=>`<div class="scw-faq-item" id="scw-faq-${i}"><div class="scw-faq-q" onclick="scwToggleFaq(${i})">${escHtml(f.q)}<span class="chev">›</span></div><div class="scw-faq-a"><div class="scw-faq-a-inner">${f.a}</div></div></div>`).join('');
+  try{
+    if(typeof SCW_FAQ==='undefined'){el.innerHTML='<div class="scw-empty-mini" style="color:var(--red)">Widget error: SCW_FAQ is not defined — the script likely failed to load fully. Check the browser console for a red error.</div>';return;}
+    const q=(query||'').toLowerCase();
+    const items=SCW_FAQ.filter(f=>!q||f.q.toLowerCase().includes(q)||f.a.toLowerCase().includes(q));
+    if(!items.length){el.innerHTML=`<div class="scw-empty-mini">${SCW_FAQ.length?'No articles match that search.':'No help articles configured yet.'}</div>`;return;}
+    el.innerHTML=items.map((f,i)=>`<div class="scw-faq-item" id="scw-faq-${i}"><div class="scw-faq-q" onclick="scwToggleFaq(${i})"><span class="scw-faq-q-text">${escHtml(f.q)}</span><span class="chev">›</span></div><div class="scw-faq-a"><div class="scw-faq-a-inner">${f.a}</div></div></div>`).join('');
+  }catch(err){
+    console.error('scwRenderHelp error:',err);
+    el.innerHTML=`<div class="scw-empty-mini" style="color:var(--red)">Widget error: ${escHtml(err.message||String(err))}</div>`;
+  }
 }
 function scwToggleFaq(i){document.getElementById('scw-faq-'+i)?.classList.toggle('open');}
 
 function scwCleanup(){clearInterval(scwPollTimer);if(scwChannel){scwChannel.unsubscribe();scwChannel=null;}}
 
+// Global safety net: if ANYTHING on the page throws (e.g. the Supabase CDN
+// script failing to load, which would otherwise silently blank out every
+// part of this widget that depends on it), show the first such error right
+// inside the Home/Help panels instead of leaving them empty with no clue why.
+let scwFirstError=null;
+window.addEventListener('error',function(e){
+  if(scwFirstError)return;
+  scwFirstError=(e&&e.message)?e.message:'Unknown script error';
+  const banner=`<div class="scw-empty-mini" style="color:var(--red);border-color:var(--red)">⚠ Page script error detected: ${escHtml(scwFirstError)}. This is why parts of the widget may be blank — please share this exact message.</div>`;
+  const home=document.getElementById('scw-home-faq');if(home)home.innerHTML=banner+home.innerHTML;
+  const help=document.getElementById('scw-faq-list');if(help)help.innerHTML=banner+help.innerHTML;
+});
+
+// Eager, network-independent render so Home/Help are populated the instant
+// the script loads — not only after the widget has been opened once.
+try{scwRenderHomeFaq();scwRenderHelp('');}catch(e){console.error('SCW eager render error:',e);}
+if(window.__scwEarlyErrors&&window.__scwEarlyErrors.length){
+  const early=window.__scwEarlyErrors.map(m=>escHtml(m)).join('<br>');
+  const banner=`<div class="scw-empty-mini" style="color:var(--red);border-color:var(--red)">⚠ A script on this page failed before the widget could fully load:<br>${early}<br>Please share this exact message.</div>`;
+  const home=document.getElementById('scw-home-faq');if(home)home.innerHTML=banner+home.innerHTML;
+  const help=document.getElementById('scw-faq-list');if(help)help.innerHTML=banner+help.innerHTML;
+}
+
 init();
+</script>
+<script>
+// Independent watchdog — runs even if the big inline script above threw
+// partway through and never reached its own error handling. If the widget's
+// core functions/data never materialized, show exactly why instead of a
+// silent blank panel.
+(function(){
+  function paint(msg){
+    var banner='<div class="scw-empty-mini" style="color:var(--red);border-color:var(--red)">⚠ Widget failed to initialize: '+msg.replace(/</g,'&lt;')+'. Please share this exact message.</div>';
+    var home=document.getElementById('scw-home-faq'),help=document.getElementById('scw-faq-list');
+    if(home&&!home.innerHTML.trim())home.innerHTML=banner;
+    if(help&&!help.innerHTML.trim())help.innerHTML=banner;
+  }
+  setTimeout(function(){
+    try{
+      if(typeof window.SCW_FAQ==='undefined'&&typeof SCW_FAQ==='undefined'){
+        var early=(window.__scwEarlyErrors&&window.__scwEarlyErrors.length)?window.__scwEarlyErrors.join(' | '):null;
+        paint(early||'the main script did not finish running (check the browser console for a red error, likely from the Supabase CDN script)');
+      }
+    }catch(e){
+      var early2=(window.__scwEarlyErrors&&window.__scwEarlyErrors.length)?window.__scwEarlyErrors.join(' | '):e.message;
+      paint(early2);
+    }
+  },1200);
+})();
 </script>
 </body>
 </html>
