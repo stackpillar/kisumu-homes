@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Dashboard — NyumbaKisumu</title>
+  <title>Dashboard — Nyumba254</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -403,7 +403,7 @@
     <p>Your account has been placed under a security review due to suspicious activity. All of your listings have been hidden from buyers and you will not be able to post new listings while this review is in progress.</p>
     <p class="emphasis">Please do not email us about this — the review will be completed soon and the outcome will be sent to your account.</p>
     <button class="btn btn-outline btn-lg" style="width:100%;justify-content:center" onclick="doSignOut()">Sign out</button>
-    <div class="suspended-footer">NyumbaKisumu · Account Security</div>
+    <div class="suspended-footer">Nyumba254 · Account Security</div>
   </div>
 </div>
 
@@ -420,7 +420,7 @@
       <div class="sidebar-logo-icon">
         <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
       </div>
-      <span class="sidebar-logo-text">NyumbaKisumu</span>
+      <span class="sidebar-logo-text">Nyumba254</span>
     </div>
     <nav class="sidebar-nav">
       <div class="nav-section-label">Main</div>
@@ -639,18 +639,11 @@
         <div class="form-group"><label>Bedrooms</label><input type="number" id="edit-bedrooms" min="0" max="20"/></div>
         <div class="form-group"><label>Bathrooms</label><input type="number" id="edit-bathrooms" min="0" max="20"/></div>
         <div class="form-group"><label>Size (m²)</label><input type="number" id="edit-size"/></div>
+        <div class="form-group"><label>County</label>
+          <select id="edit-county" onchange="handleEditCountyChange()"></select>
+        </div>
         <div class="form-group"><label>Area</label>
-          <select id="edit-area">
-            <optgroup label="Kisumu">
-              <option value="Milimani">Milimani</option><option value="Kisumu CBD">Kisumu CBD</option><option value="Kondele">Kondele</option><option value="Riat Hills">Riat Hills</option><option value="Mamboleo">Mamboleo</option><option value="Nyalenda">Nyalenda</option><option value="Obunga">Obunga</option><option value="Manyatta">Manyatta</option><option value="Car Wash">Car Wash</option><option value="Dunga">Dunga</option><option value="Elgon View">Elgon View</option><option value="Kanyakwar">Kanyakwar</option><option value="Kibos">Kibos</option><option value="Kibuye">Kibuye</option><option value="Migosi">Migosi</option><option value="Nyamasaria">Nyamasaria</option><option value="Otonglo">Otonglo</option>
-            </optgroup>
-            <optgroup label="Near Maseno University">
-              <option value="Maseno">Maseno</option><option value="Sega">Sega</option><option value="Kombewa">Kombewa</option>
-            </optgroup>
-            <optgroup label="Luanda & surroundings">
-              <option value="Luanda">Luanda Town</option><option value="Matibabu">Matibabu</option><option value="Ahero">Ahero</option>
-            </optgroup>
-          </select>
+          <select id="edit-area"></select>
         </div>
         <div class="form-group"><label>Category</label><select id="edit-category"><option value="student">Student</option><option value="standard">Standard</option><option value="luxury">Luxury</option><option value="commercial">Shops & offices</option></select></div>
         <div class="form-group" style="grid-column:1/-1"><label>Address / sub-area</label><input type="text" id="edit-address"/></div>
@@ -700,7 +693,7 @@
     <div class="modal-head no-print"><h3>Payment receipt</h3><div class="modal-close" onclick="closeModal('modal-receipt')">✕</div></div>
     <div class="modal-body">
       <div id="receipt-content" class="receipt-box">
-        <div class="receipt-header"><div class="receipt-logo">🏠 NyumbaKisumu</div><div class="receipt-sub">Payment Receipt</div></div>
+        <div class="receipt-header"><div class="receipt-logo">🏠 Nyumba254</div><div class="receipt-sub">Payment Receipt</div></div>
         <div class="receipt-row"><span>Receipt No.</span><span id="rcpt-number">—</span></div>
         <div class="receipt-row"><span>Date</span><span id="rcpt-date">—</span></div>
         <div class="receipt-divider"></div>
@@ -711,7 +704,7 @@
         <div class="receipt-row"><span>Status</span><span id="rcpt-status">—</span></div>
         <div class="receipt-divider"></div>
         <div class="receipt-row receipt-total"><span>Amount paid</span><span id="rcpt-amount">—</span></div>
-        <div class="receipt-footer">Thank you for using NyumbaKisumu. This receipt confirms payment of your apartment listing fee.</div>
+        <div class="receipt-footer">Thank you for using Nyumba254. This receipt confirms payment of your apartment listing fee.</div>
       </div>
     </div>
     <div class="modal-foot no-print">
@@ -730,7 +723,7 @@
 <div class="lsw-popup" id="lsw-popup">
   <div class="lsw-head">
     <div class="lsw-head-av"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
-    <div class="lsw-head-info"><div class="lsw-head-name">NyumbaKisumu Support</div><div class="lsw-head-status"><span></span>Online — we reply quickly</div></div>
+    <div class="lsw-head-info"><div class="lsw-head-name">Nyumba254 Support</div><div class="lsw-head-status"><span></span>Online — we reply quickly</div></div>
     <button class="lsw-close" onclick="lswToggle()">×</button>
   </div>
   <div class="lsw-subbar" id="lsw-subbar">
@@ -743,7 +736,7 @@
     <textarea id="lsw-input" rows="1" placeholder="Type a message…" oninput="lswResize(this)" onkeydown="lswKeydown(event)"></textarea>
     <button class="lsw-send" onclick="lswSend()"><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
   </div>
-  <div class="lsw-footer">NyumbaKisumu · Seller Support</div>
+  <div class="lsw-footer">Nyumba254 · Seller Support</div>
 </div>
 
 <script>
@@ -752,12 +745,128 @@ const SUPABASE_KEY = 'sb_publishable_oIIcecf3wzKMual5K24Z8Q_zmxVfgsx';
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
+  const NK_COUNTIES = [
+    "Mombasa","Kwale","Kilifi","Tana River","Lamu","Taita-Taveta","Garissa","Wajir","Mandera",
+    "Marsabit","Isiolo","Meru","Tharaka-Nithi","Embu","Kitui","Machakos","Makueni","Nyandarua",
+    "Nyeri","Kirinyaga","Murang'a","Kiambu","Turkana","West Pokot","Samburu","Trans Nzoia",
+    "Uasin Gishu","Elgeyo-Marakwet","Nandi","Baringo","Laikipia","Nakuru","Narok","Kajiado",
+    "Kericho","Bomet","Kakamega","Vihiga","Bungoma","Busia","Siaya","Kisumu","Homa Bay",
+    "Migori","Kisii","Nyamira","Nairobi"
+  ].sort();
+  const NK_AREAS_BY_COUNTY = {
+    "Kisumu": ["Ahero","Car Wash","Dunga","Elgon View","Kanyakwar","Kibos","Kibuye","Kisumu CBD","Kombewa","Kondele","Luanda","Mamboleo","Manyatta","Maseno","Matibabu","Migosi","Milimani","Nyalenda","Nyamasaria","Obunga","Otonglo","Riat Hills","Sega"],
+    "Nairobi": ["Nairobi CBD","Westlands","Parklands","Highridge","Kangemi","Kitisuru","Runda","Loresho","Muthaiga","Gigiri","Spring Valley","Nyari","Rosslyn","Thome","Garden Estate","Ridgeways","Kilimani","Kileleshwa","Lavington","Kawangware","Hurlingham","Upper Hill","Adams Arcade","Karen","Langata","South B","South C","Nairobi West","Madaraka","Otiende","Kibera","Woodley","Roysambu","Zimmerman","Kahawa West","Githurai","Mirema","Kasarani","Mwiki","Njiru","Ruaraka","Baba Dogo","Mathare","Huruma","Pipeline","Imara Daima","Nyayo Estate","Dandora","Kariobangi","Kayole","Komarock","Utawala","Tassia","Umoja","Buruburu","Donholm","Makadara","Eastleigh","Ngara","Pangani"],
+    "Mombasa": ["Mombasa CBD (Old Town)","Nyali","Bamburi","Kizingo","Tudor","Likoni","Changamwe","Kisauni","Shanzu","Mkomani","Bombolulu","Kiembeni","Port Reitz","Miritini","Chaani","Migadini","Kongowea","Junda","Mwakirunge","Mtopanga","Jomvu","Magongo"],
+    "Nakuru": ["Nakuru CBD","Milimani","Section 58","Langalanga","Pangani","Shabab","Bangladesh","Lanet","Free Area","Freehold","Ngata","Bahati","London","Afraha","Naka","Kiamunyi","White House","Pipeline","Kaptembwa","Rhoda","Menengai","Naivasha"],
+    "Uasin Gishu": ["Eldoret CBD","Kapsoya","Langas","Kimumu","Huruma","Elgon View","Pioneer","Annex","Rupa Village","Hazina","Kamukunji","Munyaka","West Indies"],
+    "Kiambu": ["Thika CBD","Landless","Makongeni","Section 9","Blue Post","Thika Greens","Kiganjo","Tora","Ngoingwa","Bahati Ridge","Kisii Estate","Ruiru","Membley","Kamakis","Juja","Kiambu Town","Kikuyu","Limuru"],
+    "Kilifi": ["Kilifi Town","Malindi CBD","Kisumu Ndogo","Majengo (Malindi)","Silversands","Watamu","Mtwapa","Mariakani","Kaloleni","Mazeras","Magarini"],
+    "Machakos": ["Machakos CBD","Mua Hills","Kalama","Mitaboni","Athi River","Mlolongo","Syokimau","Katani","Kangundo Road","Kola"],
+    "Kakamega": ["Kakamega CBD","Amalemba","Milimani","Shirere","Lurambi","Mahiakalo","Sudi","Mumias","Butere","Malava","Lugari"],
+    "Meru": ["Meru CBD","Makutano","Kinoru","Ntharene","Nkubu","Maua","Timau","Laare","Mikinduri","Kianjai"],
+    "Nyeri": ["Nyeri CBD","Ring Road","Mountain View Estate","Garden Estate","Kamakwa","Ruring'u","Majengo","Karatina","Othaya Town","Mukurweini Town","Naromoru"],
+    "Kericho": ["Kericho CBD","Kapsoit","Ainamoi","Litein","Kipkelion","Fort Ternan","Sosiot","Chepseon","Kedowa","Cheborge"],
+    "Trans Nzoia": ["Kitale CBD","Milimani","Mitume","Matisi","Tuwan","Endebess","Kiminini","Kwanza","Saboti","Cherangany"],
+    "Kwale": ["Kwale Town","Diani","Ukunda","Tiwi","Msambweni","Lunga Lunga","Matuga","Kinango","Waa","Shimoni","Mackinon Road","Vanga"],
+    "Tana River": ["Hola","Garsen","Bura","Galole","Wenje","Kipini","Madogo","Chewele","Bangale","Wayu"],
+    "Lamu": ["Lamu Town","Mokowe","Faza","Matondoni","Mpeketoni","Witu","Hindi","Kizingitini","Shela","Kiunga"],
+    "Taita-Taveta": ["Voi","Taveta","Wundanyi","Mwatate","Mgange","Wesu","Bura (Taita)","Mbale (Taveta)","Tausa","Werugha"],
+    "Garissa": ["Garissa Town","Dadaab","Balambala","Fafi","Ijara","Lagdera","Modogashe","Bura (Garissa)","Sankuri","Hulugho"],
+    "Wajir": ["Wajir Town","Habaswein","Griftu","Eldas","Tarbaj","Bute","Buna","Diif","Elnur","Khorof Harar"],
+    "Mandera": ["Mandera Town","Rhamu","Banissa","Lafey","Takaba","El Wak","Kotulo","Fino","Arabia","Warankara"],
+    "Marsabit": ["Marsabit Town","Moyale","Loiyangalani","North Horr","Laisamis","Sololo","Turbi","Maikona","Illeret","Dukana"],
+    "Isiolo": ["Isiolo Town","Garbatulla","Merti","Kinna","Oldonyiro","Burat","Bulapesa","Wabera","Chari","Cherab"],
+    "Tharaka-Nithi": ["Chuka","Marimanti","Kathwana","Chogoria","Gatunga","Nkondi","Igambang'ombe","Muthambi","Mitheru","Tunyai"],
+    "Embu": ["Embu Town","Runyenjes","Manyatta","Siakago","Ishiara","Kiritiri","Kyeni","Karurumo","Kirimari","Gaturi"],
+    "Kitui": ["Kitui Town","Mwingi","Mutomo","Mutitu","Migwani","Zombe","Kabati","Ikutha","Mutha","Kanyangi"],
+    "Makueni": ["Wote","Emali","Sultan Hamud","Kibwezi","Kilome","Mbooni","Kaiti","Nunguni","Makindu","Tawa"],
+    "Nyandarua": ["Ol Kalou","Engineer","Njabini","Nyahururu","Ndaragwa","Ol Joro Orok","North Kinangop","South Kinangop","Kipipiri","Shamata"],
+    "Kirinyaga": ["Kerugoya","Kutus","Sagana","Kagio","Wang'uru","Baricho","Kianyaga","Kimbimbi","Mwea","Kutus Town"],
+    "Murang'a": ["Murang'a Town","Kenol","Kangema","Maragua","Kandara","Kigumo","Gatanga","Kiria-ini","Kabati","Makuyu"],
+    "Turkana": ["Lodwar","Kakuma","Lokichogio","Lokitaung","Kalokol","Lokichar","Kainuk","Todonyang","Kibish","Katilu"],
+    "West Pokot": ["Kapenguria","Makutano (Pokot)","Chepareria","Kacheliba","Sigor","Alale","Chepnyal","Lomut","Ortum","Kongelai"],
+    "Samburu": ["Maralal","Baragoi","Wamba","Archer's Post","Suguta Marmar","Kirisia","South Horr","Poro","Loosuk","Kisima"],
+    "Elgeyo-Marakwet": ["Iten","Tambach","Kapsowar","Chepkorio","Kapyego","Kapsait","Chesoi","Kaptarakwa","Kamogoi","Kabiemit"],
+    "Nandi": ["Kapsabet","Nandi Hills","Mosoriot","Kabiyet","Kaptumo","Kobujoi","Kapsisiywa","Kapsabet Town","Chepterit","Kilibwoni"],
+    "Baringo": ["Kabarnet","Eldama Ravine","Marigat","Kabartonjo","Mogotio","Kimalel","Kabernet Town","Loruk","Kampi ya Samaki","Mochongoi"],
+    "Laikipia": ["Nanyuki","Nyahururu","Rumuruti","Dol Dol","Kinamba","Ngobit","Sipili","Marmanet","Mukogodo","Salama"],
+    "Narok": ["Narok Town","Kilgoris","Ololulunga","Suswa","Ewaso Ngiro","Nairagie Enkare","Naikarra","Ntulele","Melili","Lolgorian"],
+    "Kajiado": ["Kajiado Town","Ngong","Kitengela","Ongata Rongai","Kiserian","Loitokitok","Namanga","Isinya","Bissil","Mashuuru"],
+    "Bomet": ["Bomet Town","Sotik","Longisa","Mulot","Chepalungu","Silibwet","Sigor (Bomet)","Chebunyo","Kaplong","Mogogosiek"],
+    "Vihiga": ["Mbale","Luanda (Vihiga)","Chavakali","Majengo (Vihiga)","Emuhaya","Sabatia","Hamisi","Wodanga","Bunyore","Gisambai"],
+    "Bungoma": ["Bungoma CBD","Kanduyi","Sikata","Webuye","Kimilili","Chwele","Bumula","Sirisia","Naitiri","Malakisi"],
+    "Busia": ["Busia Town","Malaba","Nambale","Funyula","Budalangi","Amagoro","Port Victoria","Matayos","Alupe","Angurai"],
+    "Siaya": ["Siaya Town","Bondo","Ugunja","Yala","Ukwala","Usenge","Sega (Siaya)","Nyang'oma Kogelo","Uranga","Yenga"],
+    "Homa Bay": ["Homa Bay Central","Asego","Arujo","Kalanya","Kanyabala","Katuma","Posta/Bonde","Oyugis","Kendu Bay","Rangwe","Ndhiwa","Mbita","Sindo","Kabondo","Kasipul","Karachuonyo"],
+    "Migori": ["Migori Town","Rongo","Awendo","Isebania","Kehancha","Macalder","Muhuru Bay","Uriri","Ntimaru","Suna"],
+    "Kisii": ["Kisii CBD","Milimani","Nyanchwa","Nyamataro","Daraja Mbili","Mwembe","Jogoo","Nyamage","Nyakoe","Nyangena","Gesonso"],
+    "Nyamira": ["Nyamira Town","Keroka","Ekerenyo","Nyansiongo","Manga","Ikonge","Magwagwa","Nyamaiya","Bomwagamo","Ainapngetuny"]
+  };
+  const NK_TIER1 = ["Kisumu", "Nairobi", "Mombasa"];
+  const NK_COUNTY_LABEL = {
+    "Uasin Gishu": "Uasin Gishu (Eldoret)",
+    "Trans Nzoia": "Trans Nzoia (Kitale)",
+    "Kiambu": "Kiambu (Thika)",
+    "Kilifi": "Kilifi (Malindi)",
+    "Kwale": "Kwale (Diani)",
+    "Taita-Taveta": "Taita-Taveta (Voi)",
+    "West Pokot": "West Pokot (Kapenguria)",
+    "Vihiga": "Vihiga (Mbale)",
+    "Nyandarua": "Nyandarua (Ol Kalou)",
+    "Turkana": "Turkana (Lodwar)",
+    "Samburu": "Samburu (Maralal)",
+    "Elgeyo-Marakwet": "Elgeyo-Marakwet (Iten)",
+    "Nandi": "Nandi (Kapsabet)",
+    "Baringo": "Baringo (Kabarnet)",
+    "Laikipia": "Laikipia (Nanyuki)",
+    "Tharaka-Nithi": "Tharaka-Nithi (Chuka)",
+    "Kirinyaga": "Kirinyaga (Kerugoya)",
+    "Makueni": "Makueni (Wote)"
+  };
+
+  function nkCountyLabel(county) { return NK_COUNTY_LABEL[county] || county; }
+
+  // Reverse lookup: area name -> county (used to preselect the right county
+  // when editing an existing listing, since listings only store the area).
+  const NK_AREA_TO_COUNTY = {};
+  for (const [county, areas] of Object.entries(NK_AREAS_BY_COUNTY)) {
+    areas.forEach(a => { NK_AREA_TO_COUNTY[a] = county; });
+  }
+
+  function nkPopulateEditCounties() {
+    const sel = document.getElementById('edit-county');
+    if (!sel) return;
+    sel.innerHTML = NK_COUNTIES.map(c => `<option value="${c}">${nkCountyLabel(c)}</option>`).join('');
+  }
+  // Populate the Edit-modal area dropdown for a county, preselecting currentArea if given
+  function nkPopulateEditAreas(county, currentArea) {
+    const sel = document.getElementById('edit-area');
+    if (!sel) return;
+    const areas = NK_AREAS_BY_COUNTY[county] || [];
+    sel.innerHTML = areas.map(a => `<option value="${a}">${a}</option>`).join('');
+    if (currentArea && areas.includes(currentArea)) {
+      sel.value = currentArea;
+    } else if (currentArea) {
+      // Area isn't in this county's list (legacy/free-text data) — add it so nothing is lost
+      const opt = document.createElement('option');
+      opt.value = currentArea; opt.textContent = currentArea + ' (custom)';
+      sel.appendChild(opt);
+      sel.value = currentArea;
+    }
+  }
+  function handleEditCountyChange() {
+    const county = document.getElementById('edit-county').value;
+    nkPopulateEditAreas(county);
+  }
+
+
 let currentUser=null,currentProfile=null,allListings=[],allEnquiries=[],allPayments=[],allMessages=[],allReviews=[],threads=[],activeThread=null,listingFilter='all',enquiryFilter='all',deleteTargetId=null,occupiedTargetId=null,replyTargetEnquiry=null,msgPollTimer=null,threadListingFilter=null;
 
 const AMENITY_KEYS=[{key:'has_parking',label:'Parking'},{key:'has_water',label:'Water supply'},{key:'has_security',label:'Security'},{key:'has_wifi',label:'WiFi ready'},{key:'has_backup_power',label:'Backup power'},{key:'has_gym',label:'Gym'},{key:'has_pool',label:'Swimming pool'},{key:'has_balcony',label:'Balcony'}];
 
 async function init(){
   try{
+    nkPopulateEditCounties();
     const{data:{session}}=await db.auth.getSession();
     if(!session){window.location.href='login.html';return;}
     currentUser=session.user;
@@ -1010,7 +1119,11 @@ function shareListing(id){const l=allListings.find(l=>l.id===id);if(!l)return;co
 
 function openEditModal(id){
   const l=allListings.find(l=>l.id===id);if(!l)return;
-  document.getElementById('edit-id').value=l.id;document.getElementById('edit-title').value=l.title||'';document.getElementById('edit-price').value=l.price||'';document.getElementById('edit-price-type').value=l.price_type||'sale';document.getElementById('edit-bedrooms').value=l.bedrooms||'';document.getElementById('edit-bathrooms').value=l.bathrooms||'';document.getElementById('edit-size').value=l.size_sqm||'';document.getElementById('edit-area').value=l.area||'Milimani';document.getElementById('edit-category').value=l.category||'standard';document.getElementById('edit-address').value=l.address||'';document.getElementById('edit-description').value=l.description||'';document.getElementById('edit-furnished').checked=l.furnished||false;
+  document.getElementById('edit-id').value=l.id;document.getElementById('edit-title').value=l.title||'';document.getElementById('edit-price').value=l.price||'';document.getElementById('edit-price-type').value=l.price_type||'sale';document.getElementById('edit-bedrooms').value=l.bedrooms||'';document.getElementById('edit-bathrooms').value=l.bathrooms||'';document.getElementById('edit-size').value=l.size_sqm||'';document.getElementById('edit-category').value=l.category||'standard';document.getElementById('edit-address').value=l.address||'';document.getElementById('edit-description').value=l.description||'';document.getElementById('edit-furnished').checked=l.furnished||false;
+  const currentArea=l.area||'Milimani';
+  const currentCounty=NK_AREA_TO_COUNTY[currentArea]||'Kisumu';
+  document.getElementById('edit-county').value=currentCounty;
+  nkPopulateEditAreas(currentCounty,currentArea);
   document.getElementById('edit-amenities-grid').innerHTML=AMENITY_KEYS.map(a=>`<label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;padding:7px;background:var(--surface);border-radius:6px"><input type="checkbox" id="edit-${a.key}" ${l[a.key]?'checked':''}/>${a.label}</label>`).join('');
   openModal('modal-edit');
   if(l.is_disabled)setTimeout(()=>showToast("Disabled by admin. Edits won't make it live — contact admin.",'error'),350);
@@ -1212,7 +1325,7 @@ function renderPayments(){
 let receiptTarget=null;
 function openReceiptModal(id){const p=allPayments.find(x=>String(x.id)===String(id));if(!p)return;receiptTarget=p;const isPaid=p.status==='confirmed'||p.status==='paid';document.getElementById('rcpt-number').textContent='NK-'+String(p.id).slice(0,8).toUpperCase();document.getElementById('rcpt-date').textContent=new Date(p.created_at).toLocaleDateString('en-KE',{day:'numeric',month:'long',year:'numeric'});document.getElementById('rcpt-seller').textContent=currentProfile?.full_name||currentUser?.email||'—';document.getElementById('rcpt-listing').textContent=p.listings?.title||'—';document.getElementById('rcpt-method').textContent=(p.method||'—').toUpperCase();document.getElementById('rcpt-ref').textContent=p.reference||p.mpesa_ref||'—';document.getElementById('rcpt-status').textContent=isPaid?'Paid ✓':(p.status||'pending');document.getElementById('rcpt-amount').textContent=`KES ${Number(p.amount||0).toLocaleString('en-KE')}`;openModal('modal-receipt');}
 function printReceipt(){window.print();}
-function downloadReceiptPDF(){if(!receiptTarget)return;if(!window.jspdf){showToast('PDF library still loading — try again in a second','error');return;}const{jsPDF}=window.jspdf;const doc=new jsPDF({unit:'mm',format:'a5'});const p=receiptTarget;const isPaid=p.status==='confirmed'||p.status==='paid';doc.setFont('helvetica','bold');doc.setFontSize(18);doc.setTextColor(8,80,65);doc.text('NyumbaKisumu',74,20,{align:'center'});doc.setFont('helvetica','normal');doc.setFontSize(10);doc.setTextColor(120,120,120);doc.text('PAYMENT RECEIPT',74,27,{align:'center'});doc.setDrawColor(15,110,86);doc.line(15,32,133,32);let y=42;const row=(label,value)=>{doc.setFont('helvetica','normal');doc.setFontSize(10);doc.setTextColor(130,130,130);doc.text(label,15,y);doc.setFont('helvetica','bold');doc.setTextColor(26,26,24);doc.text(String(value),133,y,{align:'right'});y+=8;};row('Receipt No.','NK-'+String(p.id).slice(0,8).toUpperCase());row('Date',new Date(p.created_at).toLocaleDateString('en-KE',{day:'numeric',month:'long',year:'numeric'}));row('Billed to',currentProfile?.full_name||currentUser?.email||'—');row('Listing',p.listings?.title||'—');row('Payment method',(p.method||'—').toUpperCase());row('Reference',p.reference||p.mpesa_ref||'—');row('Status',isPaid?'Paid':(p.status||'pending'));doc.setDrawColor(224,222,216);doc.line(15,y,133,y);y+=10;doc.setFont('helvetica','bold');doc.setFontSize(14);doc.setTextColor(8,80,65);doc.text('Amount paid',15,y);doc.text(`KES ${Number(p.amount||0).toLocaleString('en-KE')}`,133,y,{align:'right'});y+=20;doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(150,150,150);doc.text('Thank you for using NyumbaKisumu.',74,y,{align:'center'});doc.save(`NyumbaKisumu-Receipt-${String(p.id).slice(0,8)}.pdf`);}
+function downloadReceiptPDF(){if(!receiptTarget)return;if(!window.jspdf){showToast('PDF library still loading — try again in a second','error');return;}const{jsPDF}=window.jspdf;const doc=new jsPDF({unit:'mm',format:'a5'});const p=receiptTarget;const isPaid=p.status==='confirmed'||p.status==='paid';doc.setFont('helvetica','bold');doc.setFontSize(18);doc.setTextColor(8,80,65);doc.text('Nyumba254',74,20,{align:'center'});doc.setFont('helvetica','normal');doc.setFontSize(10);doc.setTextColor(120,120,120);doc.text('PAYMENT RECEIPT',74,27,{align:'center'});doc.setDrawColor(15,110,86);doc.line(15,32,133,32);let y=42;const row=(label,value)=>{doc.setFont('helvetica','normal');doc.setFontSize(10);doc.setTextColor(130,130,130);doc.text(label,15,y);doc.setFont('helvetica','bold');doc.setTextColor(26,26,24);doc.text(String(value),133,y,{align:'right'});y+=8;};row('Receipt No.','NK-'+String(p.id).slice(0,8).toUpperCase());row('Date',new Date(p.created_at).toLocaleDateString('en-KE',{day:'numeric',month:'long',year:'numeric'}));row('Billed to',currentProfile?.full_name||currentUser?.email||'—');row('Listing',p.listings?.title||'—');row('Payment method',(p.method||'—').toUpperCase());row('Reference',p.reference||p.mpesa_ref||'—');row('Status',isPaid?'Paid':(p.status||'pending'));doc.setDrawColor(224,222,216);doc.line(15,y,133,y);y+=10;doc.setFont('helvetica','bold');doc.setFontSize(14);doc.setTextColor(8,80,65);doc.text('Amount paid',15,y);doc.text(`KES ${Number(p.amount||0).toLocaleString('en-KE')}`,133,y,{align:'right'});y+=20;doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(150,150,150);doc.text('Thank you for using Nyumba254.',74,y,{align:'center'});doc.save(`Nyumba254-Receipt-${String(p.id).slice(0,8)}.pdf`);}
 
 const pageTitles={overview:'Overview',listings:'My listings',messages:'Messages',enquiries:'Enquiries',reviews:'Reviews',payments:'Payments',settings:'Settings'};
 function showPage(name){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));document.getElementById('page-'+name).classList.add('active');const navEl=document.getElementById('nav-'+name);if(navEl)navEl.classList.add('active');document.getElementById('topbar-title').textContent=pageTitles[name]||name;if(name==='overview')renderOverview();if(name==='listings')renderListingsTable();if(name==='messages'){showThreadListMobile();renderThreadList();}if(name==='enquiries')renderEnquiries();if(name==='reviews')renderReviews();if(name==='payments')renderPayments();closeSidebar();}
@@ -1435,7 +1548,7 @@ async function lswSend(){
     lswAwaitingFreeText=false;
     setTimeout(()=>{lswShowTyping();setTimeout(async()=>{
       lswHideTyping();
-      const reply=`Thanks! 🙋 Ticket <strong>${lswTicketRef||''}</strong> is with our team — an agent will reply right here. For urgent issues, email hello@nyumbakisumu.co.ke 📩`;
+      const reply=`Thanks! 🙋 Ticket <strong>${lswTicketRef||''}</strong> is with our team — an agent will reply right here. For urgent issues, email hello@nyumba254.co.ke 📩`;
       lswAppendBubble('admin',reply,new Date());
       if(lswSessionId){try{await db.from('chat_messages').insert({session_id:lswSessionId,sender:'admin',body:reply,read_at:new Date().toISOString()});}catch(e){}}
       const container=document.getElementById('lsw-msgs');const btn=document.createElement('div');btn.className='lsw-faq-actions';btn.style.padding='0 0 4px 40px';
