@@ -1745,7 +1745,14 @@ function scwShowOptions(buttons){
 
 async function scwPersistVisitor(ticket,body){
   const{data,error}=await db.from('chat_messages').insert({session_id:ticket.id,sender:'visitor',body}).select().single();
-  if(!error&&data){ticket._messages=ticket._messages||[];ticket._messages.push(data);ticket.last_msg_at=data.created_at;await db.from('chat_sessions').update({last_msg_at:data.created_at}).eq('id',ticket.id);}
+  if(!error&&data){
+    ticket._messages=ticket._messages||[];
+    ticket._messages.push(data);
+    ticket.last_msg_at=data.created_at;
+    const newUnread=(ticket.unread_admin||0)+1;
+    ticket.unread_admin=newUnread;
+    await db.from('chat_sessions').update({last_msg_at:data.created_at,unread_admin:newUnread}).eq('id',ticket.id);
+  }
   return data;
 }
 async function scwPersistBot(ticket,body){
