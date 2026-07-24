@@ -546,12 +546,12 @@
       </div>
       <div class="nf-row">
         <div class="nf-field">
-          <label>Phone number</label>
-          <input type="tel" id="nf-phone" placeholder="07XX XXX XXX"/>
+          <label>Email</label>
+          <input type="email" id="nf-email" placeholder="you@example.com"/>
         </div>
         <div class="nf-field">
-          <label>Email <span class="nf-optional">optional but recommended</span></label>
-          <input type="email" id="nf-email" placeholder="you@example.com"/>
+          <label>Phone number <span class="nf-optional">optional</span></label>
+          <input type="tel" id="nf-phone" placeholder="07XX XXX XXX"/>
         </div>
       </div>
 
@@ -664,29 +664,6 @@
         <div style="display:flex;gap:10px;margin-top:6px">
           <button class="btn btn-outline" style="flex:1;justify-content:center" onclick="exitSkipReview()">Skip</button>
           <button class="btn btn-primary" style="flex:1;justify-content:center" id="exit-review-submit" onclick="exitSubmitReview()">Submit & continue</button>
-        </div>
-      </div>
-
-      <!-- No → lightweight notify form (shown only sometimes) -->
-      <div id="exit-panel-lite" style="display:none">
-        <p class="notify-modal-sub">Sorry about that! Tell us what you're after and we'll notify you the moment it's posted — totally optional.</p>
-        <div class="nf-row">
-          <div class="nf-field">
-            <label>Your name</label>
-            <input type="text" id="exit-lite-name" placeholder="e.g. Brian"/>
-          </div>
-          <div class="nf-field">
-            <label>Phone number</label>
-            <input type="tel" id="exit-lite-phone" placeholder="07XX XXX XXX"/>
-          </div>
-        </div>
-        <div class="nf-field">
-          <label>What are you looking for?</label>
-          <textarea id="exit-lite-notes" rows="2" placeholder="e.g. 2 bedroom in Kilimani under KES 15,000"></textarea>
-        </div>
-        <div style="display:flex;gap:10px;margin-top:6px">
-          <button class="btn btn-outline" style="flex:1;justify-content:center" onclick="exitCloseAndGo()">Skip</button>
-          <button class="btn btn-primary" style="flex:1;justify-content:center" id="exit-lite-submit" onclick="exitSubmitLite()">Notify me</button>
         </div>
       </div>
 
@@ -1236,8 +1213,10 @@
      Edge Function watching that table (see SQL notes).
   ════════════════════════════════════════════════════ */
   function dismissNotifyStrip() {
+    // Only hides it for the current view — no persistence, so a page refresh
+    // brings it back (this was previously stored in sessionStorage, which
+    // survives refreshes; that's the behavior we're removing).
     document.getElementById('notify-strip').style.display = 'none';
-    sessionStorage.setItem('nk_notify_strip_dismissed', '1');
   }
 
   function nfPopulateCounties() {
@@ -1291,6 +1270,15 @@
   function closeNotifyModal() {
     document.getElementById('notify-modal-overlay').classList.remove('open');
     document.body.style.overflow = '';
+    // If this modal was opened via the exit-intent "Not quite" flow, cancelling it
+    // (X, Cancel, or clicking outside) means continuing on to wherever they were
+    // trying to go — instantly, no extra step.
+    if (exitNotifyFlowActive) {
+      const href = exitPendingHref;
+      exitNotifyFlowActive = false;
+      exitPendingHref = null;
+      if (href) window.location.href = href;
+    }
   }
 
   function showNotifySuccess() {
@@ -1305,7 +1293,7 @@
     const email = document.getElementById('nf-email').value.trim();
 
     if (!name)  { alert('Please enter your name'); return; }
-    if (!phone) { alert('Please enter a phone number so we can reach you'); return; }
+    if (!email) { alert('Please enter an email so we can reach you'); return; }
 
     const priceType = document.querySelector('#nf-type-pills .filter-pill.active')?.dataset.val || null;
     const category  = document.querySelector('#nf-cat-pills .filter-pill.active')?.dataset.val || null;
@@ -1337,8 +1325,8 @@
 
     const { error } = await db.from('listing_alerts').insert({
       full_name: name,
-      phone,
-      email: email || null,
+      phone: phone || null,
+      email,
       price_type: priceType,
       category,
       bedrooms,
@@ -1358,9 +1346,19 @@
       return;
     }
 
-    closeNotifyModal();
+    document.getElementById('notify-modal-overlay').classList.remove('open');
+    document.body.style.overflow = '';
     nfResetForm();
     showNotifySuccess();
+
+    // Successful signup from the exit flow: let the toast show briefly, then
+    // continue on to wherever they were trying to go.
+    if (exitNotifyFlowActive) {
+      const href = exitPendingHref;
+      exitNotifyFlowActive = false;
+      exitPendingHref = null;
+      if (href) setTimeout(() => { window.location.href = href; }, 1200);
+    }
   }
 
   // ── Init ──
@@ -1369,10 +1367,6 @@
   readUrlParams();
   toggleBedroomsFilter(document.querySelector('#cat-pills .filter-pill.active')?.dataset.val || '');
   applyFilters();
-  if (sessionStorage.getItem('nk_notify_strip_dismissed')) {
-    const stripEl = document.getElementById('notify-strip');
-    if (stripEl) stripEl.style.display = 'none';
-  }
 </script>
 
 <script src="saved-listings.js"></script>
@@ -1408,6 +1402,7 @@
   let exitPendingHref = null;
   let exitStarRating = 0;
   let exitTriggered = false;
+  let exitNotifyFlowActive = false; // true while the real Notify-me modal was opened from "Not quite"
   const exitPageLoadedAt = Date.now();
 
   function exitAlreadyShown() { return sessionStorage.getItem(EXIT_SESSION_KEY) === '1'; }
@@ -1415,20 +1410,26 @@
 
   function exitOpenModal(href) {
     if (exitTriggered || exitAlreadyShown()) return;
-    if (Date.now() - exitPageLoadedAt < 4000) return; // ignore stray triggers right after page load
+    if (Date.now() - exitPageLoadedAt < 1200) return; // brief grace period so it doesn't fire on page load itself
     if (document.getElementById('notify-modal-overlay')?.classList.contains('open')) return; // don't double up with the main notify modal
     exitTriggered = true;
     exitMarkShown();
     exitPendingHref = href || null;
     exitShowPanel('question');
+    // Add the open class directly and synchronously — no animation delay, appears instantly.
     document.getElementById('exit-overlay').classList.add('open');
   }
 
   function exitShowPanel(name) {
-    ['question', 'review', 'lite', 'thanks'].forEach(p => {
+    ['question', 'review', 'thanks'].forEach(p => {
       document.getElementById('exit-panel-' + p).style.display = (p === name) ? 'block' : 'none';
     });
   }
+
+  // Escape key also counts as "trying to leave" — opens the same exit-intent modal instantly.
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') exitOpenModal(null);
+  });
 
   function exitClose() { document.getElementById('exit-overlay').classList.remove('open'); }
   function exitCloseAndGo() {
@@ -1525,40 +1526,12 @@
   }
 
   function exitAnswerNo() {
-    // Only show the lightweight follow-up form some of the time — not every visit
-    const showForm = Math.random() < 0.4;
-    if (showForm) {
-      document.getElementById('exit-lite-name').value = '';
-      document.getElementById('exit-lite-phone').value = '';
-      document.getElementById('exit-lite-notes').value = '';
-      exitShowPanel('lite');
-    } else {
-      exitShowPanel('thanks');
-      document.getElementById('exit-thanks-text').innerHTML =
-        `Sorry we couldn't help this time. <span style="text-decoration:underline;cursor:pointer;color:var(--green)" onclick="exitShowPanel('lite')">Tell us what you need →</span>`;
-      setTimeout(() => {
-        if (document.getElementById('exit-panel-thanks').style.display !== 'none') exitCloseAndGo();
-      }, 3500);
-    }
-  }
-
-  async function exitSubmitLite() {
-    const name = document.getElementById('exit-lite-name').value.trim();
-    const phone = document.getElementById('exit-lite-phone').value.trim();
-    const notes = document.getElementById('exit-lite-notes').value.trim();
-    if (!name || !phone) { alert('Please add your name and phone so we can reach you'); return; }
-
-    const btn = document.getElementById('exit-lite-submit');
-    btn.disabled = true; btn.textContent = 'Saving…';
-
-    const { error } = await db.from('listing_alerts').insert({ full_name: name, phone, notes: notes || null });
-
-    btn.disabled = false; btn.textContent = 'Notify me';
-    if (error) { alert('Something went wrong: ' + error.message); return; }
-
-    exitShowPanel('thanks');
-    document.getElementById('exit-thanks-text').textContent = "Got it! We'll be in touch the moment something matches.";
-    setTimeout(exitCloseAndGo, 1600);
+    // "Not quite" now goes straight into the real Notify-me modal (same one as the
+    // strip's "Notify me" button) instead of a separate mini-form. Close the exit
+    // overlay instantly and open it — no delay, no duplicate form to maintain.
+    exitNotifyFlowActive = true;
+    exitClose();
+    openNotifyModal();
   }
 </script>
 
