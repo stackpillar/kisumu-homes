@@ -293,13 +293,13 @@
     #loading-screen .spin{width:36px;height:36px;border:3px solid rgba(255,255,255,0.2);border-top-color:white;border-radius:50%;animation:spin .8s linear infinite}
     #loading-screen p{font-size:14px;color:rgba(255,255,255,0.6)}
     .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:99}
-    #suspended-screen{position:fixed;inset:0;background:var(--surface);z-index:9998;display:none;align-items:center;justify-content:center;padding:24px}
-    #suspended-screen .suspended-card{max-width:460px;width:100%;text-align:center;background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:44px 34px;box-shadow:var(--shadow-lg)}
-    #suspended-screen .suspended-icon{width:68px;height:68px;border-radius:50%;background:var(--red-light);display:flex;align-items:center;justify-content:center;margin:0 auto 22px}
-    #suspended-screen h2{font-family:'Playfair Display',serif;font-size:21px;color:var(--text);margin-bottom:14px}
-    #suspended-screen p{font-size:13.5px;color:var(--text-2);line-height:1.75;margin-bottom:14px}
-    #suspended-screen p.emphasis{font-weight:600;color:var(--text)}
-    #suspended-screen .suspended-footer{font-size:11px;color:var(--text-3);margin-top:18px}
+    #suspended-screen,#admin-blocked-screen{position:fixed;inset:0;background:var(--surface);z-index:9998;display:none;align-items:center;justify-content:center;padding:24px}
+    #suspended-screen .suspended-card,#admin-blocked-screen .suspended-card{max-width:460px;width:100%;text-align:center;background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:44px 34px;box-shadow:var(--shadow-lg)}
+    #suspended-screen .suspended-icon,#admin-blocked-screen .suspended-icon{width:68px;height:68px;border-radius:50%;background:var(--red-light);display:flex;align-items:center;justify-content:center;margin:0 auto 22px}
+    #suspended-screen h2,#admin-blocked-screen h2{font-family:'Playfair Display',serif;font-size:21px;color:var(--text);margin-bottom:14px}
+    #suspended-screen p,#admin-blocked-screen p{font-size:13.5px;color:var(--text-2);line-height:1.75;margin-bottom:14px}
+    #suspended-screen p.emphasis,#admin-blocked-screen p.emphasis{font-weight:600;color:var(--text)}
+    #suspended-screen .suspended-footer,#admin-blocked-screen .suspended-footer{font-size:11px;color:var(--text-3);margin-top:18px}
     /* ===== Support Chat Widget v2 ===== */
     .scw-fab{position:fixed;bottom:28px;right:28px;z-index:8000;display:flex;align-items:center;gap:9px;padding:10px 20px 10px 10px;border-radius:40px;background:var(--white);border:1px solid var(--border);box-shadow:var(--shadow-lg);cursor:pointer;transition:transform .18s;font-family:'Inter',sans-serif}
     .scw-fab:hover{transform:translateY(-2px)}
@@ -418,8 +418,6 @@
     @keyframes scwDot{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-4px)}}
     @media(max-width:480px){.scw-panel{width:calc(100vw - 20px);right:10px;height:min(600px, calc(100vh - 96px))}.scw-fab{bottom:16px;right:16px}}
     @media(max-width:1100px){.overview-grid{grid-template-columns:1fr}.settings-grid{grid-template-columns:1fr}}
-    body.scw-hide-fab .scw-fab,
-    body.scw-hide-fab .scw-panel{display:none}
     @media(max-width:900px){
       .sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}.sidebar-overlay.open{display:block}
       .topbar{left:0}.main{margin-left:0}.hamburger{display:flex}
@@ -432,8 +430,7 @@
       .messages-layout.mobile-chat-active .thread-list{display:none}
       .messages-layout.mobile-chat-active .chat-pane{display:flex}
       .mobile-back-btn{display:flex !important}
-      }
-    
+    }
     @media(max-width:600px){.stat-grid{grid-template-columns:1fr 1fr}.page{padding:16px}.form-grid{grid-template-columns:1fr}.topbar{padding:0 16px}}
     @media(max-width:400px){.stat-grid{grid-template-columns:1fr}}
   </style>
@@ -455,6 +452,19 @@
     <p class="emphasis">Please do not email us about this — the review will be completed soon and the outcome will be sent to your account.</p>
     <button class="btn btn-outline btn-lg" style="width:100%;justify-content:center" onclick="doSignOut()">Sign out</button>
     <div class="suspended-footer">Nyumba254 · Account Security</div>
+  </div>
+</div>
+
+<div id="admin-blocked-screen">
+  <div class="suspended-card">
+    <div class="suspended-icon" style="background:var(--green-light)">
+      <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="#0F6E56" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a8 8 0 0116 0v1"/></svg>
+    </div>
+    <h2>This is an admin account</h2>
+    <p>Admin accounts can't post or manage listings as a seller — this dashboard is for sellers only.</p>
+    <p class="emphasis">Use your admin panel to manage the platform instead.</p>
+    <button class="btn btn-outline btn-lg" style="width:100%;justify-content:center" onclick="doSignOut()">Sign out</button>
+    <div class="suspended-footer">Nyumba254 · Account Roles</div>
   </div>
 </div>
 
@@ -977,6 +987,13 @@ async function init(){
     currentUser=session.user;
     document.getElementById('topbar-date').textContent=new Date().toLocaleDateString('en-KE',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
     await loadProfile();
+    if(currentProfile?.role==='admin'){
+      document.getElementById('loading-screen').style.display='none';
+      document.getElementById('admin-blocked-screen').style.display='flex';
+      document.getElementById('scw-fab').style.display='none';
+      document.getElementById('scw-panel').style.display='none';
+      return;
+    }
     if(currentProfile?.is_disabled){
       document.getElementById('loading-screen').style.display='none';
       document.getElementById('suspended-screen').style.display='flex';
@@ -1267,8 +1284,8 @@ async function confirmDelete(){
 function showAllMessages(){threadListingFilter=null;activeThread=null;showPage('messages');}
 function openMessagesForListing(listingId){threadListingFilter=listingId;activeThread=null;showPage('messages');}
 function openConversationFromThread(key){threadListingFilter=null;showPage('messages');openThread(key);}
-function showThreadListMobile(){document.getElementById('messages-layout')?.classList.remove('mobile-chat-active');document.body.classList.remove('scw-hide-fab');}
-function showChatMobile(){document.getElementById('messages-layout')?.classList.add('mobile-chat-active');document.body.classList.add('scw-hide-fab');}
+function showThreadListMobile(){document.getElementById('messages-layout')?.classList.remove('mobile-chat-active');}
+function showChatMobile(){document.getElementById('messages-layout')?.classList.add('mobile-chat-active');}
 
 function renderThreadList(){
   const q=(document.getElementById('thread-search-input')?.value||'').toLowerCase();
@@ -1436,7 +1453,7 @@ function printReceipt(){window.print();}
 function downloadReceiptPDF(){if(!receiptTarget)return;if(!window.jspdf){showToast('PDF library still loading — try again in a second','error');return;}const{jsPDF}=window.jspdf;const doc=new jsPDF({unit:'mm',format:'a5'});const p=receiptTarget;const isPaid=p.status==='confirmed'||p.status==='paid';doc.setFont('helvetica','bold');doc.setFontSize(18);doc.setTextColor(8,80,65);doc.text('Nyumba254',74,20,{align:'center'});doc.setFont('helvetica','normal');doc.setFontSize(10);doc.setTextColor(120,120,120);doc.text('PAYMENT RECEIPT',74,27,{align:'center'});doc.setDrawColor(15,110,86);doc.line(15,32,133,32);let y=42;const row=(label,value)=>{doc.setFont('helvetica','normal');doc.setFontSize(10);doc.setTextColor(130,130,130);doc.text(label,15,y);doc.setFont('helvetica','bold');doc.setTextColor(26,26,24);doc.text(String(value),133,y,{align:'right'});y+=8;};row('Receipt No.','NK-'+String(p.id).slice(0,8).toUpperCase());row('Date',new Date(p.created_at).toLocaleDateString('en-KE',{day:'numeric',month:'long',year:'numeric'}));row('Billed to',currentProfile?.full_name||currentUser?.email||'—');row('Listing',p.listings?.title||'—');row('Payment method',(p.method||'—').toUpperCase());row('Reference',p.reference||p.mpesa_ref||'—');row('Status',isPaid?'Paid':(p.status||'pending'));doc.setDrawColor(224,222,216);doc.line(15,y,133,y);y+=10;doc.setFont('helvetica','bold');doc.setFontSize(14);doc.setTextColor(8,80,65);doc.text('Amount paid',15,y);doc.text(`KES ${Number(p.amount||0).toLocaleString('en-KE')}`,133,y,{align:'right'});y+=20;doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(150,150,150);doc.text('Thank you for using Nyumba254.',74,y,{align:'center'});doc.save(`Nyumba254-Receipt-${String(p.id).slice(0,8)}.pdf`);}
 
 const pageTitles={overview:'Overview',listings:'My listings',messages:'Messages',enquiries:'Enquiries',reviews:'Reviews',payments:'Payments',settings:'Settings'};
-function showPage(name){document.body.classList.remove('scw-hide-fab');document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));document.getElementById('page-'+name).classList.add('active');const navEl=document.getElementById('nav-'+name);if(navEl)navEl.classList.add('active');document.getElementById('topbar-title').textContent=pageTitles[name]||name;if(name==='overview')renderOverview();if(name==='listings')renderListingsTable();if(name==='messages'){showThreadListMobile();renderThreadList();}if(name==='enquiries')renderEnquiries();if(name==='reviews')renderReviews();if(name==='payments')renderPayments();closeSidebar();}
+function showPage(name){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));document.getElementById('page-'+name).classList.add('active');const navEl=document.getElementById('nav-'+name);if(navEl)navEl.classList.add('active');document.getElementById('topbar-title').textContent=pageTitles[name]||name;if(name==='overview')renderOverview();if(name==='listings')renderListingsTable();if(name==='messages'){showThreadListMobile();renderThreadList();}if(name==='enquiries')renderEnquiries();if(name==='reviews')renderReviews();if(name==='payments')renderPayments();closeSidebar();}
 function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('sidebar-overlay').classList.toggle('open');}
 function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sidebar-overlay').classList.remove('open');}
 function openModal(id){document.getElementById(id).classList.add('open');document.body.style.overflow='hidden';}
@@ -1745,14 +1762,7 @@ function scwShowOptions(buttons){
 
 async function scwPersistVisitor(ticket,body){
   const{data,error}=await db.from('chat_messages').insert({session_id:ticket.id,sender:'visitor',body}).select().single();
-  if(!error&&data){
-    ticket._messages=ticket._messages||[];
-    ticket._messages.push(data);
-    ticket.last_msg_at=data.created_at;
-    const newUnread=(ticket.unread_admin||0)+1;
-    ticket.unread_admin=newUnread;
-    await db.from('chat_sessions').update({last_msg_at:data.created_at,unread_admin:newUnread}).eq('id',ticket.id);
-  }
+  if(!error&&data){ticket._messages=ticket._messages||[];ticket._messages.push(data);ticket.last_msg_at=data.created_at;await db.from('chat_sessions').update({last_msg_at:data.created_at}).eq('id',ticket.id);}
   return data;
 }
 async function scwPersistBot(ticket,body){
