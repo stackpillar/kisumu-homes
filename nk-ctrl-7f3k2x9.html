@@ -1780,7 +1780,7 @@ async function loadUsers() {
         db.from('listings').select('*', { count: 'exact', head: true }).eq('seller_id', u.id),
         db.from('chat_sessions')
           .select('unread_admin')
-          .eq('session_key', `seller_support_${u.id}`)
+          .eq('session_key', `seller_${u.id}_support`)
           .maybeSingle(),
       ]);
       return {
@@ -1868,7 +1868,7 @@ async function loadUsers() {
   }
 
 async function messageSellerInChat(sellerId, sellerName) {
-    const sessionKey = `seller_support_${sellerId}`;
+    const sessionKey = `seller_${sellerId}_support`;
     let { data: existing } = await db
       .from('chat_sessions')
       .select('id')
@@ -1882,6 +1882,9 @@ async function messageSellerInChat(sellerId, sellerName) {
           session_type: 'seller',
           visitor_name: sellerName,
           page:         'dashboard.html',
+          topic:        'Message from admin',
+          status:       'open',
+          is_resolved:  false,
           last_msg_at:  new Date().toISOString(),
         })
         .select()
