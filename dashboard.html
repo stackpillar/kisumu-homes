@@ -366,6 +366,9 @@
     .scw-empty-state svg{width:40px;height:40px;stroke:var(--border);fill:none;stroke-width:1.4;margin-bottom:12px}
     .scw-empty-state p{font-size:13px;margin-bottom:14px}
     .scw-thread-head{padding:12px 16px;border-bottom:1px solid var(--border);background:var(--white);flex-shrink:0;display:flex;align-items:center;gap:10px}
+    .scw-back-btn{width:28px;height:28px;border-radius:8px;border:1px solid var(--border);background:white;color:var(--text-2);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+    .scw-back-btn:hover{border-color:var(--green);color:var(--green)}
+    .scw-back-btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2}
     .scw-thread-head-topic{font-size:13.5px;font-weight:700;color:var(--text)}
     .scw-thread-head-ref{font-size:11px;color:var(--text-3)}
     .scw-thread-head-action{margin-left:auto}
@@ -820,10 +823,14 @@
     </div>
 
     <div class="scw-view" id="scw-view-messages">
-      <div id="scw-msg-empty" class="scw-empty-state">
+      <div id="scw-msg-empty" class="scw-empty-state" style="display:none">
         <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-        <p>Pick a ticket to view the conversation</p>
-        <button class="scw-chip-btn" onclick="scwSetTab('tickets')">View tickets</button>
+        <p>No conversations yet</p>
+        <button class="scw-chip-btn" onclick="scwStartNewTicket()">Start one</button>
+      </div>
+      <div id="scw-msg-inbox" style="display:none;flex-direction:column;height:100%">
+        <div class="scw-view-head"><h4>Inbox</h4><button class="scw-new-btn" onclick="scwStartNewTicket()">+ New</button></div>
+        <div class="scw-ticket-list" id="scw-inbox-list"></div>
       </div>
       <div id="scw-msg-active" style="display:none;flex-direction:column;height:100%">
         <div class="scw-thread-head" id="scw-thread-head"></div>
@@ -1006,6 +1013,12 @@ async function init(){
     document.getElementById('loading-screen').style.display='none';
     document.getElementById('app-shell').style.display='flex';
     msgPollTimer=setInterval(pollNewMessages,30000);
+
+    /* Load support-chat tickets/badges immediately on page load, not only
+       after the seller manually opens the widget — otherwise an admin-
+       initiated message has no visible signal until they happen to click it. */
+    scwLoaded=true;
+    scwInit();
   }catch(err){console.error('Init error:',err);window.location.href='login.html';}
 }
 
@@ -1605,11 +1618,10 @@ async function scwLoadTickets(){
   const prevById={};scwTickets.forEach(t=>{prevById[t.id]=t;});
   scwTickets=(data||[]).map(t=>{
     const prev=prevById[t.id];
-    return{...t,status:t.status||(t.is_resolved?'resolved':'open'),_messages:prev?prev._messages:null,_unread:0,_topicId:prev?prev._topicId:null,_botMsgs:prev?prev._botMsgs:{},_suggested:prev?prev._suggested:false,_textSuggested:prev?prev._textSuggested:false};
+    return{...t,status:t.status||(t.is_resolved?'resolved':'open'),_messages:prev?prev._messages:null,_unread:0,_topicId:prev?prev._topicId:null,_botMsgs:prev?prev._botMsgs:{},_suggested:prev?prev._suggested:false,_clarified:prev?prev._clarified:false,_textSuggested:prev?prev._textSuggested:false,_renderedCount:prev?prev._renderedCount:0};
   });
   await scwRefreshUnreadCounts();
-  scwRenderRecentTicket();
-  if(document.getElementById('scw-view-tickets')?.classList.contains('active'))scwRenderTicketList();
+  scwRefreshListViews();
   scwUpdateBadges();
 }
 
@@ -1625,8 +1637,20 @@ async function scwPoll(){
   await scwLoadTickets();
   if(scwOpen&&scwActiveTicket){
     const fresh=scwTickets.find(x=>String(x.id)===String(scwActiveTicket.id));
-    if(fresh){fresh._messages=scwActiveTicket._messages;scwActiveTicket=fresh;}
-    if(scwTab==='messages')scwRenderThreadHead(scwActiveTicket);
+    if(fresh){
+      fresh._renderedCount=scwActiveTicket._renderedCount||0;
+      await scwLoadTicketMessages(fresh);
+      scwActiveTicket=fresh;
+      if(scwTab==='messages'&&document.getElementById('scw-msg-active').style.display==='flex'){
+        scwRenderThreadHead(scwActiveTicket);
+        const newMsgs=(scwActiveTicket._messages||[]).slice(scwActiveTicket._renderedCount);
+        if(newMsgs.length){
+          newMsgs.forEach(m=>scwAppendBubble(m.sender,m.body));
+          scwActiveTicket._renderedCount=scwActiveTicket._messages.length;
+          scwMarkTicketRead(scwActiveTicket);
+        }
+      }
+    }
   }
 }
 
@@ -1647,7 +1671,45 @@ function scwSetTab(tab){
   if(tab==='tickets')scwRenderTicketList();
   if(tab==='home')scwRenderHomeFaq();
   if(tab==='help')scwRenderHelp(document.getElementById('scw-help-search')?.value||'');
-  if(tab==='messages'&&!scwActiveTicket){document.getElementById('scw-msg-empty').style.display='flex';document.getElementById('scw-msg-active').style.display='none';}
+  if(tab==='messages'&&!scwActiveTicket)scwShowInbox();
+}
+
+// Messages tab landing state: a real inbox of every ticket, sorted so
+// unread conversations surface first — not a dead-end that sends you
+// elsewhere. Falls back to a start-a-conversation prompt only when there
+// are truly zero tickets yet.
+function scwShowInbox(){
+  document.getElementById('scw-msg-active').style.display='none';
+  if(!scwTickets.length){
+    document.getElementById('scw-msg-empty').style.display='flex';
+    document.getElementById('scw-msg-inbox').style.display='none';
+    return;
+  }
+  document.getElementById('scw-msg-empty').style.display='none';
+  document.getElementById('scw-msg-inbox').style.display='flex';
+  scwRenderInboxList();
+}
+function scwRenderInboxList(){
+  const el=document.getElementById('scw-inbox-list');if(!el)return;
+  const sorted=[...scwTickets].sort((a,b)=>(b._unread||0)-(a._unread||0)||new Date(b.last_msg_at)-new Date(a.last_msg_at));
+  el.innerHTML=sorted.map(t=>{
+    const last=(t._messages&&t._messages.length)?t._messages[t._messages.length-1]:null;
+    const preview=last?(last.sender==='admin'?'Support: ':'You: ')+(last.body||'').replace(/<[^>]+>/g,''):'No messages yet';
+    return `<div class="scw-ticket-card" onclick="scwOpenTicket('${t.id}')">
+      <div class="scw-ticket-top"><span class="scw-ticket-topic">${escHtml(t.topic||'General enquiry')}</span><span class="scw-ticket-status ${t.status}">${t.status}</span></div>
+      <div class="scw-ticket-preview">${escHtml(preview)}</div>
+      <div class="scw-ticket-meta">${scwTicketRef(t)} · ${timeAgo(t.last_msg_at)}${t._unread?` · ${t._unread} new`:''}</div>
+    </div>`;
+  }).join('');
+}
+
+// Keeps every list view (Home's recent card, the Tickets tab, and the
+// Messages inbox) in sync whenever ticket/unread state changes, so a badge
+// or "N new" label never lingers after it's actually been read.
+function scwRefreshListViews(){
+  scwRenderRecentTicket();
+  if(document.getElementById('scw-view-tickets')?.classList.contains('active'))scwRenderTicketList();
+  if(document.getElementById('scw-view-messages')?.classList.contains('active')&&!scwActiveTicket)scwShowInbox();
 }
 
 /* ---- Home tab ---- */
@@ -1691,7 +1753,7 @@ async function scwCreateTicket(topicId,topicLabel){
   const payload={session_key:sessionKey,session_type:'seller',visitor_name:scwSellerName,page:'dashboard.html',topic:topicLabel,status:'open',is_resolved:false,last_msg_at:new Date().toISOString()};
   const{data,error}=await db.from('chat_sessions').insert(payload).select().single();
   if(error){showToast('Could not start ticket: '+error.message,'error');return;}
-  const ticket={...data,status:'open',_messages:[],_unread:0,_topicId:topicId,_botMsgs:{},_suggested:false,_textSuggested:false};
+  const ticket={...data,status:'open',_messages:[],_unread:0,_topicId:topicId,_botMsgs:{},_suggested:false,_clarified:false,_textSuggested:false};
   scwTickets.unshift(ticket);
   document.getElementById('scw-topic-picker').style.display='none';
   document.getElementById('scw-tickets-topic-picker').style.display='none';
@@ -1699,18 +1761,20 @@ async function scwCreateTicket(topicId,topicLabel){
   await scwOpenTicket(ticket.id,true);
 }
 
-function scwStartNewTicket(){scwShowTopicPicker('home');}
+function scwStartNewTicket(){scwSetTab('home');scwShowTopicPicker('home');}
 
 async function scwOpenTicket(id,isNew){
   const t=scwTickets.find(x=>String(x.id)===String(id));if(!t)return;
   scwActiveTicket=t;
-  if(!isNew&&t._messages===null)await scwLoadTicketMessages(t);
+  if(!isNew)await scwLoadTicketMessages(t);
   scwSetTab('messages');
   document.getElementById('scw-msg-empty').style.display='none';
+  document.getElementById('scw-msg-inbox').style.display='none';
   document.getElementById('scw-msg-active').style.display='flex';
   scwRenderThreadHead(t);
   document.getElementById('scw-msgs').innerHTML='';
   (t._messages||[]).forEach(m=>scwAppendBubble(m.sender,m.body));
+  t._renderedCount=(t._messages||[]).length;
   if(isNew){
     await scwRunBotMenu(t);
   }else if(t.status==='open'&&(!t._messages||!t._messages.length)){
@@ -1727,12 +1791,14 @@ async function scwLoadTicketMessages(t){
 function scwRenderThreadHead(t){
   const closed=t.status!=='open';
   document.getElementById('scw-thread-head').innerHTML=`
+    <button class="scw-back-btn" onclick="scwBackToInbox()" title="Back to inbox"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></button>
     <div><div class="scw-thread-head-topic">${escHtml(t.topic||'General enquiry')}</div><div class="scw-thread-head-ref">${scwTicketRef(t)} · ${(t.status||'open').toUpperCase()}</div></div>
     ${!closed?`<div class="scw-thread-head-action"><button class="scw-chip-btn" onclick="scwResolveTicket('${t.id}')">✓ Mark resolved</button></div>`:''}
   `;
   document.getElementById('scw-closed-banner').style.display=closed?'block':'none';
   document.getElementById('scw-input-bar').style.display=(closed||scwBotBusy)?'none':'flex';
 }
+function scwBackToInbox(){scwActiveTicket=null;scwShowInbox();}
 
 /* ---- Message + bot rendering (persisted transcript) ---- */
 function scwAppendBubble(sender,body){
@@ -1825,8 +1891,9 @@ async function scwResolveByBot(ticketId){
   scwBotBusy=false;
 }
 
-// Tries one keyword-matched suggestion before the real human handoff. Only
-// fires once per ticket (ticket._suggested) so it never nags.
+// Tries one keyword-matched suggestion, then one clarifying re-route through
+// the topic menu, before the real human handoff. Each step fires at most
+// once per ticket (_suggested / _clarified) so it never nags or loops.
 async function scwGoToHandoff(ticketOrId,category){
   const ticket=typeof ticketOrId==='string'?scwFindTicket(ticketOrId):ticketOrId;
   if(!ticket)return;
@@ -1850,6 +1917,18 @@ async function scwGoToHandoff(ticketOrId,category){
       return;
     }
   }
+  if(!ticket._clarified){
+    ticket._clarified=true;
+    scwShowTyping();await scwWait(600);scwHideTyping();
+    const clarify=`I don't have an exact answer for that yet. Let's narrow it down — is it actually about one of these?`;
+    scwAppendBubble('admin',clarify);
+    await scwPersistBot(ticket,clarify);
+    const buttons=SCW_TOPICS.map(t=>({label:t.label,onclick:`scwReRoute('${ticket.id}','${t.id}','${escAttr(t.label.replace(/^\S+\s/,''))}')`}));
+    buttons.push({label:'🙋 None of those — just get me an agent',onclick:`scwGoToHandoff('${ticket.id}','${escAttr(category||ticket.topic)}')`});
+    scwShowOptions(buttons);
+    scwBotBusy=false;
+    return;
+  }
   scwShowTyping();await scwWait(650);scwHideTyping();
   const msg=`Got it — connecting you with an agent about "<strong>${escHtml(category||ticket.topic)}</strong>". Describe it below and someone will reply right here as soon as they're available.`;
   scwAppendBubble('admin',msg);
@@ -1859,12 +1938,30 @@ async function scwGoToHandoff(ticketOrId,category){
   document.getElementById('scw-input')?.focus();
 }
 
+// Lets the seller pivot to a different topic mid-conversation (used by the
+// clarifying step above) without spawning a second ticket for the same issue.
+async function scwReRoute(ticketId,topicId,topicLabel){
+  const ticket=scwFindTicket(ticketId);if(!ticket||scwBotBusy)return;
+  scwBotBusy=true;scwRemoveOptions();
+  scwAppendBubble('visitor',topicLabel);
+  await scwPersistVisitor(ticket,topicLabel);
+  ticket._topicId=topicId;
+  const opts=SCW_TREE[topicId]||[];
+  if(!opts.length){await scwGoToHandoff(ticket,topicLabel);return;}
+  scwShowTyping();await scwWait(500);scwHideTyping();
+  const ask='Got it — what specifically about that?';
+  scwAppendBubble('admin',ask);
+  await scwPersistBot(ticket,ask);
+  scwShowOptions(opts.map((o,i)=>({label:o.label,onclick:`scwPickLeaf('${ticket.id}',${i})`})));
+  scwBotBusy=false;
+}
+
 function scwWait(ms){return new Promise(res=>setTimeout(res,ms));}
 
 async function scwMarkTicketRead(t){
   if(!t._unread)return;
   await db.from('chat_messages').update({read_at:new Date().toISOString()}).eq('session_id',t.id).eq('sender','admin').is('read_at',null);
-  t._unread=0;scwUpdateBadges();
+  t._unread=0;scwUpdateBadges();scwRefreshListViews();
 }
 
 async function scwResolveTicket(id,skipRerender){
@@ -1872,8 +1969,7 @@ async function scwResolveTicket(id,skipRerender){
   const{error}=await db.from('chat_sessions').update({status:'resolved',is_resolved:true}).eq('id',id);
   if(error){showToast('Could not update ticket: '+error.message,'error');return;}
   t.status='resolved';t.is_resolved=true;
-  scwRenderThreadHead(t);scwRenderRecentTicket();
-  if(document.getElementById('scw-view-tickets')?.classList.contains('active'))scwRenderTicketList();
+  scwRenderThreadHead(t);scwRefreshListViews();
   if(!skipRerender)showToast('Ticket marked resolved ✓','success');
 }
 
