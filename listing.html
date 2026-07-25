@@ -420,6 +420,11 @@
       .nk-lb-arrow svg { width:18px; height:18px; }
       #nk-lightbox-img-wrap { padding:8px; }
     }
+
+    /* ══════════════════════════════════════
+       AMENITIES — reuse specs-card visual language
+    ══════════════════════════════════════ */
+    .amenity-yes { color:var(--green-dark); }
   </style>
 </head>
 <body>
@@ -492,7 +497,7 @@
           <div class="seller-disabled-content">
             <h2 id="seller-disabled-heading">Your listing has been deactivated</h2>
             <p id="seller-disabled-intro">This listing is currently hidden from the public site. Only you and the admin team can see this notice — visitors will see a generic "not found" page.</p>
-            <div class="seller-disabled-reason" id="seller-disabled-reason-box" style="display:none">
+            <div class="seller-disabled-reason-box" id="seller-disabled-reason-box" style="display:none">
               <strong>Reason provided by admin</strong>
               <span id="seller-disabled-reason-text"></span>
             </div>
@@ -995,6 +1000,15 @@ const db = createClient(SUPABASE_URL, SUPABASE_KEY);
     return NK_AREA_TO_COUNTY[area] ? nkCountyLabel(NK_AREA_TO_COUNTY[area]) : 'Kenya';
   }
 
+  // ── Preferred county resolver for a listing: use the listing's own
+  // `county` column when the seller/admin has set it (e.g. via the edit
+  // forms in dashboard.html / admin.html), and fall back to the reverse
+  // area→county lookup above for older rows that don't have it set yet. ──
+  function nkListingCounty(l) {
+    if (!l) return 'Kenya';
+    return l.county ? nkCountyLabel(l.county) : nkCountyForArea(l.area);
+  }
+
   function nkPopulateFooterCounties() {
     const el = document.getElementById('footer-counties');
     if (!el) return;
@@ -1188,9 +1202,9 @@ function handleBuyerThread(data) {
 function renderListing(l) {
   document.title = `${l.title} — Nyumba254`;
   document.querySelector('meta[name="description"]').setAttribute('content',
-    `${l.title} in ${l.area}, ${nkCountyForArea(l.area)}. ${l.price_type==='rent'?'KES '+Number(l.price).toLocaleString()+'/month rent':'For sale at KES '+Number(l.price).toLocaleString()}. Contact seller on Nyumba254.`);
+    `${l.title} in ${l.area}, ${nkListingCounty(l)}. ${l.price_type==='rent'?'KES '+Number(l.price).toLocaleString()+'/month rent':'For sale at KES '+Number(l.price).toLocaleString()}. Contact seller on Nyumba254.`);
 
-  document.getElementById('breadcrumb-area').textContent = l.area;
+  document.getElementById('breadcrumb-area').textContent = `${nkListingCounty(l)} · ${l.area}`;
 
   photos = (l.listing_photos || []).sort((a,b) => a.position - b.position);
   const cover = photos.find(p=>p.is_cover) || photos[0];
@@ -1207,8 +1221,9 @@ function renderListing(l) {
   `;
 
   document.getElementById('listing-title').textContent = l.title;
+  // Location line: County · Area, Sub-area — Address (each part only shown when present)
   document.getElementById('listing-loc-text').textContent =
-    `${l.area}${l.sub_area?', '+l.sub_area:''}${l.address?' — '+l.address:''}`;
+    `${nkListingCounty(l)} · ${l.area}${l.sub_area?', '+l.sub_area:''}${l.address?' — '+l.address:''}`;
 
   document.getElementById('listing-price').innerHTML =
     `KES ${Number(l.price).toLocaleString('en-KE')}${l.price_type==='rent'?'<span>/month</span>':''}`;
@@ -1224,6 +1239,31 @@ function renderListing(l) {
   specs.push({ icon:furnIcon, val:l.furnished?'Yes':'No', lbl:'Furnished' });
   specs.push({ icon:typeIcon, val:l.price_type==='rent'?'Rent':'Sale', lbl:'Listing type' });
   specs.push({ icon:catIcon,  val:catLabel, lbl:'Category' });
+
+  /* ══════════════════════════════════════
+     AMENITIES / EXTRA DETAILS
+     These booleans live on the listings row (has_parking, has_water,
+     has_security, has_wifi, has_backup_power, has_gym, has_pool,
+     has_balcony) and are editable later by the seller (dashboard.html)
+     or admin (admin.html) — this page never needed to know about them
+     before. Pushing them into the same specs grid means any of these
+     the seller/admin fills in later shows up here automatically, and
+     any left blank/false are simply skipped — no layout ever breaks.
+     To support a future amenity, just add one line to NK_AMENITY_DEFS. ══*/
+  const NK_AMENITY_DEFS = [
+    { key:'has_parking',      icon:parkIcon,     lbl:'Parking' },
+    { key:'has_water',        icon:waterIcon,    lbl:'Water supply' },
+    { key:'has_security',     icon:securityIcon, lbl:'Security' },
+    { key:'has_wifi',         icon:wifiIcon,     lbl:'WiFi ready' },
+    { key:'has_backup_power', icon:powerIcon,    lbl:'Backup power' },
+    { key:'has_gym',          icon:gymIcon,      lbl:'Gym' },
+    { key:'has_pool',         icon:poolIcon,     lbl:'Swimming pool' },
+    { key:'has_balcony',      icon:balconyIcon,  lbl:'Balcony' },
+  ];
+  NK_AMENITY_DEFS.forEach(a => {
+    if (l[a.key]) specs.push({ icon:a.icon, val:'Yes', lbl:a.lbl });
+  });
+
   document.getElementById('specs-grid').innerHTML = specs.map(s=>`
     <div class="spec-item">
       <div class="spec-icon">${s.icon}</div>
@@ -1269,7 +1309,7 @@ function renderLiveMap(l) {
   /* Build human-readable location query */
   const parts = [l.area];
   if (l.sub_area) parts.push(l.sub_area);
-  parts.push(nkCountyForArea(l.area), 'Kenya');
+  parts.push(nkListingCounty(l), 'Kenya');
   const query = parts.join(', ');
 
   /* Update header text and "Open in Maps" link */
@@ -1574,7 +1614,7 @@ function shareWhatsApp() {
   const url   = window.location.href;
   const title = listing?.title || 'Apartment listing';
   const price = listing ? `KES ${Number(listing.price).toLocaleString('en-KE')}${listing.price_type==='rent'?'/month':''}` : '';
-  window.open(`https://wa.me/?text=${encodeURIComponent(`🏠 *${title}*\n📍 ${listing?.area||''}, ${listing ? nkCountyForArea(listing.area) : 'Kenya'}\n💰 ${price}\n\nView on Nyumba254: ${url}`)}`, '_blank');
+  window.open(`https://wa.me/?text=${encodeURIComponent(`🏠 *${title}*\n📍 ${listing?.area||''}, ${listing ? nkListingCounty(listing) : 'Kenya'}\n💰 ${price}\n\nView on Nyumba254: ${url}`)}`, '_blank');
 }
 
 function copyLink() {
@@ -1600,6 +1640,15 @@ const sizeIcon = `<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="
 const furnIcon = `<svg viewBox="0 0 24 24"><rect x="2" y="8" width="20" height="10" rx="2"/><path d="M6 8V6a2 2 0 012-2h8a2 2 0 012 2v2"/><line x1="6" y1="14" x2="6" y2="18"/><line x1="18" y1="14" x2="18" y2="18"/></svg>`;
 const typeIcon = `<svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`;
 const catIcon  = `<svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
+/* Amenity icons — kept in the same minimal line-icon style as the specs above */
+const parkIcon    = `<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 17V7h4a3 3 0 010 6H9"/></svg>`;
+const waterIcon   = `<svg viewBox="0 0 24 24"><path d="M12 2s6 7 6 12a6 6 0 01-12 0c0-5 6-12 6-12z"/></svg>`;
+const securityIcon= `<svg viewBox="0 0 24 24"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6z"/><polyline points="9 12 11 14 15 10"/></svg>`;
+const wifiIcon    = `<svg viewBox="0 0 24 24"><path d="M5 13a10 10 0 0114 0"/><path d="M8.5 16.5a5 5 0 017 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>`;
+const powerIcon   = `<svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`;
+const gymIcon     = `<svg viewBox="0 0 24 24"><path d="M6.5 6.5l11 11M4 4l4 4M20 20l-4-4M2 8l3 3M8 2l3 3M22 16l-3-3M16 22l-3-3"/></svg>`;
+const poolIcon    = `<svg viewBox="0 0 24 24"><path d="M2 12h20"/><path d="M2 17c1.5 1.5 3 1.5 4.5 0s3-1.5 4.5 0 3 1.5 4.5 0 3-1.5 4.5 0"/><path d="M12 3v9"/></svg>`;
+const balconyIcon = `<svg viewBox="0 0 24 24"><rect x="3" y="10" width="18" height="4" rx="1"/><line x1="6" y1="14" x2="6" y2="21"/><line x1="12" y1="14" x2="12" y2="21"/><line x1="18" y1="14" x2="18" y2="21"/></svg>`;
 
 /* Page view tracking */
 (function() {
