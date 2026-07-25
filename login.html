@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Sign in — NyumbaKisumu</title>
-  <meta name="description" content="Sign in or create a seller account on NyumbaKisumu to list your apartment in Kisumu, Maseno, and Luanda."/>
+  <title>Sign in — Nyumba254</title>
+  <meta name="description" content="Sign in or create a seller account on Nyumba254 to list your apartment, shop, or office anywhere in Kenya."/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -196,6 +196,23 @@
     .terms a { color: var(--green); }
     .terms a:hover { text-decoration: underline; }
 
+    /* Consent checkbox */
+    .consent-box {
+      background: var(--surface); border: 1.5px solid var(--border);
+      border-radius: var(--radius); padding: 14px 16px; margin-bottom: 18px;
+      transition: border-color .15s, background .15s;
+    }
+    .consent-box.error { border-color: var(--red); background: var(--red-light); }
+    .consent-label { display: flex; align-items: flex-start; gap: 10px; cursor: pointer; }
+    .consent-label input[type="checkbox"] {
+      width: 18px; height: 18px; flex-shrink: 0; margin-top: 1px;
+      accent-color: var(--green); cursor: pointer;
+    }
+    .consent-text { font-size: 13px; color: var(--text-2); line-height: 1.6; }
+    .consent-text a { color: var(--green); font-weight: 600; text-decoration: underline; }
+    .consent-text a:hover { color: var(--green-dark); }
+    .consent-box #err-consent { margin-top: 8px; margin-bottom: 0; }
+
     /* Phone hint */
     .phone-note { font-size: 12px; color: var(--text-3); margin-top: 5px; }
 
@@ -246,7 +263,7 @@
     <div class="logo-icon">
       <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
     </div>
-    NyumbaKisumu
+    Nyumba254
   </a>
   <div class="nav-right">
     Looking to buy or rent? <a href="listings.html">Browse listings →</a>
@@ -257,9 +274,9 @@
 
   <!-- ── LEFT PANEL ── -->
   <div class="left-panel">
-    <div class="left-eyebrow">Kisumu · Maseno · Luanda</div>
-    <h2>List your apartment,<br>reach <span>real buyers</span></h2>
-    <p>No agents. No commission. Just your listing in front of thousands of people searching for apartments across Western Kenya.</p>
+    <div class="left-eyebrow">Kisumu · Nairobi · Mombasa</div>
+    <h2>List your property,<br>reach <span>real buyers</span></h2>
+    <p>No agents. No commission. Just your listing in front of thousands of people searching for apartments, shops, and offices across Kenya.</p>
 
     <div class="benefits">
       <div class="benefit">
@@ -302,7 +319,7 @@
 
     <div class="left-stats">
       <div><div class="left-stat-val" id="stat-total">—</div><div class="left-stat-lbl">Active listings</div></div>
-      <div><div class="left-stat-val">8</div><div class="left-stat-lbl">Areas covered</div></div>
+      <div><div class="left-stat-val">47</div><div class="left-stat-lbl">Counties covered</div></div>
       <div><div class="left-stat-val">0%</div><div class="left-stat-lbl">Agent fee</div></div>
     </div>
   </div>
@@ -432,14 +449,23 @@
           <div class="field-error" id="err-reg-pw">Password must be at least 8 characters</div>
         </div>
 
+        <div class="consent-box" id="consent-box">
+          <label class="consent-label">
+            <input type="checkbox" id="reg-consent" onchange="clearConsentError()"/>
+            <span class="consent-text">
+              I have read and agree to the
+              <a href="terms.html" target="_blank" rel="noopener">Terms of Service</a>
+              and
+              <a href="privacy.html" target="_blank" rel="noopener">Privacy Policy</a>.
+            </span>
+          </label>
+          <div class="field-error" id="err-consent">You must agree to the Terms of Service and Privacy Policy to create an account</div>
+        </div>
+
         <button class="btn-submit" id="btn-register" onclick="doRegister()">
           <div class="spinner"></div>
           <span class="btn-text">Create account — it's free</span>
         </button>
-
-        <p class="terms">
-          By creating an account you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
-        </p>
 
         <!-- Register success -->
         <div class="success-screen" id="register-success">
@@ -657,14 +683,22 @@
     alertEl.appendChild(link);
   }
 
+  // ── Consent checkbox helpers ──
+  function clearConsentError() {
+    document.getElementById('consent-box').classList.remove('error');
+    document.getElementById('err-consent').classList.remove('show');
+  }
+
   // ── REGISTER ──
   async function doRegister() {
     clearAllErrors();
-    const first = document.getElementById('reg-firstname').value.trim();
-    const last  = document.getElementById('reg-lastname').value.trim();
-    const email = document.getElementById('reg-email').value.trim();
-    const phone = document.getElementById('reg-phone').value.trim();
-    const pw    = document.getElementById('reg-password').value;
+    clearConsentError();
+    const first   = document.getElementById('reg-firstname').value.trim();
+    const last    = document.getElementById('reg-lastname').value.trim();
+    const email   = document.getElementById('reg-email').value.trim();
+    const phone   = document.getElementById('reg-phone').value.trim();
+    const pw      = document.getElementById('reg-password').value;
+    const consent = document.getElementById('reg-consent').checked;
     let ok = true;
 
     if (!first)        { fieldError('reg-firstname','err-firstname',true); ok=false; }
@@ -672,6 +706,11 @@
     if (!isEmail(email)){ fieldError('reg-email','err-reg-email',true); ok=false; }
     if (!isPhone(phone)){ fieldError('reg-phone','err-phone',true); ok=false; }
     if (pw.length < 8) { fieldError('reg-password','err-reg-pw',true); ok=false; }
+    if (!consent) {
+      document.getElementById('consent-box').classList.add('error');
+      document.getElementById('err-consent').classList.add('show');
+      ok = false;
+    }
     if (!ok) return;
 
     setLoading('btn-register', true);
@@ -706,7 +745,7 @@
     document.querySelector('#panel-register .auth-title').style.display = 'none';
     document.querySelector('#panel-register .auth-sub').style.display = 'none';
     document.querySelector('#panel-register #register-alert').style.display = 'none';
-    document.querySelectorAll('#panel-register .form-row, #panel-register .form-group, #panel-register .btn-submit, #panel-register .terms, #panel-register p.auth-sub').forEach(el => el.style.display='none');
+    document.querySelectorAll('#panel-register .form-row, #panel-register .form-group, #panel-register .btn-submit, #panel-register .terms, #panel-register p.auth-sub, #panel-register .consent-box').forEach(el => el.style.display='none');
     document.getElementById('register-success').style.display = 'block';
   }
 
