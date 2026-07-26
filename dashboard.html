@@ -677,7 +677,7 @@
               <div class="toggle-row"><div class="toggle-label"><strong>Listing expiring</strong><span>7 days before your listing expires</span></div><label class="switch"><input type="checkbox" id="notif-expiring" checked/><span class="switch-track"></span></label></div>
               <div class="toggle-row"><div class="toggle-label"><strong>Payment confirmed</strong><span>Payment receipt notifications</span></div><label class="switch"><input type="checkbox" id="notif-payment" checked/><span class="switch-track"></span></label></div>
             </div>
-            <button class="btn btn-outline btn-sm" style="margin-top:14px;width:100%;justify-content:center" onclick="showToast('Notification preferences saved','success')">Save preferences</button>
+            <button class="btn btn-outline btn-sm" style="margin-top:14px;width:100%;justify-content:center" onclick="saveNotificationPrefs()">Save preferences</button>
           </div>
         </div>
       </div>
@@ -1034,6 +1034,24 @@ async function loadProfile(){
   document.getElementById('settings-avatar').textContent=initials;
   document.getElementById('settings-fullname').textContent=name;
   document.getElementById('settings-email-display').textContent=email;
+
+  document.getElementById('notif-enquiry').checked = data?.notif_enquiry !== false;
+  document.getElementById('notif-approved').checked = data?.notif_approved !== false;
+  document.getElementById('notif-expiring').checked = data?.notif_expiring !== false;
+  document.getElementById('notif-payment').checked = data?.notif_payment !== false;
+}
+
+async function saveNotificationPrefs(){
+  const prefs={
+    notif_enquiry: document.getElementById('notif-enquiry').checked,
+    notif_approved: document.getElementById('notif-approved').checked,
+    notif_expiring: document.getElementById('notif-expiring').checked,
+    notif_payment: document.getElementById('notif-payment').checked,
+  };
+  const{error}=await db.from('profiles').update(prefs).eq('id',currentUser.id);
+  if(error){showToast('Could not save: '+error.message,'error');return;}
+  currentProfile={...currentProfile,...prefs};
+  showToast('Notification preferences saved','success');
 }
 
 async function loadAllData(){
