@@ -446,6 +446,10 @@
       Reviews
       <span class="nav-badge gold" id="nav-badge-reviews">—</span>
     </button>
+    <button class="nav-item" data-view="contact-reveals" onclick="showView('contact-reveals')">
+      <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.12 1.2 2 2 0 012.11 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>
+      Contact reveals
+    </button>
     <div class="nav-section-label" style="margin-top:8px">Comms</div>
     <a href="admin-chat.html" class="nav-item" id="nav-livechat">
       <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
@@ -734,6 +738,32 @@
       </div>
     </div>
 
+    <!-- CONTACT REVEALS -->
+    <div class="view" id="view-contact-reveals">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Contact reveal activity</span>
+          <span style="font-size:12px;color:var(--text-3)" id="contact-reveals-count"></span>
+        </div>
+        <div class="tab-bar">
+          <button class="tab-btn active" id="crtab-active"  onclick="setContactRevealTab('active')">Most active <span class="count" id="crtc-active">—</span></button>
+          <button class="tab-btn"        id="crtab-blocked" onclick="setContactRevealTab('blocked')">Blocked devices <span class="count" id="crtc-blocked">—</span></button>
+        </div>
+        <p style="padding:0 22px 14px;font-size:12px;color:var(--text-3)">Every time a buyer's Call/WhatsApp button successfully reveals a seller's number, it's logged here by an anonymous device id — no personal buyer data. Use this to spot one device revealing an unusual number of contacts (a likely scraper) and block it.</p>
+        <div class="table-wrap mobile-hide">
+          <table id="cr-table-active">
+            <thead><tr><th>Device</th><th>Reveals (24h)</th><th>Listings contacted</th><th>Last reveal</th><th>Actions</th></tr></thead>
+            <tbody id="contact-reveals-body"><tr class="skeleton-row"><td colspan="5"><div class="skel"></div></td></tr></tbody>
+          </table>
+          <table id="cr-table-blocked" style="display:none">
+            <thead><tr><th>Device</th><th>Reason</th><th>Blocked by</th><th>Blocked on</th><th>Actions</th></tr></thead>
+            <tbody id="blocked-devices-body"><tr class="skeleton-row"><td colspan="5"><div class="skel"></div></td></tr></tbody>
+          </table>
+        </div>
+        <div class="mobile-card-list" id="contact-reveals-mobile"></div>
+      </div>
+    </div>
+
     <!-- ANALYTICS -->
     <div class="view" id="view-analytics">
       <div class="stat-grid" style="grid-template-columns:repeat(3,1fr)">
@@ -868,6 +898,15 @@
   </div>
 </div>
 
+<!-- CONTACT REVEAL DETAIL MODAL -->
+<div class="modal-overlay" id="contact-reveal-modal" onclick="handleOverlayClick(event,'contact-reveal-modal')">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-header"><h3 id="contact-reveal-modal-title">Device activity</h3><button class="modal-close" onclick="closeContactRevealModal()">×</button></div>
+    <div class="modal-body" id="contact-reveal-modal-body"></div>
+    <div class="modal-footer" id="contact-reveal-modal-footer"></div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -999,6 +1038,7 @@
     list:     '<line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>',
     external: '<circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/>',
     chat:     '<path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/>',
+    ban:      '<circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>',
   };
   function aBtn(icon, tip, cls, onclick) {
     return `<button class="action-btn icon ${cls}" data-tip="${esc(tip)}" aria-label="${esc(tip)}" onclick="${onclick}"><svg viewBox="0 0 24 24">${ICONS[icon]}</svg></button>`;
@@ -2582,6 +2622,200 @@ async function toggleReviewPublish(id, isCurrentlyPublished) {
     if (el) el.textContent = count || 0;
   }
 
+  // ════════════════════════════════════
+  // CONTACT REVEALS — moderation for the click-to-reveal contact
+  // protection on listing.html. Every successful phone/WhatsApp reveal
+  // is logged (device id, listing, channel, time) but the raw data lives
+  // behind SECURITY DEFINER RPCs that check for an admin role — see
+  // contact-reveal-admin-panel.sql. "Most active" surfaces devices with
+  // unusually high reveal counts (likely scrapers); "Blocked devices"
+  // lists ones an admin has already cut off.
+  // ════════════════════════════════════
+  let _contactReveals = [];
+  let _blockedDevices = [];
+  let crTab = 'active';
+
+  async function loadContactReveals() {
+    const tbody   = document.getElementById('contact-reveals-body');
+    const btbody  = document.getElementById('blocked-devices-body');
+    const mobileEl = document.getElementById('contact-reveals-mobile');
+    tbody.innerHTML  = `<tr class="skeleton-row"><td colspan="5"><div class="skel"></div></td></tr>`.repeat(4);
+    btbody.innerHTML = `<tr class="skeleton-row"><td colspan="5"><div class="skel"></div></td></tr>`.repeat(2);
+    mobileEl.innerHTML = '';
+
+    const [{ data: summary, error: sumErr }, { data: blocked, error: blkErr }] = await Promise.all([
+      db.rpc('get_contact_reveal_summary', { p_hours: 24 }),
+      db.rpc('get_blocked_devices'),
+    ]);
+
+    if (sumErr) console.error('get_contact_reveal_summary error:', sumErr);
+    if (blkErr) console.error('get_blocked_devices error:', blkErr);
+
+    _contactReveals = summary || [];
+    _blockedDevices = blocked || [];
+
+    document.getElementById('crtc-active').textContent  = _contactReveals.length;
+    document.getElementById('crtc-blocked').textContent = _blockedDevices.length;
+
+    renderContactRevealsTable();
+  }
+
+  function setContactRevealTab(tab) {
+    crTab = tab;
+    document.querySelectorAll('#view-contact-reveals .tab-btn').forEach(b=>b.classList.remove('active'));
+    document.getElementById('crtab-'+tab)?.classList.add('active');
+    document.getElementById('cr-table-active').style.display  = tab==='active'  ? 'table' : 'none';
+    document.getElementById('cr-table-blocked').style.display = tab==='blocked' ? 'table' : 'none';
+    renderContactRevealsTable();
+  }
+
+  function shortDeviceId(id) { return id ? (id.length > 14 ? id.slice(0,8)+'…'+id.slice(-4) : id) : '—'; }
+
+  function renderContactRevealsTable() {
+    const mobileEl = document.getElementById('contact-reveals-mobile');
+    document.getElementById('contact-reveals-count').textContent =
+      crTab==='active' ? `${_contactReveals.length} device(s), last 24h` : `${_blockedDevices.length} blocked`;
+
+    if (crTab === 'active') {
+      const tbody = document.getElementById('contact-reveals-body');
+      if (!_contactReveals.length) {
+        tbody.innerHTML = `<tr><td colspan="5"><div class="table-loading"><p>No contact reveals in the last 24 hours.</p></div></td></tr>`;
+        mobileEl.innerHTML = `<div class="table-loading"><p>No contact reveals in the last 24 hours.</p></div>`;
+        return;
+      }
+      tbody.innerHTML = _contactReveals.map(d => `<tr>
+        <td><span class="val mono" style="font-size:12px">${esc(shortDeviceId(d.device_id))}</span>${d.is_blocked?' <span class="badge rejected">blocked</span>':''}</td>
+        <td style="font-weight:600">${d.reveals}</td>
+        <td>${d.listings_contacted}</td>
+        <td>${fmtDate(d.last_reveal)}</td>
+        <td>
+          <div class="action-btns">
+            ${aBtn('view','View detail','view',`openContactRevealDetail('${esc(d.device_id)}')`)}
+            ${d.is_blocked
+              ? aBtn('activate','Unblock device','approve',`unblockDeviceFlow('${esc(d.device_id)}')`)
+              : aBtn('ban','Block device','reject',`blockDeviceFlow('${esc(d.device_id)}')`)}
+          </div>
+          ${mobileMenu(d.device_id,[
+            {label:'View detail', cls:'', fn:`openContactRevealDetail('${esc(d.device_id)}')`},
+            d.is_blocked
+              ? {label:'Unblock device', cls:'success', fn:`unblockDeviceFlow('${esc(d.device_id)}')`}
+              : {label:'Block device',   cls:'danger',  fn:`blockDeviceFlow('${esc(d.device_id)}')`},
+          ])}
+        </td>
+      </tr>`).join('');
+
+      mobileEl.innerHTML = _contactReveals.map(d => `<div class="mobile-card">
+        <div class="mobile-card-header">
+          <div style="flex:1;min-width:0">
+            <div style="font-weight:600;font-size:13px;font-family:monospace">${esc(shortDeviceId(d.device_id))}</div>
+            <div style="font-size:11px;color:var(--text-3)">${d.listings_contacted} listing(s) contacted</div>
+          </div>
+          ${d.is_blocked?'<span class="badge rejected">blocked</span>':''}
+        </div>
+        <div class="mobile-card-body">
+          <div class="mobile-card-row"><span>Reveals (24h)</span><span style="font-weight:600">${d.reveals}</span></div>
+          <div class="mobile-card-row"><span>Last reveal</span><span>${fmtDate(d.last_reveal)}</span></div>
+        </div>
+        <div class="mobile-card-actions">
+          ${aBtn('view','Detail','view',`openContactRevealDetail('${esc(d.device_id)}')`)}
+          ${d.is_blocked
+            ? aBtn('activate','Unblock','approve',`unblockDeviceFlow('${esc(d.device_id)}')`)
+            : aBtn('ban','Block','reject',`blockDeviceFlow('${esc(d.device_id)}')`)}
+        </div>
+      </div>`).join('');
+    } else {
+      const tbody = document.getElementById('blocked-devices-body');
+      if (!_blockedDevices.length) {
+        tbody.innerHTML = `<tr><td colspan="5"><div class="table-loading"><p>No blocked devices.</p></div></td></tr>`;
+        mobileEl.innerHTML = `<div class="table-loading"><p>No blocked devices.</p></div>`;
+        return;
+      }
+      tbody.innerHTML = _blockedDevices.map(d => `<tr>
+        <td><span class="val mono" style="font-size:12px">${esc(shortDeviceId(d.device_id))}</span></td>
+        <td style="max-width:220px">${esc(d.reason||'—')}</td>
+        <td>${esc(d.blocked_by_name||'—')}</td>
+        <td>${fmtDate(d.blocked_at)}</td>
+        <td>
+          <div class="action-btns">${aBtn('activate','Unblock device','approve',`unblockDeviceFlow('${esc(d.device_id)}')`)}</div>
+          ${mobileMenu(d.device_id,[{label:'Unblock device', cls:'success', fn:`unblockDeviceFlow('${esc(d.device_id)}')`}])}
+        </td>
+      </tr>`).join('');
+
+      mobileEl.innerHTML = _blockedDevices.map(d => `<div class="mobile-card">
+        <div class="mobile-card-header">
+          <div style="flex:1;min-width:0">
+            <div style="font-weight:600;font-size:13px;font-family:monospace">${esc(shortDeviceId(d.device_id))}</div>
+            <div style="font-size:11px;color:var(--text-3)">Blocked by ${esc(d.blocked_by_name||'—')}</div>
+          </div>
+        </div>
+        <div class="mobile-card-body">
+          <div class="mobile-card-row"><span>Reason</span><span style="text-align:right;max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(d.reason||'—')}</span></div>
+          <div class="mobile-card-row"><span>Blocked on</span><span>${fmtDate(d.blocked_at)}</span></div>
+        </div>
+        <div class="mobile-card-actions">
+          ${aBtn('activate','Unblock','approve',`unblockDeviceFlow('${esc(d.device_id)}')`)}
+        </div>
+      </div>`).join('');
+    }
+  }
+
+  async function openContactRevealDetail(deviceId) {
+    document.getElementById('contact-reveal-modal-title').textContent = 'Device activity';
+    document.getElementById('contact-reveal-modal-body').innerHTML = `
+      <div class="field"><label>Device ID</label><div class="val mono">${esc(deviceId)}</div></div>
+      <div class="field"><label>Listings contacted</label><div class="val" id="cr-detail-list">Loading…</div></div>`;
+    document.getElementById('contact-reveal-modal-footer').innerHTML = `
+      <button class="btn-modal cancel" onclick="closeContactRevealModal()">Close</button>
+      <button class="btn-modal reject" onclick="blockDeviceFlow('${esc(deviceId)}')">Block this device</button>`;
+    document.getElementById('contact-reveal-modal').classList.add('open');
+
+    const { data, error } = await db.rpc('get_contact_reveal_detail', { p_device_id: deviceId });
+    const el = document.getElementById('cr-detail-list');
+    if (error) { el.innerHTML = `<span style="color:var(--red)">Could not load: ${esc(error.message)}</span>`; return; }
+    if (!data?.length) { el.innerHTML = 'No activity found.'; return; }
+    el.innerHTML = `<div style="display:flex;flex-direction:column;gap:8px;margin-top:4px">` + data.map(r => `
+      <div style="background:var(--surface);border-radius:8px;padding:8px 12px;font-size:13px">
+        <div style="font-weight:600">${esc(r.listing_title||'(deleted listing)')}</div>
+        <div style="font-size:11px;color:var(--text-3);text-transform:capitalize">${esc(r.channel)} · ${new Date(r.revealed_at).toLocaleString('en-KE')}</div>
+      </div>`).join('') + `</div>`;
+  }
+  function closeContactRevealModal() { document.getElementById('contact-reveal-modal').classList.remove('open'); }
+
+  function blockDeviceFlow(deviceId) {
+    closeContactRevealModal();
+    openConfirm({
+      title:'Block this device?',
+      message:`This device will no longer be able to reveal any seller's contact details on the site. This does not affect their ability to browse listings or send messages.`,
+      requireReason:true, reasonLabel:'Reason (internal only)',
+      confirmText:'Block device', confirmClass:'reject',
+      onConfirm:(reason)=>doBlockDevice(deviceId,reason)
+    });
+  }
+  async function doBlockDevice(deviceId, reason) {
+    const { error } = await db.rpc('block_contact_device', { p_device_id: deviceId, p_reason: reason || null });
+    if (error) { toast('Error: '+error.message,'error'); return; }
+    logAction('block_contact_device','device',deviceId,reason||'');
+    toast('Device blocked ✓','success');
+    if (currentView==='contact-reveals') loadContactReveals();
+  }
+
+  function unblockDeviceFlow(deviceId) {
+    closeContactRevealModal();
+    openConfirm({
+      title:'Unblock this device?',
+      message:`This device will be able to reveal seller contact details again.`,
+      confirmText:'Unblock device', confirmClass:'approve',
+      onConfirm:()=>doUnblockDevice(deviceId)
+    });
+  }
+  async function doUnblockDevice(deviceId) {
+    const { error } = await db.rpc('unblock_contact_device', { p_device_id: deviceId });
+    if (error) { toast('Error: '+error.message,'error'); return; }
+    logAction('unblock_contact_device','device',deviceId,'');
+    toast('Device unblocked','success');
+    if (currentView==='contact-reveals') loadContactReveals();
+  }
+
   // ─── ANALYTICS ───
   async function loadAnalytics() {
     const {count:total} = await db.from('page_views').select('*',{count:'exact',head:true});
@@ -2674,7 +2908,7 @@ async function toggleReviewPublish(id, isCurrentlyPublished) {
   const viewTitles = {
     overview:'Dashboard', listings:'All listings', 'recycle-bin':'Recycle bin',
     payments:'Payments', users:'Sellers', enquiries:'Enquiries',
-    reports:'Reports', reviews:'Reviews',
+    reports:'Reports', reviews:'Reviews', 'contact-reveals':'Contact reveals',
     analytics:'Site visits', 'activity-log':'Activity log'
   };
   function showView(v) {
@@ -2691,6 +2925,7 @@ async function toggleReviewPublish(id, isCurrentlyPublished) {
     if(v==='enquiries')    loadEnquiries().then(markAllEnquiriesRead);
     if(v==='reports')      loadReports();
     if(v==='reviews')      loadReviews();
+    if(v==='contact-reveals') loadContactReveals();
     if(v==='analytics')    loadAnalytics();
     if(v==='activity-log') loadActivityLog();
   }
