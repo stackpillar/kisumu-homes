@@ -1538,6 +1538,7 @@ async function submitListing() {
         size_sqm:   u.size ? parseFloat(u.size) : null,
         price:      parseFloat(u.price),
         quantity_available: parseInt(u.quantity),
+        quantity_total:     parseInt(u.quantity),
       }));
       const { error: unitErr } = await db.from('listing_units').insert(unitRows);
       if (unitErr) console.error('listing_units insert error:', unitErr);
