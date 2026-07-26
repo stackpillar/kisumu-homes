@@ -46,6 +46,28 @@
     .nav-link:hover { background: var(--surface); }
     .btn-primary { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 500; padding: 9px 18px; border-radius: var(--radius); background: var(--green); color: white; transition: background .15s; }
     .btn-primary:hover { background: var(--green-dark); }
+    .nav-count {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 16px; height: 16px; padding: 0 4px; border-radius: 8px;
+      background: var(--green); color: white; font-size: 10px; font-weight: 700; margin-left: 2px;
+    }
+
+    /* Mobile menu */
+    .mobile-menu-btn {
+      display: none; background: none; border: none; cursor: pointer;
+      padding: 6px; border-radius: 6px;
+    }
+    .mobile-menu-btn svg { width: 22px; height: 22px; stroke: var(--text); fill: none; stroke-width: 2; display: block; }
+    .mobile-nav {
+      display: none; position: fixed; top: 64px; left: 0; right: 0;
+      background: var(--white); border-bottom: 1px solid var(--border);
+      padding: 16px; z-index: 99; flex-direction: column; gap: 4px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+    }
+    .mobile-nav.open { display: flex; }
+    .mobile-nav a { font-size: 15px; color: var(--text-2); padding: 10px 14px; border-radius: var(--radius); }
+    .mobile-nav a:hover { background: var(--surface); }
+    .mobile-nav .btn-primary { text-align: center; justify-content: center; margin-top: 8px; }
 
     /* ── Main ── */
     .main {
@@ -179,6 +201,15 @@
     }
     .search-wrap button:hover { background: var(--green-dark); }
 
+    /* ── Free trial badge ── */
+    .trial-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--green-light); color: var(--green-dark);
+      font-size: 12px; font-weight: 600; padding: 6px 14px;
+      border-radius: 999px; margin-bottom: 20px;
+    }
+    .trial-badge svg { width: 13px; height: 13px; stroke: var(--green-dark); fill: none; stroke-width: 2.2; }
+
     /* ── Footer strip ── */
     .footer-strip {
       background: var(--white); border-top: 1px solid var(--border);
@@ -191,9 +222,12 @@
     .footer-strip a:hover { text-decoration: underline; }
 
     /* ── Responsive ── */
-    @media (max-width: 600px) {
+    @media (max-width: 768px) {
       nav { padding: 0 16px; }
-      .nav-links .nav-link { display: none; }
+      .nav-links { display: none; }
+      .mobile-menu-btn { display: flex; }
+    }
+    @media (max-width: 600px) {
       .quick-links-grid { grid-template-columns: 1fr; }
       .big-number { font-size: 52px; }
       .footer-strip { padding: 16px; }
@@ -211,14 +245,38 @@
     Nyumba254
   </a>
   <div class="nav-links">
-    <a href="index.html" class="nav-link">Home</a>
     <a href="listings.html" class="nav-link">Browse</a>
     <a href="how-it-works.html" class="nav-link">How it works</a>
+    <a href="about.html" class="nav-link">About us</a>
     <a href="pricing.html" class="nav-link">Pricing</a>
-    <a href="contact.html" class="nav-link">Contact</a>
+    <a href="faq.html" class="nav-link">FAQ</a>
+    <a href="login.html" class="nav-link" id="nav-account-link">Sign in</a>
+    <a href="saved.html" class="nav-link">
+      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+      Saved
+      <span class="nav-count" id="nav-count-badge" style="display:none">0</span>
+    </a>
     <a href="post-listing.html" class="btn-primary">List your apartment</a>
   </div>
+  <button class="mobile-menu-btn" onclick="toggleMobileMenu()" aria-label="Open menu">
+    <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  </button>
 </nav>
+
+<!-- Mobile nav -->
+<div class="mobile-nav" id="mobile-nav">
+  <a href="listings.html">Browse listings</a>
+  <a href="how-it-works.html">How it works</a>
+  <a href="about.html">About us</a>
+  <a href="pricing.html">Pricing</a>
+  <a href="faq.html">FAQ</a>
+  <a href="login.html" id="mobile-account-link">Sign in</a>
+  <a href="saved.html">
+    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+    Saved
+  </a>
+  <a href="post-listing.html" class="btn-primary">List your apartment</a>
+</div>
 
 <!-- ── MAIN ── -->
 <div class="main">
@@ -265,7 +323,7 @@
     <!-- Text -->
     <div class="eyebrow">Page not found</div>
     <h1>This property<br>doesn't <em>exist</em></h1>
-    <p class="sub">The page you're looking for may have been removed, the listing may have expired, or the link might be wrong.</p>
+    <p class="sub">The page you're looking for may have been removed, the listing may have expired, or the link might be wrong. Meanwhile, browse 580+ areas covered across Kenya.</p>
 
     <!-- Search -->
     <div class="search-wrap">
@@ -291,19 +349,19 @@
       <div class="quick-links-grid">
         <a href="listings.html?category=student" class="quick-link">
           <div class="ql-icon"><svg viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5-10-5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg></div>
-          <div class="ql-text"><div class="ql-label">Student housing</div><div class="ql-sub">Bedsitters near campuses</div></div>
-        </a>
-        <a href="listings.html?county=Nairobi" class="quick-link">
-          <div class="ql-icon"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
-          <div class="ql-text"><div class="ql-label">Nairobi</div><div class="ql-sub">Apartments across the capital</div></div>
+          <div class="ql-text"><div class="ql-label">Student housing</div><div class="ql-sub">Bedsitters near Kenyatta University</div></div>
         </a>
         <a href="listings.html?county=Kisumu" class="quick-link">
           <div class="ql-icon"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
           <div class="ql-text"><div class="ql-label">Kisumu</div><div class="ql-sub">Our home base — 23 areas covered</div></div>
         </a>
+        <a href="listings.html?county=Nairobi" class="quick-link">
+          <div class="ql-icon"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
+          <div class="ql-text"><div class="ql-label">Nairobi</div><div class="ql-sub">The capital — 60 areas covered</div></div>
+        </a>
         <a href="post-listing.html" class="quick-link">
           <div class="ql-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
-          <div class="ql-text"><div class="ql-label">List your property</div><div class="ql-sub">KES 800 — go live today</div></div>
+          <div class="ql-text"><div class="ql-label">List your property</div><div class="ql-sub">Free for your first 7 days</div></div>
         </a>
         <a href="how-it-works.html" class="quick-link">
           <div class="ql-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
@@ -329,11 +387,37 @@
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
   function doSearch() {
     const q = document.getElementById('search-input').value.trim();
     if (q) window.location.href = `listings.html?q=${encodeURIComponent(q)}`;
   }
+
+  // ── Mobile menu ──
+  function toggleMobileMenu() {
+    document.getElementById('mobile-nav').classList.toggle('open');
+  }
+  document.addEventListener('click', e => {
+    const navEl = document.getElementById('mobile-nav');
+    const btn = document.querySelector('.mobile-menu-btn');
+    if (navEl.classList.contains('open') && !navEl.contains(e.target) && !btn.contains(e.target)) {
+      navEl.classList.remove('open');
+    }
+  });
+
+  // ── Swap Sign in → My Account when logged in ──
+  (async function() {
+    const SUPABASE_URL = 'https://vliuuloyfhyxcsuchpss.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_oIIcecf3wzKMual5K24Z8Q_zmxVfgsx';
+    const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const { data: { session } } = await db.auth.getSession();
+    if (!session) return;
+    const desktopLink = document.getElementById('nav-account-link');
+    const mobileLink = document.getElementById('mobile-account-link');
+    if (desktopLink) { desktopLink.textContent = 'My Account'; desktopLink.href = 'dashboard.html'; }
+    if (mobileLink) { mobileLink.textContent = 'My Account'; mobileLink.href = 'dashboard.html'; }
+  })();
 </script>
 </body>
 </html>
