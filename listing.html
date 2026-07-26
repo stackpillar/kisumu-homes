@@ -108,6 +108,7 @@
     .badge.commercial { background:#EAEEF7; color:#2A3B7A; border:1px solid #B9C6EA; }
     .badge.sale     { background:var(--green-light); color:var(--green-dark); }
     .badge.rent     { background:#E6F1FB; color:#185FA5; }
+    .badge.multiunit { background:#EDE7F6; color:#5B3E96; border:1px solid #D3C4EE; }
     .listing-title  { font-family:'Playfair Display',serif; font-size:clamp(22px,3vw,32px); color:var(--text); line-height:1.2; margin-bottom:10px; }
     .listing-location { display:flex; align-items:center; gap:6px; font-size:14px; color:var(--text-3); }
     .listing-location svg { width:15px; height:15px; stroke:var(--green); fill:none; stroke-width:2; flex-shrink:0; }
@@ -129,6 +130,52 @@
     .spec-icon svg { width:18px; height:18px; stroke:var(--green); fill:none; stroke-width:1.8; stroke-linecap:round; }
     .spec-val { font-size:15px; font-weight:700; color:var(--text); line-height:1.2; }
     .spec-lbl { font-size:11px; color:var(--text-3); margin-top:3px; }
+
+    /* ══════════════════════════════════════
+       AVAILABLE UNITS — multi-unit properties
+    ══════════════════════════════════════ */
+    .units-card { background:var(--white); border:1px solid var(--border); border-radius:var(--radius-lg); padding:24px; margin-bottom:20px; display:none; }
+    .units-card h3 { font-size:15px; font-weight:600; color:var(--text); margin-bottom:4px; }
+    .units-card p.hint { font-size:13px; color:var(--text-3); margin-bottom:16px; }
+    .unit-type-card { border:1.5px solid var(--border); border-radius:var(--radius); padding:16px; margin-bottom:10px; display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap; }
+    .unit-type-card.sold-out { opacity:.55; }
+    .unit-type-card-main { flex:1; min-width:180px; }
+    .unit-type-card-label { font-size:14px; font-weight:700; color:var(--text); margin-bottom:4px; }
+    .unit-type-card-meta { font-size:12.5px; color:var(--text-3); }
+    .unit-type-card-price { font-size:16px; font-weight:700; color:var(--green-dark); text-align:right; }
+    .unit-type-card-price span { display:block; font-size:11px; font-weight:400; color:var(--text-3); }
+    .unit-avail-pill { display:inline-flex; align-items:center; gap:5px; font-size:12px; font-weight:700; padding:4px 10px; border-radius:20px; background:var(--green-light); color:var(--green-dark); white-space:nowrap; }
+    .unit-avail-pill.low { background:var(--gold-light); color:var(--gold); }
+    .unit-avail-pill.none { background:var(--red-light); color:var(--red); }
+
+    /* ══════════════════════════════════════
+       SELLER: MANAGE UNITS PANEL
+    ══════════════════════════════════════ */
+    .manage-units-card { background:var(--white); border:2px solid var(--green); border-radius:var(--radius-lg); padding:24px; margin-bottom:20px; display:none; }
+    .manage-units-card h3 { font-size:15px; font-weight:700; color:var(--green-dark); margin-bottom:4px; display:flex; align-items:center; gap:8px; }
+    .manage-units-card p.hint { font-size:13px; color:var(--text-3); margin-bottom:18px; }
+    .manage-unit-row { border:1.5px solid var(--border); border-radius:var(--radius); padding:16px; margin-bottom:12px; }
+    .manage-unit-row-top { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px; flex-wrap:wrap; }
+    .manage-unit-row-top strong { font-size:14px; color:var(--text); }
+    .manage-unit-actions { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+    .btn-mark-occupied { padding:8px 14px; border-radius:8px; background:var(--green); color:white; font-size:12.5px; font-weight:600; }
+    .btn-mark-occupied:hover { background:var(--green-dark); }
+    .btn-mark-occupied:disabled { opacity:.5; cursor:not-allowed; }
+    .btn-mark-available { padding:8px 14px; border-radius:8px; background:var(--surface); color:var(--text-2); font-size:12.5px; font-weight:600; border:1.5px solid var(--border); }
+    .btn-mark-available:hover { border-color:var(--green); color:var(--green); }
+    .btn-mark-available:disabled { opacity:.5; cursor:not-allowed; }
+    .occupy-form { display:none; margin-top:12px; padding-top:12px; border-top:1px dashed var(--border); }
+    .occupy-form.open { display:block; }
+    .occupy-form-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:10px; }
+    .occupy-form-grid label { display:block; font-size:11px; font-weight:600; color:var(--text-2); margin-bottom:4px; }
+    .occupy-form-grid input, .occupy-form-grid select { width:100%; padding:8px 10px; border:1.5px solid var(--border); border-radius:8px; font-size:13px; background:var(--surface); outline:none; }
+    .occupy-form-grid input:focus, .occupy-form-grid select:focus { border-color:var(--green); }
+    .btn-confirm-occupy { padding:8px 16px; border-radius:8px; background:var(--green); color:white; font-size:12.5px; font-weight:600; }
+    .btn-confirm-occupy:hover { background:var(--green-dark); }
+    .btn-cancel-occupy { padding:8px 14px; border-radius:8px; background:none; color:var(--text-3); font-size:12.5px; }
+    .occupancy-log { margin-top:10px; }
+    .occupancy-log-item { font-size:12px; color:var(--text-3); padding:5px 0; border-top:1px solid var(--border); display:flex; justify-content:space-between; gap:8px; }
+    @media(max-width:640px) { .occupy-form-grid { grid-template-columns:1fr; } }
 
     /* Description */
     .desc-card { background:var(--white); border:1px solid var(--border); border-radius:var(--radius-lg); padding:24px; margin-bottom:20px; }
@@ -196,8 +243,8 @@
     /* Enquiry form */
     .field { margin-bottom:14px; }
     .field label { display:block; font-size:12px; font-weight:600; color:var(--text-2); text-transform:uppercase; letter-spacing:.05em; margin-bottom:5px; }
-    .field input,.field textarea { width:100%; padding:10px 14px; border:1.5px solid var(--border); border-radius:var(--radius); font-size:14px; color:var(--text); background:var(--surface); outline:none; transition:border-color .15s,background .15s; }
-    .field input:focus,.field textarea:focus { border-color:var(--green); background:var(--white); }
+    .field input,.field textarea,.field select { width:100%; padding:10px 14px; border:1.5px solid var(--border); border-radius:var(--radius); font-size:14px; color:var(--text); background:var(--surface); outline:none; transition:border-color .15s,background .15s; }
+    .field input:focus,.field textarea:focus,.field select:focus { border-color:var(--green); background:var(--white); }
     .field input.error,.field textarea.error { border-color:var(--red); }
     .field textarea { resize:vertical; min-height:80px; line-height:1.6; }
     .field-error { font-size:11px; color:var(--red); margin-top:4px; display:none; }
@@ -617,8 +664,25 @@
 
         <!-- Specs -->
         <div class="specs-card">
-          <h3>Property details</h3>
+          <h3 id="specs-card-title">Property details</h3>
           <div class="specs-grid" id="specs-grid"></div>
+        </div>
+
+        <!-- ══ Available units — multi-unit properties only ══ -->
+        <div class="units-card" id="units-card">
+          <h3>Available units</h3>
+          <p class="hint" id="units-card-hint">Unit types and current availability in this property</p>
+          <div id="unit-type-list"></div>
+        </div>
+
+        <!-- ══ Seller: Manage units panel — only visible to the listing owner ══ -->
+        <div class="manage-units-card" id="manage-units-card">
+          <h3>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M15 3v18"/></svg>
+            Manage units
+          </h3>
+          <p class="hint">Mark a unit as occupied once it's booked — this updates availability for buyers immediately. Only you can see this panel.</p>
+          <div id="manage-unit-list"></div>
         </div>
 
         <!-- Description -->
@@ -714,6 +778,15 @@
 
           <!-- Enquiry form -->
           <div id="enquiry-form">
+            <!-- Shown only for multi-unit properties -->
+            <div class="field" id="enq-unit-type-field" style="display:none">
+              <label>Interested unit type <span style="font-size:10px;font-weight:400;color:var(--text-3)">optional</span></label>
+              <select id="enq-unit-type"><option value="">Any available unit</option></select>
+            </div>
+            <div class="field" id="enq-unit-pref-field" style="display:none">
+              <label>Preferred floor / position <span style="font-size:10px;font-weight:400;color:var(--text-3)">optional</span></label>
+              <input type="text" id="enq-unit-pref" placeholder="e.g. Middle floor, corner unit, left side"/>
+            </div>
             <div class="field">
               <label>Your name</label>
               <input type="text" id="enq-name" placeholder="e.g. Brian Otieno"/>
@@ -1041,6 +1114,10 @@ let buyerName    = '';
 let buyerPhone   = '';
 let threadMessages = [];
 
+/* ── Multi-unit state ── */
+let listingUnits    = [];   // rows from listing_units for this listing
+let isListingOwner  = false;
+
 /* CONTACT PROTECTION state — see handleContactClick() further down.
    sellerPhoneRaw stays null until a successful reveal_seller_contact()
    call returns it; contactRevealed just avoids re-fetching/re-logging
@@ -1067,15 +1144,23 @@ async function loadListing() {
        fetched only once a buyer has unlocked contact (see handleContactClick
        and the CONTACT PROTECTION block near the bottom of this script). This
        is what stops bots from bulk-scraping every seller's number straight
-       out of the page source or browser memory. */
-    .select('*, profiles(full_name, created_at), listing_photos(*)')
+       out of the page source or browser memory. Multi-unit properties also
+       pull their listing_units rows here (unit types + live availability). */
+    .select('*, profiles(full_name, created_at), listing_photos(*), listing_units(*)')
     .eq('id', listingId)
     .single();
 
   if (error || !data) { showNotFound(); return; }
   listing = data;
+  listingUnits = (data.listing_units || []).sort((a,b) => (a.id||0) - (b.id||0));
 
   const isFullyActive = (data.status === 'active') && !data.is_disabled && !data.recycle_bin;
+
+  // Determine viewer identity once, up front — used both for the
+  // disabled-listing gate below and for the seller "Manage units" panel.
+  const { data: { session } } = await db.auth.getSession();
+  const viewerUserId = session?.user?.id || null;
+  isListingOwner = !!viewerUserId && (data.seller_id === viewerUserId);
 
   if (isFullyActive) {
     trackView(data);   // ← handles one-per-device atomically
@@ -1086,20 +1171,16 @@ async function loadListing() {
     loadSellerReviewStats(data.seller_id);   // ★ seller rating summary
     nkCheckReviewPrompt(data.id);            // ★ "did you secure this property?" prompt
     nkUpdateReportButtonState(data.id);      // ★ show "Reported ✓" if already flagged from this browser
+    if (isListingOwner) renderManageUnitsPanel();
     return;
   }
 
   /* Disabled/recycled/pending — check if seller or admin */
-  const { data: { session } } = await db.auth.getSession();
-  const viewerUserId = session?.user?.id || null;
-  let isOwner = false, isAdmin = false;
+  let isOwner = isListingOwner, isAdmin = false;
 
-  if (viewerUserId) {
-    isOwner = (data.seller_id === viewerUserId);
-    if (!isOwner) {
-      const { data: profile } = await db.from('profiles').select('role').eq('id', viewerUserId).single();
-      isAdmin = (profile?.role === 'admin');
-    }
+  if (viewerUserId && !isOwner) {
+    const { data: profile } = await db.from('profiles').select('role').eq('id', viewerUserId).single();
+    isAdmin = (profile?.role === 'admin');
   }
 
   if (isOwner || isAdmin) showSellerDisabledView(data);
@@ -1242,6 +1323,7 @@ function renderListing(l) {
   document.getElementById('listing-badges').innerHTML = `
     <span class="badge ${l.category}">${catLabel}</span>
     <span class="badge ${l.price_type}">${l.price_type==='sale'?'For sale':'To let / rent'}</span>
+    ${l.is_multi_unit?'<span class="badge multiunit">Multi-unit property</span>':''}
     ${l.furnished?'<span class="badge standard">Furnished</span>':''}
   `;
 
@@ -1250,18 +1332,43 @@ function renderListing(l) {
   document.getElementById('listing-loc-text').textContent =
     `${nkListingCounty(l)} · ${l.area}${l.sub_area?', '+l.sub_area:''}${l.address?' — '+l.address:''}`;
 
-  document.getElementById('listing-price').innerHTML =
-    `KES ${Number(l.price).toLocaleString('en-KE')}${l.price_type==='rent'?'<span>/month</span>':''}`;
-  document.getElementById('listing-price-meta').textContent =
-    l.price_type==='rent'?'Monthly rent — negotiable':'Asking price — negotiable';
+  /* ── Price display: single-unit shows one price; multi-unit shows the
+     range across unit types (falls back to price_min/price_max columns
+     if listing_units hasn't loaded any rows for some reason). ── */
+  if (l.is_multi_unit) {
+    const prices = listingUnits.map(u => Number(u.price)).filter(p => !isNaN(p));
+    const min = prices.length ? Math.min(...prices) : Number(l.price_min) || Number(l.price) || 0;
+    const max = prices.length ? Math.max(...prices) : Number(l.price_max) || Number(l.price) || 0;
+    const suffix = l.price_type === 'rent' ? '<span>/month</span>' : '';
+    document.getElementById('listing-price').innerHTML = min === max
+      ? `KES ${min.toLocaleString('en-KE')}${suffix}`
+      : `KES ${min.toLocaleString('en-KE')} – ${max.toLocaleString('en-KE')}${suffix}`;
+    const totalUnits = l.total_units || listingUnits.reduce((s,u) => s + (u.quantity_total ?? u.quantity_available ?? 0), 0);
+    document.getElementById('listing-price-meta').textContent =
+      `${totalUnits} unit${totalUnits!==1?'s':''} in this property${l.num_buildings?` · ${l.num_buildings} building${l.num_buildings!==1?'s':''}`:''} — price varies by unit type`;
+  } else {
+    document.getElementById('listing-price').innerHTML =
+      `KES ${Number(l.price).toLocaleString('en-KE')}${l.price_type==='rent'?'<span>/month</span>':''}`;
+    document.getElementById('listing-price-meta').textContent =
+      l.price_type==='rent'?'Monthly rent — negotiable':'Asking price — negotiable';
+  }
   /* Views shown as loading until trackView() resolves */
   document.getElementById('listing-views').textContent = `${l.views||0} views`;
 
   const specs = [];
-  if (l.bedrooms !== null) specs.push({ icon:bedIcon, val:l.bedrooms==0?'Studio':l.bedrooms, lbl:l.bedrooms==0?'Bedsitter':'Bedrooms' });
-  if (l.bathrooms)  specs.push({ icon:bathIcon, val:l.bathrooms, lbl:'Bathrooms' });
-  if (l.size_sqm)   specs.push({ icon:sizeIcon, val:l.size_sqm+'m²', lbl:'Floor area' });
-  specs.push({ icon:furnIcon, val:l.furnished?'Yes':'No', lbl:'Furnished' });
+  document.getElementById('specs-card-title').textContent = l.is_multi_unit ? 'Property details' : 'Property details';
+  if (l.is_multi_unit) {
+    const totalUnits = l.total_units || listingUnits.reduce((s,u) => s + (u.quantity_total ?? u.quantity_available ?? 0), 0);
+    const availUnits = listingUnits.reduce((s,u) => s + (u.quantity_available ?? 0), 0);
+    specs.push({ icon:typeIcon, val:totalUnits, lbl:'Total units' });
+    specs.push({ icon:bedIcon,  val:availUnits, lbl:'Currently available' });
+    if (l.num_buildings) specs.push({ icon:catIcon, val:l.num_buildings, lbl:'Buildings' });
+  } else {
+    if (l.bedrooms !== null) specs.push({ icon:bedIcon, val:l.bedrooms==0?'Studio':l.bedrooms, lbl:l.bedrooms==0?'Bedsitter':'Bedrooms' });
+    if (l.bathrooms)  specs.push({ icon:bathIcon, val:l.bathrooms, lbl:'Bathrooms' });
+    if (l.size_sqm)   specs.push({ icon:sizeIcon, val:l.size_sqm+'m²', lbl:'Floor area' });
+    specs.push({ icon:furnIcon, val:l.furnished?'Yes':'No', lbl:'Furnished' });
+  }
   specs.push({ icon:typeIcon, val:l.price_type==='rent'?'Rent':'Sale', lbl:'Listing type' });
   specs.push({ icon:catIcon,  val:catLabel, lbl:'Category' });
 
@@ -1301,6 +1408,20 @@ function renderListing(l) {
     document.getElementById('desc-text').textContent = l.description;
   }
 
+  /* ── Available units card (buyer-facing) ── */
+  if (l.is_multi_unit) renderUnitAvailability();
+
+  /* ── Enquiry form: unit-type + floor/position preference (multi-unit only) ── */
+  if (l.is_multi_unit && listingUnits.length) {
+    document.getElementById('enq-unit-type-field').style.display = 'block';
+    document.getElementById('enq-unit-pref-field').style.display = 'block';
+    const sel = document.getElementById('enq-unit-type');
+    sel.innerHTML = '<option value="">Any available unit</option>' + listingUnits
+      .filter(u => (u.quantity_available ?? 0) > 0)
+      .map(u => `<option value="${escHtml(u.unit_label)}">${escHtml(u.unit_label)} — KES ${Number(u.price).toLocaleString('en-KE')}${l.price_type==='rent'?'/mo':''}</option>`)
+      .join('');
+  }
+
   /* Seller card */
   const profile = l.profiles || {};
   const name = profile.full_name || 'Seller';
@@ -1320,6 +1441,176 @@ function renderListing(l) {
 
   document.getElementById('skeleton-wrap').style.display = 'none';
   document.getElementById('listing-content').style.display = 'block';
+}
+
+/* ════════════════════════════════════════════════════
+   AVAILABLE UNITS — buyer-facing card
+   Shows each unit type with live "X of Y available" pill.
+   Falls back gracefully if quantity_total isn't set on
+   older rows (shows just "X available" without a total).
+════════════════════════════════════════════════════ */
+function renderUnitAvailability() {
+  const card = document.getElementById('units-card');
+  if (!listingUnits.length) { card.style.display = 'none'; return; }
+  card.style.display = 'block';
+
+  document.getElementById('unit-type-list').innerHTML = listingUnits.map(u => {
+    const available = u.quantity_available ?? 0;
+    const total = u.quantity_total ?? null;
+    const soldOut = available <= 0;
+    const low = !soldOut && total && (available / total) <= 0.2;
+    const pillClass = soldOut ? 'none' : (low ? 'low' : '');
+    const pillText = soldOut
+      ? 'Fully booked'
+      : total
+        ? `${available} of ${total} available`
+        : `${available} available`;
+    const bedLabel = u.bedrooms == 0 ? 'Studio' : `${u.bedrooms} bed`;
+    const metaParts = [bedLabel];
+    if (u.bathrooms) metaParts.push(`${u.bathrooms} bath`);
+    if (u.size_sqm) metaParts.push(`${u.size_sqm}m²`);
+    return `
+      <div class="unit-type-card ${soldOut ? 'sold-out' : ''}">
+        <div class="unit-type-card-main">
+          <div class="unit-type-card-label">${escHtml(u.unit_label)}</div>
+          <div class="unit-type-card-meta">${metaParts.join(' · ')}</div>
+        </div>
+        <div class="unit-avail-pill ${pillClass}">${pillText}</div>
+        <div class="unit-type-card-price">KES ${Number(u.price).toLocaleString('en-KE')}${listing?.price_type==='rent'?'<span>/month</span>':'<span>total</span>'}</div>
+      </div>`;
+  }).join('');
+}
+
+/* ════════════════════════════════════════════════════
+   SELLER: MANAGE UNITS PANEL
+   ════════════════════════════════════════════════════
+   Only rendered when isListingOwner is true. For each unit
+   type, lets the seller mark one unit occupied (optionally
+   logging floor / door number / position) or free one up
+   again if they made a mistake. Writes go straight to
+   listing_units.quantity_available, plus an audit row in
+   unit_occupancy_log (see contact-protection-setup.sql-style
+   migration note below — the table needs to exist first).
+════════════════════════════════════════════════════ */
+function renderManageUnitsPanel() {
+  const panel = document.getElementById('manage-units-card');
+  if (!listing?.is_multi_unit || !listingUnits.length) { panel.style.display = 'none'; return; }
+  panel.style.display = 'block';
+  renderManageUnitRows();
+}
+
+function renderManageUnitRows() {
+  document.getElementById('manage-unit-list').innerHTML = listingUnits.map(u => {
+    const available = u.quantity_available ?? 0;
+    const total = u.quantity_total ?? available;
+    return `
+      <div class="manage-unit-row" id="manage-unit-${u.id}">
+        <div class="manage-unit-row-top">
+          <strong>${escHtml(u.unit_label)} — ${available} of ${total} available</strong>
+          <div class="manage-unit-actions">
+            <button class="btn-mark-occupied" ${available<=0?'disabled':''} onclick="toggleOccupyForm(${u.id})">Mark one occupied</button>
+            <button class="btn-mark-available" ${available>=total?'disabled':''} onclick="markUnitAvailable(${u.id})">Mark one available</button>
+          </div>
+        </div>
+        <div class="occupy-form" id="occupy-form-${u.id}">
+          <div class="occupy-form-grid">
+            <div><label>Floor</label><input type="text" id="occ-floor-${u.id}" placeholder="e.g. 2nd floor"/></div>
+            <div><label>Door / unit number</label><input type="text" id="occ-door-${u.id}" placeholder="e.g. Door 4B"/></div>
+            <div><label>Position</label>
+              <select id="occ-pos-${u.id}">
+                <option value="">Not specified</option>
+                <option value="left">Left side</option>
+                <option value="right">Right side</option>
+                <option value="middle">Middle</option>
+                <option value="corner">Corner unit</option>
+                <option value="end">End of corridor</option>
+              </select>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn-confirm-occupy" onclick="confirmMarkOccupied(${u.id})">Confirm — mark occupied</button>
+            <button class="btn-cancel-occupy" onclick="toggleOccupyForm(${u.id})">Cancel</button>
+          </div>
+        </div>
+        <div class="occupancy-log" id="occupancy-log-${u.id}"></div>
+      </div>`;
+  }).join('');
+
+  listingUnits.forEach(u => loadOccupancyLog(u.id));
+}
+
+function toggleOccupyForm(unitTypeId) {
+  document.getElementById(`occupy-form-${unitTypeId}`).classList.toggle('open');
+}
+
+async function confirmMarkOccupied(unitTypeId) {
+  const floor  = document.getElementById(`occ-floor-${unitTypeId}`).value.trim() || null;
+  const door   = document.getElementById(`occ-door-${unitTypeId}`).value.trim() || null;
+  const pos    = document.getElementById(`occ-pos-${unitTypeId}`).value || null;
+
+  const unit = listingUnits.find(u => u.id === unitTypeId);
+  if (!unit || (unit.quantity_available ?? 0) <= 0) return;
+
+  const newAvailable = unit.quantity_available - 1;
+  const { error } = await db.from('listing_units').update({ quantity_available: newAvailable }).eq('id', unitTypeId);
+  if (error) { showToastNK('Could not update unit availability — please try again.'); return; }
+
+  // Best-effort audit log — safe to fail silently if this table doesn't exist yet
+  try {
+    await db.from('unit_occupancy_log').insert({
+      listing_unit_id: unitTypeId, listing_id: listingId,
+      floor, door_number: door, position: pos, action: 'occupied'
+    });
+  } catch(e) { /* table may not exist yet — the availability update above already succeeded */ }
+
+  unit.quantity_available = newAvailable;
+  toggleOccupyForm(unitTypeId);
+  renderManageUnitRows();
+  renderUnitAvailability();
+  showToastNK('Unit marked as occupied — availability updated.');
+}
+
+async function markUnitAvailable(unitTypeId) {
+  const unit = listingUnits.find(u => u.id === unitTypeId);
+  if (!unit) return;
+  const total = unit.quantity_total ?? unit.quantity_available;
+  if ((unit.quantity_available ?? 0) >= total) return;
+
+  const newAvailable = unit.quantity_available + 1;
+  const { error } = await db.from('listing_units').update({ quantity_available: newAvailable }).eq('id', unitTypeId);
+  if (error) { showToastNK('Could not update unit availability — please try again.'); return; }
+
+  try {
+    await db.from('unit_occupancy_log').insert({
+      listing_unit_id: unitTypeId, listing_id: listingId, action: 'freed'
+    });
+  } catch(e) { /* optional audit table */ }
+
+  unit.quantity_available = newAvailable;
+  renderManageUnitRows();
+  renderUnitAvailability();
+  showToastNK('Unit marked as available again.');
+}
+
+async function loadOccupancyLog(unitTypeId) {
+  const el = document.getElementById(`occupancy-log-${unitTypeId}`);
+  if (!el) return;
+  try {
+    const { data, error } = await db
+      .from('unit_occupancy_log')
+      .select('*')
+      .eq('listing_unit_id', unitTypeId)
+      .order('created_at', { ascending: false })
+      .limit(5);
+    if (error || !data || !data.length) { el.innerHTML = ''; return; }
+    el.innerHTML = data.map(row => {
+      const when = row.created_at ? new Date(row.created_at).toLocaleDateString('en-KE', { day:'numeric', month:'short' }) : '';
+      const detail = row.action === 'occupied'
+        ? [row.floor, row.door_number, row.position].filter(Boolean).join(' · ') || 'Marked occupied'
+        : 'Marked available again';
+      return `<div class="occupancy-log-item"><span>${escHtml(detail)}</span><span>${when}</span></div>`;
+    }).join('');
+  } catch(e) { el.innerHTML = ''; }
 }
 
 /* ════════════════════════════════════════════════════
@@ -1499,7 +1790,7 @@ async function sendEnquiry() {
   const name    = document.getElementById('enq-name').value.trim();
   const phone   = document.getElementById('enq-phone').value.trim();
   const email   = document.getElementById('enq-email').value.trim();
-  const message = document.getElementById('enq-message').value.trim();
+  let   message = document.getElementById('enq-message').value.trim();
   let ok = true;
 
   ['enq-name','enq-phone','enq-message'].forEach(id => document.getElementById(id).classList.remove('error'));
@@ -1509,6 +1800,17 @@ async function sendEnquiry() {
   if (!phone || phone.replace(/\s/g,'').length < 9) { document.getElementById('enq-phone').classList.add('error'); document.getElementById('err-enq-phone').classList.add('show'); ok=false; }
   if (!message) { document.getElementById('enq-message').classList.add('error'); document.getElementById('err-enq-msg').classList.add('show');   ok=false; }
   if (!ok) return;
+
+  // For multi-unit properties, fold the unit-type + floor/position
+  // preference into the stored message so the seller sees it in the thread.
+  if (listing?.is_multi_unit) {
+    const unitType = document.getElementById('enq-unit-type')?.value || '';
+    const unitPref = document.getElementById('enq-unit-pref')?.value.trim() || '';
+    const extras = [];
+    if (unitType) extras.push(`Interested unit type: ${unitType}.`);
+    if (unitPref) extras.push(`Preferred floor/position: ${unitPref}.`);
+    if (extras.length) message = `${extras.join(' ')} ${message}`;
+  }
 
   const btn = document.getElementById('btn-enquire');
   btn.disabled = true; btn.classList.add('loading');
