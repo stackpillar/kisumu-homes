@@ -313,7 +313,7 @@
 </nav>
 
 <div class="trial-strip" id="trial-strip">
-  🎉 <strong>Free 7-Day Trial</strong> for first-time sellers
+  🎉 <strong>Free 14-Day Trial</strong> for first-time sellers
   <span class="spots-tag" id="strip-spots">Limited spots</span>
 </div>
 
@@ -357,7 +357,7 @@
         <span class="trial-ribbon">🔥 LAUNCH OFFER</span>
         <span class="trial-intro-spots" id="intro-spots-text">Limited spots</span>
       </div>
-      <h2>🎉 Are you a first-time lister? Your listing is FREE for 7 days</h2>
+      <h2>🎉 Are you a first-time lister? Your listing is FREE for 14 days</h2>
       <p class="hint">We just launched Nyumba254 and want real sellers to try it before paying anything. Here's exactly how it works:</p>
       <div class="trial-steps">
         <div class="trial-step">
@@ -366,7 +366,7 @@
         </div>
         <div class="trial-step">
           <span class="trial-step-num">2</span>
-          <p>Because this is your <strong>first listing</strong>, the free 7-day plan will already be selected for you at the pricing step — no M-Pesa, no card, nothing to pay.</p>
+          <p>Because this is your <strong>first listing</strong>, the free 14-day plan will already be selected for you at the pricing step — no M-Pesa, no card, nothing to pay.</p>
         </div>
         <div class="trial-step">
           <span class="trial-step-num">3</span>
@@ -374,7 +374,7 @@
         </div>
         <div class="trial-step">
           <span class="trial-step-num">4</span>
-          <p>It stays live for <strong>7 days</strong>, then automatically expires unless you choose to upgrade to a paid plan.</p>
+          <p>It stays live for <strong>14 days</strong>, then automatically expires unless you choose to upgrade to a paid plan.</p>
         </div>
       </div>
       <div class="trial-intro-note" id="trial-intro-note"></div>
@@ -464,9 +464,15 @@
           <div class="field-hint">Square metres (m²)</div>
         </div>
       </div>
-      <div style="display:flex;align-items:center;gap:10px;cursor:pointer">
+      <div style="display:flex;align-items:center;gap:10px;cursor:pointer;margin-bottom:20px">
         <input type="checkbox" id="furnished" style="width:18px;height:18px;accent-color:var(--green);cursor:pointer"/>
         <label for="furnished" style="font-size:14px;color:var(--text-2);cursor:pointer">This apartment is furnished</label>
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label>Units available of this type <span class="req">*</span></label>
+        <input type="number" id="units_available" value="1" min="1" max="500" oninput="handleUnitsChange()"/>
+        <div class="field-hint" id="units-hint">Listing 1 unit — this is a single, individual property</div>
+        <div class="field-error" id="err-units">Please enter at least 1 unit</div>
       </div>
     </div>
 
@@ -553,8 +559,8 @@
           <span class="trial-ribbon">🔥 NEW — LAUNCH OFFER</span>
           <span class="trial-applied-check">✓ Applied to your listing</span>
         </div>
-        <h3>🎉 Your first listing is FREE for 7 days</h3>
-        <p id="banner-copy">As a first-time seller, we've automatically applied a free 7-day listing to your account — no M-Pesa, no card, nothing to enter.</p>
+        <h3>🎉 Your first listing is FREE for 14 days</h3>
+        <p id="banner-copy">As a first-time seller, we've automatically applied a free 14-day listing to your account — no M-Pesa, no card, nothing to enter.</p>
         <div class="trial-spots" id="banner-spots-text">Limited spots available — first come, first served</div>
       </div>
 
@@ -563,7 +569,7 @@
       <div class="pricing-options">
         <div class="pricing-option selected" id="plan-basic" onclick="selectPlan('basic')">
           <h3>Standard listing</h3>
-          <div class="price-tag">KES 500 <span>one-time</span></div>
+          <div class="price-tag" id="basic-price-tag">KES 500 <span>one-time</span></div>
           <ul>
             <li>Listed for 60 days</li>
             <li>Up to 10 photos</li>
@@ -574,7 +580,7 @@
         <div class="pricing-option featured-opt" id="plan-featured" onclick="selectPlan('featured')">
           <div class="pop-badge">Most enquiries</div>
           <h3>Featured listing</h3>
-          <div class="price-tag">KES 1,500 <span>one-time</span></div>
+          <div class="price-tag" id="featured-price-tag">KES 1,300 <span>one-time</span></div>
           <ul>
             <li>Listed for 90 days</li>
             <li>Featured badge on your card</li>
@@ -583,6 +589,10 @@
             <li>Priority in area pages</li>
           </ul>
         </div>
+      </div>
+
+      <div style="background:var(--surface);border-radius:var(--radius);padding:12px 16px;margin-top:14px;font-size:12.5px;color:var(--text-2);display:none" id="units-pricing-note">
+        <strong>Pricing for <span id="units-note-count">1</span> unit(s):</strong> <span id="units-note-breakdown"></span>
       </div>
 
       <div style="background:var(--green-light);border-radius:var(--radius);padding:14px 16px;margin-top:20px;font-size:13px;color:var(--green-dark)" id="payment-info-box">
@@ -611,14 +621,21 @@
       <div class="trial-applied-banner" id="trial-applied-banner">
         <div class="icon">🎉</div>
         <div>
-          <strong>Free 7-Day Trial Applied</strong>
-          <span class="sub">You will not be charged anything for this listing — it goes live for 7 days once approved.</span>
+          <strong>Free 14-Day Trial Applied</strong>
+          <span class="sub">You will not be charged anything for this listing — it goes live for 14 days once approved.</span>
         </div>
       </div>
 
       <div id="order-summary"></div>
       <div style="margin-top:20px;padding:14px 16px;background:var(--surface);border-radius:var(--radius);font-size:13px;color:var(--text-2);line-height:1.6">
         By submitting you confirm that your listing information is accurate and you are authorised to list this property. Your listing is saved immediately and reviewed by our team before appearing publicly.
+      </div>
+      <div class="field" style="margin-top:16px">
+        <label for="agree-terms" style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;text-transform:none;letter-spacing:0;font-weight:400;font-size:13px;color:var(--text-2)">
+          <input type="checkbox" id="agree-terms" onchange="document.getElementById('err-agree-terms').classList.remove('show'); this.classList.remove('error')" style="width:18px;height:18px;margin-top:1px;accent-color:var(--green);cursor:pointer;flex-shrink:0"/>
+          <span>I have read and agree to the <a href="terms.html" target="_blank" rel="noopener" style="color:var(--green);font-weight:600;text-decoration:underline">Terms of Service</a> and <a href="privacy.html" target="_blank" rel="noopener" style="color:var(--green);font-weight:600;text-decoration:underline">Privacy Policy</a> <span class="req">*</span></span>
+        </label>
+        <div class="field-error" id="err-agree-terms">You must agree to the Terms of Service and Privacy Policy before submitting your listing</div>
       </div>
     </div>
     <div class="form-actions">
@@ -648,7 +665,7 @@
     <button class="modal-close-x" onclick="skipPayment()">×</button>
     <h2>Complete payment</h2>
     <p class="modal-hint">Your listing is already saved and pending review. Payment is optional — our admin team can approve with or without it.</p>
-    <div class="pay-amount-display" id="pay-amount-display">KES 800 <span>one-time listing fee</span></div>
+    <div class="pay-amount-display" id="pay-amount-display">KES 500 <span>one-time listing fee</span></div>
 
     <div class="pay-tabs">
       <div class="pay-tab active" id="tab-mpesa" onclick="switchPayTab('mpesa')">M-Pesa STK Push</div>
@@ -663,7 +680,7 @@
         </div>
         <div class="stk-step">
           <div class="stk-step-num">2</div>
-          <p>Enter your <strong>M-Pesa PIN</strong> to approve payment of <strong id="stk-amount-label">KES 800</strong> to our Paybill.</p>
+          <p>Enter your <strong>M-Pesa PIN</strong> to approve payment of <strong id="stk-amount-label">KES 500</strong> to our Paybill.</p>
         </div>
         <div class="stk-step">
           <div class="stk-step-num">3</div>
@@ -702,7 +719,7 @@
         <div class="bank-row"><span>Paybill number</span><strong>522522</strong></div>
         <div class="bank-row"><span>Account number</span><strong>1298476615</strong></div>
         <div class="bank-row"><span>Bank</span><strong>KCB Bank Kenya</strong></div>
-        <div class="bank-row"><span>Amount</span><strong id="bank-amount-label">KES 800</strong></div>
+        <div class="bank-row"><span>Amount</span><strong id="bank-amount-label">KES 500</strong></div>
       </div>
       <div style="font-size:13px;color:var(--text-2);margin-bottom:14px;padding:10px 12px;background:var(--surface);border-radius:var(--radius)">
         On your phone, go to <strong>M-Pesa → Lipa na M-Pesa → Paybill</strong>, enter the Paybill and account numbers above with the exact amount, then enter the M-Pesa confirmation code you receive below. We'll verify within a few hours.
@@ -729,7 +746,7 @@
     <span class="trial-floatie-emoji">🎉</span>
     <span class="trial-floatie-copy">
       <strong>First-time sellers</strong>
-      <span>7 days FREE</span>
+      <span>14 days FREE</span>
       <span class="floatie-spots" id="floatie-spots"></span>
     </span>
     <span class="trial-floatie-arrow">→</span>
@@ -845,7 +862,7 @@ const db = createClient(SUPABASE_URL, SUPABASE_KEY);
   }
 
 
-const TRIAL_DAYS = 7;
+const TRIAL_DAYS = 14;
 
 let currentStep       = 1;
 let selectedCat       = 'student';
@@ -864,6 +881,7 @@ let paymentPollTimer  = null;
 async function init() {
   nkPopulateCounties();
   nkPopulateAreas('Kisumu');
+  updatePricingDisplay(getUnitsAvailable());
   const { data: { session } } = await db.auth.getSession();
   if (session) {
     currentUser = session.user;
@@ -938,7 +956,7 @@ function showTrialUI() {
     // Anonymous — invite them, but eligibility can't be confirmed until they sign in
     document.getElementById('plan-hint').textContent = 'First-time sellers qualify for our launch free trial 🎉';
     document.getElementById('banner-copy').textContent =
-      'First-time sellers get a free 7-day listing — no M-Pesa, no card. Sign in or create a free account to check your eligibility and claim it.';
+      'First-time sellers get a free 14-day listing — no M-Pesa, no card. Sign in or create a free account to check your eligibility and claim it.';
     document.getElementById('banner-spots-text').textContent = `${spotsLabel} — sign in to claim yours`;
     note.innerHTML = `New here? <a href="login.html?next=post-listing.html">Sign in or create a free account</a> to check your eligibility and claim this instantly.`;
     note.classList.add('show');
@@ -1000,10 +1018,76 @@ function selectPlan(plan) {
   if (trial) trial.classList.toggle('selected', plan === 'trial');
 }
 
+// ── Pricing constants ──
+const BASE_FEE        = 500;  // covers unit #1
+const TIER1_PER_UNIT  = 50;   // units 2–10
+const TIER2_PER_UNIT  = 30;   // units 11+ (bulk discount)
+const TIER1_CAP       = 9;    // units 2 through 10 = 9 units at tier-1 rate
+const FEATURED_ADDON  = 800;  // flat, on top of standard price
+
+function getUnitsAvailable() {
+  const n = parseInt(document.getElementById('units_available')?.value, 10);
+  return (Number.isFinite(n) && n > 0) ? n : 1;
+}
+
+// Returns { standardPrice, featuredPrice, extraUnits, tier1Units, tier2Units }
+function calcListingPrice(unitsAvailable) {
+  const extraUnits = Math.max(0, unitsAvailable - 1);
+  const tier1Units = Math.min(extraUnits, TIER1_CAP);
+  const tier2Units = Math.max(0, extraUnits - TIER1_CAP);
+  const standardPrice = BASE_FEE + (tier1Units * TIER1_PER_UNIT) + (tier2Units * TIER2_PER_UNIT);
+  const featuredPrice = standardPrice + FEATURED_ADDON;
+  return { standardPrice, featuredPrice, extraUnits, tier1Units, tier2Units };
+}
+
 function getPlanPrice() {
-  if (selectedPlan === 'trial')    return 0;
-  if (selectedPlan === 'featured') return 2500;
-  return 800;
+  if (selectedPlan === 'trial') return 0;
+  const { standardPrice, featuredPrice } = calcListingPrice(getUnitsAvailable());
+  return selectedPlan === 'featured' ? featuredPrice : standardPrice;
+}
+
+// ── Live-update the units hint (Step 1) and the pricing cards (Step 3) whenever
+//    units_available changes, so sellers see the real fee before they submit. ──
+function handleUnitsChange() {
+  const el  = document.getElementById('units_available');
+  const err = document.getElementById('err-units');
+  const n = parseInt(el.value, 10);
+  const valid = Number.isFinite(n) && n >= 1;
+  el.classList.toggle('error', !valid);
+  err.classList.toggle('show', !valid);
+
+  const units = valid ? n : 1;
+  const hint = document.getElementById('units-hint');
+  hint.textContent = units === 1
+    ? 'Listing 1 unit — this is a single, individual property'
+    : `Listing ${units} identical units of this type (e.g. ${units} vacant bedsitters in the same building)`;
+
+  updatePricingDisplay(units);
+}
+
+function updatePricingDisplay(unitsAvailable) {
+  const { standardPrice, featuredPrice, extraUnits, tier1Units, tier2Units } = calcListingPrice(unitsAvailable);
+
+  const basicTag = document.getElementById('basic-price-tag');
+  const featuredTag = document.getElementById('featured-price-tag');
+  if (basicTag) basicTag.innerHTML = `KES ${standardPrice.toLocaleString('en-KE')} <span>one-time</span>`;
+  if (featuredTag) featuredTag.innerHTML = `KES ${featuredPrice.toLocaleString('en-KE')} <span>one-time</span>`;
+
+  const note = document.getElementById('units-pricing-note');
+  const noteCount = document.getElementById('units-note-count');
+  const noteBreakdown = document.getElementById('units-note-breakdown');
+  if (!note) return;
+
+  if (unitsAvailable <= 1) {
+    note.style.display = 'none';
+    return;
+  }
+  note.style.display = 'block';
+  noteCount.textContent = unitsAvailable;
+  let parts = [`KES ${BASE_FEE} base (unit 1)`];
+  if (tier1Units > 0) parts.push(`${tier1Units} × KES ${TIER1_PER_UNIT} (units 2–${1 + tier1Units})`);
+  if (tier2Units > 0) parts.push(`${tier2Units} × KES ${TIER2_PER_UNIT} (unit 11+ bulk rate)`);
+  noteBreakdown.textContent = parts.join(' + ') + ` = KES ${standardPrice.toLocaleString('en-KE')}`;
 }
 
 async function handleFiles(files) {
@@ -1066,6 +1150,7 @@ function goStep(n) {
   currentStep = n;
   document.getElementById(`step-${n}`).style.display = 'block';
   updateStepUI();
+  if (n === 3) updatePricingDisplay(getUnitsAvailable());
   if (n === 4) renderReview();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -1096,6 +1181,7 @@ function validateStep(step) {
     ['description', 'err-desc',   v => v.trim().length > 10],
     ['price',       'err-price',  v => v && parseFloat(v) > 0],
     ['bedrooms',    'err-bed',    v => v !== ''],
+    ['units_available', 'err-units', v => v && parseInt(v, 10) >= 1],
     ['area',        'err-area',   v => v !== ''],
     ['phone',       'err-phone',  v => v.replace(/\s/g,'').length >= 9],
   ].forEach(([id, errId, test]) => {
@@ -1134,12 +1220,14 @@ function renderReview() {
     address:     document.getElementById('address').value,
     phone:       document.getElementById('phone').value,
     furnished:   document.getElementById('furnished').checked,
+    units:       getUnitsAvailable(),
   };
   document.getElementById('review-content').innerHTML = `
     <div class="summary-row"><span>Category</span><strong>${selectedCat.charAt(0).toUpperCase()+selectedCat.slice(1)}</strong></div>
     <div class="summary-row"><span>Title</span><strong>${f.title}</strong></div>
     <div class="summary-row"><span>Type</span><strong>${priceType === 'sale' ? 'For sale' : 'To let / rent'}</strong></div>
     <div class="summary-row"><span>Price</span><strong>KES ${f.price.toLocaleString('en-KE')}${priceType === 'rent' ? '/month' : ''}</strong></div>
+    <div class="summary-row"><span>Units available</span><strong>${f.units}</strong></div>
     <div class="summary-row"><span>Bedrooms</span><strong>${f.bedrooms === '0' ? 'Bedsitter/studio' : f.bedrooms + ' bedroom(s)'}</strong></div>
     ${f.bathrooms ? `<div class="summary-row"><span>Bathrooms</span><strong>${f.bathrooms}</strong></div>` : ''}
     ${f.size ? `<div class="summary-row"><span>Floor area</span><strong>${f.size} m²</strong></div>` : ''}
@@ -1181,6 +1269,16 @@ async function uploadPhotos(listingId) {
 }
 
 async function submitListing() {
+  const agreeEl = document.getElementById('agree-terms');
+  const agreeErr = document.getElementById('err-agree-terms');
+  if (!agreeEl.checked) {
+    agreeErr.classList.add('show');
+    agreeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    showToast('Please agree to the Terms of Service and Privacy Policy to continue', 'error');
+    return;
+  }
+  agreeErr.classList.remove('show');
+
   if (!currentUser) {
     showToast('Please sign in first', 'error');
     setTimeout(() => window.location.href = 'login.html?next=post-listing.html', 1500);
@@ -1202,6 +1300,8 @@ async function submitListing() {
       bathrooms:        parseInt(document.getElementById('bathrooms').value) || null,
       size_sqm:         parseFloat(document.getElementById('size').value) || null,
       furnished:        document.getElementById('furnished').checked,
+      units_available:  getUnitsAvailable(),
+      units_booked:     0,
       area:             getEffectiveArea(),
       sub_area:         document.getElementById('sub_area').value.trim() || null,
       address:          document.getElementById('address').value.trim() || null,
