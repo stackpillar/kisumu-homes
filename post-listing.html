@@ -252,34 +252,45 @@
     .auth-banner p { font-size:14px; color:var(--green-dark); margin-bottom:12px; }
     .auth-banner a { background:var(--green); color:white; padding:9px 20px; border-radius:var(--radius); font-size:14px; font-weight:600; display:inline-block; }
 
-    /* ── Draggable trial promo widget ── */
-    .trial-floatie {
-      position:fixed; top:96px; left:20px; z-index:500; width:230px;
-      display:none;
-      background:linear-gradient(135deg, var(--green), var(--green-dark));
-      color:white; border-radius:16px; box-shadow:0 10px 30px rgba(0,0,0,0.25);
-      user-select:none;
+    /* ── Multi-unit property section ── */
+    .structure-toggle-wrap { margin-bottom:0; }
+    .unit-types-wrap { display:none; }
+    .unit-types-wrap.show { display:block; }
+    .single-unit-fields { display:block; }
+    .single-unit-fields.hide { display:none; }
+    .unit-type-row {
+      border:1.5px solid var(--border); border-radius:var(--radius-lg); padding:18px;
+      margin-bottom:14px; background:var(--surface); position:relative;
     }
-    .trial-floatie.show { display:block; }
-    .trial-floatie-handle {
-      position:absolute; top:6px; left:8px; cursor:grab; font-size:15px; color:rgba(255,255,255,0.55);
-      padding:5px 7px; line-height:1; touch-action:none; letter-spacing:2px;
+    .unit-type-row-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+    .unit-type-row-head span { font-size:13px; font-weight:700; color:var(--green-dark); }
+    .unit-remove-btn {
+      width:26px; height:26px; border-radius:50%; background:white; border:1.5px solid var(--border);
+      color:var(--text-2); font-size:15px; display:flex; align-items:center; justify-content:center; cursor:pointer;
     }
-    .trial-floatie-handle:active { cursor:grabbing; }
-    .trial-floatie-close {
-      position:absolute; top:6px; right:6px; width:22px; height:22px; border-radius:50%;
-      background:rgba(255,255,255,0.15); color:white; border:none; font-size:14px; cursor:pointer;
-      display:flex; align-items:center; justify-content:center; z-index:2;
+    .unit-remove-btn:hover { border-color:var(--red); color:var(--red); background:var(--red-light); }
+    .unit-type-grid { display:grid; grid-template-columns:2fr 1fr 1fr; gap:12px; margin-bottom:12px; }
+    .unit-type-grid-2 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; }
+    .unit-type-row label { display:block; font-size:12px; font-weight:600; color:var(--text-2); margin-bottom:5px; }
+    .unit-type-row input, .unit-type-row select {
+      width:100%; padding:9px 12px; border:1.5px solid var(--border); border-radius:var(--radius);
+      font-size:13.5px; color:var(--text); background:white; outline:none;
     }
-    .trial-floatie-close:hover { background:rgba(255,255,255,0.3); }
-    .trial-floatie-body {
-      display:flex; align-items:center; gap:10px; padding:22px 14px 14px 32px; text-decoration:none; color:white;
+    .unit-type-row input:focus, .unit-type-row select:focus { border-color:var(--green); }
+    .btn-add-unit-type {
+      width:100%; padding:12px; border-radius:var(--radius); border:1.5px dashed var(--green);
+      background:var(--green-light); color:var(--green-dark); font-size:14px; font-weight:600;
+      cursor:pointer; transition:background .15s;
     }
-    .trial-floatie-emoji { font-size:22px; flex-shrink:0; }
-    .trial-floatie-copy { display:flex; flex-direction:column; font-size:12.5px; line-height:1.4; }
-    .trial-floatie-copy strong { font-size:13.5px; }
-    .trial-floatie-copy .floatie-spots { display:block; font-size:11px; color:#FFE9B8; font-weight:600; margin-top:2px; }
-    .trial-floatie-arrow { margin-left:auto; font-size:16px; flex-shrink:0; }
+    .btn-add-unit-type:hover { background:#cdeee2; }
+    .units-summary-strip {
+      display:flex; gap:20px; flex-wrap:wrap; background:var(--green-light); border-radius:var(--radius);
+      padding:12px 16px; margin-bottom:16px; font-size:13px; color:var(--green-dark);
+    }
+    .units-summary-strip strong { font-weight:700; }
+    .unit-type-review-table { width:100%; border-collapse:collapse; margin-top:6px; }
+    .unit-type-review-table th, .unit-type-review-table td { text-align:left; font-size:13px; padding:7px 8px; border-bottom:1px solid var(--border); }
+    .unit-type-review-table th { color:var(--text-3); font-weight:600; font-size:12px; text-transform:uppercase; letter-spacing:.03em; }
 
     @media(max-width:640px) {
       nav { padding:0 16px; }
@@ -291,7 +302,7 @@
       .steps-bar .step-label { display:none; }
       .modal-box { padding:22px 18px; }
       .trial-strip { top:64px; font-size:12px; padding:9px 12px; }
-      .trial-floatie { left:12px; top:auto; bottom:90px; width:200px; }
+      .unit-type-grid, .unit-type-grid-2 { grid-template-columns:1fr; }
     }
     @media(max-width:820px) and (min-width:641px) {
       .cat-grid { grid-template-columns:repeat(2,1fr); }
@@ -408,6 +419,17 @@
     </div>
 
     <div class="form-card">
+      <h2>Listing structure</h2>
+      <p class="hint">Are you listing a single house/unit, or a property made up of multiple units (e.g. an apartment complex with several buildings, floors, or unit types)?</p>
+      <div class="structure-toggle-wrap">
+        <div class="toggle-group">
+          <div class="toggle-opt active" id="struct-single" onclick="setStructure('single')">Single unit</div>
+          <div class="toggle-opt" id="struct-multi" onclick="setStructure('multi')">Multiple units / property</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-card">
       <h2>Basic information</h2>
       <p class="hint">Give buyers a clear, accurate picture of your property</p>
       <div class="field">
@@ -418,67 +440,89 @@
       </div>
       <div class="field">
         <label>Description <span class="req">*</span></label>
-        <textarea id="description" placeholder="Describe the apartment — size, features, what's nearby, security, water supply, condition…" rows="5"></textarea>
+        <textarea id="description" placeholder="Describe the property — size, features, what's nearby, security, water supply, condition…" rows="5"></textarea>
         <div class="field-error" id="err-desc">Please add a description</div>
       </div>
-      <div class="grid-2">
-        <div class="field">
-          <label>Sale or rent <span class="req">*</span></label>
-          <div class="toggle-group">
-            <div class="toggle-opt active" id="type-sale" onclick="setType('sale')">For sale</div>
-            <div class="toggle-opt" id="type-rent" onclick="setType('rent')">To let / rent</div>
+      <div class="field">
+        <label>Sale or rent <span class="req">*</span></label>
+        <div class="toggle-group">
+          <div class="toggle-opt active" id="type-sale" onclick="setType('sale')">For sale</div>
+          <div class="toggle-opt" id="type-rent" onclick="setType('rent')">To let / rent</div>
+        </div>
+      </div>
+
+      <!-- ── Fields shown only for a SINGLE unit listing ── -->
+      <div id="single-unit-fields" class="single-unit-fields">
+        <div class="grid-2" style="margin-top:20px">
+          <div class="field">
+            <label>Price (KES) <span class="req">*</span> <span class="opt" id="price-suffix">total asking price</span></label>
+            <input type="number" id="price" placeholder="e.g. 4500000" min="0"/>
+            <div class="field-error" id="err-price">Please enter a price</div>
+          </div>
+          <div class="field">
+            <label>Bedrooms <span class="req">*</span></label>
+            <select id="bedrooms">
+              <option value="">Select</option>
+              <option value="0">Bedsitter / studio</option>
+              <option value="1">1 bedroom</option>
+              <option value="2">2 bedrooms</option>
+              <option value="3">3 bedrooms</option>
+              <option value="4">4 bedrooms</option>
+              <option value="5">5+ bedrooms</option>
+            </select>
+            <div class="field-error" id="err-bed">Please select number of bedrooms</div>
           </div>
         </div>
-        <div class="field">
-          <label>Price (KES) <span class="req">*</span> <span class="opt" id="price-suffix">total asking price</span></label>
-          <input type="number" id="price" placeholder="e.g. 4500000" min="0"/>
-          <div class="field-error" id="err-price">Please enter a price</div>
+        <div class="grid-2">
+          <div class="field">
+            <label>Bathrooms <span class="opt">optional</span></label>
+            <select id="bathrooms">
+              <option value="">Select</option>
+              <option value="1">1 bathroom</option>
+              <option value="2">2 bathrooms</option>
+              <option value="3">3 bathrooms</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Floor area <span class="opt">optional</span></label>
+            <input type="number" id="size" placeholder="e.g. 85" min="0"/>
+            <div class="field-hint">Square metres (m²)</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;cursor:pointer">
+          <input type="checkbox" id="furnished" style="width:18px;height:18px;accent-color:var(--green);cursor:pointer"/>
+          <label for="furnished" style="font-size:14px;color:var(--text-2);cursor:pointer">This unit is furnished</label>
         </div>
       </div>
-      <div class="grid-3">
-        <div class="field">
-          <label>Bedrooms <span class="req">*</span></label>
-          <select id="bedrooms">
-            <option value="">Select</option>
-            <option value="0">Bedsitter / studio</option>
-            <option value="1">1 bedroom</option>
-            <option value="2">2 bedrooms</option>
-            <option value="3">3 bedrooms</option>
-            <option value="4">4 bedrooms</option>
-            <option value="5">5+ bedrooms</option>
-          </select>
-          <div class="field-error" id="err-bed">Please select number of bedrooms</div>
+
+      <!-- ── Fields shown only for a MULTI-unit property ── -->
+      <div id="unit-types-wrap" class="unit-types-wrap">
+        <div class="grid-2" style="margin-top:20px">
+          <div class="field">
+            <label>Number of buildings <span class="opt">optional</span></label>
+            <input type="number" id="num_buildings" placeholder="e.g. 3" min="1"/>
+          </div>
+          <div class="field">
+            <label>Total units in property <span class="opt">optional — auto-filled from unit types below</span></label>
+            <input type="number" id="total_units" placeholder="e.g. 40" min="1"/>
+            <div class="field-hint">You can override this if it doesn't fully match your unit types below</div>
+          </div>
         </div>
-        <div class="field">
-          <label>Bathrooms <span class="opt">optional</span></label>
-          <select id="bathrooms">
-            <option value="">Select</option>
-            <option value="1">1 bathroom</option>
-            <option value="2">2 bathrooms</option>
-            <option value="3">3 bathrooms</option>
-          </select>
+
+        <div class="units-summary-strip" id="units-summary-strip" style="display:none">
+          <span><strong id="units-summary-count">0</strong> units across <strong id="units-summary-types">0</strong> unit type(s)</span>
+          <span>Price range: <strong id="units-summary-range">—</strong></span>
         </div>
-        <div class="field">
-          <label>Floor area <span class="opt">optional</span></label>
-          <input type="number" id="size" placeholder="e.g. 85" min="0"/>
-          <div class="field-hint">Square metres (m²)</div>
-        </div>
-      </div>
-      <div style="display:flex;align-items:center;gap:10px;cursor:pointer;margin-bottom:20px">
-        <input type="checkbox" id="furnished" style="width:18px;height:18px;accent-color:var(--green);cursor:pointer"/>
-        <label for="furnished" style="font-size:14px;color:var(--text-2);cursor:pointer">This apartment is furnished</label>
-      </div>
-      <div class="field" style="margin-bottom:0">
-        <label>Units available of this type <span class="req">*</span></label>
-        <input type="number" id="units_available" value="1" min="1" max="500" oninput="handleUnitsChange()"/>
-        <div class="field-hint" id="units-hint">Listing 1 unit — this is a single, individual property</div>
-        <div class="field-error" id="err-units">Please enter at least 1 unit</div>
+
+        <div id="unit-type-rows"></div>
+        <button type="button" class="btn-add-unit-type" onclick="addUnitTypeRow()">+ Add unit type</button>
+        <div class="field-error" id="err-unit-types">Please add at least one complete unit type (label, bedrooms, price and units available)</div>
       </div>
     </div>
 
     <div class="form-card">
       <h2>Location</h2>
-      <p class="hint">Accurate location details help buyers find your apartment faster</p>
+      <p class="hint">Accurate location details help buyers find your property faster</p>
       <div class="grid-2">
         <div class="field">
           <label>County <span class="req">*</span></label>
@@ -570,6 +614,7 @@
         <div class="pricing-option selected" id="plan-basic" onclick="selectPlan('basic')">
           <h3>Standard listing</h3>
           <div class="price-tag" id="basic-price-tag">KES 500 <span>one-time</span></div>
+          <div class="field-hint" id="basic-price-note" style="display:none;margin:-6px 0 10px"></div>
           <ul>
             <li>Listed for 60 days</li>
             <li>Up to 10 photos</li>
@@ -580,7 +625,8 @@
         <div class="pricing-option featured-opt" id="plan-featured" onclick="selectPlan('featured')">
           <div class="pop-badge">Most enquiries</div>
           <h3>Featured listing</h3>
-          <div class="price-tag" id="featured-price-tag">KES 1,300 <span>one-time</span></div>
+          <div class="price-tag" id="featured-price-tag">KES 1,500 <span>one-time</span></div>
+          <div class="field-hint" id="featured-price-note" style="display:none;margin:-6px 0 10px"></div>
           <ul>
             <li>Listed for 90 days</li>
             <li>Featured badge on your card</li>
@@ -591,12 +637,11 @@
         </div>
       </div>
 
-      <div style="background:var(--surface);border-radius:var(--radius);padding:12px 16px;margin-top:14px;font-size:12.5px;color:var(--text-2);display:none" id="units-pricing-note">
-        <strong>Pricing for <span id="units-note-count">1</span> unit(s):</strong> <span id="units-note-breakdown"></span>
-      </div>
-
       <div style="background:var(--green-light);border-radius:var(--radius);padding:14px 16px;margin-top:20px;font-size:13px;color:var(--green-dark)" id="payment-info-box">
         <strong>Payment:</strong> If you choose a paid plan, an M-Pesa prompt will be sent straight to your phone to pay our Paybill. You can also pay manually via Paybill, or skip and pay later — your listing is reviewed regardless.
+      </div>
+      <div style="background:var(--gold-light);border-radius:var(--radius);padding:12px 16px;margin-top:12px;font-size:13px;color:var(--gold);display:none" id="multi-unit-price-note">
+        <strong>Multi-unit pricing:</strong> Properties with multiple units pay the base plan fee plus a small per-unit fee, since more units means more admin review and more listing visibility. Prices above already reflect your property's unit count.
       </div>
     </div>
     <div class="form-actions">
@@ -651,7 +696,7 @@
   <div class="success-screen" id="success-screen">
     <div class="success-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
     <h2>Listing submitted!</h2>
-    <p id="success-message">Your apartment has been saved and is pending review. It will appear publicly once our team approves it.</p>
+    <p id="success-message">Your property has been saved and is pending review. It will appear publicly once our team approves it.</p>
     <div class="success-actions">
       <a href="dashboard.html" style="padding:11px 22px;background:var(--green);color:white;border-radius:var(--radius);font-size:14px;font-weight:600">View my listings</a>
       <a href="index.html" style="padding:11px 22px;border:1.5px solid var(--border);border-radius:var(--radius);font-size:14px;font-weight:500;color:var(--text-2)">Back to home</a>
@@ -736,21 +781,6 @@
     <div class="pay-note">💡 Already paid or prefer to pay later? Skip below — your listing stays pending and our team will review it anytime.</div>
     <span class="skip-link" onclick="skipPayment()">Skip for now — pay later →</span>
   </div>
-</div>
-
-<!-- ── Draggable trial promo widget ── -->
-<div class="trial-floatie" id="trial-floatie">
-  <div class="trial-floatie-handle" id="trial-floatie-handle" title="Drag me">⠿⠿</div>
-  <button class="trial-floatie-close" onclick="dismissTrialFloatie()" aria-label="Dismiss">×</button>
-  <a href="post-listing.html" class="trial-floatie-body">
-    <span class="trial-floatie-emoji">🎉</span>
-    <span class="trial-floatie-copy">
-      <strong>First-time sellers</strong>
-      <span>14 days FREE</span>
-      <span class="floatie-spots" id="floatie-spots"></span>
-    </span>
-    <span class="trial-floatie-arrow">→</span>
-  </a>
 </div>
 
 <script>
@@ -863,6 +893,9 @@ const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 
 const TRIAL_DAYS = 14;
+// Multi-unit properties pay a base plan fee plus a small per-unit fee on top,
+// since more units means more photos/admin review and more listing visibility.
+const PER_UNIT_FEE = { basic: 50, featured: 150 };
 
 let currentStep       = 1;
 let selectedCat       = 'student';
@@ -878,10 +911,15 @@ let currentUser       = null;
 let checkoutRequestId = null;
 let paymentPollTimer  = null;
 
+// ── Multi-unit property state ──
+let listingStructure  = 'single'; // 'single' | 'multi'
+let unitTypes         = [];       // [{ id, label, bedrooms, bathrooms, size, price, quantity }]
+let unitTypeSeq       = 0;
+
 async function init() {
   nkPopulateCounties();
   nkPopulateAreas('Kisumu');
-  updatePricingDisplay(getUnitsAvailable());
+  addUnitTypeRow(); // start with one blank unit type row ready for multi-unit mode
   const { data: { session } } = await db.auth.getSession();
   if (session) {
     currentUser = session.user;
@@ -956,7 +994,7 @@ function showTrialUI() {
     // Anonymous — invite them, but eligibility can't be confirmed until they sign in
     document.getElementById('plan-hint').textContent = 'First-time sellers qualify for our launch free trial 🎉';
     document.getElementById('banner-copy').textContent =
-      'First-time sellers get a free 14-day listing — no M-Pesa, no card. Sign in or create a free account to check your eligibility and claim it.';
+      `First-time sellers get a free ${TRIAL_DAYS}-day listing — no M-Pesa, no card. Sign in or create a free account to check your eligibility and claim it.`;
     document.getElementById('banner-spots-text').textContent = `${spotsLabel} — sign in to claim yours`;
     note.innerHTML = `New here? <a href="login.html?next=post-listing.html">Sign in or create a free account</a> to check your eligibility and claim this instantly.`;
     note.classList.add('show');
@@ -981,6 +1019,116 @@ function setType(type) {
   document.getElementById('type-sale').classList.toggle('active', type === 'sale');
   document.getElementById('type-rent').classList.toggle('active', type === 'rent');
   document.getElementById('price-suffix').textContent = type === 'sale' ? 'total asking price' : 'per month';
+  if (listingStructure === 'multi') renderUnitTypeRows();
+}
+
+// ── Listing structure: single unit vs a multi-unit property ──
+function setStructure(mode) {
+  listingStructure = mode;
+  document.getElementById('struct-single').classList.toggle('active', mode === 'single');
+  document.getElementById('struct-multi').classList.toggle('active', mode === 'multi');
+  document.getElementById('single-unit-fields').classList.toggle('hide', mode === 'multi');
+  document.getElementById('unit-types-wrap').classList.toggle('show', mode === 'multi');
+  if (mode === 'multi') updateUnitsSummary();
+}
+
+function addUnitTypeRow() {
+  const row = { id: ++unitTypeSeq, label: '', bedrooms: '', bathrooms: '', size: '', price: '', quantity: '' };
+  unitTypes.push(row);
+  renderUnitTypeRows();
+}
+
+function removeUnitTypeRow(id) {
+  if (unitTypes.length <= 1) { showToast('At least one unit type is required', 'error'); return; }
+  unitTypes = unitTypes.filter(u => u.id !== id);
+  renderUnitTypeRows();
+}
+
+function updateUnitTypeField(id, field, value) {
+  const row = unitTypes.find(u => u.id === id);
+  if (row) row[field] = value;
+  updateUnitsSummary();
+}
+
+function renderUnitTypeRows() {
+  document.getElementById('unit-type-rows').innerHTML = unitTypes.map((u, i) => `
+    <div class="unit-type-row">
+      <div class="unit-type-row-head">
+        <span>Unit type ${i + 1}</span>
+        ${unitTypes.length > 1 ? `<button type="button" class="unit-remove-btn" onclick="removeUnitTypeRow(${u.id})">×</button>` : ''}
+      </div>
+      <div class="unit-type-grid">
+        <div>
+          <label>Unit label</label>
+          <input type="text" placeholder="e.g. 2BR — Building A" value="${u.label}" oninput="updateUnitTypeField(${u.id},'label',this.value)"/>
+        </div>
+        <div>
+          <label>Bedrooms</label>
+          <select onchange="updateUnitTypeField(${u.id},'bedrooms',this.value)">
+            <option value="" ${u.bedrooms===''?'selected':''}>Select</option>
+            <option value="0" ${u.bedrooms==='0'?'selected':''}>Bedsitter / studio</option>
+            <option value="1" ${u.bedrooms==='1'?'selected':''}>1 bedroom</option>
+            <option value="2" ${u.bedrooms==='2'?'selected':''}>2 bedrooms</option>
+            <option value="3" ${u.bedrooms==='3'?'selected':''}>3 bedrooms</option>
+            <option value="4" ${u.bedrooms==='4'?'selected':''}>4 bedrooms</option>
+            <option value="5" ${u.bedrooms==='5'?'selected':''}>5+ bedrooms</option>
+          </select>
+        </div>
+        <div>
+          <label>Units available</label>
+          <input type="number" min="1" placeholder="e.g. 6" value="${u.quantity}" oninput="updateUnitTypeField(${u.id},'quantity',this.value)"/>
+        </div>
+      </div>
+      <div class="unit-type-grid-2">
+        <div>
+          <label>Price (KES)${priceType === 'rent' ? ' / month' : ''}</label>
+          <input type="number" min="0" placeholder="e.g. 15000" value="${u.price}" oninput="updateUnitTypeField(${u.id},'price',this.value)"/>
+        </div>
+        <div>
+          <label>Bathrooms <span style="font-weight:400;color:var(--text-3)">(optional)</span></label>
+          <select onchange="updateUnitTypeField(${u.id},'bathrooms',this.value)">
+            <option value="" ${u.bathrooms===''?'selected':''}>Select</option>
+            <option value="1" ${u.bathrooms==='1'?'selected':''}>1</option>
+            <option value="2" ${u.bathrooms==='2'?'selected':''}>2</option>
+            <option value="3" ${u.bathrooms==='3'?'selected':''}>3</option>
+          </select>
+        </div>
+        <div>
+          <label>Size m² <span style="font-weight:400;color:var(--text-3)">(optional)</span></label>
+          <input type="number" min="0" placeholder="e.g. 60" value="${u.size}" oninput="updateUnitTypeField(${u.id},'size',this.value)"/>
+        </div>
+      </div>
+    </div>`).join('');
+  updateUnitsSummary();
+}
+
+function getValidUnitTypes() {
+  return unitTypes.filter(u => u.label.trim() && u.bedrooms !== '' && u.price && parseFloat(u.price) > 0 && u.quantity && parseInt(u.quantity) > 0);
+}
+
+// Used for pricing: the seller's manually entered total (if given) takes
+// priority, otherwise fall back to the sum of quantities across unit types.
+function getEffectiveTotalUnits() {
+  const entered = document.getElementById('total_units')?.value;
+  if (entered && parseInt(entered) > 0) return parseInt(entered);
+  return getValidUnitTypes().reduce((sum, u) => sum + (parseInt(u.quantity) || 0), 0);
+}
+
+function updateUnitsSummary() {
+  const valid = getValidUnitTypes();
+  const strip = document.getElementById('units-summary-strip');
+  if (!valid.length) { strip.style.display = 'none'; return; }
+  const totalQty = valid.reduce((sum, u) => sum + parseInt(u.quantity), 0);
+  const prices = valid.map(u => parseFloat(u.price));
+  const min = Math.min(...prices), max = Math.max(...prices);
+  strip.style.display = 'flex';
+  document.getElementById('units-summary-count').textContent = totalQty;
+  document.getElementById('units-summary-types').textContent = valid.length;
+  document.getElementById('units-summary-range').textContent = min === max
+    ? `KES ${min.toLocaleString('en-KE')}`
+    : `KES ${min.toLocaleString('en-KE')} – ${max.toLocaleString('en-KE')}`;
+  const totalInput = document.getElementById('total_units');
+  if (!totalInput.value) totalInput.placeholder = `e.g. ${totalQty}`;
 }
 
 // ── Area select: reveal the free-text "type your own" field when the
@@ -1018,76 +1166,46 @@ function selectPlan(plan) {
   if (trial) trial.classList.toggle('selected', plan === 'trial');
 }
 
-// ── Pricing constants ──
-const BASE_FEE        = 500;  // covers unit #1
-const TIER1_PER_UNIT  = 50;   // units 2–10
-const TIER2_PER_UNIT  = 30;   // units 11+ (bulk discount)
-const TIER1_CAP       = 9;    // units 2 through 10 = 9 units at tier-1 rate
-const FEATURED_ADDON  = 800;  // flat, on top of standard price
-
-function getUnitsAvailable() {
-  const n = parseInt(document.getElementById('units_available')?.value, 10);
-  return (Number.isFinite(n) && n > 0) ? n : 1;
-}
-
-// Returns { standardPrice, featuredPrice, extraUnits, tier1Units, tier2Units }
-function calcListingPrice(unitsAvailable) {
-  const extraUnits = Math.max(0, unitsAvailable - 1);
-  const tier1Units = Math.min(extraUnits, TIER1_CAP);
-  const tier2Units = Math.max(0, extraUnits - TIER1_CAP);
-  const standardPrice = BASE_FEE + (tier1Units * TIER1_PER_UNIT) + (tier2Units * TIER2_PER_UNIT);
-  const featuredPrice = standardPrice + FEATURED_ADDON;
-  return { standardPrice, featuredPrice, extraUnits, tier1Units, tier2Units };
+function getPlanBasePrice(plan) {
+  return plan === 'featured' ? 1500 : 500;
 }
 
 function getPlanPrice() {
-  if (selectedPlan === 'trial') return 0;
-  const { standardPrice, featuredPrice } = calcListingPrice(getUnitsAvailable());
-  return selectedPlan === 'featured' ? featuredPrice : standardPrice;
+  if (selectedPlan === 'trial') return 0; // trial is fully free, regardless of unit count
+  const base = getPlanBasePrice(selectedPlan);
+  if (listingStructure === 'multi') {
+    const units = getEffectiveTotalUnits();
+    return base + units * PER_UNIT_FEE[selectedPlan];
+  }
+  return base;
 }
 
-// ── Live-update the units hint (Step 1) and the pricing cards (Step 3) whenever
-//    units_available changes, so sellers see the real fee before they submit. ──
-function handleUnitsChange() {
-  const el  = document.getElementById('units_available');
-  const err = document.getElementById('err-units');
-  const n = parseInt(el.value, 10);
-  const valid = Number.isFinite(n) && n >= 1;
-  el.classList.toggle('error', !valid);
-  err.classList.toggle('show', !valid);
-
-  const units = valid ? n : 1;
-  const hint = document.getElementById('units-hint');
-  hint.textContent = units === 1
-    ? 'Listing 1 unit — this is a single, individual property'
-    : `Listing ${units} identical units of this type (e.g. ${units} vacant bedsitters in the same building)`;
-
-  updatePricingDisplay(units);
-}
-
-function updatePricingDisplay(unitsAvailable) {
-  const { standardPrice, featuredPrice, extraUnits, tier1Units, tier2Units } = calcListingPrice(unitsAvailable);
-
-  const basicTag = document.getElementById('basic-price-tag');
-  const featuredTag = document.getElementById('featured-price-tag');
-  if (basicTag) basicTag.innerHTML = `KES ${standardPrice.toLocaleString('en-KE')} <span>one-time</span>`;
-  if (featuredTag) featuredTag.innerHTML = `KES ${featuredPrice.toLocaleString('en-KE')} <span>one-time</span>`;
-
-  const note = document.getElementById('units-pricing-note');
-  const noteCount = document.getElementById('units-note-count');
-  const noteBreakdown = document.getElementById('units-note-breakdown');
-  if (!note) return;
-
-  if (unitsAvailable <= 1) {
-    note.style.display = 'none';
+// Refreshes the price shown on each pricing card — for multi-unit properties
+// this becomes "base + per-unit fee" scaled to the property's unit count.
+function updatePricingCards() {
+  const noteBox = document.getElementById('multi-unit-price-note');
+  if (listingStructure !== 'multi') {
+    document.getElementById('basic-price-tag').innerHTML = 'KES 500 <span>one-time</span>';
+    document.getElementById('featured-price-tag').innerHTML = 'KES 1,500 <span>one-time</span>';
+    document.getElementById('basic-price-note').style.display = 'none';
+    document.getElementById('featured-price-note').style.display = 'none';
+    noteBox.style.display = 'none';
     return;
   }
-  note.style.display = 'block';
-  noteCount.textContent = unitsAvailable;
-  let parts = [`KES ${BASE_FEE} base (unit 1)`];
-  if (tier1Units > 0) parts.push(`${tier1Units} × KES ${TIER1_PER_UNIT} (units 2–${1 + tier1Units})`);
-  if (tier2Units > 0) parts.push(`${tier2Units} × KES ${TIER2_PER_UNIT} (unit 11+ bulk rate)`);
-  noteBreakdown.textContent = parts.join(' + ') + ` = KES ${standardPrice.toLocaleString('en-KE')}`;
+  const units = getEffectiveTotalUnits();
+  ['basic', 'featured'].forEach(plan => {
+    const base = getPlanBasePrice(plan);
+    const perUnit = PER_UNIT_FEE[plan];
+    const total = base + units * perUnit;
+    document.getElementById(`${plan}-price-tag`).innerHTML =
+      `KES ${total.toLocaleString('en-KE')} <span>one-time</span>`;
+    const note = document.getElementById(`${plan}-price-note`);
+    note.style.display = 'block';
+    note.textContent = units > 0
+      ? `KES ${base.toLocaleString('en-KE')} base + KES ${perUnit}/unit × ${units} units`
+      : `KES ${base.toLocaleString('en-KE')} base + KES ${perUnit} per unit`;
+  });
+  noteBox.style.display = 'block';
 }
 
 async function handleFiles(files) {
@@ -1150,7 +1268,7 @@ function goStep(n) {
   currentStep = n;
   document.getElementById(`step-${n}`).style.display = 'block';
   updateStepUI();
-  if (n === 3) updatePricingDisplay(getUnitsAvailable());
+  if (n === 3) updatePricingCards();
   if (n === 4) renderReview();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -1176,15 +1294,22 @@ function getEffectiveArea() {
 function validateStep(step) {
   if (step !== 1) return true;
   let ok = true;
-  [
+
+  const baseChecks = [
     ['title',       'err-title',  v => v.trim().length > 5],
     ['description', 'err-desc',   v => v.trim().length > 10],
-    ['price',       'err-price',  v => v && parseFloat(v) > 0],
-    ['bedrooms',    'err-bed',    v => v !== ''],
-    ['units_available', 'err-units', v => v && parseInt(v, 10) >= 1],
     ['area',        'err-area',   v => v !== ''],
     ['phone',       'err-phone',  v => v.replace(/\s/g,'').length >= 9],
-  ].forEach(([id, errId, test]) => {
+  ];
+
+  if (listingStructure === 'single') {
+    baseChecks.push(
+      ['price',    'err-price', v => v && parseFloat(v) > 0],
+      ['bedrooms', 'err-bed',   v => v !== '']
+    );
+  }
+
+  baseChecks.forEach(([id, errId, test]) => {
     const el = document.getElementById(id);
     const err = document.getElementById(errId);
     const valid = test(el.value);
@@ -1192,6 +1317,13 @@ function validateStep(step) {
     err.classList.toggle('show', !valid);
     if (!valid) ok = false;
   });
+
+  if (listingStructure === 'multi') {
+    const valid = getValidUnitTypes();
+    const err = document.getElementById('err-unit-types');
+    err.classList.toggle('show', valid.length === 0);
+    if (!valid.length) ok = false;
+  }
 
   // If "Other — my area isn't listed" was chosen, the typed-in area is required too
   if (document.getElementById('area').value === '__other__') {
@@ -1211,31 +1343,71 @@ function renderReview() {
   const f = {
     title:       document.getElementById('title').value,
     description: document.getElementById('description').value,
-    price:       Number(document.getElementById('price').value),
-    bedrooms:    document.getElementById('bedrooms').value,
-    bathrooms:   document.getElementById('bathrooms').value,
-    size:        document.getElementById('size').value,
     area:        getEffectiveArea(),
     sub_area:    document.getElementById('sub_area').value,
     address:     document.getElementById('address').value,
     phone:       document.getElementById('phone').value,
-    furnished:   document.getElementById('furnished').checked,
-    units:       getUnitsAvailable(),
   };
+
+  let priceRows = '';
+  let unitTypesTable = '';
+
+  if (listingStructure === 'multi') {
+    const valid = getValidUnitTypes();
+    const totalQty = valid.reduce((sum, u) => sum + parseInt(u.quantity), 0);
+    const prices = valid.map(u => parseFloat(u.price));
+    const min = prices.length ? Math.min(...prices) : 0;
+    const max = prices.length ? Math.max(...prices) : 0;
+    const priceLabel = min === max
+      ? `KES ${min.toLocaleString('en-KE')}${priceType === 'rent' ? '/month' : ''}`
+      : `KES ${min.toLocaleString('en-KE')} – ${max.toLocaleString('en-KE')}${priceType === 'rent' ? '/month' : ''}`;
+    const numBuildings = document.getElementById('num_buildings').value;
+    const totalUnitsOverride = document.getElementById('total_units').value;
+
+    priceRows = `
+      <div class="summary-row"><span>Structure</span><strong>Multi-unit property</strong></div>
+      ${numBuildings ? `<div class="summary-row"><span>Buildings</span><strong>${numBuildings}</strong></div>` : ''}
+      <div class="summary-row"><span>Total units</span><strong>${totalUnitsOverride || totalQty}</strong></div>
+      <div class="summary-row"><span>Price range</span><strong>${priceLabel}</strong></div>`;
+
+    unitTypesTable = `
+      <table class="unit-type-review-table">
+        <thead><tr><th>Unit type</th><th>Bed</th><th>Bath</th><th>Price</th><th>Units</th></tr></thead>
+        <tbody>
+          ${valid.map(u => `<tr>
+            <td>${u.label}</td>
+            <td>${u.bedrooms === '0' ? 'Studio' : u.bedrooms}</td>
+            <td>${u.bathrooms || '—'}</td>
+            <td>KES ${parseFloat(u.price).toLocaleString('en-KE')}${priceType==='rent'?'/mo':''}</td>
+            <td>${u.quantity}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>`;
+  } else {
+    const price      = Number(document.getElementById('price').value);
+    const bedrooms   = document.getElementById('bedrooms').value;
+    const bathrooms  = document.getElementById('bathrooms').value;
+    const size       = document.getElementById('size').value;
+    const furnished  = document.getElementById('furnished').checked;
+    priceRows = `
+      <div class="summary-row"><span>Structure</span><strong>Single unit</strong></div>
+      <div class="summary-row"><span>Price</span><strong>KES ${price.toLocaleString('en-KE')}${priceType === 'rent' ? '/month' : ''}</strong></div>
+      <div class="summary-row"><span>Bedrooms</span><strong>${bedrooms === '0' ? 'Bedsitter/studio' : bedrooms + ' bedroom(s)'}</strong></div>
+      ${bathrooms ? `<div class="summary-row"><span>Bathrooms</span><strong>${bathrooms}</strong></div>` : ''}
+      ${size ? `<div class="summary-row"><span>Floor area</span><strong>${size} m²</strong></div>` : ''}
+      <div class="summary-row"><span>Furnished</span><strong>${furnished ? 'Yes' : 'No'}</strong></div>`;
+  }
+
   document.getElementById('review-content').innerHTML = `
     <div class="summary-row"><span>Category</span><strong>${selectedCat.charAt(0).toUpperCase()+selectedCat.slice(1)}</strong></div>
     <div class="summary-row"><span>Title</span><strong>${f.title}</strong></div>
     <div class="summary-row"><span>Type</span><strong>${priceType === 'sale' ? 'For sale' : 'To let / rent'}</strong></div>
-    <div class="summary-row"><span>Price</span><strong>KES ${f.price.toLocaleString('en-KE')}${priceType === 'rent' ? '/month' : ''}</strong></div>
-    <div class="summary-row"><span>Units available</span><strong>${f.units}</strong></div>
-    <div class="summary-row"><span>Bedrooms</span><strong>${f.bedrooms === '0' ? 'Bedsitter/studio' : f.bedrooms + ' bedroom(s)'}</strong></div>
-    ${f.bathrooms ? `<div class="summary-row"><span>Bathrooms</span><strong>${f.bathrooms}</strong></div>` : ''}
-    ${f.size ? `<div class="summary-row"><span>Floor area</span><strong>${f.size} m²</strong></div>` : ''}
-    <div class="summary-row"><span>Furnished</span><strong>${f.furnished ? 'Yes' : 'No'}</strong></div>
+    ${priceRows}
     <div class="summary-row"><span>Area</span><strong>${f.area}${f.sub_area ? ' — ' + f.sub_area : ''}</strong></div>
     ${f.address ? `<div class="summary-row"><span>Address</span><strong>${f.address}</strong></div>` : ''}
     <div class="summary-row"><span>Contact phone</span><strong>${f.phone}</strong></div>
-    <div class="summary-row"><span>Photos</span><strong>${photos.length} photo(s) added</strong></div>`;
+    <div class="summary-row"><span>Photos</span><strong>${photos.length} photo(s) added</strong></div>
+    ${unitTypesTable}`;
 
   const isTrial = selectedPlan === 'trial' && trialEligible === true;
   document.getElementById('trial-applied-banner').style.display = isTrial ? 'flex' : 'none';
@@ -1244,8 +1416,18 @@ function renderReview() {
   const planLabel = isTrial
     ? `🎉 Free ${TRIAL_DAYS}-day launch trial (first-time seller)`
     : selectedPlan === 'featured' ? 'Featured listing (90 days)' : 'Standard listing (60 days)';
+
+  let feeBreakdownRow = '';
+  if (!isTrial && listingStructure === 'multi') {
+    const units = getEffectiveTotalUnits();
+    const base = getPlanBasePrice(selectedPlan);
+    const perUnit = PER_UNIT_FEE[selectedPlan];
+    feeBreakdownRow = `<div class="summary-row"><span>Fee breakdown</span><span>KES ${base.toLocaleString('en-KE')} base + KES ${perUnit} × ${units} units</span></div>`;
+  }
+
   document.getElementById('order-summary').innerHTML = `
     <div class="summary-row"><span>Plan</span><span>${planLabel}</span></div>
+    ${feeBreakdownRow}
     <div class="summary-row"><span>Total</span><span>${planPrice ? 'KES ' + planPrice.toLocaleString('en-KE') + ' (pay now or later)' : 'FREE — no payment needed'}</span></div>`;
 }
 
@@ -1291,17 +1473,38 @@ async function submitListing() {
 
   try {
     const isTrial = selectedPlan === 'trial' && trialEligible === true;
+    const isMulti = listingStructure === 'multi';
+    const validUnits = isMulti ? getValidUnitTypes() : [];
+
+    // For multi-unit properties, price/bedrooms/bathrooms/size on the parent
+    // listing row become the range/summary; per-unit detail lives in listing_units.
+    let price = null, bedrooms = 0, bathrooms = null, size_sqm = null, furnished = false;
+    let priceMin = null, priceMax = null, totalUnits = null;
+
+    if (isMulti) {
+      const prices = validUnits.map(u => parseFloat(u.price));
+      priceMin = Math.min(...prices);
+      priceMax = Math.max(...prices);
+      price = priceMin; // used as the headline/sort price
+      const enteredTotal = document.getElementById('total_units').value;
+      totalUnits = enteredTotal ? parseInt(enteredTotal) : validUnits.reduce((s,u) => s + parseInt(u.quantity), 0);
+    } else {
+      price      = parseFloat(document.getElementById('price').value);
+      bedrooms   = parseInt(document.getElementById('bedrooms').value) || 0;
+      bathrooms  = parseInt(document.getElementById('bathrooms').value) || null;
+      size_sqm   = parseFloat(document.getElementById('size').value) || null;
+      furnished  = document.getElementById('furnished').checked;
+    }
+
     const listingData = {
       title:            document.getElementById('title').value.trim(),
       description:      document.getElementById('description').value.trim(),
-      price:            parseFloat(document.getElementById('price').value),
+      price:            price,
       price_type:       priceType,
-      bedrooms:         parseInt(document.getElementById('bedrooms').value) || 0,
-      bathrooms:        parseInt(document.getElementById('bathrooms').value) || null,
-      size_sqm:         parseFloat(document.getElementById('size').value) || null,
-      furnished:        document.getElementById('furnished').checked,
-      units_available:  getUnitsAvailable(),
-      units_booked:     0,
+      bedrooms:         bedrooms,
+      bathrooms:        bathrooms,
+      size_sqm:         size_sqm,
+      furnished:        furnished,
       area:             getEffectiveArea(),
       sub_area:         document.getElementById('sub_area').value.trim() || null,
       address:          document.getElementById('address').value.trim() || null,
@@ -1313,6 +1516,11 @@ async function submitListing() {
       payment_status:   isTrial ? 'trial' : 'unpaid',
       seller_id:        currentUser.id,
       views:            0,
+      is_multi_unit:    isMulti,
+      num_buildings:    isMulti ? (parseInt(document.getElementById('num_buildings').value) || null) : null,
+      total_units:      isMulti ? totalUnits : null,
+      price_min:        isMulti ? priceMin : null,
+      price_max:        isMulti ? priceMax : null,
     };
 
     const { data: listing, error } = await db.from('listings').insert(listingData).select().single();
@@ -1320,6 +1528,20 @@ async function submitListing() {
 
     currentListingId = listing.id;
     currentPlanPrice = getPlanPrice();
+
+    if (isMulti && validUnits.length) {
+      const unitRows = validUnits.map(u => ({
+        listing_id: listing.id,
+        unit_label: u.label.trim(),
+        bedrooms:   parseInt(u.bedrooms),
+        bathrooms:  u.bathrooms ? parseInt(u.bathrooms) : null,
+        size_sqm:   u.size ? parseFloat(u.size) : null,
+        price:      parseFloat(u.price),
+        quantity_available: parseInt(u.quantity),
+      }));
+      const { error: unitErr } = await db.from('listing_units').insert(unitRows);
+      if (unitErr) console.error('listing_units insert error:', unitErr);
+    }
 
     if (photos.length) {
       const uploaded = await uploadPhotos(listing.id);
@@ -1517,82 +1739,5 @@ document.addEventListener('keydown', e => {
 init();
 </script>
 
-<!-- ── Draggable widget behaviour: shared across pages, keyed to same localStorage ── -->
-<script>
-(function() {
-  const floatie = document.getElementById('trial-floatie');
-  const handle  = document.getElementById('trial-floatie-handle');
-  if (!floatie || !handle) return;
-
-  const DISMISS_KEY = 'nk_trial_floatie_dismissed';
-  const POS_KEY = 'nk_trial_floatie_pos';
-
-  if (localStorage.getItem(DISMISS_KEY)) return; // user closed it before — respect that everywhere
-
-  try {
-    const saved = JSON.parse(localStorage.getItem(POS_KEY) || 'null');
-    if (saved && typeof saved.left === 'number' && typeof saved.top === 'number') {
-      floatie.style.left = Math.min(saved.left, window.innerWidth - 240) + 'px';
-      floatie.style.top  = Math.min(saved.top, window.innerHeight - 100) + 'px';
-      floatie.style.right = 'auto';
-      floatie.style.bottom = 'auto';
-    }
-  } catch(e) {}
-
-  let dragging = false, startX, startY, startLeft, startTop, moved = false;
-
-  function clamp(val, min, max) { return Math.min(Math.max(val, min), max); }
-
-  function onPointerDown(e) {
-    dragging = true;
-    moved = false;
-    const rect = floatie.getBoundingClientRect();
-    startLeft = rect.left; startTop = rect.top;
-    startX = e.clientX; startY = e.clientY;
-    floatie.style.right = 'auto'; floatie.style.bottom = 'auto';
-    floatie.style.left = startLeft + 'px';
-    floatie.style.top  = startTop + 'px';
-    document.addEventListener('pointermove', onPointerMove);
-    document.addEventListener('pointerup', onPointerUp);
-    e.preventDefault();
-  }
-
-  function onPointerMove(e) {
-    if (!dragging) return;
-    const dx = e.clientX - startX, dy = e.clientY - startY;
-    if (Math.abs(dx) > 3 || Math.abs(dy) > 3) moved = true;
-    const newLeft = clamp(startLeft + dx, 4, window.innerWidth - floatie.offsetWidth - 4);
-    const newTop  = clamp(startTop + dy, 4, window.innerHeight - floatie.offsetHeight - 4);
-    floatie.style.left = newLeft + 'px';
-    floatie.style.top  = newTop + 'px';
-  }
-
-  function onPointerUp() {
-    dragging = false;
-    document.removeEventListener('pointermove', onPointerMove);
-    document.removeEventListener('pointerup', onPointerUp);
-    const rect = floatie.getBoundingClientRect();
-    localStorage.setItem(POS_KEY, JSON.stringify({ left: rect.left, top: rect.top }));
-  }
-
-  handle.addEventListener('pointerdown', onPointerDown);
-
-  window.dismissTrialFloatie = function() {
-    floatie.classList.remove('show');
-    localStorage.setItem(DISMISS_KEY, '1');
-  };
-
-  // Only reveal it once we know the launch offer is still live
-  (async () => {
-    try {
-      const { data: slotsLeft } = await db.rpc('get_trial_slots_left');
-      const n = typeof slotsLeft === 'number' ? slotsLeft : 0;
-      if (n <= 0) return;
-      document.getElementById('floatie-spots').textContent = `Only ${n} spot${n === 1 ? '' : 's'} left`;
-      floatie.classList.add('show');
-    } catch(e) { /* fail silently — stays hidden */ }
-  })();
-})();
-</script>
 </body>
 </html>
