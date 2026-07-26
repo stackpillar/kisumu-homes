@@ -350,7 +350,7 @@
     <a href="how-it-works.html" class="nav-link">How it works</a>
     <a href="about.html" class="nav-link">About us</a>
     <a href="pricing.html" class="nav-link">Pricing</a>
-    <a href="contact.html" class="nav-link">Contact</a>
+    <a href="Faq.html" class="nav-link">FAQ</a>
     <a href="login.html" class="nav-link" id="nav-account-link">Sign in</a>
     <a href="saved.html" class="nav-link">
   <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
@@ -371,7 +371,7 @@
   <a href="how-it-works.html">How it works</a>
   <a href="about.html" class="nav-link">About us</a>
   <a href="pricing.html">Pricing</a>
-  <a href="contact.html">Contact</a>
+  <a href="Faq.html">FAQ</a>
   <a href="login.html" class="mobile-nav-link" id="mobile-account-link">Sign in</a>
   <a href="saved.html" class="nav-link">
   <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
@@ -603,7 +603,7 @@
         <a href="contact.html">Contact us</a>
         <a href="terms.html">Terms of service</a>
         <a href="privacy.html">Privacy policy</a>
-        <a href="faq.html">FAQ</a>
+        <a href="Faq.html">FAQ</a>
       </div>
     </div>
 
@@ -689,6 +689,12 @@
   };
   const NK_TIER1 = ["Kisumu", "Nairobi", "Mombasa"];
 
+  // ── Reverse lookup: area name → county, built from NK_AREAS_BY_COUNTY ──
+  const NK_AREA_TO_COUNTY = {};
+  Object.entries(NK_AREAS_BY_COUNTY).forEach(([county, areas]) => {
+    areas.forEach(area => { NK_AREA_TO_COUNTY[area] = county; });
+  });
+
   // Some county names are less recognizable than their main town — show both.
   const NK_COUNTY_LABEL = {
     "Uasin Gishu": "Uasin Gishu (Eldoret)",
@@ -717,22 +723,22 @@
   function nkAreaCountFor(county) {
     return (NK_AREAS_BY_COUNTY[county] || []).length;
   }
-  function nkCountyDesc(county) {
+  function nkCountyDesc(county, listingCount) {
     const n = nkAreaCountFor(county);
     if (!n) return 'Coming soon';
-    if (county === 'Kisumu') return `Our home base — ${n} areas covered`;
-    if (NK_TIER1.includes(county)) return `Now live — ${n} areas covered`;
-    return `${n} area${n !== 1 ? 's' : ''} covered`;
+    const count = listingCount || 0;
+    return `${count} listing${count !== 1 ? 's' : ''} available`;
   }
 
   // ── Render the "Browse by county" grid (all 47 counties) ──
-  function renderCountiesGrid() {
+  // countyCounts: optional map of county → live active-listing count (from loadCountyListingCounts)
+  function renderCountiesGrid(countyCounts) {
     const grid = document.getElementById('counties-grid');
     if (!grid) return;
     grid.innerHTML = NK_COUNTIES.map(county => {
       const hasAreas = nkAreaCountFor(county) > 0;
       const isTier1 = NK_TIER1.includes(county);
-      const desc = nkCountyDesc(county);
+      const desc = nkCountyDesc(county, countyCounts ? countyCounts[county] : undefined);
       const classes = 'area-card' + (isTier1 ? ' tier1' : '') + (hasAreas ? '' : ' coming-soon');
       const click = hasAreas ? `onclick="goCounty('${county}')"` : '';
       return `<div class="${classes}" ${click}>
@@ -740,6 +746,19 @@
         <div class="area-card-count">${desc}</div>
       </div>`;
     }).join('');
+  }
+
+  // ── Fetch active listing counts per county, then re-render the counties grid ──
+  async function loadCountyListingCounts() {
+    const { data, error } = await db.from('listings').select('area').eq('status', 'active');
+    if (error) { console.error(error); return; }
+    const counts = {};
+    (data || []).forEach(row => {
+      const county = NK_AREA_TO_COUNTY[row.area];
+      if (!county) return;
+      counts[county] = (counts[county] || 0) + 1;
+    });
+    renderCountiesGrid(counts);
   }
 
   // ── Render the footer counties list (all 47) ──
@@ -1002,7 +1021,8 @@
   })();
 
   // ── Init ──
-  renderCountiesGrid();
+  renderCountiesGrid(); // instant paint with "Coming soon" placeholders
+  loadCountyListingCounts(); // then swap in real listing counts once fetched
   renderFooterCounties();
   renderLatestCountySelect();
   renderAreaPills('Nairobi');
