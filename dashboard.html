@@ -310,7 +310,7 @@
     .scw-fab-badge.show{display:flex}
     .scw-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:8100;display:none}
     .scw-overlay.open{display:block}
-    .scw-panel{position:fixed;bottom:0;right:28px;z-index:8200;width:380px;height:min(640px, calc(100vh - 56px));background:var(--surface);border-radius:20px 20px 0 0;box-shadow:0 8px 48px rgba(0,0,0,0.22);display:none;flex-direction:column;overflow:hidden;font-family:'Inter',sans-serif}
+    .scw-panel{position:fixed;bottom:16px;right:28px;z-index:8200;width:380px;height:min(624px, calc(100vh - 72px));background:var(--surface);border-radius:20px;box-shadow:0 8px 48px rgba(0,0,0,0.22);display:none;flex-direction:column;overflow:hidden;font-family:'Inter',sans-serif}
     .scw-panel.open{display:flex;animation:scwIn .22s ease}
     @keyframes scwIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
     .scw-header{background:linear-gradient(135deg,var(--green-dark),var(--green-mid));padding:20px 20px 22px;position:relative;flex-shrink:0}
@@ -1466,7 +1466,20 @@ function printReceipt(){window.print();}
 function downloadReceiptPDF(){if(!receiptTarget)return;if(!window.jspdf){showToast('PDF library still loading — try again in a second','error');return;}const{jsPDF}=window.jspdf;const doc=new jsPDF({unit:'mm',format:'a5'});const p=receiptTarget;const isPaid=p.status==='confirmed'||p.status==='paid';doc.setFont('helvetica','bold');doc.setFontSize(18);doc.setTextColor(8,80,65);doc.text('Nyumba254',74,20,{align:'center'});doc.setFont('helvetica','normal');doc.setFontSize(10);doc.setTextColor(120,120,120);doc.text('PAYMENT RECEIPT',74,27,{align:'center'});doc.setDrawColor(15,110,86);doc.line(15,32,133,32);let y=42;const row=(label,value)=>{doc.setFont('helvetica','normal');doc.setFontSize(10);doc.setTextColor(130,130,130);doc.text(label,15,y);doc.setFont('helvetica','bold');doc.setTextColor(26,26,24);doc.text(String(value),133,y,{align:'right'});y+=8;};row('Receipt No.','NK-'+String(p.id).slice(0,8).toUpperCase());row('Date',new Date(p.created_at).toLocaleDateString('en-KE',{day:'numeric',month:'long',year:'numeric'}));row('Billed to',currentProfile?.full_name||currentUser?.email||'—');row('Listing',p.listings?.title||'—');row('Payment method',(p.method||'—').toUpperCase());row('Reference',p.reference||p.mpesa_ref||'—');row('Status',isPaid?'Paid':(p.status||'pending'));doc.setDrawColor(224,222,216);doc.line(15,y,133,y);y+=10;doc.setFont('helvetica','bold');doc.setFontSize(14);doc.setTextColor(8,80,65);doc.text('Amount paid',15,y);doc.text(`KES ${Number(p.amount||0).toLocaleString('en-KE')}`,133,y,{align:'right'});y+=20;doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(150,150,150);doc.text('Thank you for using Nyumba254.',74,y,{align:'center'});doc.save(`Nyumba254-Receipt-${String(p.id).slice(0,8)}.pdf`);}
 
 const pageTitles={overview:'Overview',listings:'My listings',messages:'Messages',enquiries:'Enquiries',reviews:'Reviews',payments:'Payments',settings:'Settings'};
-function showPage(name){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));document.getElementById('page-'+name).classList.add('active');const navEl=document.getElementById('nav-'+name);if(navEl)navEl.classList.add('active');document.getElementById('topbar-title').textContent=pageTitles[name]||name;if(name==='overview')renderOverview();if(name==='listings')renderListingsTable();if(name==='messages'){showThreadListMobile();renderThreadList();}if(name==='enquiries')renderEnquiries();if(name==='reviews')renderReviews();if(name==='payments')renderPayments();closeSidebar();}
+function showPage(name){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));document.getElementById('page-'+name).classList.add('active');const navEl=document.getElementById('nav-'+name);if(navEl)navEl.classList.add('active');document.getElementById('topbar-title').textContent=pageTitles[name]||name;if(name==='overview')renderOverview();if(name==='listings')renderListingsTable();if(name==='messages'){showThreadListMobile();renderThreadList();}if(name==='enquiries')renderEnquiries();if(name==='reviews')renderReviews();if(name==='payments')renderPayments();closeSidebar();
+  // The support widget's FAB sits bottom-right, exactly where the buyer-chat
+  // send button lives — hide it while viewing buyer conversations so it never
+  // blocks that button, and close the widget panel if it happened to be open.
+  const scwFabEl=document.getElementById('scw-fab');
+  if(scwFabEl){
+    if(name==='messages'){
+      scwFabEl.style.display='none';
+      if(typeof scwOpen!=='undefined'&&scwOpen)scwToggle();
+    }else{
+      scwFabEl.style.display='';
+    }
+  }
+}
 function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('sidebar-overlay').classList.toggle('open');}
 function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sidebar-overlay').classList.remove('open');}
 function openModal(id){document.getElementById(id).classList.add('open');document.body.style.overflow='hidden';}
@@ -1750,7 +1763,7 @@ function scwShowTopicPicker(from){
 /* ---- Ticket lifecycle ---- */
 async function scwCreateTicket(topicId,topicLabel){
   const sessionKey=`seller_${currentUser.id}_${Date.now()}`;
-  const payload={session_key:sessionKey,session_type:'seller',visitor_name:scwSellerName,page:'dashboard.html',topic:topicLabel,status:'open',is_resolved:false,last_msg_at:new Date().toISOString()};
+  const payload={session_key:sessionKey,session_type:'seller',seller_id:currentUser.id,visitor_name:scwSellerName,page:'dashboard.html',topic:topicLabel,status:'open',is_resolved:false,last_msg_at:new Date().toISOString()};
   const{data,error}=await db.from('chat_sessions').insert(payload).select().single();
   if(error){showToast('Could not start ticket: '+error.message,'error');return;}
   const ticket={...data,status:'open',_messages:[],_unread:0,_topicId:topicId,_botMsgs:{},_suggested:false,_clarified:false,_textSuggested:false};
@@ -1960,7 +1973,13 @@ function scwWait(ms){return new Promise(res=>setTimeout(res,ms));}
 
 async function scwMarkTicketRead(t){
   if(!t._unread)return;
-  await db.from('chat_messages').update({read_at:new Date().toISOString()}).eq('session_id',t.id).eq('sender','admin').is('read_at',null);
+  const expected=t._unread;
+  const{data,error}=await db.from('chat_messages').update({read_at:new Date().toISOString()}).eq('session_id',t.id).eq('sender','admin').is('read_at',null).select();
+  if(error){
+    console.error('scwMarkTicketRead: update failed —',error.message);
+  }else if(!data||data.length<expected){
+    console.warn(`scwMarkTicketRead: expected to mark ${expected} message(s) read but only updated ${data?data.length:0}. This usually means an RLS policy on chat_messages is silently blocking the update — the badge will reappear on the next refresh until that's fixed.`);
+  }
   t._unread=0;scwUpdateBadges();scwRefreshListViews();
 }
 
@@ -1978,11 +1997,8 @@ function scwRenderTicketList(){
   const el=document.getElementById('scw-ticket-list');if(!el)return;
   if(!scwTickets.length){el.innerHTML='<div class="scw-empty-mini">No tickets yet. Tap + New to start one.</div>';return;}
   el.innerHTML=scwTickets.map(t=>{
-    const last=(t._messages&&t._messages.length)?t._messages[t._messages.length-1]:null;
-    const preview=last?(last.sender==='admin'?'Support: ':'You: ')+(last.body||'').replace(/<[^>]+>/g,''):'No messages yet';
     return `<div class="scw-ticket-card" onclick="scwOpenTicket('${t.id}')">
       <div class="scw-ticket-top"><span class="scw-ticket-topic">${escHtml(t.topic||'General enquiry')}</span><span class="scw-ticket-status ${t.status}">${t.status}</span></div>
-      <div class="scw-ticket-preview">${escHtml(preview)}</div>
       <div class="scw-ticket-meta">${scwTicketRef(t)} · ${timeAgo(t.last_msg_at)}${t._unread?` · ${t._unread} new`:''}</div>
     </div>`;
   }).join('');
