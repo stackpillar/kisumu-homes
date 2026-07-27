@@ -690,64 +690,76 @@
   }
 
   // ── REGISTER ──
-  async function doRegister() {
-    clearAllErrors();
-    clearConsentError();
-    const first   = document.getElementById('reg-firstname').value.trim();
-    const last    = document.getElementById('reg-lastname').value.trim();
-    const email   = document.getElementById('reg-email').value.trim();
-    const phone   = document.getElementById('reg-phone').value.trim();
-    const pw      = document.getElementById('reg-password').value;
-    const consent = document.getElementById('reg-consent').checked;
-    let ok = true;
+async function doRegister() {
+  clearAllErrors();
+  clearConsentError();
+  const first   = document.getElementById('reg-firstname').value.trim();
+  const last    = document.getElementById('reg-lastname').value.trim();
+  const email   = document.getElementById('reg-email').value.trim();
+  const phone   = document.getElementById('reg-phone').value.trim();
+  const pw      = document.getElementById('reg-password').value;
+  const consent = document.getElementById('reg-consent').checked;
+  let ok = true;
 
-    if (!first)        { fieldError('reg-firstname','err-firstname',true); ok=false; }
-    if (!last)         { fieldError('reg-lastname','err-lastname',true); ok=false; }
-    if (!isEmail(email)){ fieldError('reg-email','err-reg-email',true); ok=false; }
-    if (!isPhone(phone)){ fieldError('reg-phone','err-phone',true); ok=false; }
-    if (pw.length < 8) { fieldError('reg-password','err-reg-pw',true); ok=false; }
-    if (!consent) {
-      document.getElementById('consent-box').classList.add('error');
-      document.getElementById('err-consent').classList.add('show');
-      ok = false;
-    }
-    if (!ok) return;
-
-    setLoading('btn-register', true);
-    const { data, error } = await db.auth.signUp({
-      email, password: pw,
-      options: {
-        data: { full_name: `${first} ${last}`, phone },
-        emailRedirectTo: SITE_BASE + '/verify-email.html'
-      }
-    });
-    setLoading('btn-register', false);
-
-    if (error) {
-      showAlert('register-alert','register-alert-msg',
-        error.message.includes('already registered')
-          ? 'An account with this email already exists. Try signing in instead.'
-          : error.message,
-        'error');
-      return;
-    }
-
-    // Save to profiles table
-    if (data.user) {
-      await db.from('profiles').upsert({
-        id: data.user.id,
-        full_name: `${first} ${last}`,
-        phone, email
-      });
-    }
-
-    // Hide form, show success
-    document.querySelector('#panel-register .auth-title').style.display = 'none';
-    document.querySelector('#panel-register .auth-sub').style.display = 'none';
-    document.querySelector('#panel-register #register-alert').style.display = 'none';
-    document.querySelectorAll('#panel-register .form-row, #panel-register .form-group, #panel-register .btn-submit, #panel-register .terms, #panel-register p.auth-sub, #panel-register .consent-box').forEach(el => el.style.display='none');
-    document.getElementById('register-success').style.display = 'block';
+  if (!first)        { fieldError('reg-firstname','err-firstname',true); ok=false; }
+  if (!last)         { fieldError('reg-lastname','err-lastname',true); ok=false; }
+  if (!isEmail(email)){ fieldError('reg-email','err-reg-email',true); ok=false; }
+  if (!isPhone(phone)){ fieldError('reg-phone','err-phone',true); ok=false; }
+  if (pw.length < 8) { fieldError('reg-password','err-reg-pw',true); ok=false; }
+  if (!consent) {
+    document.getElementById('consent-box').classList.add('error');
+    document.getElementById('err-consent').classList.add('show');
+    ok = false;
   }
+  if (!ok) return;
+
+  setLoading('btn-register', true);
+  const { data, error } = await db.auth.signUp({
+    email, password: pw,
+    options: {
+      data: { full_name: `${first} ${last}`, phone },
+      emailRedirectTo: SITE_BASE + '/verify-email.html'
+    }
+  });
+  setLoading('btn-register', false);
+
+  if (error) {
+    showAlert('register-alert','register-alert-msg',
+      error.message.includes('already registered')
+        ? 'An account with this email already exists. Try signing in instead.'
+        : error.message,
+      'error');
+    return;
+  }
+
+  // ── Supabase anti-enumeration quirk ──
+  // With "Confirm email" on, signUp() does NOT return an error for an
+  // already-registered + already-confirmed email. Instead it returns a
+  // fake success with data.user present but an EMPTY identities array.
+  // No new confirmation email is actually sent in this case.
+  if (data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+    showAlert('register-alert','register-alert-msg',
+      'An account with this email already exists. Try signing in instead.',
+      'error');
+    return;
+  }
+
+  // Save to profiles table
+  if (data.user) {
+    await db.from('profiles').upsert({
+      id: data.user.id,
+      full_name: `${first} ${last}`,
+      phone, email
+    });
+  }
+
+  // Hide form, show success
+  document.querySelector('#panel-register .auth-title').style.display = 'none';
+  document.querySelector('#panel-register .auth-sub').style.display = 'none';
+  document.querySelector('#panel-register #register-alert').style.display = 'none';
+  document.querySelectorAll('#panel-register .form-row, #panel-register .form-group, #panel-register .btn-submit, #panel-register .terms, #panel-register p.auth-sub, #panel-register .consent-box').forEach(el => el.style.display='none');
+  document.getElementById('register-success').style.display = 'block';
+}
 
   // ── PASSWORD RESET ──
   async function doReset() {
