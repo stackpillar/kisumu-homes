@@ -85,6 +85,8 @@
     .trial-note{font-size:11px;color:var(--blue,#185FA5);background:#E6F1FB;border-radius:6px;padding:6px 9px;margin-top:6px;line-height:1.5;max-width:320px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
     .trial-note .upgrade-link{color:var(--green-dark);font-weight:700;text-decoration:underline;cursor:pointer}
     .trial-note.urgent{color:var(--red);background:var(--red-light)}
+    .multiunit-note{font-size:11px;color:#5B3E96;background:#EDE7F6;border-radius:6px;padding:6px 9px;margin-top:6px;line-height:1.5;max-width:320px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+    .multiunit-note .manage-link{color:#5B3E96;font-weight:700;text-decoration:underline;cursor:pointer}
     .icon-btn{width:30px;height:30px;border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;border:1px solid var(--border);background:white;color:var(--text-2)}
     .icon-btn svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2}
     .icon-btn:hover{border-color:var(--green);color:var(--green);background:var(--green-light)}
@@ -300,6 +302,24 @@
     #suspended-screen p,#admin-blocked-screen p{font-size:13.5px;color:var(--text-2);line-height:1.75;margin-bottom:14px}
     #suspended-screen p.emphasis,#admin-blocked-screen p.emphasis{font-weight:600;color:var(--text)}
     #suspended-screen .suspended-footer,#admin-blocked-screen .suspended-footer{font-size:11px;color:var(--text-3);margin-top:18px}
+    /* ===== Manage units modal ===== */
+    .mu-unit-row{border:1.5px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:12px}
+    .mu-unit-row-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+    .mu-unit-row-top strong{font-size:13.5px;color:var(--text)}
+    .mu-unit-actions{display:flex;gap:8px;flex-wrap:wrap}
+    .mu-badge{font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px;background:var(--green-light);color:var(--green-dark)}
+    .mu-badge.low{background:var(--amber-light);color:var(--amber)}
+    .mu-badge.none{background:var(--red-light);color:var(--red)}
+    .mu-occupy-form{display:none;margin-top:12px;padding-top:12px;border-top:1px dashed var(--border)}
+    .mu-occupy-form.open{display:block}
+    .mu-occupy-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px}
+    .mu-occupy-grid label{display:block;font-size:11px;font-weight:600;color:var(--text-2);margin-bottom:4px;text-transform:none;letter-spacing:0}
+    .mu-occupy-grid input,.mu-occupy-grid select{width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;background:var(--surface);outline:none}
+    .mu-occupy-grid input:focus,.mu-occupy-grid select:focus{border-color:var(--green)}
+    .mu-log{margin-top:10px}
+    .mu-log-item{font-size:11.5px;color:var(--text-3);padding:5px 0;border-top:1px solid var(--border);display:flex;justify-content:space-between;gap:8px}
+    .mu-summary-strip{display:flex;gap:16px;flex-wrap:wrap;background:var(--green-light);border-radius:var(--radius);padding:10px 14px;margin-bottom:16px;font-size:12.5px;color:var(--green-dark)}
+    @media(max-width:520px){.mu-occupy-grid{grid-template-columns:1fr}}
     /* ===== Support Chat Widget v2 ===== */
     .scw-fab{position:fixed;bottom:28px;right:28px;z-index:8000;display:flex;align-items:center;gap:9px;padding:10px 20px 10px 10px;border-radius:40px;background:var(--white);border:1px solid var(--border);box-shadow:var(--shadow-lg);cursor:pointer;transition:transform .18s;font-family:'Inter',sans-serif}
     .scw-fab:hover{transform:translateY(-2px)}
@@ -738,6 +758,19 @@
   </div>
 </div>
 
+<!-- MANAGE UNITS MODAL (multi-unit properties) -->
+<div class="modal-overlay" id="modal-manage-units">
+  <div class="modal" style="max-width:620px">
+    <div class="modal-head"><h3>Manage units — <span id="mu-listing-title"></span></h3><div class="modal-close" onclick="closeModal('modal-manage-units')">✕</div></div>
+    <div class="modal-body">
+      <p style="font-size:13px;color:var(--text-3);margin-bottom:16px;line-height:1.6">Mark a unit occupied once it's booked — this updates availability for buyers on the live listing immediately. Optionally record the floor, door/unit number, and position so you can track exactly which unit was taken.</p>
+      <div class="mu-summary-strip" id="mu-summary-strip"></div>
+      <div id="mu-unit-list"><div style="text-align:center;padding:20px;color:var(--text-3);font-size:13px">Loading units…</div></div>
+    </div>
+    <div class="modal-foot"><button class="btn btn-outline" onclick="closeModal('modal-manage-units')">Close</button></div>
+  </div>
+</div>
+
 <!-- REPLY MODAL -->
 <div class="modal-overlay" id="modal-reply">
   <div class="modal" style="max-width:440px">
@@ -948,8 +981,6 @@ const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
   function nkCountyLabel(county) { return NK_COUNTY_LABEL[county] || county; }
 
-  // Reverse lookup: area name -> county (used to preselect the right county
-  // when editing an existing listing, since listings only store the area).
   const NK_AREA_TO_COUNTY = {};
   for (const [county, areas] of Object.entries(NK_AREAS_BY_COUNTY)) {
     areas.forEach(a => { NK_AREA_TO_COUNTY[a] = county; });
@@ -960,7 +991,6 @@ const db = createClient(SUPABASE_URL, SUPABASE_KEY);
     if (!sel) return;
     sel.innerHTML = NK_COUNTIES.map(c => `<option value="${c}">${nkCountyLabel(c)}</option>`).join('');
   }
-  // Populate the Edit-modal area dropdown for a county, preselecting currentArea if given
   function nkPopulateEditAreas(county, currentArea) {
     const sel = document.getElementById('edit-area');
     if (!sel) return;
@@ -969,7 +999,6 @@ const db = createClient(SUPABASE_URL, SUPABASE_KEY);
     if (currentArea && areas.includes(currentArea)) {
       sel.value = currentArea;
     } else if (currentArea) {
-      // Area isn't in this county's list (legacy/free-text data) — add it so nothing is lost
       const opt = document.createElement('option');
       opt.value = currentArea; opt.textContent = currentArea + ' (custom)';
       sel.appendChild(opt);
@@ -983,6 +1012,9 @@ const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 
 let currentUser=null,currentProfile=null,allListings=[],allEnquiries=[],allPayments=[],allMessages=[],allReviews=[],threads=[],activeThread=null,listingFilter='all',enquiryFilter='all',deleteTargetId=null,occupiedTargetId=null,replyTargetEnquiry=null,msgPollTimer=null,threadListingFilter=null;
+
+// ── Multi-unit management state (Manage units modal) ──
+let muActiveListingId=null,muUnits=[];
 
 const AMENITY_KEYS=[{key:'has_parking',label:'Parking'},{key:'has_water',label:'Water supply'},{key:'has_security',label:'Security'},{key:'has_wifi',label:'WiFi ready'},{key:'has_backup_power',label:'Backup power'},{key:'has_gym',label:'Gym'},{key:'has_pool',label:'Swimming pool'},{key:'has_balcony',label:'Balcony'}];
 
@@ -1014,9 +1046,6 @@ async function init(){
     document.getElementById('app-shell').style.display='flex';
     msgPollTimer=setInterval(pollNewMessages,30000);
 
-    /* Load support-chat tickets/badges immediately on page load, not only
-       after the seller manually opens the widget — otherwise an admin-
-       initiated message has no visible signal until they happen to click it. */
     scwLoaded=true;
     scwInit();
   }catch(err){console.error('Init error:',err);window.location.href='login.html';}
@@ -1055,7 +1084,7 @@ async function saveNotificationPrefs(){
 }
 
 async function loadAllData(){
-  const{data:listingsData}=await db.from('listings').select('*, listing_photos(*)').eq('seller_id',currentUser.id).order('created_at',{ascending:false});
+  const{data:listingsData}=await db.from('listings').select('*, listing_photos(*), listing_units(*)').eq('seller_id',currentUser.id).order('created_at',{ascending:false});
   allListings=listingsData||[];
   const ids=allListings.map(l=>l.id);
   if(ids.length){
@@ -1149,7 +1178,7 @@ function renderChart(){
 function renderQuickListings(){
   const el=document.getElementById('quick-listings');
   if(!allListings.length){el.innerHTML=`<div style="text-align:center;padding:20px 0;color:var(--text-3);font-size:13px">No listings yet. <a href="post-listing.html" style="color:var(--green);font-weight:500">Post one →</a></div>`;return;}
-  el.innerHTML=allListings.slice(0,5).map(l=>{const cover=(l.listing_photos||[]).find(p=>p.is_cover)||(l.listing_photos||[])[0];const img=cover?`<img src="${cover.url}" alt=""/>`:`<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>`;const d=getListingStatusDisplay(l);const trialDays=getTrialDaysLeft(l);const trialTxt=trialDays!==null?` · Trial: ${trialDays}d left`:'';return `<div class="quick-listing"><div class="quick-img">${img}</div><div style="flex:1;min-width:0"><div class="quick-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(l.title)}</div><div class="quick-meta" style="${l.is_disabled?'color:var(--red)':''}">${l.area} · ${d.label}${trialTxt}</div></div><div class="quick-price">KES ${Number(l.price).toLocaleString('en-KE')}${l.price_type==='rent'?'/mo':''}</div></div>`;}).join('');
+  el.innerHTML=allListings.slice(0,5).map(l=>{const cover=(l.listing_photos||[]).find(p=>p.is_cover)||(l.listing_photos||[])[0];const img=cover?`<img src="${cover.url}" alt=""/>`:`<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>`;const d=getListingStatusDisplay(l);const trialDays=getTrialDaysLeft(l);const trialTxt=trialDays!==null?` · Trial: ${trialDays}d left`:'';const priceTxt=l.is_multi_unit?muPriceRangeText(l):`KES ${Number(l.price).toLocaleString('en-KE')}${l.price_type==='rent'?'/mo':''}`;return `<div class="quick-listing"><div class="quick-img">${img}</div><div style="flex:1;min-width:0"><div class="quick-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(l.title)}</div><div class="quick-meta" style="${l.is_disabled?'color:var(--red)':''}">${l.area} · ${d.label}${trialTxt}</div></div><div class="quick-price">${priceTxt}</div></div>`;}).join('');
 }
 
 function filterListings(status,el){listingFilter=status;document.querySelectorAll('#page-listings .filter-pill').forEach(p=>p.classList.remove('active'));el.classList.add('active');renderListingsTable();}
@@ -1159,6 +1188,23 @@ function getTrialDaysLeft(l){
   if(!l.trial_expires_at)return null;
   const diffMs=new Date(l.trial_expires_at)-new Date();
   return Math.max(0,Math.ceil(diffMs/86400000));
+}
+
+// ── Multi-unit helpers used across the table, quick list, and the modal ──
+function muPriceRangeText(l){
+  const units=l.listing_units||[];
+  const prices=units.map(u=>Number(u.price)).filter(p=>!isNaN(p));
+  const min=prices.length?Math.min(...prices):Number(l.price_min)||Number(l.price)||0;
+  const max=prices.length?Math.max(...prices):Number(l.price_max)||Number(l.price)||0;
+  const suffix=l.price_type==='rent'?'/mo':'';
+  return min===max?`KES ${min.toLocaleString('en-KE')}${suffix}`:`KES ${min.toLocaleString('en-KE')}–${max.toLocaleString('en-KE')}${suffix}`;
+}
+function muAvailabilitySummary(l){
+  const units=l.listing_units||[];
+  if(!units.length)return null;
+  const totalAvail=units.reduce((s,u)=>s+(u.quantity_available??0),0);
+  const totalUnits=units.reduce((s,u)=>s+(u.quantity_total??u.quantity_available??0),0);
+  return`${totalAvail} of ${totalUnits} available`;
 }
 
 function requestTrialUpgrade(title){
@@ -1207,6 +1253,7 @@ async function reactivateListing(id){
 // ── THE FIXED renderListingsTable — pending/rejected listings have all status
 //    buttons locked. Only active listings can be paused or marked sold/occupied.
 //    Reactivating an occupied listing sends it back to "pending" for admin review.
+//    Multi-unit listings also get a purple "Manage units" icon.
 function renderListingsTable(){
   const q=(document.getElementById('listing-search')?.value||'').toLowerCase();
   const rows=allListings.filter(l=>{if(listingFilter!=='all'&&l.status!==listingFilter)return false;if(q&&!l.title.toLowerCase().includes(q)&&!(l.area||'').toLowerCase().includes(q))return false;return true;});
@@ -1222,6 +1269,8 @@ function renderListingsTable(){
     const trialDays=getTrialDaysLeft(l);
     const trialNote=trialDays!==null?`<div class="trial-note${trialDays<=2?' urgent':''}">🕐 Free trial — ${trialDays} day${trialDays!==1?'s':''} left <span class="upgrade-link" onclick="requestTrialUpgrade('${escAttr(l.title)}')">Upgrade now</span></div>`:'';
     const occupiedNote=(l.status==='occupied'&&d.banner)?`<div class="occupied-note">${d.banner}</div>`:'';
+    const availSummary=l.is_multi_unit?muAvailabilitySummary(l):null;
+    const multiUnitNote=l.is_multi_unit?`<div class="multiunit-note">🏢 Multi-unit property${availSummary?' · '+availSummary:''} <span class="manage-link" onclick="openManageUnitsModal('${l.id}')">Manage units</span></div>`:'';
 
     // Which actions are permitted per status
     const isActive   = l.status==='active'   && !l.is_disabled;
@@ -1245,14 +1294,18 @@ const pauseBtn=isActive
   ?`<div class="icon-btn" data-id="${l.id}" data-status="${l.status}" onclick="togglePause(this.dataset.id,this.dataset.status)" title="Pause listing"><svg viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg></div>`
   :'';
 
+const manageUnitsBtn=l.is_multi_unit
+  ?`<div class="icon-btn purple" data-id="${l.id}" onclick="openManageUnitsModal(this.dataset.id)" title="Manage units — mark occupied/available"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M15 3v18"/></svg></div>`
+  :'';
+
     return `<tr>
       <td><div class="listing-name-cell"><div class="listing-thumb">${img}</div><div>
         <div class="listing-title-text">${escHtml(l.title)}</div>
         <div class="listing-area-text">${l.area}${l.sub_area?' · '+l.sub_area:''}</div>
         ${l.status!=='occupied'&&d.banner?`<div class="disabled-note">${d.banner}</div>`:''}
-        ${occupiedNote}${trialNote}
+        ${occupiedNote}${trialNote}${multiUnitNote}
       </div></div></td>
-      <td><div class="listing-price-text">KES ${Number(l.price).toLocaleString('en-KE')}${l.price_type==='rent'?'/mo':''}</div><div class="listing-price-sub">${l.price_type==='rent'?'Monthly rent':'For sale'}</div></td>
+      <td><div class="listing-price-text">${l.is_multi_unit?muPriceRangeText(l):`KES ${Number(l.price).toLocaleString('en-KE')}${l.price_type==='rent'?'/mo':''}`}</div><div class="listing-price-sub">${l.is_multi_unit?(l.total_units?l.total_units+' units total':''):(l.price_type==='rent'?'Monthly rent':'For sale')}</div></td>
       <td><span class="status ${d.cls}">${d.label}</span></td>
       <td><span style="font-size:13px;font-weight:600;color:${mc>0?'var(--green-dark)':'var(--text-3)'}">${mc}${uc>0?` <span style="color:var(--red);font-size:11px">(${uc} new)</span>`:''}</span></td>
       <td style="font-size:13px;color:var(--text-3)">${l.views||0}</td>
@@ -1261,7 +1314,7 @@ const pauseBtn=isActive
         <a href="listing.html?id=${l.id}" target="_blank" class="icon-btn" title="View live listing"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></a>
         <div class="icon-btn" onclick="openMessagesForListing('${l.id}')" title="Messages"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
         <div class="icon-btn" onclick="shareListing('${l.id}')" title="Share"><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></div>
-        ${editBtn}${statusBtn}${pauseBtn}
+        ${editBtn}${statusBtn}${pauseBtn}${manageUnitsBtn}
         <div class="icon-btn danger" data-id="${l.id}" data-title="${escAttr(l.title)}" onclick="openDeleteModal(this.dataset.id,this.dataset.title)" title="Delete listing"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg></div>
       </div></td>
     </tr>`;
@@ -1271,7 +1324,160 @@ const pauseBtn=isActive
 function statusLabel(s){return{active:'Active',pending:'Pending review',paused:'Paused',rejected:'Rejected',expired:'Expired',occupied:'Occupied'}[s]||s;}
 async function togglePause(id,cs){const l=allListings.find(l=>l.id===id);if(l&&l.is_disabled){showToast('Disabled by admin. Contact admin.','error');return;}if(cs!=='active'){showToast('Only active listings can be paused.','error');return;}const{error}=await db.from('listings').update({status:'paused'}).eq('id',id);if(error){showToast('Could not update','error');return;}if(l)l.status='paused';renderListingsTable();renderOverview();showToast('Listing paused','success');}
 async function renewListing(id){const{error}=await db.from('listings').update({status:'pending'}).eq('id',id);if(error){showToast('Could not renew: '+error.message,'error');return;}const l=allListings.find(l=>l.id===id);if(l)l.status='pending';renderListingsTable();renderOverview();showToast('Resubmitted for approval','success');}
-function shareListing(id){const l=allListings.find(l=>l.id===id);if(!l)return;const url=`${location.origin}${location.pathname.replace(/dashboard\.html$/,'')}listing.html?id=${id}`;window.open(`https://wa.me/?text=${encodeURIComponent(l.title+' — KES '+Number(l.price).toLocaleString('en-KE')+(l.price_type==='rent'?'/mo':'')+' in '+l.area+'\n'+url)}`,'_blank');}
+function shareListing(id){const l=allListings.find(l=>l.id===id);if(!l)return;const url=`${location.origin}${location.pathname.replace(/dashboard\.html$/,'')}listing.html?id=${id}`;window.open(`https://wa.me/?text=${encodeURIComponent(l.title+' — '+(l.is_multi_unit?muPriceRangeText(l):'KES '+Number(l.price).toLocaleString('en-KE')+(l.price_type==='rent'?'/mo':''))+' in '+l.area+'\n'+url)}`,'_blank');}
+
+/* ══════════════════════════════════════
+   MANAGE UNITS MODAL — multi-unit properties
+   ════════════════════════════════════════════════════
+   Opened from either the "Manage units" line in a listing's
+   status notes or its dedicated icon button. Fetches fresh
+   listing_units + occupancy log rows for that listing, then
+   lets the seller mark a unit occupied (optionally recording
+   floor/door/position) or free one up if they made a mistake.
+   This is the seller-facing home for occupancy management —
+   the public listing.html page only ever shows the READ-ONLY
+   availability card to buyers.
+══════════════════════════════════════ */
+async function openManageUnitsModal(listingId){
+  const l=allListings.find(x=>String(x.id)===String(listingId));
+  if(!l){showToast('Listing not found','error');return;}
+  muActiveListingId=listingId;
+  document.getElementById('mu-listing-title').textContent=l.title;
+  document.getElementById('mu-unit-list').innerHTML='<div style="text-align:center;padding:20px;color:var(--text-3);font-size:13px">Loading units…</div>';
+  document.getElementById('mu-summary-strip').innerHTML='';
+  openModal('modal-manage-units');
+
+  // Always pull a fresh copy from the DB rather than trusting the cached
+  // allListings snapshot, since another tab/device could have changed
+  // availability since this page loaded.
+  const{data,error}=await db.from('listing_units').select('*').eq('listing_id',listingId).order('id',{ascending:true});
+  if(error){document.getElementById('mu-unit-list').innerHTML=`<div class="empty-state"><p>Could not load units: ${escHtml(error.message)}</p></div>`;return;}
+  muUnits=data||[];
+  // Keep the cached listing's own copy in sync too, so the table/summary
+  // notes reflect the latest numbers without needing a full reload.
+  l.listing_units=muUnits;
+  renderManageUnitsModal();
+}
+
+function muRenderSummaryStrip(){
+  const totalAvail=muUnits.reduce((s,u)=>s+(u.quantity_available??0),0);
+  const totalUnits=muUnits.reduce((s,u)=>s+(u.quantity_total??u.quantity_available??0),0);
+  const prices=muUnits.map(u=>Number(u.price)).filter(p=>!isNaN(p));
+  const min=prices.length?Math.min(...prices):0,max=prices.length?Math.max(...prices):0;
+  document.getElementById('mu-summary-strip').innerHTML=
+    `<span><strong>${totalAvail}</strong> of <strong>${totalUnits}</strong> units available</span>`+
+    `<span>Price range: <strong>KES ${min.toLocaleString('en-KE')}${min!==max?' – '+max.toLocaleString('en-KE'):''}</strong></span>`;
+}
+
+function renderManageUnitsModal(){
+  if(!muUnits.length){document.getElementById('mu-unit-list').innerHTML='<div class="empty-state"><p>No unit types found for this property.</p></div>';document.getElementById('mu-summary-strip').innerHTML='';return;}
+  muRenderSummaryStrip();
+  document.getElementById('mu-unit-list').innerHTML=muUnits.map(u=>{
+    const available=u.quantity_available??0;
+    const total=u.quantity_total??available;
+    const badgeCls=available<=0?'none':(total&&available/total<=0.2?'low':'');
+    return `
+      <div class="mu-unit-row" id="mu-unit-${u.id}">
+        <div class="mu-unit-row-top">
+          <strong>${escHtml(u.unit_label)}</strong>
+          <span class="mu-badge ${badgeCls}">${available} of ${total} available</span>
+        </div>
+        <div class="mu-unit-actions">
+          <button class="btn btn-primary btn-sm" ${available<=0?'disabled':''} onclick="muToggleOccupyForm(${u.id})">Mark one occupied</button>
+          <button class="btn btn-outline btn-sm" ${available>=total?'disabled':''} onclick="muMarkAvailable(${u.id})">Mark one available</button>
+        </div>
+        <div class="mu-occupy-form" id="mu-occupy-form-${u.id}">
+          <div class="mu-occupy-grid">
+            <div><label>Floor</label><input type="text" id="mu-floor-${u.id}" placeholder="e.g. 2nd floor"/></div>
+            <div><label>Door / unit number</label><input type="text" id="mu-door-${u.id}" placeholder="e.g. Door 4B"/></div>
+            <div><label>Position</label>
+              <select id="mu-pos-${u.id}">
+                <option value="">Not specified</option>
+                <option value="left">Left side</option>
+                <option value="right">Right side</option>
+                <option value="middle">Middle</option>
+                <option value="corner">Corner unit</option>
+                <option value="end">End of corridor</option>
+              </select>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-primary btn-sm" onclick="muConfirmOccupy(${u.id})">Confirm — mark occupied</button>
+            <button class="btn btn-outline btn-sm" onclick="muToggleOccupyForm(${u.id})">Cancel</button>
+          </div>
+        </div>
+        <div class="mu-log" id="mu-log-${u.id}"></div>
+      </div>`;
+  }).join('');
+  muUnits.forEach(u=>muLoadOccupancyLog(u.id));
+}
+
+function muToggleOccupyForm(unitId){document.getElementById(`mu-occupy-form-${unitId}`)?.classList.toggle('open');}
+
+async function muConfirmOccupy(unitId){
+  const floor=document.getElementById(`mu-floor-${unitId}`).value.trim()||null;
+  const door=document.getElementById(`mu-door-${unitId}`).value.trim()||null;
+  const pos=document.getElementById(`mu-pos-${unitId}`).value||null;
+  const unit=muUnits.find(u=>u.id===unitId);
+  if(!unit||(unit.quantity_available??0)<=0)return;
+
+  const newAvailable=unit.quantity_available-1;
+  const{error}=await db.from('listing_units').update({quantity_available:newAvailable}).eq('id',unitId);
+  if(error){showToast('Could not update unit: '+error.message,'error');return;}
+
+  try{
+    await db.from('unit_occupancy_log').insert({listing_unit_id:unitId,listing_id:muActiveListingId,floor,door_number:door,position:pos,action:'occupied'});
+  }catch(e){/* audit table optional — availability update above already succeeded */}
+
+  unit.quantity_available=newAvailable;
+  muSyncListingCache();
+  muToggleOccupyForm(unitId);
+  renderManageUnitsModal();
+  renderListingsTable();renderQuickListings();
+  showToast('Unit marked as occupied — live listing updated ✓','success');
+}
+
+async function muMarkAvailable(unitId){
+  const unit=muUnits.find(u=>u.id===unitId);
+  if(!unit)return;
+  const total=unit.quantity_total??unit.quantity_available;
+  if((unit.quantity_available??0)>=total)return;
+
+  const newAvailable=unit.quantity_available+1;
+  const{error}=await db.from('listing_units').update({quantity_available:newAvailable}).eq('id',unitId);
+  if(error){showToast('Could not update unit: '+error.message,'error');return;}
+
+  try{
+    await db.from('unit_occupancy_log').insert({listing_unit_id:unitId,listing_id:muActiveListingId,action:'freed'});
+  }catch(e){/* audit table optional */}
+
+  unit.quantity_available=newAvailable;
+  muSyncListingCache();
+  renderManageUnitsModal();
+  renderListingsTable();renderQuickListings();
+  showToast('Unit marked as available again ✓','success');
+}
+
+function muSyncListingCache(){
+  const l=allListings.find(x=>String(x.id)===String(muActiveListingId));
+  if(l)l.listing_units=muUnits;
+}
+
+async function muLoadOccupancyLog(unitId){
+  const el=document.getElementById(`mu-log-${unitId}`);
+  if(!el)return;
+  try{
+    const{data,error}=await db.from('unit_occupancy_log').select('*').eq('listing_unit_id',unitId).order('created_at',{ascending:false}).limit(5);
+    if(error||!data||!data.length){el.innerHTML='';return;}
+    el.innerHTML=data.map(row=>{
+      const when=row.created_at?new Date(row.created_at).toLocaleDateString('en-KE',{day:'numeric',month:'short'}):'';
+      const detail=row.action==='occupied'
+        ?[row.floor,row.door_number,row.position].filter(Boolean).join(' · ')||'Marked occupied'
+        :'Marked available again';
+      return `<div class="mu-log-item"><span>${escHtml(detail)}</span><span>${when}</span></div>`;
+    }).join('');
+  }catch(e){el.innerHTML='';}
+}
 
 function openEditModal(id){
   const l=allListings.find(l=>l.id===id);if(!l)return;
@@ -1281,6 +1487,9 @@ function openEditModal(id){
   document.getElementById('edit-county').value=currentCounty;
   nkPopulateEditAreas(currentCounty,currentArea);
   document.getElementById('edit-amenities-grid').innerHTML=AMENITY_KEYS.map(a=>`<label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;padding:7px;background:var(--surface);border-radius:6px"><input type="checkbox" id="edit-${a.key}" ${l[a.key]?'checked':''}/>${a.label}</label>`).join('');
+  if(l.is_multi_unit){
+    showToast('This is a multi-unit property — price/bedroom fields here apply to the property summary only. Use "Manage units" to edit individual unit types.','');
+  }
   openModal('modal-edit');
   if(l.is_disabled)setTimeout(()=>showToast("Disabled by admin. Edits won't make it live — contact admin.",'error'),350);
 }
@@ -1304,6 +1513,7 @@ async function confirmDelete(){
   await db.from('listing_photos').delete().eq('listing_id',deleteTargetId);
   await db.from('enquiries').delete().eq('listing_id',deleteTargetId);
   await db.from('messages').delete().eq('listing_id',deleteTargetId);
+  await db.from('listing_units').delete().eq('listing_id',deleteTargetId);
   const{data,error}=await db.from('listings').delete().eq('id',deleteTargetId).select();
   btn.disabled=false;btn.innerHTML='Delete listing';
   if(error){showToast('Could not delete: '+error.message,'error');return;}
@@ -1402,10 +1612,6 @@ function sendReply(){const text=document.getElementById('reply-text').value.trim
 
 /* ══════════════════════════════════════
    REVIEWS — seller-facing view + response
-   Sellers can see reviews buyers left about
-   them and post ONE public response per review.
-   That response_text is what shows up publicly
-   on pricing.html's testimonials section.
 ══════════════════════════════════════ */
 function starsHtml(n){
   return [1,2,3,4,5].map(i=>`<svg viewBox="0 0 24 24" width="14" height="14" style="${i<=n?'fill:var(--gold);stroke:var(--gold)':'fill:none;stroke:var(--border)'};stroke-width:1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`).join('');
@@ -1485,9 +1691,6 @@ function downloadReceiptPDF(){if(!receiptTarget)return;if(!window.jspdf){showToa
 
 const pageTitles={overview:'Overview',listings:'My listings',messages:'Messages',enquiries:'Enquiries',reviews:'Reviews',payments:'Payments',settings:'Settings'};
 function showPage(name){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));document.getElementById('page-'+name).classList.add('active');const navEl=document.getElementById('nav-'+name);if(navEl)navEl.classList.add('active');document.getElementById('topbar-title').textContent=pageTitles[name]||name;if(name==='overview')renderOverview();if(name==='listings')renderListingsTable();if(name==='messages'){showThreadListMobile();renderThreadList();}if(name==='enquiries')renderEnquiries();if(name==='reviews')renderReviews();if(name==='payments')renderPayments();closeSidebar();
-  // The support widget's FAB sits bottom-right, exactly where the buyer-chat
-  // send button lives — hide it while viewing buyer conversations so it never
-  // blocks that button, and close the widget panel if it happened to be open.
   const scwFabEl=document.getElementById('scw-fab');
   if(scwFabEl){
     if(name==='messages'){
@@ -1512,29 +1715,7 @@ function escHtml(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replac
 function escAttr(s){if(!s)return'';return String(s).replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 
 /* ══════════════════════════════════════
-   SUPPORT CHAT WIDGET v4 — Home / Messages
-   / Tickets / Help.
-
-   Flow: tapping a topic creates ONE ticket
-   (chat_sessions row) and immediately runs a
-   guided, robotic drill-down inside that
-   ticket's thread — pick a topic, pick the
-   specific issue, get the canned answer,
-   then "Did this solve it?":
-     Yes → ticket auto-resolves (closed forever)
-     No  → bot tries one more keyword-matched
-           suggestion before handing off to a
-           human agent; ticket stays open and
-           free-text unlocks
-   The bot also scans a seller's first free-text
-   message after handoff for a likely answer,
-   so it keeps trying to help before an agent
-   ever has to type — but only once, and never
-   after a real human has already replied.
-   Sellers can also hit "Mark resolved" on an
-   open ticket at any time. Resolved/closed
-   tickets are permanently read-only — start a
-   new ticket for further help.
+   SUPPORT CHAT WIDGET v4
 ══════════════════════════════════════ */
 let scwOpen=false,scwTab='home',scwSellerName='',scwSellerInits='',scwTickets=[],scwActiveTicket=null,scwPollTimer=null,scwLoaded=false,scwChannel=null,scwBotBusy=false;
 
@@ -1548,9 +1729,6 @@ const SCW_TOPICS=[
   {id:'other',label:'💬 Something else'},
 ];
 
-// Per-topic drill-down. Each leaf either has an `a` (canned answer, offered
-// with a Yes/No resolve check) or `handoff:true` (skips straight to a human,
-// though the bot will still try one keyword-matched suggestion first).
 const SCW_TREE={
   payments:[
     {label:'My listing still shows trial/pending after paying',a:'Confirmed M-Pesa payments usually reflect within 2–5 minutes. If it\'s been longer, share your M-Pesa reference code and we\'ll trace it.'},
@@ -1566,12 +1744,13 @@ const SCW_TREE={
   ],
   edit_delete:[
     {label:"I can't edit my pending/rejected listing",a:'Editing is locked while a listing awaits admin review, to avoid re-review loops. Once it\'s active or paused, edits unlock from the listings table.'},
-    {label:'How do I mark a listing as sold/occupied?',a:'On <strong>My listings</strong>, use the ✓ icon on an active listing — it hides it from public search but keeps your messages and history.'},
-    {label:'How do I permanently delete a listing?',a:'Use the 🗑 icon on the listing row. This is permanent and removes its messages and enquiries too, so make sure first.'},
+    {label:'How do I mark a listing as sold/occupied?',a:'On <strong>My listings</strong>, use the ✓ icon on an active listing — it hides it from public search but keeps your messages and history. For a multi-unit property, use the purple "Manage units" icon instead to mark individual units.'},
+    {label:'How do I mark one unit occupied in a multi-unit property?',a:'On <strong>My listings</strong>, use the purple grid icon ("Manage units") on that property\'s row. Pick the unit type, tap "Mark one occupied", and optionally note the floor, door number, and position.'},
+    {label:'How do I permanently delete a listing?',a:'Use the 🗑 icon on the listing row. This is permanent and removes its messages, enquiries, and unit types too, so make sure first.'},
     {label:'Something else about editing',handoff:true},
   ],
   pricing:[
-    {label:'How much does a listing cost?',a:'Pricing depends on your plan and listing category — check the trial banner on each listing, or ask an agent for current rates.'},
+    {label:'How much does a listing cost?',a:'Pricing depends on your plan and listing category — check the trial banner on each listing, or ask an agent for current rates. Multi-unit properties pay a base fee plus a small per-unit fee.'},
     {label:'Can I get a refund?',handoff:true},
     {label:'Something else about pricing',handoff:true},
   ],
@@ -1588,7 +1767,6 @@ const SCW_TREE={
   other:[],
 };
 
-// Flat FAQ list for the Help tab AND for the bot's keyword-matched suggestions.
 const SCW_FAQ=(function(){
   var seen={}, out=[];
   Object.keys(SCW_TREE).forEach(function(k){
@@ -1602,8 +1780,6 @@ const SCW_FAQ=(function(){
 function scwName(){return(scwSellerName||'there').split(' ')[0]||'there';}
 function scwTicketRef(t){return t&&t.id?('NK-'+String(t.id).replace(/-/g,'').slice(0,7).toUpperCase()):'—';}
 
-// Very small keyword-overlap matcher — no network, instant, good enough for
-// short support phrasing. Returns the best FAQ hit or null if nothing scores.
 function scwMatchFaq(text){
   if(!text)return null;
   const words=text.toLowerCase().replace(/[^a-z0-9\s]/g,' ').split(/\s+/).filter(w=>w.length>2);
@@ -1705,10 +1881,6 @@ function scwSetTab(tab){
   if(tab==='messages'&&!scwActiveTicket)scwShowInbox();
 }
 
-// Messages tab landing state: a real inbox of every ticket, sorted so
-// unread conversations surface first — not a dead-end that sends you
-// elsewhere. Falls back to a start-a-conversation prompt only when there
-// are truly zero tickets yet.
 function scwShowInbox(){
   document.getElementById('scw-msg-active').style.display='none';
   if(!scwTickets.length){
@@ -1734,16 +1906,12 @@ function scwRenderInboxList(){
   }).join('');
 }
 
-// Keeps every list view (Home's recent card, the Tickets tab, and the
-// Messages inbox) in sync whenever ticket/unread state changes, so a badge
-// or "N new" label never lingers after it's actually been read.
 function scwRefreshListViews(){
   scwRenderRecentTicket();
   if(document.getElementById('scw-view-tickets')?.classList.contains('active'))scwRenderTicketList();
   if(document.getElementById('scw-view-messages')?.classList.contains('active')&&!scwActiveTicket)scwShowInbox();
 }
 
-/* ---- Home tab ---- */
 function scwRenderRecentTicket(){
   const el=document.getElementById('scw-recent-ticket');if(!el)return;
   if(!scwTickets.length){el.innerHTML='<div class="scw-empty-mini">No conversations yet — start one below.</div>';return;}
@@ -1778,7 +1946,6 @@ function scwShowTopicPicker(from){
   if(ctaId)document.getElementById(ctaId).style.display='none';
 }
 
-/* ---- Ticket lifecycle ---- */
 async function scwCreateTicket(topicId,topicLabel){
   const sessionKey=`seller_${currentUser.id}_${Date.now()}`;
   const payload={session_key:sessionKey,session_type:'seller',seller_id:currentUser.id,visitor_name:scwSellerName,page:'dashboard.html',topic:topicLabel,status:'open',is_resolved:false,last_msg_at:new Date().toISOString()};
@@ -1831,7 +1998,6 @@ function scwRenderThreadHead(t){
 }
 function scwBackToInbox(){scwActiveTicket=null;scwShowInbox();}
 
-/* ---- Message + bot rendering (persisted transcript) ---- */
 function scwAppendBubble(sender,body){
   const mc=document.getElementById('scw-msgs');if(!mc)return;
   const isAdmin=sender==='admin';
@@ -1868,7 +2034,6 @@ async function scwPersistBot(ticket,body){
   return data;
 }
 
-/* Robotic drill-down: root menu → leaf answer → resolved check → suggestion → handoff */
 async function scwRunBotMenu(ticket){
   scwBotBusy=true;
   document.getElementById('scw-input-bar').style.display='none';
@@ -1922,9 +2087,6 @@ async function scwResolveByBot(ticketId){
   scwBotBusy=false;
 }
 
-// Tries one keyword-matched suggestion, then one clarifying re-route through
-// the topic menu, before the real human handoff. Each step fires at most
-// once per ticket (_suggested / _clarified) so it never nags or loops.
 async function scwGoToHandoff(ticketOrId,category){
   const ticket=typeof ticketOrId==='string'?scwFindTicket(ticketOrId):ticketOrId;
   if(!ticket)return;
@@ -1969,8 +2131,6 @@ async function scwGoToHandoff(ticketOrId,category){
   document.getElementById('scw-input')?.focus();
 }
 
-// Lets the seller pivot to a different topic mid-conversation (used by the
-// clarifying step above) without spawning a second ticket for the same issue.
 async function scwReRoute(ticketId,topicId,topicLabel){
   const ticket=scwFindTicket(ticketId);if(!ticket||scwBotBusy)return;
   scwBotBusy=true;scwRemoveOptions();
@@ -2010,7 +2170,6 @@ async function scwResolveTicket(id,skipRerender){
   if(!skipRerender)showToast('Ticket marked resolved ✓','success');
 }
 
-/* ---- Tickets tab ---- */
 function scwRenderTicketList(){
   const el=document.getElementById('scw-ticket-list');if(!el)return;
   if(!scwTickets.length){el.innerHTML='<div class="scw-empty-mini">No tickets yet. Tap + New to start one.</div>';return;}
@@ -2022,7 +2181,6 @@ function scwRenderTicketList(){
   }).join('');
 }
 
-/* ---- Free-text messages (after handoff to a human agent) ---- */
 async function scwSend(){
   const t=scwActiveTicket;if(!t||t.status!=='open'||scwBotBusy)return;
   const input=document.getElementById('scw-input');const body=input.value.trim();if(!body)return;
@@ -2031,8 +2189,6 @@ async function scwSend(){
   await scwPersistVisitor(t,body);
   scwRenderRecentTicket();
 
-  // One-shot smart suggestion on the seller's first free-text message, but
-  // only if no real human has replied in this ticket yet.
   const visitorMsgCount=(t._messages||[]).filter(m=>m.sender==='visitor').length;
   const hasHumanReply=(t._messages||[]).some(m=>m.sender==='admin'&&!(t._botMsgs&&t._botMsgs[m.id]));
   if(visitorMsgCount===1&&!t._textSuggested&&!hasHumanReply){
@@ -2065,7 +2221,6 @@ async function scwDismissSuggestion(ticketId){
 function scwKeydown(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();scwSend();}}
 function scwResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,100)+'px';}
 
-/* ---- Help tab (pure FAQ, no chat) ---- */
 function scwRenderHelp(query){
   const el=document.getElementById('scw-faq-list');if(!el)return;
   try{
@@ -2083,10 +2238,6 @@ function scwToggleFaq(i){document.getElementById('scw-faq-'+i)?.classList.toggle
 
 function scwCleanup(){clearInterval(scwPollTimer);if(scwChannel){scwChannel.unsubscribe();scwChannel=null;}}
 
-// Global safety net: if ANYTHING on the page throws (e.g. the Supabase CDN
-// script failing to load, which would otherwise silently blank out every
-// part of this widget that depends on it), show the first such error right
-// inside the Home/Help panels instead of leaving them empty with no clue why.
 let scwFirstError=null;
 window.addEventListener('error',function(e){
   if(scwFirstError)return;
@@ -2096,8 +2247,6 @@ window.addEventListener('error',function(e){
   const help=document.getElementById('scw-faq-list');if(help)help.innerHTML=banner+help.innerHTML;
 });
 
-// Eager, network-independent render so Home/Help are populated the instant
-// the script loads — not only after the widget has been opened once.
 try{scwRenderHomeFaq();scwRenderHelp('');}catch(e){console.error('SCW eager render error:',e);}
 if(window.__scwEarlyErrors&&window.__scwEarlyErrors.length){
   const early=window.__scwEarlyErrors.map(m=>escHtml(m)).join('<br>');
@@ -2109,10 +2258,6 @@ if(window.__scwEarlyErrors&&window.__scwEarlyErrors.length){
 init();
 </script>
 <script>
-// Independent watchdog — runs even if the big inline script above threw
-// partway through and never reached its own error handling. If the widget's
-// core functions/data never materialized, show exactly why instead of a
-// silent blank panel.
 (function(){
   function paint(msg){
     var banner='<div class="scw-empty-mini" style="color:var(--red);border-color:var(--red)">⚠ Widget failed to initialize: '+msg.replace(/</g,'&lt;')+'. Please share this exact message.</div>';
