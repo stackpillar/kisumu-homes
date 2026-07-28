@@ -433,6 +433,15 @@
     /* List pane */
     .acw-list-pane { width: 100%; display: flex; flex-direction: column; min-height: 0; }
     .acw-list-pane.hidden-on-thread { display: none; }
+    .acw-newmsg-row { padding: 10px 12px 0; flex-shrink: 0; }
+    .acw-newmsg-btn {
+      width: 100%; display: flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 9px 12px; border-radius: 8px; border: none; cursor: pointer;
+      background: var(--green); color: white; font-size: 12.5px; font-weight: 600; font-family: inherit;
+      transition: background .15s;
+    }
+    .acw-newmsg-btn:hover { background: var(--green-dark); }
+    .acw-newmsg-btn svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2.4; flex-shrink: 0; }
     .acw-search { padding: 10px 12px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
     .acw-search-inner { position: relative; }
     .acw-search-inner svg { position: absolute; left: 9px; top: 50%; transform: translateY(-50%); width: 13px; height: 13px; stroke: var(--text-3); fill: none; stroke-width: 2; }
@@ -1103,6 +1112,12 @@
   <div class="acw-body">
     <!-- Conversation list pane -->
     <div class="acw-list-pane" id="acw-list-pane">
+      <div class="acw-newmsg-row">
+        <button class="acw-newmsg-btn" onclick="ACW.showNewChat()">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          New message
+        </button>
+      </div>
       <div class="acw-search">
         <div class="acw-search-inner">
           <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
