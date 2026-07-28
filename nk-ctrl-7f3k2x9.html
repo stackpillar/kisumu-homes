@@ -415,8 +415,10 @@
       display: none; align-items: center; justify-content: center; padding: 0 4px;
       border: 2px solid var(--sidebar-bg);
     }
-    .acw-launcher-badge.show { display: flex; }
+    .acw-launcher-badge.show { display: flex; animation: acwBlink 1.4s ease-in-out infinite; }
     .acw-launcher.hide { display: none; }
+
+    @keyframes acwBlink { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
 
     .acw-panel {
       position: fixed; right: 24px; bottom: 24px; z-index: 701;
@@ -475,7 +477,7 @@
       display: flex; align-items: center; gap: 4px;
     }
     .acw-tab.active { background: var(--green); color: white; }
-    .acw-tab-badge { background: var(--red); color: white; font-size: 9px; font-weight: 700; padding: 0 4px; border-radius: 8px; min-width: 14px; text-align: center; }
+    .acw-tab-badge { background: var(--red); color: white; font-size: 9px; font-weight: 700; padding: 0 4px; border-radius: 8px; min-width: 14px; text-align: center; animation: acwBlink 1.4s ease-in-out infinite; }
     .acw-list { flex: 1; overflow-y: auto; }
     .acw-item {
       padding: 10px 14px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background .12s;
@@ -488,7 +490,7 @@
     .acw-item-preview { font-size: 11.5px; color: var(--text-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .acw-item.unread .acw-item-preview { color: var(--text-2); font-weight: 600; }
     .acw-item-meta { display: flex; align-items: center; gap: 5px; margin-top: 4px; }
-    .acw-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--red); flex-shrink: 0; }
+    .acw-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--red); flex-shrink: 0; animation: acwBlink 1.4s ease-in-out infinite; }
     .acw-tag { font-size: 9.5px; padding: 1px 6px; border-radius: 8px; background: var(--surface); color: var(--text-3); border: 1px solid var(--border); }
     .acw-tag.seller { background: var(--blue-light); color: var(--blue); border-color: transparent; }
     .acw-tag.resolved { background: var(--green-light); color: var(--green-dark); border-color: transparent; }
@@ -1139,11 +1141,11 @@
         </div>
       </div>
       <div class="acw-tabs">
-        <button class="acw-tab active" data-filter="all" onclick="ACW.setFilter('all',this)">All</button>
+        <button class="acw-tab active" data-filter="all" onclick="ACW.setFilter('all',this)">All <span class="acw-tab-badge" id="acw-badge-all" style="display:none">0</span></button>
         <button class="acw-tab" data-filter="unread" onclick="ACW.setFilter('unread',this)">Unread <span class="acw-tab-badge" id="acw-badge-unread" style="display:none">0</span></button>
-        <button class="acw-tab" data-filter="open" onclick="ACW.setFilter('open',this)">Open</button>
-        <button class="acw-tab" data-filter="sellers" onclick="ACW.setFilter('sellers',this)">Sellers</button>
-        <button class="acw-tab" data-filter="visitors" onclick="ACW.setFilter('visitors',this)">Visitors</button>
+        <button class="acw-tab" data-filter="open" onclick="ACW.setFilter('open',this)">Open <span class="acw-tab-badge" id="acw-badge-open" style="display:none">0</span></button>
+        <button class="acw-tab" data-filter="sellers" onclick="ACW.setFilter('sellers',this)">Sellers <span class="acw-tab-badge" id="acw-badge-sellers" style="display:none">0</span></button>
+        <button class="acw-tab" data-filter="visitors" onclick="ACW.setFilter('visitors',this)">Visitors <span class="acw-tab-badge" id="acw-badge-visitors" style="display:none">0</span></button>
       </div>
       <div class="acw-list" id="acw-list">
         <div class="acw-spinner"></div>
@@ -3361,6 +3363,27 @@ async function toggleReviewPublish(id, isCurrentlyPublished) {
       const { data } = await db.from('chat_sessions').select('*').order('last_msg_at',{ascending:false, nullsFirst:false});
       sessions = data || [];
       renderList();
+      renderTabBadges();
+    }
+
+    // Per-tab badges count actual unread MESSAGES (sum of unread_admin),
+    // not just "1" per conversation with unread mail — e.g. a seller
+    // thread with 5 unread messages shows "5", not a flat presence dot.
+    function renderTabBadges() {
+      const counts = { all: 0, unread: 0, open: 0, sellers: 0, visitors: 0 };
+      sessions.forEach(s => {
+        const n = s.unread_admin || 0;
+        counts.all += n;
+        if (n > 0) counts.unread += n;
+        if (!s.is_resolved) counts.open += n;
+        if (isSeller(s)) counts.sellers += n; else counts.visitors += n;
+      });
+      Object.entries(counts).forEach(([key, val]) => {
+        const el = document.getElementById('acw-badge-' + key);
+        if (!el) return;
+        el.textContent = val > 99 ? '99+' : val;
+        el.style.display = val > 0 ? 'inline-flex' : 'none';
+      });
     }
 
     function renderList() {
@@ -3427,9 +3450,11 @@ async function toggleReviewPublish(id, isCurrentlyPublished) {
       if (!s) {
         const { data } = await db.from('chat_sessions').select('*').eq('id', id).single();
         s = data || {};
+        if (s.id) sessions.push(s);
       } else {
         s.unread_admin = 0;
       }
+      renderTabBadges();
       document.getElementById('acw-thread-name').textContent = otherLabel(s);
       document.getElementById('acw-thread-meta').textContent = isSeller(s) ? 'Registered seller' : `Visitor · ${(s.page||'').replace('.html','')}`;
 
@@ -3608,11 +3633,13 @@ async function toggleReviewPublish(id, isCurrentlyPublished) {
     async function resolve(id) {
       await db.from('chat_sessions').update({is_resolved:true}).eq('id', id);
       const s = sessions.find(x=>x.id===id); if (s) s.is_resolved=true;
+      renderTabBadges();
       if (activeId===id) openThread(id);
     }
     async function reopen(id) {
       await db.from('chat_sessions').update({is_resolved:false}).eq('id', id);
       const s = sessions.find(x=>x.id===id); if (s) s.is_resolved=false;
+      renderTabBadges();
       if (activeId===id) openThread(id);
     }
 
