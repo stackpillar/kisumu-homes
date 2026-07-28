@@ -3267,6 +3267,8 @@ async function toggleReviewPublish(id, isCurrentlyPublished) {
     let msgChannel = null;
     let globalChannel = null;
     let isOpen = false;
+    let currentSellerId = null;
+    let currentSellerName = null;
 
     function escT(s) { return esc(s); }
 
@@ -3416,10 +3418,21 @@ async function toggleReviewPublish(id, isCurrentlyPublished) {
       document.getElementById('acw-thread-name').textContent = otherLabel(s);
       document.getElementById('acw-thread-meta').textContent = isSeller(s) ? 'Registered seller' : `Visitor · ${(s.page||'').replace('.html','')}`;
 
+      // Seller support sessions are always keyed 'seller_<profileId>_support...'
+      // (see messageSellerInChat/startChatWith/startNewTopicForCurrentSeller).
+      // Pull the seller id back out so "+ New" can target THIS seller with a
+      // guaranteed-fresh session instead of re-finding the one we're already in.
+      const skMatch = (s.session_key || '').match(/^seller_(.+?)_support/);
+      currentSellerId   = skMatch ? skMatch[1] : null;
+      currentSellerName = isSeller(s) ? otherLabel(s) : null;
+
       const resolveBtn = s.is_resolved
         ? `<button class="acw-mini-btn reopen" onclick="ACW.reopen('${id}')">Reopen</button>`
         : `<button class="acw-mini-btn resolve" onclick="ACW.resolve('${id}')">Resolve</button>`;
-      document.getElementById('acw-thread-actions').innerHTML = resolveBtn;
+      const newMsgBtn = currentSellerId
+        ? `<button class="acw-mini-btn" onclick="ACW.startNewTopicForCurrentSeller()">+ New</button>`
+        : `<button class="acw-mini-btn" onclick="ACW.showNewChat()">+ New</button>`;
+      document.getElementById('acw-thread-actions').innerHTML = newMsgBtn + resolveBtn;
 
       document.getElementById('acw-resolved-note').style.display = s.is_resolved ? 'block' : 'none';
       document.getElementById('acw-reply-inner').style.display = s.is_resolved ? 'none' : 'flex';
@@ -3491,6 +3504,24 @@ async function toggleReviewPublish(id, isCurrentlyPublished) {
       }
       hideNewChat();
       openThread(existing.id);
+    }
+
+    // Always spins up a brand-new, empty chat_session for the seller behind
+    // the currently open thread — unlike startChatWith (used by the search
+    // picker), this never finds-and-reopens an existing session, so it can't
+    // land you back in old messages. Used by the "+ New" button that sits
+    // next to Resolve/Reopen inside an open seller conversation.
+    async function startNewTopicForCurrentSeller() {
+      if (!currentSellerId) { toast('Could not identify this seller','error'); return; }
+      const sessionKey = `seller_${currentSellerId}_support_${Date.now()}`;
+      const { data: created, error } = await db.from('chat_sessions').insert({
+        session_key: sessionKey, session_type: 'seller', visitor_name: currentSellerName || 'Seller',
+        page: 'dashboard.html', topic: 'New message from admin', status: 'open',
+        is_resolved: false, last_msg_at: new Date().toISOString(),
+      }).select().single();
+      if (error) { toast('Could not start new message: '+error.message,'error'); return; }
+      toast('New conversation started ✓','success');
+      openThread(created.id);
     }
 
     async function loadMessages(id) {
@@ -3596,6 +3627,7 @@ async function toggleReviewPublish(id, isCurrentlyPublished) {
       open, close, openFullPage, openThread, backToList, setFilter, filterList,
       onInput, onKeyDown, send, resolve, reopen, init,
       showNewChat, hideNewChat, onNewChatInput, searchSellers, startChatWith,
+      startNewTopicForCurrentSeller,
     };
   })();
 
