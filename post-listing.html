@@ -292,6 +292,39 @@
     .unit-type-review-table th, .unit-type-review-table td { text-align:left; font-size:13px; padding:7px 8px; border-bottom:1px solid var(--border); }
     .unit-type-review-table th { color:var(--text-3); font-weight:600; font-size:12px; text-transform:uppercase; letter-spacing:.03em; }
 
+    /* ── Post-submission platform review widget ── */
+    .review-prompt {
+      max-width:440px; margin:0 auto 28px; text-align:left; background:var(--surface);
+      border:1.5px solid var(--border); border-radius:var(--radius-lg); padding:24px 26px;
+    }
+    .review-prompt h3 { font-family:'Playfair Display',serif; font-size:19px; color:var(--text); margin-bottom:6px; text-align:center; }
+    .review-prompt > p.review-prompt-sub { font-size:13px; color:var(--text-3); text-align:center; margin-bottom:18px; line-height:1.6; }
+    .star-rating { display:flex; justify-content:center; gap:6px; margin-bottom:18px; }
+    .star-btn {
+      font-size:32px; line-height:1; color:var(--border); background:none; border:none; cursor:pointer;
+      transition:color .15s, transform .1s; padding:2px 4px;
+    }
+    .star-btn:hover, .star-btn.hovered { transform:scale(1.12); }
+    .star-btn.filled { color:var(--gold); }
+    .review-prompt textarea {
+      width:100%; padding:11px 14px; border:1.5px solid var(--border); border-radius:var(--radius);
+      font-size:14px; color:var(--text); background:white; outline:none; resize:vertical; min-height:80px;
+      line-height:1.6; margin-bottom:14px; font-family:inherit;
+    }
+    .review-prompt textarea:focus { border-color:var(--green); }
+    .btn-review-submit {
+      width:100%; padding:12px; border-radius:var(--radius); background:var(--green); color:white;
+      font-size:14px; font-weight:600; border:none; cursor:pointer; transition:background .15s;
+    }
+    .btn-review-submit:hover { background:var(--green-dark); }
+    .btn-review-submit:disabled { opacity:.6; cursor:not-allowed; }
+    .skip-review-link { display:block; text-align:center; margin-top:12px; font-size:12.5px; color:var(--text-3); cursor:pointer; }
+    .skip-review-link:hover { color:var(--text-2); text-decoration:underline; }
+    .review-thanks {
+      max-width:440px; margin:0 auto 28px; background:var(--green-light); border:1px solid var(--green);
+      border-radius:var(--radius-lg); padding:18px 22px; font-size:14px; color:var(--green-dark); font-weight:600;
+    }
+
     @media(max-width:640px) {
       nav { padding:0 16px; }
       .page-wrap { padding:24px 16px 60px; }
@@ -697,6 +730,26 @@
     <div class="success-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
     <h2>Listing submitted!</h2>
     <p id="success-message">Your property has been saved and is pending review. It will appear publicly once our team approves it.</p>
+
+    <!-- ── Platform review prompt ── -->
+    <div class="review-prompt" id="review-prompt">
+      <h3>How was posting your listing?</h3>
+      <p class="review-prompt-sub">Your feedback helps other sellers and helps us keep improving Nyumba254.</p>
+      <div class="star-rating" id="star-rating">
+        <button type="button" class="star-btn" data-val="1" onclick="setStarRating(1)">★</button>
+        <button type="button" class="star-btn" data-val="2" onclick="setStarRating(2)">★</button>
+        <button type="button" class="star-btn" data-val="3" onclick="setStarRating(3)">★</button>
+        <button type="button" class="star-btn" data-val="4" onclick="setStarRating(4)">★</button>
+        <button type="button" class="star-btn" data-val="5" onclick="setStarRating(5)">★</button>
+      </div>
+      <textarea id="review-comment" placeholder="Tell us about your experience — was it easy to list your property? (optional)" rows="3"></textarea>
+      <button class="btn-review-submit" id="review-submit-btn" onclick="submitPlatformReview()">Submit feedback</button>
+      <span class="skip-review-link" onclick="dismissReviewPrompt()">No thanks, skip this</span>
+    </div>
+    <div class="review-thanks" id="review-thanks" style="display:none">
+      🎉 Thanks for your feedback! It helps us make Nyumba254 better for every seller.
+    </div>
+
     <div class="success-actions">
       <a href="dashboard.html" style="padding:11px 22px;background:var(--green);color:white;border-radius:var(--radius);font-size:14px;font-weight:600">View my listings</a>
       <a href="index.html" style="padding:11px 22px;border:1.5px solid var(--border);border-radius:var(--radius);font-size:14px;font-weight:500;color:var(--text-2)">Back to home</a>
@@ -908,6 +961,8 @@ let currentPlanPrice  = 0;
 let trialEligible     = null;  // true = confirmed eligible, false = confirmed not eligible, null = unknown (not logged in yet)
 let trialSlotsLeft    = 0;
 let currentUser       = null;
+let currentUserName   = '';
+let selectedReviewRating = 0;
 let checkoutRequestId = null;
 let paymentPollTimer  = null;
 
@@ -924,11 +979,12 @@ async function init() {
   if (session) {
     currentUser = session.user;
     document.getElementById('auth-banner').style.display = 'none';
-    const { data: profile } = await db.from('profiles').select('phone').eq('id', currentUser.id).single();
+    const { data: profile } = await db.from('profiles').select('phone, full_name').eq('id', currentUser.id).single();
     if (profile?.phone) {
       const p = profile.phone.startsWith('254') ? '0' + profile.phone.slice(3) : profile.phone;
       document.getElementById('phone').value = p;
     }
+    currentUserName = profile?.full_name || '';
   } else {
     document.getElementById('auth-banner').style.display = 'block';
   }
@@ -1728,6 +1784,57 @@ function finishSubmission() {
   document.getElementById('steps-bar').style.display = 'none';
   document.getElementById('success-screen').style.display = 'block';
   window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ── Platform review widget: lets the seller rate the just-completed
+//    listing flow. Stored as a 'reviews' row with review_type='platform'
+//    and status='draft' — it shows up under Admin → Reviews → Platform
+//    reviews immediately, and (once an admin publishes it) automatically
+//    appears in the testimonials section on pricing.html, since that page
+//    already queries reviews where review_type is platform/seller and
+//    status is published. No changes needed on those two pages.
+function setStarRating(n) {
+  selectedReviewRating = n;
+  document.querySelectorAll('#star-rating .star-btn').forEach((s, i) => {
+    s.classList.toggle('filled', i < n);
+  });
+}
+
+function dismissReviewPrompt() {
+  const prompt = document.getElementById('review-prompt');
+  if (prompt) prompt.style.display = 'none';
+}
+
+async function submitPlatformReview() {
+  if (!selectedReviewRating) {
+    showToast('Please select a star rating first', 'error');
+    return;
+  }
+  const btn = document.getElementById('review-submit-btn');
+  const comment = document.getElementById('review-comment').value.trim();
+  btn.disabled = true;
+  btn.textContent = 'Submitting…';
+
+  try {
+    const { error } = await db.from('reviews').insert({
+      reviewer_name: currentUserName || 'Seller',
+      reviewer_role: 'seller',
+      review_type:   'platform',
+      rating:        selectedReviewRating,
+      comment:       comment || null,
+      status:        'draft',
+      listing_id:    currentListingId || null,
+    });
+    if (error) throw error;
+
+    document.getElementById('review-prompt').style.display = 'none';
+    document.getElementById('review-thanks').style.display = 'block';
+  } catch(err) {
+    console.error('Review submit error:', err);
+    showToast('Could not submit feedback right now — please try again.', 'error');
+    btn.disabled = false;
+    btn.textContent = 'Submit feedback';
+  }
 }
 
 document.addEventListener('keydown', e => {
