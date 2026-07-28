@@ -54,11 +54,6 @@
     .nav-badge { margin-left: auto; background: var(--red); color: white; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 10px; }
     .nav-badge.gold { background: var(--gold); }
     .nav-badge.green { background: var(--green-mid); }
-    .chat-live-badge { margin-left: auto; display: none; align-items: center; gap: 5px; }
-    .chat-live-badge.show { display: flex; }
-    .chat-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--red); flex-shrink: 0; animation: chatPulse 1.4s ease-in-out infinite; }
-    @keyframes chatPulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: .4; transform: scale(.75); } }
-    .chat-dot-count { font-size: 10px; font-weight: 700; color: white; background: var(--red); padding: 1px 5px; border-radius: 8px; line-height: 1.4; }
     .sidebar-footer { padding: 14px 10px; border-top: 1px solid rgba(255,255,255,0.07); }
     .sidebar-user { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 8px; }
     .sidebar-avatar { width: 30px; height: 30px; border-radius: 50%; background: var(--green); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: white; flex-shrink: 0; }
@@ -179,9 +174,6 @@
 
     /* ACTION BUTTONS — desktop */
     .action-btns { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-    /* FIX: buttons styled as "action-btn view" (View/Manage/View details/etc.) share the
-       class name "view" with the page-section switcher rule below (.view{display:none}),
-       which was silently hiding every such button on desktop. This restores them. */
     .action-btns .action-btn { display: inline-flex; align-items: center; justify-content: center; }
     .action-btn { padding: 5px 10px; border-radius: 6px; font-size: 12px; font-weight: 500; transition: all .15s; white-space: nowrap; border: none; cursor: pointer; min-height: 30px; }
     .action-btn.approve { background: var(--green-light); color: var(--green-dark); }
@@ -199,7 +191,6 @@
     .action-btn.upgrade { background: var(--blue-light); color: var(--blue); }
     .action-btn.upgrade:hover { background: var(--blue); color: white; }
 
-    /* ICON-ONLY action buttons (desktop rows) with hover tooltip */
     .action-btns .action-btn.icon {
       width: 30px; height: 30px; padding: 0; border-radius: 8px;
       display: inline-flex; align-items: center; justify-content: center;
@@ -316,17 +307,14 @@
     .modal-body input[type="text"],
     .modal-body input[type="number"],
     .modal-body select,
-    .modal-body input[type="text"],
-.modal-body input[type="number"],
-.modal-body select,
-.modal-body textarea {
-  width: 100%; padding: 10px 12px; border: 1.5px solid var(--border);
-  border-radius: 8px; font-size: 14px; font-family: inherit; color: var(--text);
-  background: var(--white); outline: none;
-  -webkit-appearance: none; appearance: none;   /* ← add standard 'appearance' */
-  min-height: 44px;
-}
-.modal-body textarea { min-height: 80px; resize: vertical; }
+    .modal-body textarea {
+      width: 100%; padding: 10px 12px; border: 1.5px solid var(--border);
+      border-radius: 8px; font-size: 14px; font-family: inherit; color: var(--text);
+      background: var(--white); outline: none;
+      -webkit-appearance: none; appearance: none;
+      min-height: 44px;
+    }
+    .modal-body textarea { min-height: 80px; resize: vertical; }
     .modal-body input:focus, .modal-body select:focus, .modal-body textarea:focus { border-color: var(--green); }
     .modal-body .check-field { display: flex; align-items: center; gap: 10px; padding: 8px 0; }
     .modal-body .check-field input[type="checkbox"] { width: 18px; height: 18px; }
@@ -369,13 +357,10 @@
       .topbar-search { display: none; }
       .revenue-amounts { flex-direction: column; gap: 8px; }
       .rev-item { text-align: left; }
-      /* Tables → hidden on mobile; cards shown */
       .mobile-hide { display: none !important; }
       .mobile-card-list { display: block; }
-      /* Inline action buttons → hidden; dropdown shown */
       .action-btns { display: none; }
       .action-menu-wrap { display: block; }
-      /* Modals full-width bottom sheet */
       .modal { max-width: 100%; border-radius: var(--radius-lg) var(--radius-lg) 0 0; }
       .modal-footer { padding-bottom: max(16px, env(safe-area-inset-bottom)); }
       .filters-row { padding: 10px 12px; }
@@ -384,6 +369,160 @@
     @media (max-width: 480px) {
       .stat-grid { grid-template-columns: 1fr; }
       .revenue-banner { padding: 16px; }
+    }
+
+    /* ══════════════════════════════════════════════════════════════
+       ADMIN CHAT WIDGET — floating chat launcher + panel
+       Embeds a trimmed-down version of admin-chat.html directly on
+       the dashboard. Badge counting/realtime subscriptions run the
+       moment the dashboard loads (independent of whether the panel
+       is open), so unread counts update live without opening chat.
+    ══════════════════════════════════════════════════════════════ */
+    .acw-launcher {
+      position: fixed; right: 24px; bottom: 24px; z-index: 700;
+      display: flex; align-items: center; gap: 10px;
+      background: var(--sidebar-bg); color: white;
+      padding: 13px 20px 13px 16px; border-radius: 999px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.28);
+      cursor: pointer; border: none; font-family: inherit;
+      transition: transform .15s ease, box-shadow .15s ease;
+    }
+    .acw-launcher:hover { transform: translateY(-2px); box-shadow: 0 14px 34px rgba(0,0,0,0.32); }
+    .acw-launcher-icon {
+      width: 30px; height: 30px; border-radius: 50%; background: var(--green);
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0; position: relative;
+    }
+    .acw-launcher-icon svg { width: 15px; height: 15px; stroke: white; fill: none; stroke-width: 2; }
+    .acw-launcher-label { font-size: 13px; font-weight: 600; white-space: nowrap; }
+    .acw-launcher-badge {
+      position: absolute; top: -6px; right: -6px;
+      min-width: 18px; height: 18px; border-radius: 10px;
+      background: var(--red); color: white; font-size: 10px; font-weight: 700;
+      display: none; align-items: center; justify-content: center; padding: 0 4px;
+      border: 2px solid var(--sidebar-bg);
+    }
+    .acw-launcher-badge.show { display: flex; }
+    .acw-launcher.hide { display: none; }
+
+    .acw-panel {
+      position: fixed; right: 24px; bottom: 24px; z-index: 701;
+      width: 380px; height: 620px; max-height: calc(100vh - 48px);
+      background: var(--white); border-radius: var(--radius-lg);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+      display: none; flex-direction: column; overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .acw-panel.open { display: flex; }
+    .acw-head {
+      flex-shrink: 0; background: var(--sidebar-bg); color: white;
+      padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    }
+    .acw-head-title { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; min-width: 0; }
+    .acw-head-title svg { width: 16px; height: 16px; stroke: white; fill: none; stroke-width: 2; flex-shrink: 0; }
+    .acw-head-actions { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+    .acw-icon-btn {
+      width: 28px; height: 28px; border-radius: 7px; background: rgba(255,255,255,0.08);
+      display: flex; align-items: center; justify-content: center; border: none; cursor: pointer;
+      color: rgba(255,255,255,0.8); transition: background .15s, color .15s;
+    }
+    .acw-icon-btn:hover { background: rgba(255,255,255,0.18); color: white; }
+    .acw-icon-btn svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+    .acw-body { flex: 1; display: flex; min-height: 0; }
+
+    /* List pane */
+    .acw-list-pane { width: 100%; display: flex; flex-direction: column; min-height: 0; }
+    .acw-list-pane.hidden-on-thread { display: none; }
+    .acw-search { padding: 10px 12px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+    .acw-search-inner { position: relative; }
+    .acw-search-inner svg { position: absolute; left: 9px; top: 50%; transform: translateY(-50%); width: 13px; height: 13px; stroke: var(--text-3); fill: none; stroke-width: 2; }
+    .acw-search input {
+      width: 100%; padding: 7px 10px 7px 28px; border: 1.5px solid var(--border); border-radius: 8px;
+      font-size: 12.5px; font-family: inherit; background: var(--surface); color: var(--text); outline: none;
+    }
+    .acw-search input:focus { border-color: var(--green); background: white; }
+    .acw-tabs {
+      display: flex; gap: 4px; padding: 8px 12px; border-bottom: 1px solid var(--border);
+      overflow-x: auto; scrollbar-width: none; flex-shrink: 0;
+    }
+    .acw-tabs::-webkit-scrollbar { display: none; }
+    .acw-tab {
+      flex-shrink: 0; padding: 5px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;
+      background: var(--surface); color: var(--text-3); border: none; cursor: pointer; font-family: inherit;
+      display: flex; align-items: center; gap: 4px;
+    }
+    .acw-tab.active { background: var(--green); color: white; }
+    .acw-tab-badge { background: var(--red); color: white; font-size: 9px; font-weight: 700; padding: 0 4px; border-radius: 8px; min-width: 14px; text-align: center; }
+    .acw-list { flex: 1; overflow-y: auto; }
+    .acw-item {
+      padding: 10px 14px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background .12s;
+    }
+    .acw-item:hover, .acw-item:active { background: var(--surface); }
+    .acw-item-top { display: flex; justify-content: space-between; align-items: center; gap: 6px; margin-bottom: 2px; }
+    .acw-item-name { font-size: 12.5px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .acw-item.unread .acw-item-name { font-weight: 700; }
+    .acw-item-time { font-size: 10.5px; color: var(--text-3); flex-shrink: 0; }
+    .acw-item-preview { font-size: 11.5px; color: var(--text-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .acw-item.unread .acw-item-preview { color: var(--text-2); font-weight: 600; }
+    .acw-item-meta { display: flex; align-items: center; gap: 5px; margin-top: 4px; }
+    .acw-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--red); flex-shrink: 0; }
+    .acw-tag { font-size: 9.5px; padding: 1px 6px; border-radius: 8px; background: var(--surface); color: var(--text-3); border: 1px solid var(--border); }
+    .acw-tag.seller { background: var(--blue-light); color: var(--blue); border-color: transparent; }
+    .acw-tag.resolved { background: var(--green-light); color: var(--green-dark); border-color: transparent; }
+    .acw-empty { padding: 30px 16px; text-align: center; color: var(--text-3); font-size: 12.5px; }
+
+    /* Thread pane */
+    .acw-thread-pane { width: 100%; display: none; flex-direction: column; min-height: 0; }
+    .acw-thread-pane.active { display: flex; }
+    .acw-thread-head {
+      padding: 9px 12px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; flex-shrink: 0;
+    }
+    .acw-back-btn { background: none; border: none; cursor: pointer; color: var(--text-2); padding: 4px; display: flex; flex-shrink: 0; }
+    .acw-back-btn svg { width: 17px; height: 17px; stroke: currentColor; fill: none; stroke-width: 2; }
+    .acw-thread-info { min-width: 0; flex: 1; }
+    .acw-thread-name { font-size: 12.5px; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .acw-thread-meta { font-size: 10.5px; color: var(--text-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .acw-thread-actions { display: flex; gap: 5px; flex-shrink: 0; }
+    .acw-mini-btn {
+      font-size: 10.5px; font-weight: 600; padding: 5px 8px; border-radius: 6px; cursor: pointer;
+      border: 1.5px solid var(--border); background: white; color: var(--text-2); font-family: inherit;
+    }
+    .acw-mini-btn.resolve { border-color: var(--green); color: var(--green); }
+    .acw-mini-btn.reopen { border-color: var(--gold); color: var(--gold); }
+
+    .acw-messages { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+    .acw-msg-wrap { display: flex; flex-direction: column; max-width: 84%; }
+    .acw-msg-wrap.admin { align-self: flex-end; align-items: flex-end; }
+    .acw-msg-wrap.visitor { align-self: flex-start; align-items: flex-start; }
+    .acw-msg-bubble { padding: 8px 11px; font-size: 12.5px; line-height: 1.5; border-radius: 12px; word-break: break-word; }
+    .acw-msg-bubble.visitor { background: var(--surface); border: 1px solid var(--border); border-radius: 12px 12px 12px 2px; color: var(--text); }
+    .acw-msg-bubble.admin { background: var(--green); color: white; border-radius: 12px 12px 2px 12px; }
+    .acw-msg-time { font-size: 10px; color: var(--text-3); margin-top: 2px; padding: 0 2px; }
+
+    .acw-reply-bar { border-top: 1px solid var(--border); padding: 8px 10px; flex-shrink: 0; }
+    .acw-reply-inner { display: flex; align-items: flex-end; gap: 6px; }
+    .acw-reply-inner textarea {
+      flex: 1; padding: 8px 11px; border: 1.5px solid var(--border); border-radius: 14px;
+      font-size: 12.5px; font-family: inherit; background: var(--surface); color: var(--text);
+      outline: none; resize: none; min-height: 36px; max-height: 90px; line-height: 1.4;
+    }
+    .acw-reply-inner textarea:focus { border-color: var(--green); background: white; }
+    .acw-send-btn {
+      width: 36px; height: 36px; border-radius: 50%; background: var(--green); border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .acw-send-btn:disabled { opacity: .5; cursor: not-allowed; }
+    .acw-send-btn svg { width: 14px; height: 14px; stroke: white; fill: none; stroke-width: 2.5; }
+    .acw-resolved-note { text-align: center; padding: 8px; font-size: 11.5px; color: var(--text-3); background: var(--surface); border-radius: 8px; }
+
+    .acw-spinner { width: 22px; height: 22px; border: 2.5px solid var(--border); border-top-color: var(--green); border-radius: 50%; animation: acwspin .7s linear infinite; margin: 30px auto; display: block; }
+    @keyframes acwspin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 480px) {
+      .acw-panel { right: 8px; left: 8px; bottom: 8px; width: auto; height: calc(100vh - 16px); max-height: none; }
+      .acw-launcher { right: 14px; bottom: 14px; }
+      .acw-launcher-label { display: none; }
+      .acw-launcher { padding: 12px; }
     }
   </style>
 </head>
@@ -462,12 +601,6 @@
       <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.12 1.2 2 2 0 012.11 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>
       Contact reveals
     </button>
-    <div class="nav-section-label" style="margin-top:8px">Comms</div>
-    <a href="admin-chat.html" class="nav-item" id="nav-livechat">
-      <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-      Live chat
-      <span class="chat-live-badge" id="chat-live-badge"><span class="chat-dot"></span><span class="chat-dot-count" id="chat-unread-count">0</span></span>
-    </a>
     <div class="nav-section-label" style="margin-top:8px">Analytics</div>
     <button class="nav-item" data-view="analytics" onclick="showView('analytics')">
       <svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M18.7 8l-5.1 5.2-4-4L3 13.9"/></svg>
@@ -611,14 +744,12 @@
           <button class="action-btn reject"  onclick="bulkReject()">Reject selected</button>
           <button class="action-btn view"    onclick="bulkRecycle()">Move to recycle bin</button>
         </div>
-        <!-- Desktop table -->
         <div class="table-wrap mobile-hide">
           <table>
             <thead><tr><th><input type="checkbox" onchange="toggleSelectAllListings(this.checked)"/></th><th>Property</th><th>Location</th><th>Price</th><th>Category</th><th>Status</th><th>Payment</th><th>Posted</th><th>Actions</th></tr></thead>
             <tbody id="all-listings-body"><tr class="skeleton-row"><td colspan="9"><div class="skel"></div></td></tr></tbody>
           </table>
         </div>
-        <!-- Mobile cards -->
         <div class="mobile-card-list" id="all-listings-mobile"></div>
       </div>
     </div>
@@ -922,6 +1053,84 @@
 
 <div class="toast" id="toast"></div>
 
+<!-- ══════════════════════════════════════════════════════════════
+     ADMIN CHAT WIDGET — floating launcher + panel
+     Matches the "Admin Chat Center" launcher: a rounded pill button
+     bottom-right with a chat icon and an unread badge. Opening it
+     reveals a compact panel with just two header controls (expand
+     to full page, close) — no duplicated branding/back-link bars.
+══════════════════════════════════════════════════════════════ -->
+<button class="acw-launcher" id="acw-launcher" onclick="ACW.open()">
+  <span class="acw-launcher-icon">
+    <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+    <span class="acw-launcher-badge" id="acw-launcher-badge">0</span>
+  </span>
+  <span class="acw-launcher-label">Admin Chat Center</span>
+</button>
+
+<div class="acw-panel" id="acw-panel">
+  <div class="acw-head">
+    <div class="acw-head-title">
+      <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+      <span>Admin Chat Center</span>
+    </div>
+    <div class="acw-head-actions">
+      <button class="acw-icon-btn" title="Open in full page" onclick="ACW.openFullPage()">
+        <svg viewBox="0 0 24 24"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg>
+      </button>
+      <button class="acw-icon-btn" title="Close" onclick="ACW.close()">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="acw-body">
+    <!-- Conversation list pane -->
+    <div class="acw-list-pane" id="acw-list-pane">
+      <div class="acw-search">
+        <div class="acw-search-inner">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="acw-search-input" placeholder="Search conversations…" oninput="ACW.filterList()"/>
+        </div>
+      </div>
+      <div class="acw-tabs">
+        <button class="acw-tab active" data-filter="all" onclick="ACW.setFilter('all',this)">All</button>
+        <button class="acw-tab" data-filter="unread" onclick="ACW.setFilter('unread',this)">Unread <span class="acw-tab-badge" id="acw-badge-unread" style="display:none">0</span></button>
+        <button class="acw-tab" data-filter="open" onclick="ACW.setFilter('open',this)">Open</button>
+        <button class="acw-tab" data-filter="sellers" onclick="ACW.setFilter('sellers',this)">Sellers</button>
+        <button class="acw-tab" data-filter="visitors" onclick="ACW.setFilter('visitors',this)">Visitors</button>
+      </div>
+      <div class="acw-list" id="acw-list">
+        <div class="acw-spinner"></div>
+      </div>
+    </div>
+
+    <!-- Active thread pane -->
+    <div class="acw-thread-pane" id="acw-thread-pane">
+      <div class="acw-thread-head">
+        <button class="acw-back-btn" onclick="ACW.backToList()">
+          <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <div class="acw-thread-info">
+          <div class="acw-thread-name" id="acw-thread-name">Visitor</div>
+          <div class="acw-thread-meta" id="acw-thread-meta"></div>
+        </div>
+        <div class="acw-thread-actions" id="acw-thread-actions"></div>
+      </div>
+      <div class="acw-messages" id="acw-messages"><div class="acw-spinner"></div></div>
+      <div class="acw-reply-bar" id="acw-reply-bar">
+        <div class="acw-resolved-note" id="acw-resolved-note" style="display:none">✓ Resolved. Reopen to reply.</div>
+        <div class="acw-reply-inner" id="acw-reply-inner">
+          <textarea id="acw-reply-input" rows="1" placeholder="Type your reply…" oninput="ACW.onInput(this)" onkeydown="ACW.onKeyDown(event)"></textarea>
+          <button class="acw-send-btn" id="acw-send-btn" onclick="ACW.send()" disabled>
+            <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
   const SUPABASE_URL = 'https://vliuuloyfhyxcsuchpss.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_oIIcecf3wzKMual5K24Z8Q_zmxVfgsx';
@@ -930,8 +1139,6 @@
 
   const TRIAL_DAYS = 14;
 
-  // ── Kenya's 47 counties + the areas we currently cover per county ──
-  // (kept in sync with the same data structure used on index.html)
   const NK_COUNTIES = [
     "Mombasa","Kwale","Kilifi","Tana River","Lamu","Taita-Taveta","Garissa","Wajir","Mandera",
     "Marsabit","Isiolo","Meru","Tharaka-Nithi","Embu","Kitui","Machakos","Makueni","Nyandarua",
@@ -993,7 +1200,6 @@
 
   function nkAreaCountFor(county) { return (NK_AREAS_BY_COUNTY[county] || []).length; }
 
-  // Populate the county filter dropdown (Listings view) and cascade areas on change
   function populateCountyFilter() {
     const sel = document.getElementById('filter-county');
     if (!sel) return;
@@ -1031,8 +1237,6 @@
       .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
   }
 
-  // ── Multi-unit helpers — mirrors the logic used on dashboard.html so
-  // price/unit info renders consistently across seller and admin views. ──
   function fmtListingPrice(l) {
     if (!l.is_multi_unit) return fmtPrice(l.price) + (l.price_type==='rent'?'/mo':'');
     const units = l.listing_units || [];
@@ -1050,9 +1254,6 @@
     return `<span class="badge multiunit" title="${totalAvail} of ${totalUnits} available">Multi-unit${totalUnits?` · ${totalUnits}`:''}</span>`;
   }
 
-  // ─── Icon-only action button helper ───
-  // Renders a compact icon button with a CSS hover tooltip (see [data-tip] rules)
-  // instead of a full text label, so a row of actions doesn't eat up column width.
   const ICONS = {
     view:     '<circle cx="12" cy="12" r="3"/><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>',
     edit:     '<path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/>',
@@ -1135,20 +1336,6 @@
     } catch(e) {}
   }
 
-  async function loadChatBadge() {
-    const { data } = await db.from('chat_sessions').select('unread_admin').eq('is_resolved', false);
-    const total = (data||[]).reduce((s,r) => s + (r.unread_admin||0), 0);
-    document.getElementById('chat-unread-count').textContent = total;
-    document.getElementById('chat-live-badge').classList.toggle('show', total > 0);
-  }
-  function subscribeChatBadge() {
-    db.channel('admin-chat-badge-watch')
-      .on('postgres_changes', {event:'*', schema:'public', table:'chat_sessions'}, loadChatBadge)
-      .on('postgres_changes', {event:'INSERT', schema:'public', table:'chat_messages'}, p => {
-        if (p.new.sender === 'visitor') loadChatBadge();
-      }).subscribe();
-  }
-
   // ════════════════════════════════════
   // OVERVIEW
   // ════════════════════════════════════
@@ -1187,9 +1374,6 @@
     document.getElementById('rev-featured').textContent = `KES ${(featCnt*1500).toLocaleString()}`;
     document.getElementById('rev-total').textContent    = `KES ${rev.toLocaleString()}`;
 
-    // Listings-by-county breakdown: count active listings for every county that
-    // has at least one, sorted highest first (top 8 shown). Falls back to
-    // grouping by area for rows where county wasn't set (pre-migration data).
     const { data: activeRows } = await db.from('listings').select('county,area').eq('status','active').eq('recycle_bin',false);
     const countyCounts = {};
     (activeRows||[]).forEach(r => {
@@ -1501,14 +1685,6 @@
     loadOverview(); if(currentView==='listings') loadAllListings();
   }
 
-  // ─── UPGRADE (trial → paid Standard/Featured) ───
-  // Sellers on a free trial see an "Upgrade now" prompt in their dashboard that
-  // messages the admin. This is where that request actually gets processed —
-  // it clears the trial, sets the plan, marks payment confirmed if the admin
-  // has received it (e.g. via M-Pesa outside the platform), and logs a payment
-  // row so it's reflected in Payments/Revenue immediately. For multi-unit
-  // properties, the base+per-unit fee (see post-listing.html) still applies —
-  // this admin flow just records manual/offline confirmation of that amount.
   function openUpgradeModal(id) {
     const l = _listings[id]; if(!l) return;
     upgradingListingId = id;
@@ -1766,8 +1942,6 @@
       <div class="field check-field"><input type="checkbox" id="el-is_featured" ${l.is_featured?'checked':''}/><label for="el-is_featured">Featured</label></div>`;
     document.getElementById('edit-listing-modal').classList.add('open');
   }
-  // Areas are only known for counties in NK_AREAS_BY_COUNTY (Kisumu today,
-  // plus whatever's been added since). Elsewhere, fall back to free text.
   function buildEditAreaField(county, currentArea) {
     const areas = NK_AREAS_BY_COUNTY[county];
     if (areas && areas.length) {
@@ -1785,7 +1959,6 @@
     const currentAreaInput = document.getElementById('el-area');
     const currentVal = currentAreaInput ? currentAreaInput.value : '';
     wrap.innerHTML = `<label>Area</label>${buildEditAreaField(county, '')}`;
-    // Preserve typed value if switching between two counties with free-text areas
     const newAreaInput = document.getElementById('el-area');
     if (newAreaInput && newAreaInput.tagName === 'INPUT' && currentVal) newAreaInput.value = currentVal;
   }
@@ -1903,10 +2076,6 @@ async function loadUsers() {
 
     rows.forEach(u => { _users[u.id] = u; });
 
-    const msgBadge = (count) => count > 0
-      ? `<span class="seller-msg-badge">${count}</span>`
-      : '';
-
     tbody.innerHTML = rows.map(u => {
       const ini = (u.full_name || '?').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
       return `<tr>
@@ -2003,7 +2172,8 @@ async function messageSellerInChat(sellerId, sellerName) {
       if (error) { toast('Could not open chat: ' + error.message, 'error'); return; }
       existing = created;
     }
-    window.open(`admin-chat.html?session=${existing.id}`, '_blank');
+    ACW.open();
+    ACW.openThread(existing.id);
   }
 
   // ─── PROFILE MODAL ───
@@ -2062,7 +2232,7 @@ async function messageSellerInChat(sellerId, sellerName) {
     const {error}=await db.from('profiles').update({is_disabled:true,disabled_reason:reason}).eq('id',id);
     if(error){toast('Error','error');return;}
     logAction('suspend_profile','profile',id,reason); toast('Account suspended','success');
-    if (u => _users[id]) { const u=_users[id]; if(u){ u.is_disabled=true; u.disabled_reason=reason; } }
+    const u=_users[id]; if(u){ u.is_disabled=true; u.disabled_reason=reason; }
     if (currentView==='users') loadUsers();
     if (currentView==='reports') renderReportsTable();
   }
@@ -2193,7 +2363,7 @@ async function messageSellerInChat(sellerId, sellerName) {
 
     tbody.innerHTML = filtered.map(i => {
       const actionBtn = (i.type==='site_chat'||i.type==='seller_chat')
-        ? `<div class="action-btns">${aBtn('chat','Open chat','message',`window.open('admin-chat.html?session=${i.sessionId}','_blank')`)}</div>`
+        ? `<div class="action-btns">${aBtn('chat','Open chat','message',`ACW.open();ACW.openThread('${i.sessionId}')`)}</div>`
         : `<div class="action-btns">${aBtn('view','View conversation','view',`openInquiryModal('${i.id}')`)}</div>`;
       const unreadDot = i.unread ? `<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--red);margin-right:7px;flex-shrink:0"></span>` : '';
       return `<tr>
@@ -2208,7 +2378,7 @@ async function messageSellerInChat(sellerId, sellerName) {
 
     mobileEl.innerHTML = filtered.map(i => {
       const actionBtn = (i.type==='site_chat'||i.type==='seller_chat')
-        ? aBtn('chat','Open chat','message',`window.open('admin-chat.html?session=${i.sessionId}','_blank')`)
+        ? aBtn('chat','Open chat','message',`ACW.open();ACW.openThread('${i.sessionId}')`)
         : aBtn('view','View','view',`openInquiryModal('${i.id}')`);
       const unreadDot = i.unread ? `<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--red);margin-right:6px;flex-shrink:0"></span>` : '';
       return `<div class="mobile-card">
@@ -2609,10 +2779,6 @@ async function messageSellerInChat(sellerId, sellerName) {
       const respondBtn = canRespond
         ? aBtn('edit', r.response_text ? 'Edit response' : 'Respond', 'view', `openReviewRespondModal('${r.id}')`)
         : '';
-      /* FIX: buttons must be wrapped in .action-btns to get the override that
-         keeps them visible on desktop (see the .action-btns .action-btn rule
-         above) — without it, the "view" class collides with the page-switcher's
-         .view{display:none} rule and the button vanishes. */
       return `<tr>
         <td style="white-space:nowrap;font-size:13px">${stars(r.rating)}</td>
         <td>${esc(r.reviewer_name||(r.reviewer_role==='seller'?'Seller':'Buyer'))}<div class="listing-meta" style="text-transform:capitalize">${esc(r.reviewer_role)}</div></td>
@@ -2694,13 +2860,7 @@ async function toggleReviewPublish(id, isCurrentlyPublished) {
   }
 
   // ════════════════════════════════════
-  // CONTACT REVEALS — moderation for the click-to-reveal contact
-  // protection on listing.html. Every successful phone/WhatsApp reveal
-  // is logged (device id, listing, channel, time) but the raw data lives
-  // behind SECURITY DEFINER RPCs that check for an admin role — see
-  // contact-reveal-admin-panel.sql. "Most active" surfaces devices with
-  // unusually high reveal counts (likely scrapers); "Blocked devices"
-  // lists ones an admin has already cut off.
+  // CONTACT REVEALS
   // ════════════════════════════════════
   let _contactReveals = [];
   let _blockedDevices = [];
@@ -3040,16 +3200,268 @@ async function toggleReviewPublish(id, isCurrentlyPublished) {
     if (el) el.textContent = total;
   }
 
+  // ══════════════════════════════════════════════════════════════
+  // ACW — Admin Chat Widget
+  // A trimmed, embedded version of admin-chat.html. Runs its badge
+  // + realtime subscriptions from the moment the dashboard loads,
+  // regardless of whether the panel itself is ever opened, so the
+  // launcher badge reflects new messages instantly.
+  // ══════════════════════════════════════════════════════════════
+  const ACW = (() => {
+    let sessions = [];
+    let activeId = null;
+    let messages = [];
+    let filter = 'all';
+    let search = '';
+    let msgChannel = null;
+    let globalChannel = null;
+    let isOpen = false;
+
+    function escT(s) { return esc(s); }
+
+    function isSeller(s) {
+      if (!s) return false;
+      if (s.session_type === 'seller') return true;
+      if ((s.session_key||'').startsWith('seller_')) return true;
+      if (s.visitor_name && s.visitor_name.trim()) return true;
+      return false;
+    }
+    function otherLabel(s) {
+      return (s && s.visitor_name && s.visitor_name.trim()) ? s.visitor_name.trim() : 'Visitor';
+    }
+    function timeAgo(iso) {
+      const m = Math.floor((Date.now()-new Date(iso))/60000);
+      if (m<1) return 'now'; if (m<60) return `${m}m`;
+      const h = Math.floor(m/60); if (h<24) return `${h}h`;
+      const d = Math.floor(h/24); if (d<7) return `${d}d`;
+      return new Date(iso).toLocaleDateString('en-KE',{day:'numeric',month:'short'});
+    }
+
+    async function refreshBadge() {
+      const { data } = await db.from('chat_sessions').select('unread_admin').eq('is_resolved', false);
+      const total = (data||[]).reduce((s,r)=>s+(r.unread_admin||0),0);
+      const badge = document.getElementById('acw-launcher-badge');
+      badge.textContent = total > 99 ? '99+' : total;
+      badge.classList.toggle('show', total > 0);
+      const unreadTab = document.getElementById('acw-badge-unread');
+      if (unreadTab) {
+        unreadTab.textContent = total;
+        unreadTab.style.display = total > 0 ? 'inline-flex' : 'none';
+      }
+      document.title = total > 0 ? `(${total}) Admin — Nyumba254` : 'Admin Dashboard — Nyumba254';
+    }
+
+    function subscribeGlobal() {
+      if (globalChannel) globalChannel.unsubscribe();
+      globalChannel = db.channel('acw-global-watch')
+        .on('postgres_changes', {event:'*', schema:'public', table:'chat_sessions'}, () => {
+          refreshBadge();
+          if (isOpen) loadList();
+        })
+        .on('postgres_changes', {event:'INSERT', schema:'public', table:'chat_messages'}, p => {
+          if (p.new.sender !== 'admin') {
+            refreshBadge();
+            if (isOpen) loadList();
+          }
+        })
+        .subscribe();
+    }
+
+    async function loadList() {
+      const { data } = await db.from('chat_sessions').select('*').order('last_msg_at',{ascending:false, nullsFirst:false});
+      sessions = data || [];
+      renderList();
+    }
+
+    function renderList() {
+      const listEl = document.getElementById('acw-list');
+      let filtered = sessions.filter(s => {
+        if (filter==='unread')   return (s.unread_admin||0) > 0;
+        if (filter==='open')     return !s.is_resolved;
+        if (filter==='sellers')  return isSeller(s);
+        if (filter==='visitors') return !isSeller(s);
+        return true;
+      });
+      if (search.trim()) {
+        const q = search.toLowerCase();
+        filtered = filtered.filter(s => (s.visitor_name||'').toLowerCase().includes(q) || (s.page||'').toLowerCase().includes(q));
+      }
+      if (!filtered.length) {
+        listEl.innerHTML = `<div class="acw-empty">No conversations found</div>`;
+        return;
+      }
+      listEl.innerHTML = filtered.map(s => {
+        const seller = isSeller(s);
+        const name = otherLabel(s);
+        const unread = (s.unread_admin||0) > 0;
+        return `<div class="acw-item${unread?' unread':''}" onclick="ACW.openThread('${s.id}')">
+          <div class="acw-item-top">
+            <span class="acw-item-name">${escT(name)}</span>
+            <span class="acw-item-time">${s.last_msg_at?timeAgo(s.last_msg_at):''}</span>
+          </div>
+          <div class="acw-item-preview">${s.is_resolved?'Resolved conversation':(unread?`${s.unread_admin} new message(s)`:'Tap to view')}</div>
+          <div class="acw-item-meta">
+            ${unread?'<span class="acw-dot"></span>':''}
+            <span class="acw-tag ${seller?'seller':''}">${seller?'Seller':'Visitor'}</span>
+            ${s.is_resolved?'<span class="acw-tag resolved">Resolved</span>':''}
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    function setFilter(f, btn) {
+      filter = f;
+      document.querySelectorAll('.acw-tab').forEach(t=>t.classList.remove('active'));
+      btn.classList.add('active');
+      renderList();
+    }
+    function filterList() {
+      search = document.getElementById('acw-search-input').value;
+      renderList();
+    }
+
+    async function openThread(id) {
+      activeId = id;
+      await db.from('chat_sessions').update({unread_admin:0}).eq('id', id);
+      const sess = sessions.find(s=>s.id===id);
+      if (sess) sess.unread_admin = 0;
+      refreshBadge();
+
+      document.getElementById('acw-list-pane').classList.add('hidden-on-thread');
+      document.getElementById('acw-thread-pane').classList.add('active');
+
+      const s = sess || {};
+      document.getElementById('acw-thread-name').textContent = otherLabel(s);
+      document.getElementById('acw-thread-meta').textContent = isSeller(s) ? 'Registered seller' : `Visitor · ${(s.page||'').replace('.html','')}`;
+
+      const resolveBtn = s.is_resolved
+        ? `<button class="acw-mini-btn reopen" onclick="ACW.reopen('${id}')">Reopen</button>`
+        : `<button class="acw-mini-btn resolve" onclick="ACW.resolve('${id}')">Resolve</button>`;
+      document.getElementById('acw-thread-actions').innerHTML = resolveBtn;
+
+      document.getElementById('acw-resolved-note').style.display = s.is_resolved ? 'block' : 'none';
+      document.getElementById('acw-reply-inner').style.display = s.is_resolved ? 'none' : 'flex';
+
+      await loadMessages(id);
+      subscribeMessages(id);
+    }
+
+    function backToList() {
+      document.getElementById('acw-list-pane').classList.remove('hidden-on-thread');
+      document.getElementById('acw-thread-pane').classList.remove('active');
+      activeId = null;
+      if (msgChannel) { msgChannel.unsubscribe(); msgChannel = null; }
+      loadList();
+    }
+
+    async function loadMessages(id) {
+      const wrap = document.getElementById('acw-messages');
+      wrap.innerHTML = '<div class="acw-spinner"></div>';
+      const { data } = await db.from('chat_messages').select('*').eq('session_id', id).order('created_at',{ascending:true});
+      messages = data || [];
+      renderMessages();
+      const unreadIds = messages.filter(m=>m.sender!=='admin' && !m.read_at).map(m=>m.id);
+      if (unreadIds.length) await db.from('chat_messages').update({read_at:new Date().toISOString()}).in('id',unreadIds);
+    }
+
+    function renderMessages() {
+      const wrap = document.getElementById('acw-messages');
+      if (!messages.length) {
+        wrap.innerHTML = `<div class="acw-empty">No messages yet — say hello.</div>`;
+        return;
+      }
+      wrap.innerHTML = messages.map(m => {
+        const time = new Date(m.created_at).toLocaleTimeString('en-KE',{hour:'2-digit',minute:'2-digit'});
+        return `<div class="acw-msg-wrap ${m.sender}">
+          <div class="acw-msg-bubble ${m.sender}">${escT(m.body)}</div>
+          <div class="acw-msg-time">${time}</div>
+        </div>`;
+      }).join('');
+      wrap.scrollTop = wrap.scrollHeight;
+    }
+
+    function subscribeMessages(id) {
+      if (msgChannel) msgChannel.unsubscribe();
+      msgChannel = db.channel(`acw-msgs-${id}`)
+        .on('postgres_changes', {event:'INSERT', schema:'public', table:'chat_messages', filter:`session_id=eq.${id}`}, payload => {
+          const m = payload.new;
+          if (messages.find(x=>x.id===m.id)) return;
+          messages.push(m);
+          renderMessages();
+          if (m.sender !== 'admin') db.from('chat_messages').update({read_at:new Date().toISOString()}).eq('id', m.id);
+        })
+        .subscribe();
+    }
+
+    function onInput(el) {
+      document.getElementById('acw-send-btn').disabled = !el.value.trim();
+      el.style.height = 'auto';
+      el.style.height = Math.min(el.scrollHeight, 90) + 'px';
+    }
+    function onKeyDown(e) {
+      if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); send(); }
+    }
+
+    async function send() {
+      const input = document.getElementById('acw-reply-input');
+      const body = input.value.trim();
+      if (!body || !activeId) return;
+      const btn = document.getElementById('acw-send-btn');
+      btn.disabled = true; input.value=''; input.style.height='auto';
+
+      const { data: msg, error } = await db.from('chat_messages').insert({session_id:activeId, sender:'admin', body}).select().single();
+      if (error) { toast('Failed to send','error'); btn.disabled=false; return; }
+      messages.push(msg); renderMessages();
+      await db.from('chat_sessions').update({last_msg_at:new Date().toISOString()}).eq('id', activeId);
+      const sess = sessions.find(s=>s.id===activeId);
+      if (sess) sess.last_msg_at = new Date().toISOString();
+      input.focus();
+    }
+
+    async function resolve(id) {
+      await db.from('chat_sessions').update({is_resolved:true}).eq('id', id);
+      const s = sessions.find(x=>x.id===id); if (s) s.is_resolved=true;
+      if (activeId===id) openThread(id);
+    }
+    async function reopen(id) {
+      await db.from('chat_sessions').update({is_resolved:false}).eq('id', id);
+      const s = sessions.find(x=>x.id===id); if (s) s.is_resolved=false;
+      if (activeId===id) openThread(id);
+    }
+
+    function open() {
+      document.getElementById('acw-panel').classList.add('open');
+      document.getElementById('acw-launcher').classList.add('hide');
+      isOpen = true;
+      loadList();
+    }
+    function close() {
+      document.getElementById('acw-panel').classList.remove('open');
+      document.getElementById('acw-launcher').classList.remove('hide');
+      isOpen = false;
+      backToList();
+    }
+    function openFullPage() {
+      window.open('admin-chat.html' + (activeId ? `?session=${activeId}` : ''), '_blank');
+    }
+
+    function init() {
+      refreshBadge();
+      subscribeGlobal();
+    }
+
+    return { open, close, openFullPage, openThread, backToList, setFilter, filterList, onInput, onKeyDown, send, resolve, reopen, init };
+  })();
+
   // ─── INIT ───
   async function init() {
     await checkAuth();
     populateCountyFilter();
     loadOverview();
-    loadChatBadge();
-    subscribeChatBadge();
     loadEnquiriesBadge();
     loadReportsBadge();
     loadReviewsBadge();
+    ACW.init();
   }
   init();
 </script>
