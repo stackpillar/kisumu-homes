@@ -1585,6 +1585,18 @@ async function submitListing() {
     currentListingId = listing.id;
     currentPlanPrice = getPlanPrice();
 
+    // Notify seller their listing was received and will go live shortly
+    fetch(`${EDGE_URL}/send-listing-email`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY },
+      body: JSON.stringify({
+        sellerEmail:  currentUser.email,
+        sellerName:   currentUserName,
+        listingTitle: listingData.title,
+        listingId:    listing.id,
+      }),
+    }).catch(e => console.error('Email notify failed:', e));
+
     if (isMulti && validUnits.length) {
       const unitRows = validUnits.map(u => ({
         listing_id: listing.id,
