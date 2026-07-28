@@ -197,6 +197,20 @@
       position: relative; flex-shrink: 0;
     }
     .action-btn.icon svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; display: block; }
+
+    /* Icon-only action groups (Listings, Trial, Multi-unit, Recycle bin,
+       Payments, Sellers, Reports, Reviews, Contact reveals — every table's
+       Actions column) get a fixed compact 2-column grid instead of letting
+       flex-wrap collapse them into a single vertical column when the cell
+       is narrow. Text-label groups (Export CSV, bulk-bar, etc.) are
+       untouched since they don't contain .action-btn.icon children. */
+    .action-btns:has(> .action-btn.icon) {
+      display: grid;
+      grid-template-columns: repeat(2, 30px);
+      gap: 6px;
+      align-items: start;
+      width: max-content;
+    }
     [data-tip] { position: relative; }
     [data-tip]::after {
       content: attr(data-tip);
@@ -3267,8 +3281,9 @@ async function toggleReviewPublish(id, isCurrentlyPublished) {
     let msgChannel = null;
     let globalChannel = null;
     let isOpen = false;
-    let currentSellerId = null;
     let currentSellerName = null;
+    let currentThreadSessionKey = null;
+    let currentIsSellerThread = false;
 
     function escT(s) { return esc(s); }
 
@@ -3418,20 +3433,19 @@ async function toggleReviewPublish(id, isCurrentlyPublished) {
       document.getElementById('acw-thread-name').textContent = otherLabel(s);
       document.getElementById('acw-thread-meta').textContent = isSeller(s) ? 'Registered seller' : `Visitor · ${(s.page||'').replace('.html','')}`;
 
-      // Seller support sessions are always keyed 'seller_<profileId>_support...'
-      // (see messageSellerInChat/startChatWith/startNewTopicForCurrentSeller).
-      // Pull the seller id back out so "+ New" can target THIS seller with a
-      // guaranteed-fresh session instead of re-finding the one we're already in.
-      const skMatch = (s.session_key || '').match(/^seller_(.+?)_support/);
-      currentSellerId   = skMatch ? skMatch[1] : null;
-      currentSellerName = isSeller(s) ? otherLabel(s) : null;
+      // No guessing at a profile id from the session_key — just remember
+      // exactly what this open thread already is. "+ New" builds a fresh
+      // session directly off these, so it can never fall through to search.
+      currentThreadSessionKey = s.session_key || null;
+      currentSellerName       = otherLabel(s);
+      currentIsSellerThread   = isSeller(s);
 
       const resolveBtn = s.is_resolved
         ? `<button class="acw-mini-btn reopen" onclick="ACW.reopen('${id}')">Reopen</button>`
         : `<button class="acw-mini-btn resolve" onclick="ACW.resolve('${id}')">Resolve</button>`;
-      const newMsgBtn = currentSellerId
+      const newMsgBtn = currentIsSellerThread
         ? `<button class="acw-mini-btn" onclick="ACW.startNewTopicForCurrentSeller()">+ New</button>`
-        : `<button class="acw-mini-btn" onclick="ACW.showNewChat()">+ New</button>`;
+        : '';
       document.getElementById('acw-thread-actions').innerHTML = newMsgBtn + resolveBtn;
 
       document.getElementById('acw-resolved-note').style.display = s.is_resolved ? 'block' : 'none';
@@ -3510,10 +3524,13 @@ async function toggleReviewPublish(id, isCurrentlyPublished) {
     // the currently open thread — unlike startChatWith (used by the search
     // picker), this never finds-and-reopens an existing session, so it can't
     // land you back in old messages. Used by the "+ New" button that sits
-    // next to Resolve/Reopen inside an open seller conversation.
+    // next to Resolve/Reopen inside an open seller conversation. Builds the
+    // new key directly off the thread that's already loaded — no parsing,
+    // no lookup, no path that can fall through to search.
     async function startNewTopicForCurrentSeller() {
-      if (!currentSellerId) { toast('Could not identify this seller','error'); return; }
-      const sessionKey = `seller_${currentSellerId}_support_${Date.now()}`;
+      if (!currentIsSellerThread) { toast('New message is only available inside a seller conversation','error'); return; }
+      const base = currentThreadSessionKey || `seller_${(currentSellerName||'seller').toLowerCase().replace(/[^a-z0-9]+/g,'_')}`;
+      const sessionKey = `${base}__new_${Date.now()}`;
       const { data: created, error } = await db.from('chat_sessions').insert({
         session_key: sessionKey, session_type: 'seller', visitor_name: currentSellerName || 'Seller',
         page: 'dashboard.html', topic: 'New message from admin', status: 'open',
