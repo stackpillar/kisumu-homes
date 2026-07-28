@@ -471,6 +471,19 @@
     .acw-tag.resolved { background: var(--green-light); color: var(--green-dark); border-color: transparent; }
     .acw-empty { padding: 30px 16px; text-align: center; color: var(--text-3); font-size: 12.5px; }
 
+    /* New message pane */
+    .acw-newchat-pane { width: 100%; display: none; flex-direction: column; min-height: 0; }
+    .acw-newchat-pane.active { display: flex; }
+    .acw-newchat-head { padding: 9px 12px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+    .acw-newchat-title { font-size: 12.5px; font-weight: 700; color: var(--text); }
+    .acw-newchat-results { flex: 1; overflow-y: auto; }
+    .acw-seller-row { padding: 10px 14px; border-bottom: 1px solid var(--border); cursor: pointer; display: flex; align-items: center; gap: 10px; transition: background .12s; }
+    .acw-seller-row:hover { background: var(--surface); }
+    .acw-seller-avatar { width: 28px; height: 28px; border-radius: 50%; background: var(--green-light); color: var(--green-dark); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+    .acw-seller-info { min-width: 0; }
+    .acw-seller-name { font-size: 12.5px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .acw-seller-meta { font-size: 11px; color: var(--text-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
     /* Thread pane */
     .acw-thread-pane { width: 100%; display: none; flex-direction: column; min-height: 0; }
     .acw-thread-pane.active { display: flex; }
@@ -1075,6 +1088,9 @@
       <span>Admin Chat Center</span>
     </div>
     <div class="acw-head-actions">
+      <button class="acw-icon-btn" title="New message" onclick="ACW.showNewChat()">
+        <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      </button>
       <button class="acw-icon-btn" title="Open in full page" onclick="ACW.openFullPage()">
         <svg viewBox="0 0 24 24"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg>
       </button>
@@ -1102,6 +1118,25 @@
       </div>
       <div class="acw-list" id="acw-list">
         <div class="acw-spinner"></div>
+      </div>
+    </div>
+
+    <!-- New message pane — search any registered seller and start a chat -->
+    <div class="acw-newchat-pane" id="acw-newchat-pane">
+      <div class="acw-newchat-head">
+        <button class="acw-back-btn" onclick="ACW.hideNewChat()">
+          <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <span class="acw-newchat-title">New message</span>
+      </div>
+      <div class="acw-search">
+        <div class="acw-search-inner">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="acw-newchat-search" placeholder="Search sellers by name, email, or phone…" oninput="ACW.onNewChatInput()"/>
+        </div>
+      </div>
+      <div class="acw-newchat-results" id="acw-newchat-results">
+        <div class="acw-empty">Type a name, email, or phone…</div>
       </div>
     </div>
 
@@ -2194,6 +2229,7 @@ async function messageSellerInChat(sellerId, sellerName) {
       <div class="field"><label>Profile ID</label><div class="val mono">${u.id}</div></div>`;
     document.getElementById('profile-modal-footer').innerHTML = `
       <button class="btn-modal cancel"  onclick="closeProfileModal()">Cancel</button>
+      <button class="btn-modal cancel"  onclick="closeProfileModal(); messageSellerInChat('${u.id}','${esc(u.full_name||'Seller')}')">Message seller</button>
       ${u.is_disabled
         ? `<button class="btn-modal approve" onclick="enableProfile('${u.id}')">Reinstate account</button>`
         : `<button class="btn-modal reject"  onclick="disableProfileFlow('${u.id}')">Suspend account</button>`}
@@ -3237,18 +3273,25 @@ async function toggleReviewPublish(id, isCurrentlyPublished) {
       return new Date(iso).toLocaleDateString('en-KE',{day:'numeric',month:'short'});
     }
 
+    let pollTimer = null;
+
     async function refreshBadge() {
-      const { data } = await db.from('chat_sessions').select('unread_admin').eq('is_resolved', false);
-      const total = (data||[]).reduce((s,r)=>s+(r.unread_admin||0),0);
-      const badge = document.getElementById('acw-launcher-badge');
-      badge.textContent = total > 99 ? '99+' : total;
-      badge.classList.toggle('show', total > 0);
-      const unreadTab = document.getElementById('acw-badge-unread');
-      if (unreadTab) {
-        unreadTab.textContent = total;
-        unreadTab.style.display = total > 0 ? 'inline-flex' : 'none';
+      try {
+        const { data, error } = await db.from('chat_sessions').select('unread_admin').eq('is_resolved', false);
+        if (error) { console.error('ACW refreshBadge error:', error); return; }
+        const total = (data||[]).reduce((s,r)=>s+(r.unread_admin||0),0);
+        const badge = document.getElementById('acw-launcher-badge');
+        badge.textContent = total > 99 ? '99+' : total;
+        badge.classList.toggle('show', total > 0);
+        const unreadTab = document.getElementById('acw-badge-unread');
+        if (unreadTab) {
+          unreadTab.textContent = total;
+          unreadTab.style.display = total > 0 ? 'inline-flex' : 'none';
+        }
+        document.title = total > 0 ? `(${total}) Admin — Nyumba254` : 'Admin Dashboard — Nyumba254';
+      } catch (e) {
+        console.error('ACW refreshBadge exception:', e);
       }
-      document.title = total > 0 ? `(${total}) Admin — Nyumba254` : 'Admin Dashboard — Nyumba254';
     }
 
     function subscribeGlobal() {
@@ -3264,7 +3307,22 @@ async function toggleReviewPublish(id, isCurrentlyPublished) {
             if (isOpen) loadList();
           }
         })
-        .subscribe();
+        .subscribe((status) => {
+          if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+            console.warn('ACW realtime channel status:', status, '— relying on polling fallback');
+          }
+        });
+
+      // Safety-net poll: some networks/proxies silently never establish or
+      // drop the realtime websocket, which would otherwise leave the badge
+      // stuck. Polling guarantees it still catches up within a few seconds.
+      if (pollTimer) clearInterval(pollTimer);
+      pollTimer = setInterval(refreshBadge, 8000);
+
+      document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) refreshBadge();
+      });
+      window.addEventListener('focus', refreshBadge);
     }
 
     async function loadList() {
@@ -3323,14 +3381,23 @@ async function toggleReviewPublish(id, isCurrentlyPublished) {
     async function openThread(id) {
       activeId = id;
       await db.from('chat_sessions').update({unread_admin:0}).eq('id', id);
-      const sess = sessions.find(s=>s.id===id);
-      if (sess) sess.unread_admin = 0;
       refreshBadge();
 
       document.getElementById('acw-list-pane').classList.add('hidden-on-thread');
+      document.getElementById('acw-newchat-pane').classList.remove('active');
       document.getElementById('acw-thread-pane').classList.add('active');
 
-      const s = sess || {};
+      // Fetch the session directly rather than relying on the cached list —
+      // the list may not have loaded yet (e.g. opening straight from a
+      // seller's profile), which previously left the header showing
+      // placeholder text even though the thread itself worked.
+      let s = sessions.find(x=>x.id===id);
+      if (!s) {
+        const { data } = await db.from('chat_sessions').select('*').eq('id', id).single();
+        s = data || {};
+      } else {
+        s.unread_admin = 0;
+      }
       document.getElementById('acw-thread-name').textContent = otherLabel(s);
       document.getElementById('acw-thread-meta').textContent = isSeller(s) ? 'Registered seller' : `Visitor · ${(s.page||'').replace('.html','')}`;
 
@@ -3349,9 +3416,66 @@ async function toggleReviewPublish(id, isCurrentlyPublished) {
     function backToList() {
       document.getElementById('acw-list-pane').classList.remove('hidden-on-thread');
       document.getElementById('acw-thread-pane').classList.remove('active');
+      document.getElementById('acw-newchat-pane').classList.remove('active');
       activeId = null;
       if (msgChannel) { msgChannel.unsubscribe(); msgChannel = null; }
       loadList();
+    }
+
+    // ─── New message: search any registered seller and start/resume a chat ───
+    let sellerSearchTimer = null;
+
+    function showNewChat() {
+      document.getElementById('acw-list-pane').classList.add('hidden-on-thread');
+      document.getElementById('acw-thread-pane').classList.remove('active');
+      document.getElementById('acw-newchat-pane').classList.add('active');
+      const input = document.getElementById('acw-newchat-search');
+      input.value = '';
+      document.getElementById('acw-newchat-results').innerHTML = '<div class="acw-empty">Type a name, email, or phone…</div>';
+      input.focus();
+    }
+    function hideNewChat() {
+      document.getElementById('acw-newchat-pane').classList.remove('active');
+      document.getElementById('acw-list-pane').classList.remove('hidden-on-thread');
+    }
+    function onNewChatInput() {
+      clearTimeout(sellerSearchTimer);
+      sellerSearchTimer = setTimeout(searchSellers, 300);
+    }
+    async function searchSellers() {
+      const q = document.getElementById('acw-newchat-search').value.trim();
+      const resultsEl = document.getElementById('acw-newchat-results');
+      if (!q) { resultsEl.innerHTML = '<div class="acw-empty">Type a name, email, or phone…</div>'; return; }
+      resultsEl.innerHTML = '<div class="acw-spinner"></div>';
+      const { data, error } = await db.from('profiles').select('id,full_name,email,phone')
+        .or(`full_name.ilike.%${q}%,email.ilike.%${q}%,phone.ilike.%${q}%`).limit(20);
+      if (error) { resultsEl.innerHTML = `<div class="acw-empty">Search failed: ${escT(error.message)}</div>`; return; }
+      if (!data || !data.length) { resultsEl.innerHTML = '<div class="acw-empty">No sellers found</div>'; return; }
+      resultsEl.innerHTML = data.map(p => {
+        const ini = (p.full_name||'?').split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
+        return `<div class="acw-seller-row" onclick="ACW.startChatWith('${p.id}','${escT(p.full_name||'Seller')}')">
+          <div class="acw-seller-avatar">${ini}</div>
+          <div class="acw-seller-info">
+            <div class="acw-seller-name">${escT(p.full_name||'—')}</div>
+            <div class="acw-seller-meta">${escT(p.phone||p.email||'')}</div>
+          </div>
+        </div>`;
+      }).join('');
+    }
+    async function startChatWith(sellerId, sellerName) {
+      const sessionKey = `seller_${sellerId}_support`;
+      let { data: existing } = await db.from('chat_sessions').select('id').eq('session_key', sessionKey).maybeSingle();
+      if (!existing) {
+        const { data: created, error } = await db.from('chat_sessions').insert({
+          session_key: sessionKey, session_type: 'seller', visitor_name: sellerName,
+          page: 'dashboard.html', topic: 'Message from admin', status: 'open',
+          is_resolved: false, last_msg_at: new Date().toISOString(),
+        }).select().single();
+        if (error) { toast('Could not start chat: '+error.message,'error'); return; }
+        existing = created;
+      }
+      hideNewChat();
+      openThread(existing.id);
     }
 
     async function loadMessages(id) {
@@ -3433,6 +3557,9 @@ async function toggleReviewPublish(id, isCurrentlyPublished) {
       document.getElementById('acw-panel').classList.add('open');
       document.getElementById('acw-launcher').classList.add('hide');
       isOpen = true;
+      document.getElementById('acw-newchat-pane').classList.remove('active');
+      document.getElementById('acw-thread-pane').classList.remove('active');
+      document.getElementById('acw-list-pane').classList.remove('hidden-on-thread');
       loadList();
     }
     function close() {
@@ -3450,7 +3577,11 @@ async function toggleReviewPublish(id, isCurrentlyPublished) {
       subscribeGlobal();
     }
 
-    return { open, close, openFullPage, openThread, backToList, setFilter, filterList, onInput, onKeyDown, send, resolve, reopen, init };
+    return {
+      open, close, openFullPage, openThread, backToList, setFilter, filterList,
+      onInput, onKeyDown, send, resolve, reopen, init,
+      showNewChat, hideNewChat, onNewChatInput, searchSellers, startChatWith,
+    };
   })();
 
   // ─── INIT ───
