@@ -341,6 +341,17 @@
     .btn-modal.reject:hover { background: var(--red); color: white; }
     .btn-modal.cancel  { background: var(--surface); color: var(--text-2); }
     .confirm-warning { background: var(--gold-light); color: var(--gold); border-radius: 8px; padding: 10px 12px; font-size: 12px; margin-top: 10px; line-height: 1.5; }
+
+    /* Settings page fields (standalone — .field/.modal-body input rules
+       only apply inside modals, so this page needs its own copies) */
+    .settings-field { margin-bottom: 4px; }
+    .settings-field label { display: block; font-size: 12px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 5px; }
+    .settings-field input {
+      width: 100%; padding: 10px 12px; border: 1.5px solid var(--border);
+      border-radius: 8px; font-size: 14px; font-family: inherit; color: var(--text);
+      background: var(--white); outline: none; min-height: 44px;
+    }
+    .settings-field input:focus { border-color: var(--green); }
     .multiunit-info-box { background: var(--purple-light); color: var(--purple); border-radius: 8px; padding: 10px 12px; font-size: 12px; margin-bottom: 14px; line-height: 1.6; }
     .unit-type-mini-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
     .unit-type-mini-table th, .unit-type-mini-table td { text-align: left; font-size: 12px; padding: 6px 8px; border-bottom: 1px solid var(--border); }
@@ -614,6 +625,10 @@
       Payments
       <span class="nav-badge gold" id="nav-badge-unpaid">—</span>
     </button>
+    <button class="nav-item" data-view="settings" onclick="showView('settings')">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82A1.65 1.65 0 003 13.09H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 8a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V8a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      Pricing settings
+    </button>
     <div class="nav-section-label" style="margin-top:8px">People</div>
     <button class="nav-item" data-view="users" onclick="showView('users')">
       <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
@@ -726,8 +741,8 @@
           <div class="quick-card"><h4>Listings by county</h4><div id="area-breakdown"><div class="quick-row"><span>Loading…</span><span>—</span></div></div></div>
           <div class="quick-card">
             <h4>Revenue breakdown</h4>
-            <div class="quick-row"><span>Standard (KES 500)</span><span id="rev-standard">—</span></div>
-            <div class="quick-row"><span>Featured (KES 1,500)</span><span id="rev-featured">—</span></div>
+            <div class="quick-row"><span>Standard (<span id="price-standard-label">KES 500</span>)</span><span id="rev-standard">—</span></div>
+            <div class="quick-row"><span>Featured (<span id="price-featured-label">KES 1,500</span>)</span><span id="rev-featured">—</span></div>
             <div class="quick-row" style="border-top:2px solid var(--border);margin-top:4px;padding-top:12px"><span style="font-weight:600">Total</span><span id="rev-total" style="font-weight:700;color:var(--green-dark)">—</span></div>
           </div>
           <div class="quick-card">
@@ -828,6 +843,27 @@
           </table>
         </div>
         <div class="mobile-card-list" id="payments-mobile"></div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="view" id="view-settings">
+      <div class="card">
+        <div class="card-header"><span class="card-title">Pricing &amp; plan settings</span></div>
+        <p style="padding:14px 22px 4px;font-size:12px;color:var(--text-3);line-height:1.6">These control the fees and durations used across revenue calculations, the upgrade modal, and listing details — no code changes needed when they change.</p>
+        <div style="padding:8px 22px 24px">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:640px">
+            <div class="settings-field"><label>Standard listing fee (KES)</label><input type="number" id="set-standard_fee"/></div>
+            <div class="settings-field"><label>Featured listing fee (KES)</label><input type="number" id="set-featured_fee"/></div>
+            <div class="settings-field"><label>Standard — per extra unit (KES)</label><input type="number" id="set-standard_fee_per_unit"/></div>
+            <div class="settings-field"><label>Featured — per extra unit (KES)</label><input type="number" id="set-featured_fee_per_unit"/></div>
+            <div class="settings-field"><label>Free trial length (days)</label><input type="number" id="set-trial_days"/></div>
+            <div class="settings-field"><label>Featured duration (days)</label><input type="number" id="set-featured_duration_days"/></div>
+            <div class="settings-field"><label>Recycle bin retention (days)</label><input type="number" id="set-recycle_bin_days"/></div>
+          </div>
+          <div id="settings-saved-meta" style="font-size:11px;color:var(--text-3);margin-top:16px"></div>
+          <button class="btn-modal approve" style="margin-top:14px" onclick="saveSettings()">Save changes</button>
+        </div>
       </div>
     </div>
 
@@ -1203,7 +1239,69 @@
   const { createClient } = supabase;
   const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  const TRIAL_DAYS = 14;
+  let TRIAL_DAYS = 14;
+
+  // Defaults mirror what used to be hardcoded — loadSettings() overwrites
+  // these with whatever's actually saved in platform_settings, so nothing
+  // changes for existing installs until an admin edits a value.
+  const SETTINGS = {
+    standard_fee: 500,
+    featured_fee: 1500,
+    standard_fee_per_unit: 50,
+    featured_fee_per_unit: 150,
+    trial_days: 14,
+    featured_duration_days: 90,
+    recycle_bin_days: 30,
+  };
+  const SETTINGS_KEYS = Object.keys(SETTINGS);
+
+  async function loadSettings() {
+    const { data, error } = await db.from('platform_settings').select('key,value,updated_at');
+    if (error) { console.error('loadSettings error:', error); applySettingsToUI(); return; }
+    let lastUpdated = null;
+    (data||[]).forEach(row => {
+      if (SETTINGS_KEYS.includes(row.key)) {
+        SETTINGS[row.key] = Number(row.value);
+        if (!lastUpdated || new Date(row.updated_at) > new Date(lastUpdated)) lastUpdated = row.updated_at;
+      }
+    });
+    TRIAL_DAYS = SETTINGS.trial_days;
+    applySettingsToUI();
+    const metaEl = document.getElementById('settings-saved-meta');
+    if (metaEl) metaEl.textContent = lastUpdated ? `Last updated ${fmtDate(lastUpdated)}` : 'Using defaults — not yet customized';
+  }
+
+  function applySettingsToUI() {
+    const stdLabel = document.getElementById('price-standard-label');
+    const featLabel = document.getElementById('price-featured-label');
+    if (stdLabel)  stdLabel.textContent  = 'KES ' + SETTINGS.standard_fee.toLocaleString();
+    if (featLabel) featLabel.textContent = 'KES ' + SETTINGS.featured_fee.toLocaleString();
+  }
+
+  function loadSettingsForm() {
+    SETTINGS_KEYS.forEach(k => {
+      const el = document.getElementById('set-' + k);
+      if (el) el.value = SETTINGS[k];
+    });
+  }
+
+  async function saveSettings() {
+    const rows = SETTINGS_KEYS.map(k => {
+      const el = document.getElementById('set-' + k);
+      const val = Number(el?.value);
+      return { key: k, value: isNaN(val) ? SETTINGS[k] : val, updated_at: new Date().toISOString(), updated_by: currentUser?.id || null };
+    });
+    const { error } = await db.from('platform_settings').upsert(rows, { onConflict: 'key' });
+    if (error) { toast('Error saving settings: '+error.message,'error'); return; }
+    rows.forEach(r => { SETTINGS[r.key] = r.value; });
+    TRIAL_DAYS = SETTINGS.trial_days;
+    applySettingsToUI();
+    loadSettingsForm();
+    logAction('update_settings','settings','pricing','Updated pricing/plan settings');
+    toast('Settings saved ✓','success');
+    const metaEl = document.getElementById('settings-saved-meta');
+    if (metaEl) metaEl.textContent = 'Last updated just now';
+  }
 
   const NK_COUNTIES = [
     "Mombasa","Kwale","Kilifi","Tana River","Lamu","Taita-Taveta","Garissa","Wajir","Mandera",
@@ -1377,7 +1475,7 @@
 
   async function checkAuth() {
     const { data: { user } } = await db.auth.getUser();
-    if (!user) { window.location.href = 'login.html?next=admin.html'; return; }
+    if (!user) { window.location.href = 'login.html?next=nk-ctrl-7f3k2x9.html'; return; }
     const { data: profile } = await db.from('profiles').select('*').eq('id', user.id).single();
     if (!profile || profile.role !== 'admin') { window.location.href = 'dashboard.html'; return; }
     currentUser = user;
@@ -1433,11 +1531,14 @@
 
     const { data: pays } = await db.from('payments').select('amount,type').eq('status','confirmed');
     const rev      = (pays||[]).reduce((s,p) => s + Number(p.amount), 0);
-    const stdCnt   = (pays||[]).filter(p=>p.type==='listing_fee').length;
-    const featCnt  = (pays||[]).filter(p=>p.type==='featured_upgrade').length;
+    // Sum what was actually paid per type — NOT count × current SETTINGS
+    // price, which would silently misreport history the moment a price is
+    // edited (old payments were made at whatever the rate was back then).
+    const stdRev   = (pays||[]).filter(p=>p.type==='listing_fee').reduce((s,p)=>s+Number(p.amount),0);
+    const featRev  = (pays||[]).filter(p=>p.type==='featured_upgrade').reduce((s,p)=>s+Number(p.amount),0);
     document.getElementById('stat-revenue').textContent = rev.toLocaleString('en-KE');
-    document.getElementById('rev-standard').textContent = `KES ${(stdCnt*500).toLocaleString()}`;
-    document.getElementById('rev-featured').textContent = `KES ${(featCnt*1500).toLocaleString()}`;
+    document.getElementById('rev-standard').textContent = `KES ${stdRev.toLocaleString()}`;
+    document.getElementById('rev-featured').textContent = `KES ${featRev.toLocaleString()}`;
     document.getElementById('rev-total').textContent    = `KES ${rev.toLocaleString()}`;
 
     const { data: activeRows } = await db.from('listings').select('county,area').eq('status','active').eq('recycle_bin',false);
@@ -1697,7 +1798,7 @@
   async function bulkRecycle() {
     const ids=[...selectedListingIds];
     if(!confirm(`Move ${ids.length} listing(s) to recycle bin?`)) return;
-    const purge=new Date(Date.now()+30*24*60*60*1000).toISOString();
+    const purge=new Date(Date.now()+SETTINGS.recycle_bin_days*24*60*60*1000).toISOString();
     for(const id of ids) await db.from('listings').update({is_disabled:true,recycle_bin:true,disabled_reason:'Bulk action by admin',disabled_at:new Date().toISOString(),purge_at:purge}).eq('id',id);
     logAction('bulk_recycle','listing','multiple',`${ids.length} listing(s)`);
     toast(`${ids.length} listing(s) moved to recycle bin`,'success');
@@ -1733,7 +1834,7 @@
   }
 
   async function featureListing(id) {
-    const until=new Date(Date.now()+90*24*60*60*1000).toISOString();
+    const until=new Date(Date.now()+SETTINGS.featured_duration_days*24*60*60*1000).toISOString();
     const {error}=await db.from('listings').update({is_featured:true,featured_until:until}).eq('id',id);
     if(error){toast('Error featuring listing','error');return;}
     logAction('feature_listing','listing',id,'');
@@ -1756,7 +1857,7 @@
     upgradingListingId = id;
     const trialDaysLeft = l.trial_expires_at ? Math.max(0, Math.ceil((new Date(l.trial_expires_at)-new Date())/86400000)) : null;
     const perUnitNote = l.is_multi_unit
-      ? `<div class="multiunit-info-box">🏢 Multi-unit property — ${l.total_units||'?'} units. Standard/Featured base fees apply plus KES 50 (standard) or KES 150 (featured) per unit — adjust the amount manually if recording a specific payment.</div>`
+      ? `<div class="multiunit-info-box">🏢 Multi-unit property — ${l.total_units||'?'} units. Standard/Featured base fees apply plus KES ${SETTINGS.standard_fee_per_unit} (standard) or KES ${SETTINGS.featured_fee_per_unit} (featured) per unit — adjust the amount manually if recording a specific payment.</div>`
       : '';
     document.getElementById('upgrade-modal-body').innerHTML = `
       ${perUnitNote}
@@ -1765,8 +1866,8 @@
       ${trialDaysLeft!==null?`<div class="field"><label>Free trial</label><div class="val">${trialDaysLeft} day(s) left</div></div>`:''}
       <div class="field"><label>Choose plan</label>
         <select id="upgrade-plan">
-          <option value="basic">Standard — KES 500 (30 days, up to 6 photos)</option>
-          <option value="featured">Featured — KES 1,500 (30 days, up to 15 photos, top placement)</option>
+          <option value="basic">Standard — KES ${SETTINGS.standard_fee.toLocaleString()} (30 days, up to 6 photos)</option>
+          <option value="featured">Featured — KES ${SETTINGS.featured_fee.toLocaleString()} (30 days, up to 15 photos, top placement)</option>
         </select>
       </div>
       <div class="field check-field"><input type="checkbox" id="upgrade-mark-paid" checked/><label for="upgrade-mark-paid">Mark payment as confirmed (M-Pesa already received)</label></div>
@@ -1780,9 +1881,9 @@
     const l = _listings[id]; if(!l) return;
     const plan     = document.getElementById('upgrade-plan').value;
     const markPaid = document.getElementById('upgrade-mark-paid').checked;
-    let amount     = plan === 'featured' ? 1500 : 500;
+    let amount     = plan === 'featured' ? SETTINGS.featured_fee : SETTINGS.standard_fee;
     if (l.is_multi_unit && l.total_units) {
-      amount += (plan === 'featured' ? 150 : 50) * l.total_units;
+      amount += (plan === 'featured' ? SETTINGS.featured_fee_per_unit : SETTINGS.standard_fee_per_unit) * l.total_units;
     }
 
     const updates = { is_featured: plan === 'featured', trial_expires_at: null };
@@ -1834,7 +1935,7 @@
     openConfirm({title:'Move to recycle bin?', message:`"${l.title}" will be hidden for 30 days then permanently deleted.`, requireReason:true, reasonLabel:'Reason', confirmText:'Move to recycle bin', confirmClass:'reject', onConfirm:(reason)=>doRecycle(id,l.title,reason)});
   }
   async function doRecycle(id,title,reason) {
-    const purge=new Date(Date.now()+30*24*60*60*1000).toISOString();
+    const purge=new Date(Date.now()+SETTINGS.recycle_bin_days*24*60*60*1000).toISOString();
     const {data,error} = await db.from('listings').update({is_disabled:true,recycle_bin:true,disabled_reason:reason||'Disabled by admin',disabled_at:new Date().toISOString(),purge_at:purge}).eq('id',id).select();
     if (error)       { toast('Error: '+error.message,'error'); return; }
     if (!data?.length){ toast('Blocked by RLS — check Supabase policy','error'); return; }
@@ -1957,7 +2058,7 @@
       <div class="field"><label>Area</label><div class="val">${esc(l.area)}${l.sub_area?' — '+esc(l.sub_area):''}</div></div>
       ${!l.is_multi_unit?`<div class="field"><label>Bedrooms</label><div class="val">${l.bedrooms==0?'Bedsitter/studio':(l.bedrooms+' bedroom(s)')}</div></div>
       <div class="field"><label>Furnished</label><div class="val">${l.furnished?'Yes':'No'}</div></div>`:''}
-      <div class="field"><label>Plan</label><div class="val">${l.payment_status==='trial'?`${TRIAL_DAYS}-day free trial`:(l.is_featured?'Featured (KES 1,500)':'Standard (KES 500)')}</div></div>
+      <div class="field"><label>Plan</label><div class="val">${l.payment_status==='trial'?`${TRIAL_DAYS}-day free trial`:(l.is_featured?`Featured (KES ${SETTINGS.featured_fee.toLocaleString()})`:`Standard (KES ${SETTINGS.standard_fee.toLocaleString()})`)}</div></div>
       <div class="field"><label>Payment</label><div class="val"><span class="badge ${l.payment_status==='paid'?'paid':l.payment_status==='trial'?'trial':'unpaid'}">${l.payment_status==='trial'?'trial':(l.payment_status||'unpaid')}</span></div></div>
       ${l.trial_expires_at?`<div class="field"><label>Trial expires</label><div class="val">${fmtDate(l.trial_expires_at)}</div></div>`:''}
       <div class="field"><label>Listing ID</label><div class="val mono">${l.id}</div></div>
@@ -3205,7 +3306,7 @@ async function toggleReviewPublish(id, isCurrentlyPublished) {
   // ─── VIEW SWITCHING ───
   const viewTitles = {
     overview:'Dashboard', listings:'All listings', 'recycle-bin':'Recycle bin',
-    payments:'Payments', users:'Sellers', enquiries:'Enquiries',
+    payments:'Payments', settings:'Pricing settings', users:'Sellers', enquiries:'Enquiries',
     reports:'Reports', reviews:'Reviews', 'contact-reveals':'Contact reveals',
     analytics:'Site visits', 'activity-log':'Activity log'
   };
@@ -3219,6 +3320,7 @@ async function toggleReviewPublish(id, isCurrentlyPublished) {
     if(v==='listings')     { loadAllListings(); loadTabCounts(); }
     if(v==='recycle-bin')  loadRecycleBin();
     if(v==='payments')     loadPayments();
+    if(v==='settings')     loadSettingsForm();
     if(v==='users')        loadUsers();
     if(v==='enquiries')    loadEnquiries().then(markAllEnquiriesRead);
     if(v==='reports')      loadReports();
@@ -3679,6 +3781,7 @@ async function toggleReviewPublish(id, isCurrentlyPublished) {
   async function init() {
     await checkAuth();
     populateCountyFilter();
+    await loadSettings();
     loadOverview();
     loadEnquiriesBadge();
     loadReportsBadge();
