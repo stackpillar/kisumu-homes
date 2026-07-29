@@ -486,8 +486,11 @@
     <h2>This is an admin account</h2>
     <p>Admin accounts can't post or manage listings as a seller — this dashboard is for sellers only.</p>
     <p class="emphasis">Use your admin panel to manage the platform instead.</p>
-    <button class="btn btn-outline btn-lg" style="width:100%;justify-content:center" onclick="doSignOut()">Sign out</button>
-    <div class="suspended-footer">Nyumba254 · Account Roles</div>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-top:6px">
+      <a href="nk-ctrl-7f3k2x9.html" class="btn btn-primary btn-lg" style="width:100%;justify-content:center;text-decoration:none">Go to admin panel</a>
+      <a href="index.html" class="btn btn-outline btn-lg" style="width:100%;justify-content:center;text-decoration:none">Browse listings</a>
+    </div>
+    <div class="suspended-footer">Nyumba254 · Account Roles · <span onclick="doSignOut()" style="text-decoration:underline;cursor:pointer">Sign out instead</span></div>
   </div>
 </div>
 
@@ -1209,7 +1212,7 @@ function muAvailabilitySummary(l){
 
 function requestTrialUpgrade(title){
   if(!scwOpen)scwToggle();
-  scwCreateTicket('payments','Payments & M-Pesa').then(()=>{
+  scwCreateTicket('payments').then(()=>{
     setTimeout(()=>{
       const input=document.getElementById('scw-input');
       if(input){input.value=`Hi, I'd like to upgrade my listing "${title}" from the free trial to a paid plan. Could you help me with payment?`;scwSend();}
@@ -1942,16 +1945,24 @@ function scwShowTopicPicker(from){
   const wrapId=from==='home'?'scw-topic-picker':'scw-tickets-topic-picker';
   const ctaId=from==='home'?'scw-home-cta-wrap':null;
   const wrap=document.getElementById(wrapId);if(!wrap)return;
-  wrap.style.display='flex';wrap.innerHTML=SCW_TOPICS.map(t=>`<button class="scw-topic-btn" onclick="scwCreateTicket('${t.id}','${escAttr(t.label.replace(/^\S+\s/,''))}')">${t.label}</button>`).join('');
+  wrap.style.display='flex';wrap.innerHTML=SCW_TOPICS.map(t=>`<button class="scw-topic-btn" onclick="scwCreateTicket('${t.id}')">${t.label}</button>`).join('');
   if(ctaId)document.getElementById(ctaId).style.display='none';
 }
 
-async function scwCreateTicket(topicId,topicLabel){
+// NOTE: topicLabel is looked up here from SCW_TOPICS rather than passed through
+// the onclick attribute string. Embedding arbitrary label text (which can contain
+// apostrophes, e.g. "editing a listing") into an inline onclick="...('...')" broke
+// the JS string as soon as the browser HTML-decoded the escaped quote back into a
+// literal ' before the JS parser ever saw it — this was the actual cause of the
+// bot menu silently failing on certain options. Only ids/indices go into onclick now.
+async function scwCreateTicket(topicId){
+  const topicObj=SCW_TOPICS.find(t=>t.id===topicId);
+  const topicLabel=topicObj?topicObj.label.replace(/^\S+\s/,''):topicId;
   const sessionKey=`seller_${currentUser.id}_${Date.now()}`;
   const payload={session_key:sessionKey,session_type:'seller',seller_id:currentUser.id,visitor_name:scwSellerName,page:'dashboard.html',topic:topicLabel,status:'open',is_resolved:false,last_msg_at:new Date().toISOString()};
   const{data,error}=await db.from('chat_sessions').insert(payload).select().single();
   if(error){showToast('Could not start ticket: '+error.message,'error');return;}
-  const ticket={...data,status:'open',_messages:[],_unread:0,_topicId:topicId,_botMsgs:{},_suggested:false,_clarified:false,_textSuggested:false};
+  const ticket={...data,status:'open',_messages:[],_unread:0,_topicId:topicId,_botMsgs:{},_suggested:false,_clarified:false,_textSuggested:false,_pendingCategory:null};
   scwTickets.unshift(ticket);
   document.getElementById('scw-topic-picker').style.display='none';
   document.getElementById('scw-tickets-topic-picker').style.display='none';
@@ -1991,10 +2002,27 @@ function scwRenderThreadHead(t){
   document.getElementById('scw-thread-head').innerHTML=`
     <button class="scw-back-btn" onclick="scwBackToInbox()" title="Back to inbox"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></button>
     <div><div class="scw-thread-head-topic">${escHtml(t.topic||'General enquiry')}</div><div class="scw-thread-head-ref">${scwTicketRef(t)} · ${(t.status||'open').toUpperCase()}</div></div>
-    ${!closed?`<div class="scw-thread-head-action"><button class="scw-chip-btn" onclick="scwResolveTicket('${t.id}')">✓ Mark resolved</button></div>`:''}
+    <div class="scw-thread-head-action">
+      ${!closed
+        ? `<button class="scw-chip-btn" onclick="scwResolveTicket('${t.id}')">✓ Mark resolved</button>`
+        : `<button class="scw-chip-btn" onclick="scwReopenTicket('${t.id}')">↻ Reopen chat</button>`}
+    </div>
   `;
   document.getElementById('scw-closed-banner').style.display=closed?'block':'none';
+  document.getElementById('scw-closed-banner').textContent=closed?'This ticket is closed. Tap "Reopen chat" above to continue this conversation, or start a new topic.':'';
   document.getElementById('scw-input-bar').style.display=(closed||scwBotBusy)?'none':'flex';
+}
+// Lets a seller pick back up a resolved/closed ticket instead of being forced
+// to start a brand new one — reopens it in place, keeping the full history.
+async function scwReopenTicket(ticketId){
+  const t=scwFindTicket(ticketId); if(!t) return;
+  const{error}=await db.from('chat_sessions').update({status:'open',is_resolved:false}).eq('id',ticketId);
+  if(error){ showToast('Could not reopen: '+error.message,'error'); return; }
+  t.status='open'; t.is_resolved=false;
+  scwRenderThreadHead(t);
+  scwRefreshListViews();
+  showToast('Ticket reopened — you can continue the conversation','success');
+  document.getElementById('scw-input')?.focus();
 }
 function scwBackToInbox(){scwActiveTicket=null;scwShowInbox();}
 
@@ -2044,7 +2072,7 @@ async function scwRunBotMenu(ticket){
   scwAppendBubble('admin',greet);
   await scwPersistBot(ticket,greet);
   const opts=SCW_TREE[ticket._topicId]||[];
-  if(!opts.length){await scwGoToHandoff(ticket,ticket.topic);return;}
+  if(!opts.length){ticket._pendingCategory=ticket.topic;await scwGoToHandoff(ticket);return;}
   scwShowOptions(opts.map((o,i)=>({label:o.label,onclick:`scwPickLeaf('${ticket.id}',${i})`})));
   scwBotBusy=false;
 }
@@ -2059,7 +2087,7 @@ async function scwPickLeaf(ticketId,idx){
   const opt=opts[idx];if(!opt){scwBotBusy=false;return;}
   scwAppendBubble('visitor',opt.label);
   await scwPersistVisitor(ticket,opt.label);
-  if(opt.handoff){await scwGoToHandoff(ticket,opt.label);return;}
+  if(opt.handoff){ticket._pendingCategory=opt.label;await scwGoToHandoff(ticket);return;}
   scwShowTyping();await scwWait(700);scwHideTyping();
   scwAppendBubble('admin',opt.a);
   await scwPersistBot(ticket,opt.a);
@@ -2068,9 +2096,19 @@ async function scwPickLeaf(ticketId,idx){
   await scwPersistBot(ticket,'Did that solve it?');
   scwShowOptions([
     {label:'✅ Yes, that solved it',onclick:`scwResolveByBot('${ticket.id}')`},
-    {label:'❌ No, I need an agent',onclick:`scwGoToHandoff('${ticket.id}','${escAttr(opt.label)}')`},
+    {label:'❌ No, I need an agent',onclick:`scwHandoffFromLeaf('${ticket.id}',${idx})`},
   ]);
   scwBotBusy=false;
+}
+// Called from the "No, I need an agent" button after a leaf answer — looks the
+// option's label back up from SCW_TREE by index rather than having the label
+// text travel through an onclick="..." attribute (see note above scwCreateTicket).
+async function scwHandoffFromLeaf(ticketId,idx){
+  const ticket=scwFindTicket(ticketId);if(!ticket||scwBotBusy)return;
+  const opts=SCW_TREE[ticket._topicId]||[];
+  const opt=opts[idx];
+  ticket._pendingCategory=opt?opt.label:ticket.topic;
+  await scwGoToHandoff(ticket);
 }
 
 async function scwResolveByBot(ticketId){
@@ -2087,9 +2125,14 @@ async function scwResolveByBot(ticketId){
   scwBotBusy=false;
 }
 
-async function scwGoToHandoff(ticketOrId,category){
+// `category` now comes from ticket._pendingCategory (set by the caller right
+// before invoking this) instead of a second function argument threaded through
+// onclick="..." attribute text — see the note above scwCreateTicket for why
+// that broke on any option whose label contained an apostrophe.
+async function scwGoToHandoff(ticketOrId){
   const ticket=typeof ticketOrId==='string'?scwFindTicket(ticketOrId):ticketOrId;
   if(!ticket)return;
+  const category=ticket._pendingCategory||ticket.topic;
   scwBotBusy=true;scwRemoveOptions();
   if(!ticket._suggested){
     ticket._suggested=true;
@@ -2104,7 +2147,7 @@ async function scwGoToHandoff(ticketOrId,category){
       await scwPersistBot(ticket,'Did that solve it?');
       scwShowOptions([
         {label:'✅ Yes, that solved it',onclick:`scwResolveByBot('${ticket.id}')`},
-        {label:'🙋 No, connect me to an agent',onclick:`scwGoToHandoff('${ticket.id}','${escAttr(category||ticket.topic)}')`},
+        {label:'🙋 No, connect me to an agent',onclick:`scwGoToHandoff('${ticket.id}')`},
       ]);
       scwBotBusy=false;
       return;
@@ -2116,8 +2159,8 @@ async function scwGoToHandoff(ticketOrId,category){
     const clarify=`I don't have an exact answer for that yet. Let's narrow it down — is it actually about one of these?`;
     scwAppendBubble('admin',clarify);
     await scwPersistBot(ticket,clarify);
-    const buttons=SCW_TOPICS.map(t=>({label:t.label,onclick:`scwReRoute('${ticket.id}','${t.id}','${escAttr(t.label.replace(/^\S+\s/,''))}')`}));
-    buttons.push({label:'🙋 None of those — just get me an agent',onclick:`scwGoToHandoff('${ticket.id}','${escAttr(category||ticket.topic)}')`});
+    const buttons=SCW_TOPICS.map(t=>({label:t.label,onclick:`scwReRoute('${ticket.id}','${t.id}')`}));
+    buttons.push({label:'🙋 None of those — just get me an agent',onclick:`scwGoToHandoff('${ticket.id}')`});
     scwShowOptions(buttons);
     scwBotBusy=false;
     return;
@@ -2131,14 +2174,21 @@ async function scwGoToHandoff(ticketOrId,category){
   document.getElementById('scw-input')?.focus();
 }
 
-async function scwReRoute(ticketId,topicId,topicLabel){
+async function scwReRoute(ticketId,topicId){
   const ticket=scwFindTicket(ticketId);if(!ticket||scwBotBusy)return;
+  const topicObj=SCW_TOPICS.find(t=>t.id===topicId);
+  const topicLabel=topicObj?topicObj.label.replace(/^\S+\s/,''):topicId;
   scwBotBusy=true;scwRemoveOptions();
   scwAppendBubble('visitor',topicLabel);
   await scwPersistVisitor(ticket,topicLabel);
   ticket._topicId=topicId;
+  // A fresh topic deserves a fresh chance at an FAQ suggestion / clarification,
+  // rather than skipping straight to "connecting you to an agent" because the
+  // previous (different) topic already used up those steps.
+  ticket._suggested=false;
+  ticket._clarified=false;
   const opts=SCW_TREE[topicId]||[];
-  if(!opts.length){await scwGoToHandoff(ticket,topicLabel);return;}
+  if(!opts.length){ticket._pendingCategory=topicLabel;await scwGoToHandoff(ticket);return;}
   scwShowTyping();await scwWait(500);scwHideTyping();
   const ask='Got it — what specifically about that?';
   scwAppendBubble('admin',ask);
