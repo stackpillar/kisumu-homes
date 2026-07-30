@@ -473,7 +473,7 @@
       <div class="trust-sep"></div>
       <div class="trust-item">
         <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-        Pay once, stay live 30 days
+        Pay once, stay live <span id="hero-std-days">30</span> days
       </div>
       <div class="trust-sep"></div>
       <div class="trust-item">
@@ -498,12 +498,12 @@
           <span class="price-currency">KES</span>
           <span class="price-amount" id="basic-price">500</span>
         </div>
-        <div class="plan-desc">One flat fee. Your listing stays live for 30 days and appears in search results across every county and area we cover.</div>
+        <div class="plan-desc">One flat fee. Your listing stays live for <span id="basic-desc-days">30</span> days and appears in search results across every county and area we cover.</div>
 
         <ul class="plan-features">
           <li>
             <div class="feat-check yes"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
-            <div class="feat-label"><strong>Live for 30 days</strong><span class="feat-sub">Renewable for another KES 500</span></div>
+            <div class="feat-label"><strong>Live for <span id="basic-feat-days">30</span> days</strong><span class="feat-sub">Renewable for another <span id="basic-renew-price">KES 500</span></span></div>
           </li>
           <li>
             <div class="feat-check yes"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
@@ -533,7 +533,7 @@
 
         <button class="plan-btn basic-btn" onclick="window.location.href='post-listing.html?plan=basic'">
           <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          List for KES 500
+          <span id="basic-btn-label">List for KES 500</span>
         </button>
         <div class="plan-note">
           <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
@@ -559,7 +559,7 @@
         <ul class="plan-features">
           <li>
             <div class="feat-check yes gold"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
-            <div class="feat-label"><strong>Live for 30 days</strong><span class="feat-sub">Renewable — same rate</span></div>
+            <div class="feat-label"><strong>Live for <span id="featured-feat-days">30</span> days</strong><span class="feat-sub">Renewable — same rate</span></div>
           </li>
           <li>
             <div class="feat-check yes gold"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
@@ -589,7 +589,7 @@
 
         <button class="plan-btn featured-btn" onclick="window.location.href='post-listing.html?plan=featured'">
           <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-          Get Featured for KES 1,500
+          <span id="featured-btn-label">Get Featured for KES 1,500</span>
         </button>
         <div class="plan-note" style="color:var(--gold)">
           <svg viewBox="0 0 24 24" style="stroke:var(--gold)"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
@@ -621,7 +621,7 @@
       <div class="value-card">
         <div class="value-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div>
         <h3>Zero commission on the deal</h3>
-        <p>When a buyer contacts you directly through WhatsApp, any deal you close is entirely yours. KES 500 is all you ever pay — nothing taken from the sale.</p>
+        <p>When a buyer contacts you directly through WhatsApp, any deal you close is entirely yours. <span id="value-commission-price">KES 500</span> is all you ever pay — nothing taken from the sale.</p>
       </div>
       <div class="value-card">
         <div class="value-icon"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div>
@@ -653,16 +653,16 @@
       <thead>
         <tr>
           <th>Feature</th>
-          <th class="plan-col">Standard<br><span style="font-size:12px;font-weight:400;color:var(--text-3)">KES 500</span></th>
-          <th class="plan-col feat-col">Featured ★<br><span style="font-size:12px;font-weight:400;color:var(--text-3)">KES 1,500</span></th>
+          <th class="plan-col">Standard<br><span style="font-size:12px;font-weight:400;color:var(--text-3)" id="compare-std-price">KES 500</span></th>
+          <th class="plan-col feat-col">Featured ★<br><span style="font-size:12px;font-weight:400;color:var(--text-3)" id="compare-feat-price">KES 1,500</span></th>
         </tr>
       </thead>
       <tbody>
         <tr class="group-row"><td colspan="3">Listing basics</td></tr>
         <tr>
           <td>Listing duration</td>
-          <td class="check-col"><span class="c-text">30 days</span></td>
-          <td class="check-col"><span class="c-text gold">30 days</span></td>
+          <td class="check-col"><span class="c-text" id="compare-std-duration">30 days</span></td>
+          <td class="check-col"><span class="c-text gold" id="compare-feat-duration">30 days</span></td>
         </tr>
         <tr>
           <td>Number of photos</td>
@@ -748,7 +748,7 @@
 <!-- ── GUARANTEE STRIP ── -->
 <div class="guarantee-strip">
   <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-  <strong>No surprises, ever.</strong> &nbsp;You pay KES 500 or KES 1,500 once. If your listing doesn't go live within 24 hours, we refund you in full — back to your M-Pesa, no questions asked.
+  <strong>No surprises, ever.</strong> &nbsp;<span id="guarantee-prices">You pay KES 500 or KES 1,500 once.</span> If your listing doesn't go live within 24 hours, we refund you in full — back to your M-Pesa, no questions asked.
 </div>
 
 <!-- ── FAQ ── -->
@@ -769,24 +769,24 @@
       </div>
       <div class="faq-item">
         <button class="faq-q" onclick="toggleFaq(this)">
-          What happens after 30 days?
+          What happens after my listing expires?
           <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         </button>
-        <div class="faq-a">Your listing is automatically paused — not deleted. You'll get an email reminder 5 days before it expires. To renew, simply log in to your seller dashboard and pay the same fee again. All your details, photos, and enquiry history are saved, so renewal takes under a minute.</div>
+        <div class="faq-a"><span id="faq-expiry-text">Your listing is automatically paused — not deleted.</span> You'll get an email reminder 5 days before it expires. To renew, simply log in to your seller dashboard and pay the same fee again. All your details, photos, and enquiry history are saved, so renewal takes under a minute.</div>
       </div>
       <div class="faq-item">
         <button class="faq-q" onclick="toggleFaq(this)">
           Can I upgrade from Standard to Featured later?
           <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         </button>
-        <div class="faq-a">Yes. If you listed at the Standard plan and want to upgrade to Featured, go to your seller dashboard, click on your listing, and choose "Upgrade to Featured." You'll pay the difference (KES 1,000) and your listing will immediately move to the top of results with the Featured badge.</div>
+        <div class="faq-a">Yes. If you listed at the Standard plan and want to upgrade to Featured, go to your seller dashboard, click on your listing, and choose "Upgrade to Featured." You'll pay the difference (<span id="faq-upgrade-diff">KES 1,000</span>) and your listing will immediately move to the top of results with the Featured badge.</div>
       </div>
       <div class="faq-item">
         <button class="faq-q" onclick="toggleFaq(this)">
           How many listings can I post?
           <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         </button>
-        <div class="faq-a">There is no limit. You can post as many properties as you own or manage. Each listing is priced individually — KES 500 per Standard or KES 1,500 per Featured. If you have 5 or more listings, <a href="mailto:hello@nyumba254.co.ke">contact us</a> for a bulk discount package.</div>
+        <div class="faq-a">There is no limit. You can post as many properties as you own or manage. Each listing is priced individually — <span id="faq-per-listing-prices">KES 500 per Standard or KES 1,500 per Featured</span>. If you have 5 or more listings, <a href="mailto:hello@nyumba254.co.ke">contact us</a> for a bulk discount package.</div>
       </div>
       <div class="faq-item">
         <button class="faq-q" onclick="toggleFaq(this)">
@@ -818,10 +818,10 @@
       </div>
       <div class="faq-item">
         <button class="faq-q" onclick="toggleFaq(this)">
-          What if my property sells before the 30 days are up?
+          What if my property sells before my listing period is up?
           <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         </button>
-        <div class="faq-a">Congratulations! Simply log in and mark your listing as Sold or Rented from your dashboard. It will immediately be removed from public search results. We don't offer refunds for unused days — but at KES 500, even a week's visibility is excellent value compared to what you'd pay an agent.</div>
+        <div class="faq-a">Congratulations! Simply log in and mark your listing as Sold or Rented from your dashboard. It will immediately be removed from public search results. We don't offer refunds for unused days — but at <span id="faq-value-price">KES 500</span>, even a week's visibility is excellent value compared to what you'd pay an agent.</div>
       </div>
     </div>
   </div>
@@ -832,14 +832,14 @@
   <div class="cta-inner">
     <div class="section-eyebrow">Ready to list?</div>
     <h2 class="section-title">Your next tenant or buyer<br>is already searching</h2>
-    <p>Start with KES 500 and be live in 10 minutes. Or go Featured for KES 1,500 and be the first listing they see. Either way, you're in control — no agents, no commissions, no waiting.</p>
+    <p>Start with <span id="cta-std-price">KES 500</span> and be live in 10 minutes. Or go Featured for <span id="cta-feat-price">KES 1,500</span> and be the first listing they see. Either way, you're in control — no agents, no commissions, no waiting.</p>
     <div class="cta-buttons">
       <a href="post-listing.html?plan=featured" class="btn-cta-primary">
         <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-        Get Featured — KES 1,500
+        <span id="cta-featured-btn-label">Get Featured — KES 1,500</span>
       </a>
       <a href="post-listing.html?plan=basic" class="btn-cta-secondary">
-        Start with Standard — KES 500
+        <span id="cta-basic-btn-label">Start with Standard — KES 500</span>
       </a>
     </div>
     <div class="cta-disclaimer">Both plans paid via M-Pesa · No monthly fees · Cancel anytime · Refund within 24hrs if listing doesn't go live</div>
@@ -953,8 +953,8 @@
     entries.forEach(entry => {
       if (entry.isIntersecting && !animated) {
         animated = true;
-        animatePrice(basicPriceEl, '500', 'KES ');
-        animatePrice(featuredPriceEl, '1,500', 'KES ');
+        animatePrice(basicPriceEl, String(window.NK_SETTINGS.standard_fee), 'KES ');
+        animatePrice(featuredPriceEl, String(window.NK_SETTINGS.featured_fee), 'KES ');
       }
     });
   }, { threshold: 0.3 });
@@ -963,10 +963,77 @@
 
   document.querySelector('.faq-item')?.classList.add('open');
 
-  // ── Live testimonials: pull real platform reviews instead of hardcoded quotes ──
+  // ── Live pricing/duration: pulled from the same `platform_settings` table
+  // the admin dashboard's Settings page writes to, so a price change there
+  // shows up here without editing this file. Defaults below only apply
+  // before the fetch resolves / if it fails.
   const SUPABASE_URL = 'https://vliuuloyfhyxcsuchpss.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_oIIcecf3wzKMual5K24Z8Q_zmxVfgsx';
   const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  window.NK_SETTINGS = {
+    standard_fee: 500,
+    featured_fee: 1500,
+    standard_fee_per_unit: 50,
+    featured_fee_per_unit: 150,
+    trial_days: 14,
+    standard_duration_days: 30,
+    featured_duration_days: 30,
+    recycle_bin_days: 30,
+  };
+  async function loadPlatformSettings() {
+    try {
+      const { data, error } = await db.from('platform_settings').select('key,value');
+      if (error) { console.error('loadPlatformSettings error:', error); return window.NK_SETTINGS; }
+      (data || []).forEach(row => {
+        if (row.key in window.NK_SETTINGS) window.NK_SETTINGS[row.key] = Number(row.value);
+      });
+    } catch (e) {
+      console.error('loadPlatformSettings exception:', e);
+    }
+    return window.NK_SETTINGS;
+  }
+
+  function fmtKES(n) { return 'KES ' + Number(n).toLocaleString('en-KE'); }
+
+  // Pushes live values into every headline number/duration mention on the
+  // page — the two big price cards (non-animated parts), both plan
+  // buttons, the comparison table, the guarantee strip, the FAQ, and the
+  // final CTA. The comparison table's "30 days" cells and hero trust line
+  // use the Standard plan's duration as the shared reference point.
+  function applySettingsToPricingCopy() {
+    const s = window.NK_SETTINGS;
+    const stdPrice = fmtKES(s.standard_fee), featPrice = fmtKES(s.featured_fee);
+    const diff = fmtKES(Math.max(0, s.featured_fee - s.standard_fee));
+
+    document.getElementById('hero-std-days').textContent = s.standard_duration_days;
+    document.getElementById('basic-desc-days').textContent = s.standard_duration_days;
+    document.getElementById('basic-feat-days').textContent = s.standard_duration_days;
+    document.getElementById('basic-renew-price').textContent = stdPrice;
+    document.getElementById('featured-feat-days').textContent = s.featured_duration_days;
+    document.getElementById('basic-btn-label').textContent = `List for ${stdPrice}`;
+    document.getElementById('featured-btn-label').textContent = `Get Featured for ${featPrice}`;
+    document.getElementById('value-commission-price').textContent = stdPrice;
+
+    document.getElementById('compare-std-price').textContent = stdPrice;
+    document.getElementById('compare-feat-price').textContent = featPrice;
+    document.getElementById('compare-std-duration').textContent = `${s.standard_duration_days} days`;
+    document.getElementById('compare-feat-duration').textContent = `${s.featured_duration_days} days`;
+
+    document.getElementById('guarantee-prices').textContent = `You pay ${stdPrice} or ${featPrice} once.`;
+    document.getElementById('faq-upgrade-diff').textContent = diff;
+    document.getElementById('faq-per-listing-prices').textContent = `${stdPrice} per Standard or ${featPrice} per Featured`;
+    document.getElementById('faq-value-price').textContent = stdPrice;
+    document.getElementById('faq-expiry-text').textContent =
+      s.standard_duration_days === s.featured_duration_days
+        ? 'Your listing is automatically paused — not deleted.'
+        : 'Your listing is automatically paused — not deleted.';
+
+    document.getElementById('cta-std-price').textContent = stdPrice;
+    document.getElementById('cta-feat-price').textContent = featPrice;
+    document.getElementById('cta-featured-btn-label').textContent = `Get Featured — ${featPrice}`;
+    document.getElementById('cta-basic-btn-label').textContent = `Start with Standard — ${stdPrice}`;
+  }
 
   // ── Kenya's 47 counties (same list used on the homepage) ──
   const NK_COUNTIES = [
@@ -1135,6 +1202,11 @@
     return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 
+  (async function initPricingPage() {
+    await loadPlatformSettings();
+    applySettingsToPricingCopy();
+  })();
+
   loadTestimonials().catch(err => {
     console.error('Testimonials failed to load:', err);
     document.querySelector('.proof-section').style.display = 'none';
@@ -1152,6 +1224,5 @@
     }
   });
 </script>
-<script src="nav-badge.js"></script>
 </body>
 </html>
