@@ -357,7 +357,7 @@
 </nav>
 
 <div class="trial-strip" id="trial-strip">
-  🎉 <strong>Free 14-Day Trial</strong> for first-time sellers
+  🎉 <strong>Free <span id="td-strip">14</span>-Day Trial</strong> for first-time sellers
   <span class="spots-tag" id="strip-spots">Limited spots</span>
 </div>
 
@@ -401,7 +401,7 @@
         <span class="trial-ribbon">🔥 LAUNCH OFFER</span>
         <span class="trial-intro-spots" id="intro-spots-text">Limited spots</span>
       </div>
-      <h2>🎉 Are you a first-time lister? Your listing is FREE for 14 days</h2>
+      <h2>🎉 Are you a first-time lister? Your listing is FREE for <span id="td-intro-h2">14</span> days</h2>
       <p class="hint">We just launched Nyumba254 and want real sellers to try it before paying anything. Here's exactly how it works:</p>
       <div class="trial-steps">
         <div class="trial-step">
@@ -410,7 +410,7 @@
         </div>
         <div class="trial-step">
           <span class="trial-step-num">2</span>
-          <p>Because this is your <strong>first listing</strong>, the free 14-day plan will already be selected for you at the pricing step — no M-Pesa, no card, nothing to pay.</p>
+          <p>Because this is your <strong>first listing</strong>, the free <span id="td-intro-2">14</span>-day plan will already be selected for you at the pricing step — no M-Pesa, no card, nothing to pay.</p>
         </div>
         <div class="trial-step">
           <span class="trial-step-num">3</span>
@@ -418,7 +418,7 @@
         </div>
         <div class="trial-step">
           <span class="trial-step-num">4</span>
-          <p>It stays live for <strong>14 days</strong>, then automatically expires unless you choose to upgrade to a paid plan.</p>
+          <p>It stays live for <strong><span id="td-intro-4">14</span> days</strong>, then automatically expires unless you choose to upgrade to a paid plan.</p>
         </div>
       </div>
       <div class="trial-intro-note" id="trial-intro-note"></div>
@@ -636,7 +636,7 @@
           <span class="trial-ribbon">🔥 NEW — LAUNCH OFFER</span>
           <span class="trial-applied-check">✓ Applied to your listing</span>
         </div>
-        <h3>🎉 Your first listing is FREE for 14 days</h3>
+        <h3>🎉 Your first listing is FREE for <span id="td-banner-h3">14</span> days</h3>
         <p id="banner-copy">As a first-time seller, we've automatically applied a free 14-day listing to your account — no M-Pesa, no card, nothing to enter.</p>
         <div class="trial-spots" id="banner-spots-text">Limited spots available — first come, first served</div>
       </div>
@@ -649,7 +649,7 @@
           <div class="price-tag" id="basic-price-tag">KES 500 <span>one-time</span></div>
           <div class="field-hint" id="basic-price-note" style="display:none;margin:-6px 0 10px"></div>
           <ul>
-            <li>Listed for 60 days</li>
+            <li id="basic-duration-li">Listed for <span id="std-duration-text">60</span> days</li>
             <li>Up to 10 photos</li>
             <li>Buyer enquiry form</li>
             <li>Appears in search results</li>
@@ -661,7 +661,7 @@
           <div class="price-tag" id="featured-price-tag">KES 1,500 <span>one-time</span></div>
           <div class="field-hint" id="featured-price-note" style="display:none;margin:-6px 0 10px"></div>
           <ul>
-            <li>Listed for 90 days</li>
+            <li id="featured-duration-li">Listed for <span id="feat-duration-text">90</span> days</li>
             <li>Featured badge on your card</li>
             <li>Top placement in search</li>
             <li>Highlighted on homepage</li>
@@ -843,6 +843,46 @@ const EDGE_URL     = `${SUPABASE_URL}/functions/v1`;
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
+// ══════════════════════════════════════════════════════════════
+// Live platform settings — pulled from the same `platform_settings`
+// table the admin dashboard's Settings page writes to, so a price
+// change there is reflected here without touching this file again.
+// Defaults below only apply before the fetch resolves / if it fails.
+// ══════════════════════════════════════════════════════════════
+window.NK_SETTINGS = {
+  standard_fee: 500,
+  featured_fee: 1500,
+  standard_fee_per_unit: 50,
+  featured_fee_per_unit: 150,
+  trial_days: 14,
+  standard_duration_days: 60,
+  featured_duration_days: 90,
+  recycle_bin_days: 30,
+};
+async function loadPlatformSettings() {
+  try {
+    const { data, error } = await db.from('platform_settings').select('key,value');
+    if (error) { console.error('loadPlatformSettings error:', error); return window.NK_SETTINGS; }
+    (data || []).forEach(row => {
+      if (row.key in window.NK_SETTINGS) window.NK_SETTINGS[row.key] = Number(row.value);
+    });
+  } catch (e) {
+    console.error('loadPlatformSettings exception:', e);
+  }
+  return window.NK_SETTINGS;
+}
+// Pushes the loaded values into every static bit of copy on this page that
+// mentions a fee or duration — the trial-day mentions in the intro card and
+// banner, and the "Listed for N days" bullets on both pricing options.
+function applySettingsToStaticCopy() {
+  const days = window.NK_SETTINGS.trial_days;
+  ['td-strip','td-intro-h2','td-intro-2','td-intro-4','td-banner-h3'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.textContent = days;
+  });
+  const stdEl = document.getElementById('std-duration-text'); if (stdEl) stdEl.textContent = window.NK_SETTINGS.standard_duration_days;
+  const featEl = document.getElementById('feat-duration-text'); if (featEl) featEl.textContent = window.NK_SETTINGS.featured_duration_days;
+}
+
   const NK_COUNTIES = [
     "Mombasa","Kwale","Kilifi","Tana River","Lamu","Taita-Taveta","Garissa","Wajir","Mandera",
     "Marsabit","Isiolo","Meru","Tharaka-Nithi","Embu","Kitui","Machakos","Makueni","Nyandarua",
@@ -945,10 +985,7 @@ const db = createClient(SUPABASE_URL, SUPABASE_KEY);
   }
 
 
-const TRIAL_DAYS = 14;
-// Multi-unit properties pay a base plan fee plus a small per-unit fee on top,
-// since more units means more photos/admin review and more listing visibility.
-const PER_UNIT_FEE = { basic: 50, featured: 150 };
+let TRIAL_DAYS = 14;
 
 let currentStep       = 1;
 let selectedCat       = 'student';
@@ -975,6 +1012,11 @@ async function init() {
   nkPopulateCounties();
   nkPopulateAreas('Kisumu');
   addUnitTypeRow(); // start with one blank unit type row ready for multi-unit mode
+
+  await loadPlatformSettings();
+  TRIAL_DAYS = window.NK_SETTINGS.trial_days;
+  applySettingsToStaticCopy();
+
   const { data: { session } } = await db.auth.getSession();
   if (session) {
     currentUser = session.user;
@@ -1223,7 +1265,10 @@ function selectPlan(plan) {
 }
 
 function getPlanBasePrice(plan) {
-  return plan === 'featured' ? 1500 : 500;
+  return plan === 'featured' ? window.NK_SETTINGS.featured_fee : window.NK_SETTINGS.standard_fee;
+}
+function getPerUnitFee(plan) {
+  return plan === 'featured' ? window.NK_SETTINGS.featured_fee_per_unit : window.NK_SETTINGS.standard_fee_per_unit;
 }
 
 function getPlanPrice() {
@@ -1231,7 +1276,7 @@ function getPlanPrice() {
   const base = getPlanBasePrice(selectedPlan);
   if (listingStructure === 'multi') {
     const units = getEffectiveTotalUnits();
-    return base + units * PER_UNIT_FEE[selectedPlan];
+    return base + units * getPerUnitFee(selectedPlan);
   }
   return base;
 }
@@ -1241,8 +1286,8 @@ function getPlanPrice() {
 function updatePricingCards() {
   const noteBox = document.getElementById('multi-unit-price-note');
   if (listingStructure !== 'multi') {
-    document.getElementById('basic-price-tag').innerHTML = 'KES 500 <span>one-time</span>';
-    document.getElementById('featured-price-tag').innerHTML = 'KES 1,500 <span>one-time</span>';
+    document.getElementById('basic-price-tag').innerHTML = `KES ${window.NK_SETTINGS.standard_fee.toLocaleString('en-KE')} <span>one-time</span>`;
+    document.getElementById('featured-price-tag').innerHTML = `KES ${window.NK_SETTINGS.featured_fee.toLocaleString('en-KE')} <span>one-time</span>`;
     document.getElementById('basic-price-note').style.display = 'none';
     document.getElementById('featured-price-note').style.display = 'none';
     noteBox.style.display = 'none';
@@ -1251,7 +1296,7 @@ function updatePricingCards() {
   const units = getEffectiveTotalUnits();
   ['basic', 'featured'].forEach(plan => {
     const base = getPlanBasePrice(plan);
-    const perUnit = PER_UNIT_FEE[plan];
+    const perUnit = getPerUnitFee(plan);
     const total = base + units * perUnit;
     document.getElementById(`${plan}-price-tag`).innerHTML =
       `KES ${total.toLocaleString('en-KE')} <span>one-time</span>`;
@@ -1471,13 +1516,13 @@ function renderReview() {
   const planPrice = getPlanPrice();
   const planLabel = isTrial
     ? `🎉 Free ${TRIAL_DAYS}-day launch trial (first-time seller)`
-    : selectedPlan === 'featured' ? 'Featured listing (90 days)' : 'Standard listing (60 days)';
+    : selectedPlan === 'featured' ? `Featured listing (${window.NK_SETTINGS.featured_duration_days} days)` : `Standard listing (${window.NK_SETTINGS.standard_duration_days} days)`;
 
   let feeBreakdownRow = '';
   if (!isTrial && listingStructure === 'multi') {
     const units = getEffectiveTotalUnits();
     const base = getPlanBasePrice(selectedPlan);
-    const perUnit = PER_UNIT_FEE[selectedPlan];
+    const perUnit = getPerUnitFee(selectedPlan);
     feeBreakdownRow = `<div class="summary-row"><span>Fee breakdown</span><span>KES ${base.toLocaleString('en-KE')} base + KES ${perUnit} × ${units} units</span></div>`;
   }
 
