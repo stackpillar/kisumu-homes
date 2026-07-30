@@ -320,6 +320,7 @@
     .mu-log-item{font-size:11.5px;color:var(--text-3);padding:5px 0;border-top:1px solid var(--border);display:flex;justify-content:space-between;gap:8px}
     .mu-summary-strip{display:flex;gap:16px;flex-wrap:wrap;background:var(--green-light);border-radius:var(--radius);padding:10px 14px;margin-bottom:16px;font-size:12.5px;color:var(--green-dark)}
     @media(max-width:520px){.mu-occupy-grid{grid-template-columns:1fr}}
+    
     /* ===== Support Chat Widget v2 ===== */
     .scw-fab{position:fixed;bottom:28px;right:28px;z-index:8000;display:flex;align-items:center;gap:9px;padding:10px 20px 10px 10px;border-radius:40px;background:var(--white);border:1px solid var(--border);box-shadow:var(--shadow-lg);cursor:pointer;transition:transform .18s;font-family:'Inter',sans-serif}
     .scw-fab:hover{transform:translateY(-2px)}
@@ -456,6 +457,13 @@
     }
     @media(max-width:600px){.stat-grid{grid-template-columns:1fr 1fr}.page{padding:16px}.form-grid{grid-template-columns:1fr}.topbar{padding:0 16px}}
     @media(max-width:400px){.stat-grid{grid-template-columns:1fr}}
+    @keyframes scwBadgeBlink { 0%,100%{opacity:1} 50%{opacity:.35} }
+      .scw-fab-badge.show, .scw-tab-badge.show { animation: scwBadgeBlink 1.1s ease-in-out infinite; }
+      .scw-ticket-card.unread-highlight { background:#0d1f1a; border-color:#0d1f1a; }
+      .scw-ticket-card.unread-highlight .scw-ticket-topic,
+      .scw-ticket-card.unread-highlight .scw-ticket-preview,
+      .scw-ticket-card.unread-highlight .scw-ticket-meta { color:#fff; }
+      .scw-ticket-card.unread-highlight .scw-ticket-status { background:#fff; color:#0d1f1a; }
   </style>
 </head>
 <body>
@@ -1720,7 +1728,7 @@ function escAttr(s){if(!s)return'';return String(s).replace(/"/g,'&quot;').repla
 /* ══════════════════════════════════════
    SUPPORT CHAT WIDGET v4
 ══════════════════════════════════════ */
-let scwOpen=false,scwTab='home',scwSellerName='',scwSellerInits='',scwTickets=[],scwActiveTicket=null,scwPollTimer=null,scwLoaded=false,scwChannel=null,scwBotBusy=false;
+let scwOpen=false,scwTab='home',scwSellerName='',scwSellerInits='',scwTickets=[],scwActiveTicket=null,scwPollTimer=null,scwLoaded=false,scwChannel=null,scwBotBusy=false,scwSoundEnabled=true,scwTypingHideTimer=null;
 
 const SCW_TOPICS=[
   {id:'payments',label:'💳 Payments & M-Pesa'},
@@ -1818,7 +1826,7 @@ async function scwInit(){
     const nameEl=document.getElementById('scw-greet-name');if(nameEl)nameEl.textContent=scwName();
   }catch(err){console.error('SCW profile error:',err);}
   try{await scwLoadTickets();}catch(err){console.error('SCW load error:',err);}
-  scwPollTimer=setInterval(scwPoll,20000);
+  scwPollTimer=setInterval(scwPoll,45000);
 }
 
 async function scwLoadTickets(){
@@ -1828,11 +1836,80 @@ async function scwLoadTickets(){
   const prevById={};scwTickets.forEach(t=>{prevById[t.id]=t;});
   scwTickets=(data||[]).map(t=>{
     const prev=prevById[t.id];
-    return{...t,status:t.status||(t.is_resolved?'resolved':'open'),_messages:prev?prev._messages:null,_unread:0,_topicId:prev?prev._topicId:null,_botMsgs:prev?prev._botMsgs:{},_suggested:prev?prev._suggested:false,_clarified:prev?prev._clarified:false,_textSuggested:prev?prev._textSuggested:false,_renderedCount:prev?prev._renderedCount:0};
+    return{...t,status:t.status||(t.is_resolved?'resolved':'open'),_messages:prev?prev._messages:null,_unread:prev?prev._unread:0,_topicId:prev?prev._topicId:null,_botMsgs:prev?prev._botMsgs:{},_suggested:prev?prev._suggested:false,_clarified:prev?prev._clarified:false,_textSuggested:prev?prev._textSuggested:false,_renderedCount:prev?prev._renderedCount:0};
   });
   await scwRefreshUnreadCounts();
   scwRefreshListViews();
   scwUpdateBadges();
+  scwSubscribeRealtime();
+}
+
+// ── Real-time: instant delivery of new admin messages, even mid-conversation ──
+function scwSubscribeRealtime(){
+  if(scwChannel){scwChannel.unsubscribe();scwChannel=null;}
+  const ids=scwTickets.map(t=>t.id);
+  if(!ids.length)return;
+  scwChannel=db.channel('scw-seller-'+currentUser.id)
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'chat_messages',filter:`session_id=in.(${ids.join(',')})`},payload=>{
+      scwHandleIncoming(payload.new);
+    })
+    .on('broadcast',{event:'typing'},payload=>{
+      scwHandleTyping(payload.payload||{});
+    })
+    .subscribe((status)=>{
+      if(status==='CHANNEL_ERROR'||status==='TIMED_OUT'||status==='CLOSED'){
+        console.warn('SCW realtime status:',status,'— relying on 45s poll fallback');
+      }
+    });
+}
+
+async function scwHandleIncoming(msg){
+  const t=scwFindTicket(msg.session_id);if(!t)return;
+  t._messages=t._messages||[];
+  if(t._messages.some(m=>m.id===msg.id))return; // avoid dupes with our own optimistic inserts
+  t._messages.push(msg);
+  t.last_msg_at=msg.created_at;
+  const isThisOpen=scwActiveTicket&&String(scwActiveTicket.id)===String(t.id)&&scwTab==='messages'&&document.getElementById('scw-msg-active').style.display==='flex';
+  if(msg.sender==='admin'){
+    scwHideTyping();
+    if(isThisOpen){
+      // Already looking at it — show instantly and mark read right away
+      scwAppendBubble(msg.sender,msg.body);
+      t._renderedCount=t._messages.length;
+      scwMarkTicketRead(t);
+    }else{
+      t._unread=(t._unread||0)+1;
+      scwPlayNotifySound();
+    }
+  }
+  scwUpdateBadges();scwRefreshListViews();
+}
+
+function scwPlayNotifySound(){
+  if(!scwSoundEnabled)return;
+  const a=document.getElementById('scw-notify-sound');
+  if(a){a.currentTime=0;a.play().catch(()=>{});}
+}
+
+function scwHandleTyping(payload){
+  if(!scwActiveTicket||String(payload.session_id)!==String(scwActiveTicket.id))return;
+  if(payload.who!=='admin')return;
+  scwShowTyping();
+  clearTimeout(scwTypingHideTimer);
+  scwTypingHideTimer=setTimeout(scwHideTyping,3000);
+}
+
+// Lets the seller's own typing be visible to an admin widget that listens for
+// this same broadcast event (the admin-side chat panel needs a matching
+// `channel.send({type:'broadcast', event:'typing', payload:{session_id, who:'seller'}})`
+// call on its own input — wire that up in the admin dashboard's chat widget).
+let scwTypingSendTimer=null;
+function scwBroadcastTyping(){
+  if(!scwActiveTicket||!scwChannel)return;
+  clearTimeout(scwTypingSendTimer);
+  scwTypingSendTimer=setTimeout(()=>{
+    scwChannel.send({type:'broadcast',event:'typing',payload:{session_id:scwActiveTicket.id,who:'seller'}});
+  },150);
 }
 
 async function scwRefreshUnreadCounts(){
@@ -1865,11 +1942,11 @@ async function scwPoll(){
 }
 
 function scwUpdateBadges(){
-  const total=scwTickets.reduce((s,t)=>s+(t._unread||0),0);
+  const unreadConvos=scwTickets.filter(t=>(t._unread||0)>0).length;
   const fabBadge=document.getElementById('scw-fab-badge');
-  if(fabBadge){fabBadge.textContent=total>0?String(total):'';fabBadge.classList.toggle('show',total>0&&!scwOpen);}
+  if(fabBadge){fabBadge.textContent=unreadConvos>0?String(unreadConvos):'';fabBadge.classList.toggle('show',unreadConvos>0&&!scwOpen);}
   const tabBadge=document.getElementById('scw-tab-badge-messages');
-  if(tabBadge){tabBadge.textContent=total>0?String(total):'';tabBadge.classList.toggle('show',total>0);}
+  if(tabBadge){tabBadge.textContent=unreadConvos>0?String(unreadConvos):'';tabBadge.classList.toggle('show',unreadConvos>0);}
 }
 
 function scwSetTab(tab){
@@ -1901,7 +1978,7 @@ function scwRenderInboxList(){
   el.innerHTML=sorted.map(t=>{
     const last=(t._messages&&t._messages.length)?t._messages[t._messages.length-1]:null;
     const preview=last?(last.sender==='admin'?'Support: ':'You: ')+(last.body||'').replace(/<[^>]+>/g,''):'No messages yet';
-    return `<div class="scw-ticket-card" onclick="scwOpenTicket('${t.id}')">
+    return `<div class="scw-ticket-card${t._unread?' unread-highlight':''}" onclick="scwOpenTicket('${t.id}')">
       <div class="scw-ticket-top"><span class="scw-ticket-topic">${escHtml(t.topic||'General enquiry')}</span><span class="scw-ticket-status ${t.status}">${t.status}</span></div>
       <div class="scw-ticket-preview">${escHtml(preview)}</div>
       <div class="scw-ticket-meta">${scwTicketRef(t)} · ${timeAgo(t.last_msg_at)}${t._unread?` · ${t._unread} new`:''}</div>
@@ -1964,6 +2041,7 @@ async function scwCreateTicket(topicId){
   if(error){showToast('Could not start ticket: '+error.message,'error');return;}
   const ticket={...data,status:'open',_messages:[],_unread:0,_topicId:topicId,_botMsgs:{},_suggested:false,_clarified:false,_textSuggested:false,_pendingCategory:null};
   scwTickets.unshift(ticket);
+  scwSubscribeRealtime();
   document.getElementById('scw-topic-picker').style.display='none';
   document.getElementById('scw-tickets-topic-picker').style.display='none';
   document.getElementById('scw-home-cta-wrap').style.display='block';
@@ -2224,7 +2302,7 @@ function scwRenderTicketList(){
   const el=document.getElementById('scw-ticket-list');if(!el)return;
   if(!scwTickets.length){el.innerHTML='<div class="scw-empty-mini">No tickets yet. Tap + New to start one.</div>';return;}
   el.innerHTML=scwTickets.map(t=>{
-    return `<div class="scw-ticket-card" onclick="scwOpenTicket('${t.id}')">
+    return `<div class="scw-ticket-card${t._unread?' unread-highlight':''}" onclick="scwOpenTicket('${t.id}')">
       <div class="scw-ticket-top"><span class="scw-ticket-topic">${escHtml(t.topic||'General enquiry')}</span><span class="scw-ticket-status ${t.status}">${t.status}</span></div>
       <div class="scw-ticket-meta">${scwTicketRef(t)} · ${timeAgo(t.last_msg_at)}${t._unread?` · ${t._unread} new`:''}</div>
     </div>`;
@@ -2269,7 +2347,7 @@ async function scwDismissSuggestion(ticketId){
   await scwPersistBot(t,msg);
 }
 function scwKeydown(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();scwSend();}}
-function scwResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,100)+'px';}
+function scwResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,100)+'px';scwBroadcastTyping();}
 
 function scwRenderHelp(query){
   const el=document.getElementById('scw-faq-list');if(!el)return;
@@ -2328,5 +2406,6 @@ init();
   },1200);
 })();
 </script>
+<audio id="scw-notify-sound" preload="auto" src="/assets/notify.mp3"></audio>
 </body>
 </html>
