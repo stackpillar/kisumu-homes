@@ -266,11 +266,13 @@
 
   // ── Update the nav badge (♥ count) if it exists ──────────────
   function _updateNavBadge() {
-    const badge = document.getElementById('nav-count-badge');
-    if (!badge) return;
     const n = _savedIds.size;
-    badge.textContent = n;
-    badge.style.display = n > 0 ? 'inline-flex' : 'none';
+    ['nav-count-badge', 'nav-count-badge-mobile'].forEach(id => {
+      const badge = document.getElementById(id);
+      if (!badge) return;
+      badge.textContent = n;
+      badge.style.display = n > 0 ? 'inline-flex' : 'none';
+    });
   }
 
   // ── Simple toast (only if no page-level showToast exists) ────
