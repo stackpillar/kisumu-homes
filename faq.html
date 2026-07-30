@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FAQ — Nyumba254</title>
+  <meta name="description" content="Frequently asked questions about Nyumba254 — buying, renting, listing, payments, and account help for Kenya's property listing platform."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --green:       #0F6E56;
+      --green-light: #E1F5EE;
+      --green-mid:   #1D9E75;
+      --green-dark:  #085041;
+      --gold:        #BA7517;
+      --gold-light:  #FAEEDA;
+      --text:        #1a1a18;
+      --text-2:      #4a4a46;
+      --text-3:      #888780;
+      --border:      #e0ded8;
+      --surface:     #f7f6f2;
+      --white:       #ffffff;
+      --radius:      10px;
+      --radius-lg:   16px;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; color: var(--text); background: var(--surface); font-size: 15px; line-height: 1.6; }
+    a { text-decoration: none; color: inherit; }
+    button { font-family: inherit; cursor: pointer; border: none; }
+    input { font-family: inherit; }
+
+    /* ── Navbar ── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 32px; height: 64px;
+      background: var(--white); border-bottom: 1px solid var(--border);
+    }
+    .logo { display: flex; align-items: center; gap: 10px; font-family: 'Playfair Display', serif; font-size: 20px; color: var(--green-dark); }
+    .logo-icon { width: 34px; height: 34px; background: var(--green); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+    .logo-icon svg { width: 18px; height: 18px; fill: none; stroke: white; stroke-width: 2; stroke-linecap: round; }
+    .nav-links { display: flex; align-items: center; gap: 6px; }
+    .nav-link { font-size: 14px; color: var(--text-2); padding: 8px 14px; border-radius: var(--radius); transition: background .15s; }
+    .nav-link:hover { background: var(--surface); }
+    .btn-primary { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 500; padding: 9px 18px; border-radius: var(--radius); background: var(--green); color: white; transition: background .15s; }
+    .btn-primary:hover { background: var(--green-dark); }
+    .nav-count { background: var(--green); color: white; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 10px; min-width: 16px; text-align: center; }
+    .mobile-menu-btn { display: none; padding: 6px; border-radius: 6px; background: none; border: none; cursor: pointer; }
+    .mobile-menu-btn svg { width: 22px; height: 22px; stroke: var(--text); fill: none; stroke-width: 2; display: block; }
+    .mobile-nav { display: none; position: fixed; top: 64px; left: 0; right: 0; background: var(--white); border-bottom: 1px solid var(--border); padding: 16px; z-index: 99; flex-direction: column; gap: 4px; box-shadow: 0 8px 24px rgba(0,0,0,.1); }
+    .mobile-nav.open { display: flex; }
+    .mobile-nav a { font-size: 15px; color: var(--text-2); padding: 10px 14px; border-radius: var(--radius); }
+    .mobile-nav a:hover { background: var(--surface); }
+    .mobile-nav .btn-primary { text-align: center; justify-content: center; margin-top: 8px; }
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .mobile-menu-btn { display: flex; }
+    }
+
+    /* ── Hero ── */
+    .hero {
+      background: var(--green-dark); padding: 56px 32px 48px;
+      text-align: center; position: relative; overflow: hidden;
+    }
+    .hero::before {
+      content: ''; position: absolute; inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+    .hero-eyebrow { display: inline-block; background: rgba(255,255,255,0.1); color: #9FE1CB; font-size: 12px; font-weight: 500; letter-spacing: .07em; text-transform: uppercase; padding: 5px 14px; border-radius: 20px; margin-bottom: 18px; position: relative; }
+    .hero h1 { font-family: 'Playfair Display', serif; font-size: clamp(28px,4vw,42px); color: white; margin-bottom: 12px; position: relative; }
+    .hero p { font-size: 15px; color: rgba(255,255,255,0.6); position: relative; max-width: 480px; margin: 0 auto 28px; }
+
+    /* Hero search */
+    .faq-search-wrap { position: relative; max-width: 480px; margin: 0 auto; }
+    .faq-search-wrap svg { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); width: 17px; height: 17px; stroke: var(--text-3); fill: none; stroke-width: 2; pointer-events: none; }
+    #faq-search {
+      width: 100%; padding: 14px 18px 14px 46px; border-radius: 30px; border: none;
+      font-size: 14px; color: var(--text); background: white; outline: none;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+    }
+    #faq-search::placeholder { color: var(--text-3); }
+    #search-clear {
+      position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+      width: 28px; height: 28px; border-radius: 50%; background: var(--surface);
+      color: var(--text-3); font-size: 15px; display: none; align-items: center; justify-content: center;
+      cursor: pointer; transition: all .15s;
+    }
+    #search-clear:hover { background: var(--border); color: var(--text); }
+    #search-clear.show { display: flex; }
+    .faq-search-meta { font-size: 12px; color: rgba(255,255,255,0.55); margin-top: 12px; position: relative; display: none; }
+    .faq-search-meta.show { display: block; }
+
+    /* ── Layout ── */
+    .page-wrap { max-width: 1040px; margin: 0 auto; padding: 48px 24px 80px; display: grid; grid-template-columns: 220px 1fr; gap: 48px; align-items: start; }
+
+    /* ── Sticky TOC ── */
+    .toc { position: sticky; top: 80px; }
+    .toc-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--text-3); margin-bottom: 14px; }
+    .toc-list { list-style: none; display: flex; flex-direction: column; gap: 2px; }
+    .toc-list li a {
+      display: flex; align-items: center; justify-content: space-between; gap: 6px;
+      font-size: 13px; color: var(--text-2); padding: 7px 10px;
+      border-radius: var(--radius); border-left: 2px solid transparent;
+      transition: all .15s;
+    }
+    .toc-list li a:hover { background: var(--green-light); color: var(--green); border-left-color: var(--green); }
+    .toc-list li a.active { background: var(--green-light); color: var(--green-dark); border-left-color: var(--green); font-weight: 500; }
+    .toc-count { font-size: 11px; color: var(--text-3); background: var(--surface); padding: 1px 7px; border-radius: 20px; }
+    .toc-list li a.active .toc-count { background: white; color: var(--green-dark); }
+    .toc-cta {
+      margin-top: 24px; padding: 16px; background: var(--white); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); text-align: center;
+    }
+    .toc-cta p { font-size: 12px; color: var(--text-3); margin-bottom: 10px; line-height: 1.6; }
+    .toc-cta a { font-size: 12px; font-weight: 600; color: var(--green); }
+
+    /* ── Content ── */
+    .content { min-width: 0; }
+    .category { margin-bottom: 44px; scroll-margin-top: 84px; }
+    .category:last-child { margin-bottom: 0; }
+    .category-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+    .category-icon { width: 38px; height: 38px; border-radius: 9px; background: var(--green-light); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .category-icon svg { width: 18px; height: 18px; stroke: var(--green); fill: none; stroke-width: 1.8; }
+    .category-title { font-family: 'Playfair Display', serif; font-size: 21px; color: var(--text); }
+    .category-count { font-size: 12px; color: var(--text-3); margin-left: auto; }
+
+    /* Accordion */
+    .faq-list { display: flex; flex-direction: column; gap: 10px; }
+    .faq-item {
+      background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-lg);
+      overflow: hidden; transition: border-color .15s;
+    }
+    .faq-item.open { border-color: var(--green-mid); }
+    .faq-q {
+      display: flex; align-items: center; justify-content: space-between; gap: 14px;
+      padding: 17px 20px; cursor: pointer; font-size: 14.5px; font-weight: 600; color: var(--text);
+    }
+    .faq-q:hover { background: var(--surface); }
+    .faq-item.open .faq-q { background: var(--green-light); color: var(--green-dark); }
+    .faq-q-icon {
+      width: 24px; height: 24px; border-radius: 50%; background: var(--surface); flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; transition: transform .2s, background .15s;
+    }
+    .faq-item.open .faq-q-icon { background: var(--green); transform: rotate(45deg); }
+    .faq-q-icon svg { width: 13px; height: 13px; stroke: var(--text-2); fill: none; stroke-width: 2.4; }
+    .faq-item.open .faq-q-icon svg { stroke: white; }
+    .faq-a { max-height: 0; overflow: hidden; transition: max-height .25s ease; }
+    .faq-a-inner { padding: 0 20px 20px; font-size: 13.5px; color: var(--text-2); line-height: 1.75; }
+    .faq-a-inner p { margin-bottom: 10px; }
+    .faq-a-inner p:last-child { margin-bottom: 0; }
+    .faq-a-inner a { color: var(--green); font-weight: 600; text-decoration: underline; }
+    .faq-a-inner ul { padding-left: 18px; margin: 8px 0; }
+    .faq-a-inner li { margin-bottom: 6px; }
+    .faq-a-inner li::marker { color: var(--green); }
+    .faq-a-inner strong { color: var(--text); }
+
+    .no-results { display: none; text-align: center; padding: 60px 20px; color: var(--text-3); }
+    .no-results.show { display: block; }
+    .no-results svg { width: 44px; height: 44px; stroke: var(--border); fill: none; stroke-width: 1.4; margin: 0 auto 16px; }
+    .no-results h3 { font-size: 16px; font-weight: 600; color: var(--text-2); margin-bottom: 8px; }
+    .no-results p { font-size: 13px; margin-bottom: 18px; }
+
+    /* Divider */
+    .category-divider { height: 1px; background: var(--border); margin-bottom: 44px; }
+
+    /* Contact CTA */
+    .contact-cta {
+      background: var(--green-dark); border-radius: var(--radius-lg);
+      padding: 32px; text-align: center; margin-top: 48px;
+    }
+    .contact-cta h3 { font-family: 'Playfair Display', serif; font-size: 22px; color: white; margin-bottom: 8px; }
+    .contact-cta p { font-size: 14px; color: rgba(255,255,255,0.65); margin-bottom: 20px; }
+    .contact-cta a {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: white; color: var(--green-dark); font-size: 14px; font-weight: 600;
+      padding: 11px 24px; border-radius: var(--radius); transition: background .15s;
+    }
+    .contact-cta a:hover { background: var(--green-light); }
+
+    /* ── Footer ── */
+    footer { background: var(--text); color: rgba(255,255,255,0.6); padding: 48px 32px 28px; }
+    .footer-inner { max-width: 1040px; margin: 0 auto; }
+    .footer-top { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; margin-bottom: 40px; }
+    .footer-logo { font-family: 'Playfair Display', serif; font-size: 20px; color: white; margin-bottom: 10px; }
+    .footer-tagline { font-size: 13px; line-height: 1.7; max-width: 240px; }
+    .footer-col h4 { font-size: 12px; font-weight: 700; color: white; margin-bottom: 14px; letter-spacing: .08em; text-transform: uppercase; }
+    .footer-col a { display: block; font-size: 13px; color: rgba(255,255,255,0.55); margin-bottom: 8px; transition: color .15s; }
+    .footer-col a:hover { color: white; }
+    .footer-bottom { border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+    .footer-bottom p { font-size: 12px; }
+
+    /* ── Responsive ── */
+    @media (max-width: 860px) {
+      .page-wrap { grid-template-columns: 1fr; gap: 0; }
+      .toc { display: none; }
+      nav { padding: 0 16px; }
+      .hero { padding: 40px 16px 40px; }
+      footer { padding: 40px 16px 24px; }
+      .footer-top { grid-template-columns: 1fr 1fr; gap: 28px; }
+    }
+    @media (max-width: 480px) {
+      .footer-top { grid-template-columns: 1fr; }
+      .category-header { flex-wrap: wrap; }
+      .faq-q { font-size: 13.5px; padding: 15px 16px; }
+      .faq-a-inner { padding: 0 16px 18px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── NAVBAR ── -->
+<nav>
+  <a href="index.html" class="logo">
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    </div>
+    Nyumba254
+  </a>
+  <div class="nav-links">
+<a href="listings.html" class="nav-link">Browse</a>
+    <a href="how-it-works.html" class="nav-link">How it works</a>
+    <a href="about.html" class="nav-link">About us</a>
+    <a href="pricing.html" class="nav-link">Pricing</a>
+    <a href="faq.html" class="nav-link" style="color:var(--green);font-weight:500">FAQ</a>
+    <a href="login.html" class="nav-link" id="nav-account-link">Sign in</a>
+    <a href="saved.html" class="nav-link">
+  <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+  Saved
+  <span class="nav-count" id="nav-count-badge" style="display:none">0</span>
+</a>
+    <a href="post-listing.html" class="btn btn-primary">List your apartment</a>
+  </div>
+  <!-- Mobile menu button -->
+  <button class="mobile-menu-btn" onclick="toggleMobileMenu()" aria-label="Open menu">
+    <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  </button>
+</nav>
+
+<!-- Mobile nav -->
+<div class="mobile-nav" id="mobile-nav">
+  <a href="listings.html">Browse listings</a>
+  <a href="how-it-works.html">How it works</a>
+  <a href="about.html" class="nav-link">About us</a>
+  <a href="pricing.html">Pricing</a>
+  <a href="faq.html" style="color:var(--green);font-weight:600">FAQ</a>
+  <a href="login.html" class="mobile-nav-link" id="mobile-account-link">Sign in</a>
+  <a href="saved.html" class="nav-link">
+  <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+  Saved
+  <span class="nav-count" id="nav-count-badge-mobile" style="display:none">0</span>
+</a>
+  <a href="post-listing.html" class="btn btn-primary">List your apartment</a>
+</div>
+
+<!-- ── HERO ── -->
+<section class="hero">
+  <div class="hero-eyebrow">Help center</div>
+  <h1>Frequently asked questions</h1>
+  <p>Everything you need to know about buying, renting, listing, and paying on Nyumba254 — Kenya's property listing platform.</p>
+  <div class="faq-search-wrap">
+    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input type="text" id="faq-search" placeholder="Search questions… e.g. 'refund', 'M-Pesa', 'edit listing'" oninput="filterFaq(this.value)"/>
+    <span id="search-clear" onclick="clearSearch()">✕</span>
+  </div>
+  <div class="faq-search-meta" id="search-meta"></div>
+</section>
+
+<!-- ── MAIN ── -->
+<div class="page-wrap">
+
+  <!-- Sticky TOC -->
+  <aside class="toc">
+    <div class="toc-title">Categories</div>
+    <ul class="toc-list" id="toc-list">
+      <li><a href="#getting-started">Getting started <span class="toc-count">4</span></a></li>
+      <li><a href="#buyers">For buyers & renters <span class="toc-count">6</span></a></li>
+      <li><a href="#sellers">Posting a listing <span class="toc-count">6</span></a></li>
+      <li><a href="#payments">Payments & fees <span class="toc-count">6</span></a></li>
+      <li><a href="#account">Account & security <span class="toc-count">4</span></a></li>
+      <li><a href="#safety">Trust & safety <span class="toc-count">3</span></a></li>
+    </ul>
+    <div class="toc-cta">
+      <p>Can't find your answer?</p>
+      <a href="contact.html">Contact our team →</a>
+    </div>
+  </aside>
+
+  <!-- Content -->
+  <main class="content" id="faq-content">
+
+    <div class="no-results" id="no-results">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <h3>No questions match your search</h3>
+      <p>Try a different word, or ask us directly.</p>
+      <a href="contact.html" class="btn-primary" style="display:inline-flex">Contact support</a>
+    </div>
+
+    <!-- GETTING STARTED -->
+    <div class="category" id="getting-started" data-cat>
+      <div class="category-header">
+        <div class="category-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+        <div class="category-title">Getting started</div>
+        <span class="category-count">4 questions</span>
+      </div>
+      <div class="faq-list">
+
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)">
+            What is Nyumba254?
+            <div class="faq-q-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+          </div>
+          <div class="faq-a"><div class="faq-a-inner">
+            <p>Nyumba254 is an online property listing platform that connects property owners and agents directly with buyers and renters across Kenya. We don't act as an agent or broker — we simply give sellers a place to list, and buyers a place to search, so both sides can deal directly with each other without commission.</p>
+          </div></div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)">
+            Which areas does Nyumba254 cover?
+            <div class="faq-q-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+          </div>
+          <div class="faq-a"><div class="faq-a-inner">
+            <p>We cover all 47 counties in Kenya, with the deepest coverage in Kisumu, Nairobi, and Mombasa. Other counties are growing steadily as more sellers join. You can browse coverage county by county on the <a href="index.html#areas">homepage</a> or filter directly on the <a href="listings.html">listings page</a>.</p>
+          </div></div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)">
+            Is Nyumba254 free to use for buyers and renters?
+            <div class="faq-q-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+          </div>
+          <div class="faq-a"><div class="faq-a-inner">
+            <p>Yes, completely free. Browsing listings, searching, saving favourites, and messaging sellers costs nothing for buyers or renters, and always will. Only sellers pay a small listing fee to post a property.</p>
+          </div></div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)">
+            Do I need an account to browse listings?
+            <div class="faq-q-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+          </div>
+          <div class="faq-a"><div class="faq-a-inner">
+            <p>No — you can browse and search every listing without signing up. You only need an account to post a listing as a seller. As a buyer, you can send an enquiry to a seller by simply filling in your name and phone number on the listing page — no account required.</p>
+          </div></div>
+        </div>
+
+      </div>
+    </div>
+    <div class="category-divider"></div>
+
+    <!-- BUYERS -->
+    <div class="category" id="buyers" data-cat>
+      <div class="category-header">
+        <div class="category-icon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+        <div class="category-title">For buyers & renters</div>
+        <span class="category-count">6 questions</span>
+      </div>
+      <div class="faq-list">
+
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)">
+            How do I search for a property?
+            <div class="faq-q-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+          </div>
+          <div class="faq-a"><div class="faq-a-inner">
+            <p>Use the search bar on the <a href="index.html">homepage</a> or the full <a href="listings.html">listings page</a>. You can filter by county and area, sale or rent, category (student, standard, luxury, or commercial), price range, bedrooms, and furnishing — or just type a keyword, area name, or price into the search box.</p>
+          </div></div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)">
+            How do I contact a seller?
+            <div class="faq-q-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+          </div>
+          <div class="faq-a"><div class="faq-a-inner">
+            <p>Open any listing and you'll find three ways to reach the seller directly: call, WhatsApp, or send a message through the site. Sellers reply to messages from their dashboard, and you can keep the whole conversation in one place by revisiting the listing page.</p>
+          </div></div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)">
+            Are the listed prices negotiable?
+            <div class="faq-q-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+          </div>
+          <div class="faq-a"><div class="faq-a-inner">
+            <p>That's entirely between you and the seller. Nyumba254 shows the asking price the seller listed, but negotiation happens directly in your conversation — we're not involved in setting or agreeing final prices.</p>
+          </div></div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)">
+            How do I know a listing is genuine?
+            <div class="faq-q-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+          </div>
+          <div class="faq-a"><div class="faq-a-inner">
+            <p>Every listing is reviewed by our team before it goes live, but no review process can catch everything. Before committing to anything, always:</p>
+            <ul>
+              <li>View the property in person</li>
+              <li>Verify the seller's identity and ownership documents</li>
+              <li>Never send money before you've seen the property</li>
+            </ul>
+            <p>If something feels off, use the <strong>Report scam or suspicious listing</strong> button on the listing page.</p>
+          </div></div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)">
+            Can I save listings to view later?
+            <div class="faq-q-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+          </div>
+          <div class="faq-a"><div class="faq-a-inner">
+            <p>Yes — tap the heart icon on any listing card to save it. Your saved listings are kept on your device and are visible on the <a href="saved.html">Saved page</a> anytime, even without an account.</p>
+          </div></div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)">
+            Does Nyumba254 arrange viewings or handle payments for me?
+            <div class="faq-q-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+          </div>
+          <div class="faq-a"><div class="faq-a-inner">
+            <p>No. Nyumba254 is a listing platform, not an agent — we don't arrange viewings, negotiate on your behalf, or handle any money between you and a seller. All of that happens directly between the two of you, off-platform.</p>
+          </div></div>
+        </div>
+
+      </div>
+    </div>
+    <div class="category-divider"></div>
+
+    <!-- SELLERS -->
+    <div class="category" id="sellers" data-cat>
+      <div class="category-header">
+        <div class="category-icon"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+        <div class="category-title">Posting a listing</div>
+        <span class="category-count">6 questions</span>
+      </div>
+      <div class="faq-list">
+
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)">
+            How do I list my property?
+            <div class="faq-q-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+          </div>
+          <div class="faq-a"><div class="faq-a-inner">
+            <p>Create a free account, then tap <a href="post-listing.html">List your apartment</a>. The form takes you through four quick steps — property details, photos, a pricing plan, then review and submit. Once submitted, your listing is reviewed and usually approved within a couple of hours.</p>
+          </div></div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)">
+            What information and photos do I need to provide?
+            <div class="faq-q-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+          </div>
+          <div class="faq-a"><div class="faq-a-inner">
+            <p>You'll need a clear title and description, the price, bedrooms and bathrooms, county and area, your contact phone number, and at least one genuine photo of the actual property (up to 10). Listings with real photos get far more enquiries than those without.</p>
+          </div></div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)">
+            How long does approval take?
+            <div class="faq-q-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+          </div>
+          <div class="faq-a"><div class="faq-a-inner">
+            <p>Most listings are reviewed within a couple of hours of submission (or payment, if you chose a paid plan). If a listing takes longer or gets rejected, check your <a href="dashboard.html">seller dashboard</a> for the status and any admin notes — rejections are usually about missing photos or an unclear price and can be fixed and resubmitted quickly.</p>
+          </div></div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)">
+            Can I edit my listing after it's live?
+            <div class="faq-q-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+          </div>
+          <div class="faq-a"><div class="faq-a-inner">
+            <p>Yes. From your <a href="dashboard.html">seller dashboard</a>, open My Listings and use the edit icon on any active or paused listing to update the price, description, photos, or details. Editing is temporarily locked while a listing is still pending admin review, to avoid conflicting changes mid-review.</p>
+          </div></div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)">
+            How do I mark my listing as sold, occupied, or rented?
+            <div class="faq-q-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+          </div>
+          <div class="faq-a"><div class="faq-a-inner">
+            <p>On an active listing in your dashboard, tap the checkmark icon to mark it sold or occupied. This immediately hides it from public search while keeping your messages and history intact, so you can reactivate it later if a deal falls through.</p>
+          </div></div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)">
+            Can I list more than one property?
+            <div class="faq-q-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+          </div>
+          <div class="faq-a"><div class="faq-a-inner">
+            <p>Yes — there's no limit on the number of listings one account can have. Each listing is priced and reviewed individually, and they all appear together on your dashboard.</p>
+          </div></div>
+        </div>
+
+      </div>
+    </div>
+    <div class="category-divider"></div>
+
+    <!-- PAYMENTS -->
+    <div class="category" id="payments" data-cat>
+      <div class="category-header">
+        <div class="category-icon"><svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div>
+        <div class="category-title">Payments & fees</div>
+        <span class="category-count">6 questions</span>
+      </div>
+      <div class="faq-list">
+
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)">
+            How much does it cost to list a property?
+            <div class="faq-q-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+          </div>
+          <div class="faq-a"><div class="faq-a-inner">
+            <p>A <strong>Standard listing</strong> is <strong>KES 500</strong> one-time, active for 60 days. A <strong>Featured listing</strong> is <strong>KES 1,500</strong> one-time, active for 90 days with top placement in search and on the homepage. See the full breakdown on the <a href="pricing.html">pricing page</a>.</p>
+          </div></div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)">
+            What's the difference between Standard and Featured?
+            <div class="faq-q-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+          </div>
+          <div class="faq-a"><div class="faq-a-inner">
+            <p>Both plans give your listing full visibility in search and a 10-photo gallery. Featured additionally gets a longer 90-day run, a Featured badge on your card, top placement in search results, and priority spots on the homepage and area pages — useful if you want maximum enquiries fast.</p>
+          </div></div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)">
+            How do I pay?
+            <div class="faq-q-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+          </div>
+          <div class="faq-a"><div class="faq-a-inner">
+            <p>Via M-Pesa. After choosing a plan, an STK push is sent straight to your phone — enter your M-Pesa PIN to confirm, and your listing is updated automatically once payment is detected. You can also pay manually via Paybill and enter your confirmation code, or skip payment and pay later — your listing is still reviewed either way.</p>
+          </div></div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)">
+            Is there a free trial?
+            <div class="faq-q-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+          </div>
+          <div class="faq-a"><div class="faq-a-inner">
+            <p>First-time sellers can get their first listing live free for 7 days as part of our launch offer, while spots last. If you qualify, this is applied automatically at the pricing step when you post your first listing — no M-Pesa or card needed.</p>
+          </div></div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)">
+            Do you charge commission on sales or rent?
+            <div class="faq-q-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+          </div>
+          <div class="faq-a"><div class="faq-a-inner">
+            <p>No. The listing fee is the only charge from Nyumba254. We take no percentage or commission on the sale price or rent amount, however your deal is agreed with the buyer.</p>
+          </div></div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)">
+            Can I get a refund?
+            <div class="faq-q-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+          </div>
+          <div class="faq-a"><div class="faq-a-inner">
+            <p>Listing fees are non-refundable once a listing is approved and published. If your listing is rejected by our review team, you get a full refund within 3 business days. Full details are in our <a href="terms.html">Terms of Service</a>.</p>
+          </div></div>
+        </div>
+
+      </div>
+    </div>
+    <div class="category-divider"></div>
+
+    <!-- ACCOUNT -->
+    <div class="category" id="account" data-cat>
+      <div class="category-header">
+        <div class="category-icon"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
+        <div class="category-title">Account & security</div>
+        <span class="category-count">4 questions</span>
+      </div>
+      <div class="faq-list">
+
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)">
+            How do I create an account?
+            <div class="faq-q-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+          </div>
+          <div class="faq-a"><div class="faq-a-inner">
+            <p>Tap <a href="login.html">Sign in</a> and choose to create a free account with your name, email, phone number, and a password. You'll need to confirm your email before your account is fully active — check your inbox for the confirmation link.</p>
+          </div></div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)">
+            I forgot my password — what do I do?
+            <div class="faq-q-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+          </div>
+          <div class="faq-a"><div class="faq-a-inner">
+            <p>On the <a href="login.html">sign-in page</a>, use the "Forgot password" link and enter your email. You'll receive a reset link by email — it's valid for a limited time, so use it promptly to set a new password.</p>
+          </div></div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)">
+            How do I delete my account?
+            <div class="faq-q-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+          </div>
+          <div class="faq-a"><div class="faq-a-inner">
+            <p>Go to your <a href="dashboard.html">dashboard</a> → Settings → Danger zone, or email us directly. Deleting your account removes your listings, messages, and profile permanently — this can't be undone, so make sure it's what you want first.</p>
+          </div></div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)">
+            Is my personal information safe?
+            <div class="faq-q-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+          </div>
+          <div class="faq-a"><div class="faq-a-inner">
+            <p>We never sell your personal data, and only share what's necessary to run the platform — for example, your phone number becomes visible to buyers only once you post a listing. Full details are in our <a href="privacy.html">Privacy Policy</a>.</p>
+          </div></div>
+        </div>
+
+      </div>
+    </div>
+    <div class="category-divider"></div>
+
+    <!-- SAFETY -->
+    <div class="category" id="safety" data-cat>
+      <div class="category-header">
+        <div class="category-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+        <div class="category-title">Trust & safety</div>
+        <span class="category-count">3 questions</span>
+      </div>
+      <div class="faq-list">
+
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)">
+            How do I report a suspicious listing or seller?
+            <div class="faq-q-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+          </div>
+          <div class="faq-a"><div class="faq-a-inner">
+            <p>Open the listing and tap <strong>Report scam or suspicious listing</strong> in the contact panel. Tell us what's wrong — our team reviews every report, and confirmed scam or impostor accounts are suspended immediately.</p>
+          </div></div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)">
+            What should I do before paying a seller?
+            <div class="faq-q-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+          </div>
+          <div class="faq-a"><div class="faq-a-inner">
+            <p>Always view the property in person and verify the seller's ownership documents before sending any money. Nyumba254 is not a party to your transaction and cannot recover funds sent directly to a fraudulent seller — treat any request for payment before viewing as a red flag.</p>
+          </div></div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)">
+            Does Nyumba254 verify sellers before they can list?
+            <div class="faq-q-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+          </div>
+          <div class="faq-a"><div class="faq-a-inner">
+            <p>Every listing goes through a manual review before it's published, and we act quickly on reports. That said, we don't verify property ownership documents for every seller before listing — this is exactly why viewing in person and checking documents yourself remains essential before you commit to anything.</p>
+          </div></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Contact CTA -->
+    <div class="contact-cta">
+      <h3>Still have a question?</h3>
+      <p>Our team is happy to help — reach out and we'll respond within a few hours.</p>
+      <a href="contact.html">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        Contact us
+      </a>
+    </div>
+
+  </main>
+</div>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div>
+        <div class="footer-logo">Nyumba254</div>
+        <p class="footer-tagline">Find and list apartments across Kenya — no agents, no commission.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Browse</h4>
+        <a href="listings.html">All listings</a>
+        <a href="listings.html?category=student">Student housing</a>
+        <a href="listings.html?category=standard">Standard</a>
+        <a href="listings.html?category=luxury">Luxury</a>
+      </div>
+      <div class="footer-col">
+        <h4>Platform</h4>
+        <a href="post-listing.html">List a property</a>
+        <a href="pricing.html">Pricing</a>
+        <a href="how-it-works.html">How it works</a>
+        <a href="login.html">Seller login</a>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <a href="contact.html">Contact us</a>
+        <a href="faq.html" style="color:white">FAQ</a>
+        <a href="terms.html">Terms of service</a>
+        <a href="privacy.html">Privacy policy</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 Nyumba254. All rights reserved.</p>
+      <p>Kisumu · Nairobi · Mombasa · Kenya</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const SUPABASE_URL = 'https://vliuuloyfhyxcsuchpss.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_oIIcecf3wzKMual5K24Z8Q_zmxVfgsx';
+  const { createClient } = supabase;
+  const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  // ── Mobile menu ──
+  function toggleMobileMenu() {
+    document.getElementById('mobile-nav').classList.toggle('open');
+  }
+  document.addEventListener('click', e => {
+    const nav = document.getElementById('mobile-nav');
+    const btn = document.querySelector('.mobile-menu-btn');
+    if (nav.classList.contains('open') && !nav.contains(e.target) && !btn.contains(e.target)) nav.classList.remove('open');
+  });
+
+  // ── Sign in → My Account when logged in ──
+  (async function () {
+    const { data: { session } } = await db.auth.getSession();
+    if (!session) return;
+    const d = document.getElementById('nav-account-link');
+    const m = document.getElementById('mobile-account-link');
+    if (d) { d.textContent = 'My Account'; d.href = 'dashboard.html'; d.style.fontWeight = '600'; d.style.color = 'var(--green)'; }
+    if (m) { m.textContent = 'My Account'; m.href = 'dashboard.html'; }
+  })();
+
+  // ── Accordion ──
+  function toggleFaq(qEl) {
+    const item = qEl.closest('.faq-item');
+    const answer = item.querySelector('.faq-a');
+    const wasOpen = item.classList.contains('open');
+
+    // Close any other open item in the same list (accordion behaviour within a category)
+    item.parentElement.querySelectorAll('.faq-item.open').forEach(other => {
+      if (other !== item) {
+        other.classList.remove('open');
+        other.querySelector('.faq-a').style.maxHeight = null;
+      }
+    });
+
+    if (wasOpen) {
+      item.classList.remove('open');
+      answer.style.maxHeight = null;
+    } else {
+      item.classList.add('open');
+      answer.style.maxHeight = answer.scrollHeight + 'px';
+    }
+  }
+
+  // ── Live search across all questions ──
+  let searchTimer;
+  function filterFaq(query) {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => runFilter(query.trim().toLowerCase()), 120);
+    document.getElementById('search-clear').classList.toggle('show', query.length > 0);
+  }
+
+  function runFilter(q) {
+    const items = document.querySelectorAll('.faq-item');
+    const cats = document.querySelectorAll('.category[data-cat]');
+    const dividers = document.querySelectorAll('.category-divider');
+    let totalMatches = 0;
+
+    if (!q) {
+      items.forEach(it => { it.style.display = ''; it.classList.remove('open'); it.querySelector('.faq-a').style.maxHeight = null; });
+      cats.forEach(c => c.style.display = '');
+      dividers.forEach(d => d.style.display = '');
+      document.getElementById('no-results').classList.remove('show');
+      document.getElementById('search-meta').classList.remove('show');
+      return;
+    }
+
+    cats.forEach(cat => {
+      let catMatches = 0;
+      cat.querySelectorAll('.faq-item').forEach(it => {
+        const text = it.textContent.toLowerCase();
+        const match = text.includes(q);
+        it.style.display = match ? '' : 'none';
+        if (match) { catMatches++; totalMatches++; it.classList.add('open'); it.querySelector('.faq-a').style.maxHeight = it.querySelector('.faq-a-inner').scrollHeight + 4 + 'px'; }
+        else { it.classList.remove('open'); it.querySelector('.faq-a').style.maxHeight = null; }
+      });
+      cat.style.display = catMatches > 0 ? '' : 'none';
+    });
+    dividers.forEach(d => {
+      const prevCat = d.previousElementSibling;
+      d.style.display = (prevCat && prevCat.style.display !== 'none') ? '' : 'none';
+    });
+
+    document.getElementById('no-results').classList.toggle('show', totalMatches === 0);
+    const meta = document.getElementById('search-meta');
+    meta.textContent = `${totalMatches} question${totalMatches !== 1 ? 's' : ''} found`;
+    meta.classList.add('show');
+  }
+
+  function clearSearch() {
+    const input = document.getElementById('faq-search');
+    input.value = '';
+    input.focus();
+    filterFaq('');
+  }
+
+  // ── TOC active highlight on scroll ──
+  const cats = document.querySelectorAll('.category[id]');
+  const tocLinks = document.querySelectorAll('.toc-list a');
+  window.addEventListener('scroll', () => {
+    let current = '';
+    cats.forEach(c => { if (c.style.display !== 'none' && window.scrollY >= c.offsetTop - 100) current = c.id; });
+    tocLinks.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + current));
+  });
+
+  // ── Page view tracking ──
+  (function () {
+    let sid = localStorage.getItem('nk_sid');
+    if (!sid) { sid = (crypto.randomUUID ? crypto.randomUUID() : Date.now() + '-' + Math.random().toString(36).slice(2)); localStorage.setItem('nk_sid', sid); }
+    db.from('page_views').insert({ path: location.pathname, referrer: document.referrer || null, user_agent: navigator.userAgent, session_id: sid });
+  })();
+</script>
+<script src="nav-badge.js"></script>
+</body>
+</html>
