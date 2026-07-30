@@ -1400,7 +1400,8 @@
      that navigates away from this page. Clicking a listing
      card does NOT count as leaving (that's success).
   ════════════════════════════════════════════════════ */
-  const EXIT_SESSION_KEY = 'nk_exit_prompt_shown';
+  const EXIT_SESSION_KEY = 'nk_exit_prompt_last_shown'; // now stores a timestamp, not a flag
+  const EXIT_COOLDOWN_MS = 2 * 60 * 60 * 1000; // 2 hours — caps this at ~12 shows per 24h
   const EXIT_REVIEW_DONE_KEY = 'nk_platform_review_done'; // shared with listing.html — one review per device, everywhere
   let exitPendingHref = null;
   let exitStarRating = 0;
@@ -1408,8 +1409,11 @@
   let exitNotifyFlowActive = false; // true while the real Notify-me modal was opened from "Not quite"
   const exitPageLoadedAt = Date.now();
 
-  function exitAlreadyShown() { return sessionStorage.getItem(EXIT_SESSION_KEY) === '1'; }
-  function exitMarkShown() { sessionStorage.setItem(EXIT_SESSION_KEY, '1'); }
+  function exitAlreadyShown() {
+    const last = parseInt(localStorage.getItem(EXIT_SESSION_KEY), 10);
+    return !isNaN(last) && (Date.now() - last) < EXIT_COOLDOWN_MS;
+  }
+  function exitMarkShown() { localStorage.setItem(EXIT_SESSION_KEY, String(Date.now())); }
 
   function exitOpenModal(href) {
     if (exitTriggered || exitAlreadyShown()) return;
