@@ -858,6 +858,7 @@
             <div class="settings-field"><label>Standard — per extra unit (KES)</label><input type="number" id="set-standard_fee_per_unit"/></div>
             <div class="settings-field"><label>Featured — per extra unit (KES)</label><input type="number" id="set-featured_fee_per_unit"/></div>
             <div class="settings-field"><label>Free trial length (days)</label><input type="number" id="set-trial_days"/></div>
+            <div class="settings-field"><label>Standard duration (days)</label><input type="number" id="set-standard_duration_days"/></div>
             <div class="settings-field"><label>Featured duration (days)</label><input type="number" id="set-featured_duration_days"/></div>
             <div class="settings-field"><label>Recycle bin retention (days)</label><input type="number" id="set-recycle_bin_days"/></div>
           </div>
@@ -1250,6 +1251,7 @@
     standard_fee_per_unit: 50,
     featured_fee_per_unit: 150,
     trial_days: 14,
+    standard_duration_days: 60,
     featured_duration_days: 90,
     recycle_bin_days: 30,
   };
@@ -1475,7 +1477,7 @@
 
   async function checkAuth() {
     const { data: { user } } = await db.auth.getUser();
-    if (!user) { window.location.href = 'login.html?next=nk-ctrl-7f3k2x9.html'; return; }
+    if (!user) { window.location.href = 'login.html?next=admin.html'; return; }
     const { data: profile } = await db.from('profiles').select('*').eq('id', user.id).single();
     if (!profile || profile.role !== 'admin') { window.location.href = 'dashboard.html'; return; }
     currentUser = user;
@@ -1866,8 +1868,8 @@
       ${trialDaysLeft!==null?`<div class="field"><label>Free trial</label><div class="val">${trialDaysLeft} day(s) left</div></div>`:''}
       <div class="field"><label>Choose plan</label>
         <select id="upgrade-plan">
-          <option value="basic">Standard — KES ${SETTINGS.standard_fee.toLocaleString()} (30 days, up to 6 photos)</option>
-          <option value="featured">Featured — KES ${SETTINGS.featured_fee.toLocaleString()} (30 days, up to 15 photos, top placement)</option>
+          <option value="basic">Standard — KES ${SETTINGS.standard_fee.toLocaleString()} (${SETTINGS.standard_duration_days} days, up to 6 photos)</option>
+          <option value="featured">Featured — KES ${SETTINGS.featured_fee.toLocaleString()} (${SETTINGS.featured_duration_days} days, up to 15 photos, top placement)</option>
         </select>
       </div>
       <div class="field check-field"><input type="checkbox" id="upgrade-mark-paid" checked/><label for="upgrade-mark-paid">Mark payment as confirmed (M-Pesa already received)</label></div>
