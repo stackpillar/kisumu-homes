@@ -1904,7 +1904,10 @@ async function scwInit(){
 
 async function scwLoadTickets(){
   const{data,error}=await db.from('chat_sessions').select('*').eq('session_type','seller')
-    .like('session_key','seller_'+currentUser.id+'_%').order('last_msg_at',{ascending:false});
+    .like('session_key','seller_'+currentUser.id+'_%')
+    .not('topic','ilike','%new message from admin%')
+    .not('session_key','ilike','%__new_%')
+    .order('last_msg_at',{ascending:false});
   if(error){console.error(error);return;}
   const prevById={};scwTickets.forEach(t=>{prevById[t.id]=t;});
   scwTickets=(data||[]).map(t=>{
