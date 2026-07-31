@@ -1881,6 +1881,16 @@ const SCW_FAQ=(function(){
 
 function scwName(){return(scwSellerName||'there').split(' ')[0]||'there';}
 function scwTicketRef(t){return t&&t.id?('NK-'+String(t.id).replace(/-/g,'').slice(0,7).toUpperCase()):'—';}
+// Identifies standalone admin-to-seller broadcast messages (created outside
+// the topic-picker flow, with the telltale "New message from admin" topic and
+// a growing "__new_" session_key). These still need to trigger badges/sound
+// and appear in Messages — they're just not formal support tickets, so they're
+// excluded from the Tickets tab specifically (see scwRenderTicketList).
+function scwIsBroadcast(t){
+  const topic=(t.topic||'').toLowerCase();
+  const key=(t.session_key||'').toLowerCase();
+  return topic.includes('new message from admin')||key.includes('__new_');
+}
 
 function scwMatchFaq(text){
   if(!text)return null;
@@ -1923,8 +1933,6 @@ async function scwInit(){
 async function scwLoadTickets(){
   const{data,error}=await db.from('chat_sessions').select('*').eq('session_type','seller')
     .like('session_key','seller_'+currentUser.id+'_%')
-    .not('topic','ilike','%new message from admin%')
-    .not('session_key','ilike','%__new_%')
     .order('last_msg_at',{ascending:false});
   if(error){console.error(error);return;}
   const prevById={};scwTickets.forEach(t=>{prevById[t.id]=t;});
@@ -2416,8 +2424,9 @@ async function scwResolveTicket(id,skipRerender){
 
 function scwRenderTicketList(){
   const el=document.getElementById('scw-ticket-list');if(!el)return;
-  if(!scwTickets.length){el.innerHTML='<div class="scw-empty-mini">No tickets yet. Tap + New to start one.</div>';return;}
-  el.innerHTML=scwTickets.map(t=>{
+  const realTickets=scwTickets.filter(t=>!scwIsBroadcast(t));
+  if(!realTickets.length){el.innerHTML='<div class="scw-empty-mini">No tickets yet. Tap + New to start one.</div>';return;}
+  el.innerHTML=realTickets.map(t=>{
     return `<div class="scw-ticket-card" onclick="scwOpenTicket('${t.id}')">
       <div class="scw-ticket-top"><span class="scw-ticket-topic">${escHtml(t.topic||'General enquiry')}${t._unread?' <span class="scw-ticket-dot"></span>':''}</span><span class="scw-ticket-status ${t.status}">${t.status}</span></div>
       <div class="scw-ticket-meta">${scwTicketRef(t)} · ${timeAgo(t.last_msg_at)}${t._unread?` · ${t._unread} new`:''}</div>
@@ -2522,6 +2531,6 @@ init();
   },1200);
 })();
 </script>
-<audio id="scw-notify-sound" preload="auto" src="/assets/notify.mp3"></audio>
+<audio id="scw-notify-sound" preload="auto" src="assetsnotify.mp3"></audio>
 </body>
 </html>
