@@ -1765,6 +1765,24 @@ function notifySeller(type,payload){return notifyByEmail(type,{...payload,audien
 //  · a listing's status changing — approved/rejected/etc (pollListingStatusChanges, below)
 //  · a new support chat reply (scwHandleIncoming, further down)
 let listingStatusPollTimer=null,listingStatusSnapshot={};
+let audioUnlocked=false;
+function unlockAudioOnce(){
+  if(audioUnlocked)return;
+  const a=document.getElementById('scw-notify-sound');
+  if(a){
+    // Browsers block programmatic audio.play() until the user has interacted
+    // with the page at least once. This primes the element on the very first
+    // click/tap/keypress anywhere on the page, so background-triggered sounds
+    // (new message, listing approved, etc.) aren't silently dropped afterward.
+    a.play().then(()=>{a.pause();a.currentTime=0;audioUnlocked=true;}).catch(()=>{});
+  }
+  document.removeEventListener('click',unlockAudioOnce);
+  document.removeEventListener('keydown',unlockAudioOnce);
+  document.removeEventListener('touchstart',unlockAudioOnce);
+}
+document.addEventListener('click',unlockAudioOnce);
+document.addEventListener('keydown',unlockAudioOnce);
+document.addEventListener('touchstart',unlockAudioOnce);
 function playActivitySound(){
   const a=document.getElementById('scw-notify-sound');
   if(a){a.currentTime=0;a.play().catch(()=>{});}
