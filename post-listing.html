@@ -1606,6 +1606,7 @@ async function submitListing() {
       bathrooms:        bathrooms,
       size_sqm:         size_sqm,
       furnished:        furnished,
+      county:           document.getElementById('county').value,
       area:             getEffectiveArea(),
       sub_area:         document.getElementById('sub_area').value.trim() || null,
       address:          document.getElementById('address').value.trim() || null,
