@@ -221,7 +221,7 @@
       font-family: 'Playfair Display', serif; font-size: 40px; font-weight: 700;
       color: var(--green-dark); line-height: 1; margin-bottom: 4px;
     }
-    .pricing-amount span { font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 400; color: var(--text-3); }
+    .pricing-amount .unit { font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 400; color: var(--text-3); }
     .pricing-duration { font-size: 13px; color: var(--text-3); margin-bottom: 24px; }
     .pricing-features { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-bottom: 28px; }
     .pricing-features li { display: flex; align-items: flex-start; gap: 10px; font-size: 14px; color: var(--text-2); }
@@ -567,7 +567,7 @@
         <div class="seller-step-content right">
           <div class="seller-step-label">Step 4</div>
           <h3>Choose a plan & pay via M-Pesa</h3>
-          <p>Pick Standard (KES 500) or Featured (KES 1,500). You'll get an M-Pesa STK Push straight to your phone. Once payment goes through, your listing is live for 30 days.</p>
+          <p>Pick Standard (<span id="hiw-step-std-price">KES 500</span>) or Featured (<span id="hiw-step-feat-price">KES 1,500</span>). You'll get an M-Pesa STK Push straight to your phone. Once payment goes through, your listing is live for <span id="hiw-step-duration">30</span> days.</p>
           <div class="detail">
             <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
             Usually live within 3 minutes of payment
@@ -610,8 +610,8 @@
 
       <div class="pricing-card">
         <h3>Standard listing</h3>
-        <div class="pricing-amount">KES 500 <span>one-time</span></div>
-        <div class="pricing-duration">Active for 30 days</div>
+        <div class="pricing-amount"><span id="hiw-std-price">KES 500</span> <span class="unit">one-time</span></div>
+        <div class="pricing-duration">Active for <span id="hiw-std-duration">30</span> days</div>
         <ul class="pricing-features">
           <li>Full listing with all details</li>
           <li>Up to 6 photos</li>
@@ -625,8 +625,8 @@
       <div class="pricing-card featured">
         <div class="pricing-badge">Most enquiries</div>
         <h3>Featured listing</h3>
-        <div class="pricing-amount">KES 1,500 <span>one-time</span></div>
-        <div class="pricing-duration">Active for 30 days</div>
+        <div class="pricing-amount"><span id="hiw-feat-price">KES 1,500</span> <span class="unit">one-time</span></div>
+        <div class="pricing-duration">Active for <span id="hiw-feat-duration">30</span> days</div>
         <ul class="pricing-features">
           <li>Everything in Standard</li>
           <li>Up to 15 photos</li>
@@ -880,9 +880,55 @@
     const SUPABASE_URL = 'https://vliuuloyfhyxcsuchpss.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_oIIcecf3wzKMual5K24Z8Q_zmxVfgsx';
     const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // Page view tracking
     let sid = localStorage.getItem('nk_sid');
     if (!sid) { sid = (crypto.randomUUID ? crypto.randomUUID() : Date.now() + '-' + Math.random().toString(36).slice(2)); localStorage.setItem('nk_sid', sid); }
     sb.from('page_views').insert({ path: location.pathname, referrer: document.referrer || null, user_agent: navigator.userAgent, session_id: sid });
+
+    // ── Live pricing/duration: pulled from the same `platform_settings` table
+    // the admin dashboard's Settings page writes to, so a price change there
+    // shows up here without editing this file. Defaults below only apply
+    // before the fetch resolves / if it fails.
+    window.NK_SETTINGS = {
+      standard_fee: 500,
+      featured_fee: 1500,
+      standard_fee_per_unit: 50,
+      featured_fee_per_unit: 150,
+      trial_days: 14,
+      standard_duration_days: 30,
+      featured_duration_days: 30,
+      recycle_bin_days: 30,
+    };
+
+    function fmtKES(n) { return 'KES ' + Number(n).toLocaleString('en-KE'); }
+
+    function applyHiwPricing() {
+      const s = window.NK_SETTINGS;
+      const stdPrice = fmtKES(s.standard_fee);
+      const featPrice = fmtKES(s.featured_fee);
+      const el = id => document.getElementById(id);
+      if (el('hiw-std-price'))       el('hiw-std-price').textContent = stdPrice;
+      if (el('hiw-feat-price'))      el('hiw-feat-price').textContent = featPrice;
+      if (el('hiw-std-duration'))    el('hiw-std-duration').textContent = s.standard_duration_days;
+      if (el('hiw-feat-duration'))   el('hiw-feat-duration').textContent = s.featured_duration_days;
+      if (el('hiw-step-std-price'))  el('hiw-step-std-price').textContent = stdPrice;
+      if (el('hiw-step-feat-price')) el('hiw-step-feat-price').textContent = featPrice;
+      if (el('hiw-step-duration'))   el('hiw-step-duration').textContent = s.standard_duration_days;
+    }
+
+    (async function loadHiwSettings() {
+      try {
+        const { data, error } = await sb.from('platform_settings').select('key,value');
+        if (error) { console.error('loadHiwSettings error:', error); applyHiwPricing(); return; }
+        (data || []).forEach(row => {
+          if (row.key in window.NK_SETTINGS) window.NK_SETTINGS[row.key] = Number(row.value);
+        });
+      } catch (e) {
+        console.error('loadHiwSettings exception:', e);
+      }
+      applyHiwPricing();
+    })();
   })();
 </script>
 <script>
