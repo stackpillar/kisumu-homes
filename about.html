@@ -157,6 +157,24 @@
     .area-pill.tier1 { border-color:#9FE1CB;background:var(--green-light);color:var(--green-dark);font-weight:600; }
     .area-pill.more { border-style:dashed;color:var(--text-3); }
 
+    /* ── Testimonials (What sellers say) ── */
+    .proof-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:40px; }
+    .proof-card { background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:26px 24px;transition:box-shadow .2s,transform .2s; }
+    .proof-card:hover { box-shadow:var(--shadow);transform:translateY(-3px); }
+    .proof-stars { color:var(--gold);font-size:14px;letter-spacing:2px;margin-bottom:14px; }
+    .proof-quote { font-size:14px;color:var(--text-2);line-height:1.7;margin-bottom:18px;font-style:italic; }
+    .proof-author { display:flex;align-items:center;gap:10px; }
+    .proof-avatar { width:36px;height:36px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:white;flex-shrink:0; }
+    .proof-name { font-size:13px;font-weight:600;color:var(--text); }
+    .proof-role { font-size:11px;color:var(--text-3); }
+    .proof-reply { margin-top:16px;padding-top:16px;border-top:1px solid var(--border); }
+    .proof-reply-label { font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--green);margin-bottom:6px; }
+    .proof-reply-text { font-size:13px;color:var(--text-2);line-height:1.65;font-style:italic; }
+    .proof-skel { height:14px;border-radius:4px;background:var(--border);animation:proof-skel-pulse 1.4s ease-in-out infinite; }
+    .proof-skel.short { width:60%; }
+    @keyframes proof-skel-pulse { 0%,100%{opacity:.6} 50%{opacity:1} }
+    @media(max-width:900px){ .proof-grid{grid-template-columns:1fr;} }
+
     /* ── CTA ── */
     .cta-band { background:var(--green-dark);padding:72px 32px; }
     .cta-inner { max-width:640px;margin:0 auto;text-align:center; }
@@ -517,6 +535,22 @@
   </div>
 </section>
 
+<!-- ── WHAT SELLERS SAY (mirrors pricing.html's published `reviews`, styled for About) ── -->
+<section class="section" id="proof-section">
+  <div class="section-inner">
+    <div style="text-align:center">
+      <div class="eyebrow">Real feedback</div>
+      <h2 class="section-title">What sellers say about <em>Nyumba254</em></h2>
+      <p style="font-size:15px;color:var(--text-3);max-width:520px;margin:0 auto">Verified reviews from real sellers using the platform — the same reviews shown on our Pricing page.</p>
+    </div>
+    <div class="proof-grid" id="proof-grid">
+      <div class="proof-card"><div class="proof-skel" style="width:80px;margin-bottom:14px"></div><div class="proof-skel" style="margin-bottom:8px"></div><div class="proof-skel short"></div></div>
+      <div class="proof-card"><div class="proof-skel" style="width:80px;margin-bottom:14px"></div><div class="proof-skel" style="margin-bottom:8px"></div><div class="proof-skel short"></div></div>
+      <div class="proof-card"><div class="proof-skel" style="width:80px;margin-bottom:14px"></div><div class="proof-skel" style="margin-bottom:8px"></div><div class="proof-skel short"></div></div>
+    </div>
+  </div>
+</section>
+
 <!-- ── CTA ── -->
 <div class="cta-band">
   <div class="cta-inner">
@@ -719,6 +753,70 @@
       slides[current].classList.add('active');
     }, 3000);
   })();
+
+  // ── Testimonials: reads the SAME `reviews` table that pricing.html publishes
+  // to, so a review approved once shows up on both pages automatically. ──
+  function starString(rating) {
+    return '★'.repeat(rating) + '☆'.repeat(5 - rating);
+  }
+
+  function initialsFor(name) {
+    if (!name) return '?';
+    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+  }
+
+  function escapeHtml(str) {
+    return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  async function loadTestimonials() {
+    const grid = document.getElementById('proof-grid');
+    const { data, error } = await db
+      .from('reviews')
+      .select('reviewer_name, rating, comment, created_at, response_text, review_type, target_seller:profiles!target_seller_id(full_name)')
+      .in('review_type', ['platform', 'seller'])
+      .eq('status', 'published')
+      .not('comment', 'is', null)
+      .order('rating', { ascending: false })
+      .order('created_at', { ascending: false })
+      .limit(6);
+
+    if (error || !data || !data.length) {
+      // No live reviews yet — quietly hide the section rather than show fake quotes
+      document.getElementById('proof-section').style.display = 'none';
+      return;
+    }
+
+    grid.innerHTML = data.map(r => {
+      const isSeller = r.review_type === 'seller';
+      const roleLine = isSeller
+        ? `Reviewed ${escapeHtml(r.target_seller?.full_name || 'a seller')} on Nyumba254`
+        : 'Verified Nyumba254 user';
+      const replyBlock = r.response_text ? `
+        <div class="proof-reply">
+          <div class="proof-reply-label">${isSeller ? "Seller's reply" : "Nyumba254's reply"}</div>
+          <p class="proof-reply-text">"${escapeHtml(r.response_text)}"</p>
+        </div>` : '';
+      return `
+      <div class="proof-card">
+        <div class="proof-stars">${starString(r.rating)}</div>
+        <p class="proof-quote">"${escapeHtml(r.comment)}"</p>
+        <div class="proof-author">
+          <div class="proof-avatar">${initialsFor(r.reviewer_name)}</div>
+          <div>
+            <div class="proof-name">${escapeHtml(r.reviewer_name || 'Nyumba254 user')}</div>
+            <div class="proof-role">${roleLine}</div>
+          </div>
+        </div>
+        ${replyBlock}
+      </div>`;
+    }).join('');
+  }
+
+  loadTestimonials().catch(err => {
+    console.error('Testimonials failed to load:', err);
+    document.getElementById('proof-section').style.display = 'none';
+  });
 </script>
 <script src="nav-badge.js"></script>
 </body>
