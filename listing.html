@@ -61,24 +61,33 @@
        object-fit:contain ensures the image
        is never cropped or stretched, preserving
        the original aspect ratio and sharpness.
+       A blurred backdrop layer fills the rest
+       of the frame so portrait/odd-ratio photos
+       never leave stark black bars.
     ══════════════════════════════════════ */
     .gallery { border-radius:var(--radius-lg); overflow:hidden; background:#111; margin-bottom:24px; position:relative; }
     .gallery-main {
       width:100%; aspect-ratio:16/9; position:relative; overflow:hidden;
       background:#111; display:flex; align-items:center; justify-content:center;
     }
-    /* KEY FIX: object-fit:contain keeps full image quality with no cropping.
-       image-rendering:high-quality tells the browser to use best downscaling algorithm. */
+    /* Blurred, scaled-up copy of the same photo fills the frame edge-to-edge
+       behind the sharp foreground image — the foreground itself is never
+       cropped or upscaled, so quality is untouched. */
+    .gallery-main-bg {
+      position:absolute; inset:0; z-index:0;
+      background-size:cover; background-position:center;
+      filter:blur(30px) brightness(0.55) saturate(1.1);
+      transform:scale(1.15);
+    }
+    /* KEY FIX: object-fit:contain keeps full image quality with no cropping. */
     .gallery-main img {
+      position:relative; z-index:1;
       width:100%; height:100%;
       object-fit:contain;           /* shows full image, no cropping */
       object-position:center;
-      image-rendering:high-quality; /* best quality scaling */
-      -webkit-image-rendering:high-quality;
       transition:opacity .3s;
-      background:#111;
     }
-    .gallery-no-photo { display:flex; flex-direction:column; align-items:center; gap:12px; color:var(--text-3); }
+    .gallery-no-photo { position:relative; z-index:1; display:flex; flex-direction:column; align-items:center; gap:12px; color:var(--text-3); }
     .gallery-no-photo svg { width:48px; height:48px; stroke:var(--border); fill:none; stroke-width:1.5; }
     .gallery-arrow { position:absolute; top:50%; transform:translateY(-50%); width:38px; height:38px; border-radius:50%; background:rgba(255,255,255,0.92); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all .15s; z-index:2; }
     .gallery-arrow:hover { background:white; box-shadow:0 2px 8px rgba(0,0,0,0.12); }
@@ -606,6 +615,7 @@
         <!-- Gallery -->
         <div class="gallery" id="gallery">
           <div class="gallery-main" id="gallery-main">
+            <div class="gallery-main-bg" id="gallery-main-bg"></div>
             <div class="gallery-no-photo" id="gallery-no-photo" style="display:none">
               <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
               <p>No photos for this listing yet</p>
@@ -1665,18 +1675,22 @@ function renderLiveMap(l) {
 ════════════════════════════════════════════════════ */
 function renderGallery() {
   const img      = document.getElementById('gallery-img');
+  const bg       = document.getElementById('gallery-main-bg');
   const noPhoto  = document.getElementById('gallery-no-photo');
   const thumbWrap= document.getElementById('gallery-thumbs');
   const counter  = document.getElementById('gallery-counter');
   const prevBtn  = document.getElementById('prev-btn');
   const nextBtn  = document.getElementById('next-btn');
 
-  if (!photos.length) { noPhoto.style.display='flex'; img.style.display='none'; return; }
+  if (!photos.length) { noPhoto.style.display='flex'; img.style.display='none'; if (bg) bg.style.backgroundImage=''; return; }
 
   noPhoto.style.display = 'none';
   img.style.display = 'block';
   img.src = photos[currentPhoto].url;
   img.alt = listing?.title || 'Apartment photo';
+  /* Blurred backdrop uses the same full-quality photo, just stretched and
+     blurred behind it — the visible foreground image is never cropped. */
+  if (bg) bg.style.backgroundImage = `url("${photos[currentPhoto].url}")`;
 
   if (photos.length > 1) {
     counter.style.display = 'block';
@@ -1688,6 +1702,11 @@ function renderGallery() {
       <div class="gallery-thumb ${i===currentPhoto?'active':''}" onclick="goPhoto(${i})">
         <img src="${p.url}" alt="Photo ${i+1}" loading="lazy"/>
       </div>`).join('');
+  } else {
+    counter.style.display = 'none';
+    prevBtn.style.display = 'none';
+    nextBtn.style.display = 'none';
+    thumbWrap.style.display = 'none';
   }
 }
 
@@ -2112,9 +2131,17 @@ document.addEventListener('click', e => {
                              property?" banner if this buyer contacted a seller
                              (on any listing) and hasn't been asked yet
    - loadSellerReviewStats() → shows ★ average + review count next to the seller
+
+   ── Fix: banner used to keep re-appearing on every page load because
+   clicking "Skip" on the review modal never marked the pending entry as
+   done — only actually submitting a review did. Now Skip snoozes the
+   entry (same as "Not yet") so it doesn't nag on every single visit.
+   The banner also no longer shows to the seller viewing their own
+   listing (isListingOwner) — it's meant for buyers only. ══
 ════════════════════════════════════════════════════ */
 const NK_REVIEW_PENDING_KEY  = 'nk_pending_reviews';
 const NK_PLATFORM_REVIEW_KEY = 'nk_platform_review_done';
+const NK_REVIEW_SNOOZE_MS    = 3 * 24 * 60 * 60 * 1000; // 3 days
 let nkCurrentPendingEntry = null;
 let nkSellerStarRating    = 0;
 let nkPlatformStarRating  = 0;
@@ -2131,6 +2158,10 @@ function nkTrackContact(lId, sellerId, sellerName) {
 }
 
 function nkCheckReviewPrompt(currentListingId) {
+  // Never show the "did you secure this property?" prompt to the seller
+  // browsing their own listing — it's a buyer-only flow.
+  if (isListingOwner) return;
+
   const pending = JSON.parse(localStorage.getItem(NK_REVIEW_PENDING_KEY) || '[]');
   const now = Date.now();
   let entry = pending.find(p => !p.done && p.listingId === currentListingId && now > p.snoozedUntil);
@@ -2142,6 +2173,14 @@ function nkCheckReviewPrompt(currentListingId) {
 
 function nkSavePending(pending) { localStorage.setItem(NK_REVIEW_PENDING_KEY, JSON.stringify(pending)); }
 function nkDismissBanner() { document.getElementById('nk-review-banner').classList.remove('show'); }
+
+function nkSnoozeCurrentEntry() {
+  if (!nkCurrentPendingEntry) return;
+  const pending = JSON.parse(localStorage.getItem(NK_REVIEW_PENDING_KEY) || '[]');
+  const e = pending.find(p => p.listingId === nkCurrentPendingEntry.listingId);
+  if (e) e.snoozedUntil = Date.now() + NK_REVIEW_SNOOZE_MS;
+  nkSavePending(pending);
+}
 
 function nkBannerYes() {
   document.getElementById('nk-review-banner').classList.remove('show');
@@ -2155,10 +2194,7 @@ function nkBannerYes() {
 }
 
 function nkBannerNotYet() {
-  const pending = JSON.parse(localStorage.getItem(NK_REVIEW_PENDING_KEY) || '[]');
-  const e = pending.find(p => p.listingId === nkCurrentPendingEntry.listingId);
-  if (e) e.snoozedUntil = Date.now() + 3 * 24 * 60 * 60 * 1000; // ask again in 3 days
-  nkSavePending(pending);
+  nkSnoozeCurrentEntry(); // ask again in a few days
   nkDismissBanner();
 }
 
@@ -2197,6 +2233,11 @@ function nkToggleAnon(kind) {
 
 function nkCloseReviewModal(id) {
   document.getElementById(id).classList.remove('open');
+  // "Skip" on the seller-review modal used to leave the pending entry open
+  // forever, so the "did you secure this property?" banner kept coming
+  // back on every page load. Snoozing it here (same cooldown as "Not
+  // yet") stops the nagging while still asking again after a few days.
+  if (id === 'nk-seller-review-modal' && nkCurrentPendingEntry) nkSnoozeCurrentEntry();
   if (id === 'nk-seller-review-modal') nkMaybePromptPlatformReview();
 }
 
