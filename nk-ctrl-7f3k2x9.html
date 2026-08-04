@@ -33,8 +33,27 @@
       --radius:       10px;
       --radius-lg:    14px;
     }
+    /* Dark mode — overrides the same custom properties everything else
+       already references, so the rest of the stylesheet needs no changes.
+       Toggled via [data-theme="dark"] on <html>, persisted in localStorage. */
+    :root[data-theme="dark"] {
+      --white:        #171d1a;
+      --surface:      #0e1310;
+      --border:       #2b332e;
+      --text:         #edf1ee;
+      --text-2:       #c3cac5;
+      --text-3:       #8b948e;
+      --green-light:  #12332a;
+      --gold-light:   #3a2c12;
+      --red-light:    #3a1a1a;
+      --blue-light:   #16283a;
+      --purple-light: #241a3a;
+    }
+    :root[data-theme="dark"] .skel { background: linear-gradient(90deg,#232a26 25%,#2c332e 50%,#232a26 75%); background-size:200% 100%; }
+    :root[data-theme="dark"] .thumb-img svg,
+    :root[data-theme="dark"] .listing-thumb svg { opacity: .6; }
     html { height: 100%; }
-    body { font-family: 'Inter', sans-serif; color: var(--text); background: var(--surface); font-size: 14px; line-height: 1.6; display: flex; min-height: 100vh; }
+    body { font-family: 'Inter', sans-serif; color: var(--text); background: var(--surface); font-size: 14px; line-height: 1.6; display: flex; min-height: 100vh; transition: background .15s, color .15s; }
     a { text-decoration: none; color: inherit; }
     button { font-family: inherit; cursor: pointer; border: none; }
     input, select, textarea { font-family: inherit; }
@@ -531,6 +550,12 @@
     .acw-thread-info { min-width: 0; flex: 1; }
     .acw-thread-name { font-size: 12.5px; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .acw-thread-meta { font-size: 10.5px; color: var(--text-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .acw-typing-indicator { font-size: 10.5px; color: var(--green); font-style: italic; display: flex; align-items: center; gap: 5px; margin-top: 2px; }
+    .acw-typing-dots { display: inline-flex; gap: 3px; }
+    .acw-typing-dots span { width: 4px; height: 4px; border-radius: 50%; background: var(--green); animation: acwTypingDot .9s infinite; }
+    .acw-typing-dots span:nth-child(2) { animation-delay: .15s; }
+    .acw-typing-dots span:nth-child(3) { animation-delay: .3s; }
+    @keyframes acwTypingDot { 0%,80%,100% { transform: translateY(0); opacity: .4; } 40% { transform: translateY(-3px); opacity: 1; } }
     .acw-thread-actions { display: flex; gap: 5px; flex-shrink: 0; }
     .acw-mini-btn {
       font-size: 10.5px; font-weight: 600; padding: 5px 8px; border-radius: 6px; cursor: pointer;
@@ -698,6 +723,10 @@
         <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         <input type="text" placeholder="Search listings…" id="global-search" oninput="globalSearch(this.value)"/>
       </div>
+      <button class="mobile-menu-btn" id="theme-toggle-btn" onclick="toggleDarkMode()" title="Toggle dark mode" style="display:flex">
+        <svg viewBox="0 0 24 24" id="theme-icon-moon"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+        <svg viewBox="0 0 24 24" id="theme-icon-sun" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      </button>
       <a href="post-listing.html" class="topbar-btn green">+ New listing</a>
     </div>
   </div>
@@ -804,6 +833,9 @@
           </table>
         </div>
         <div class="mobile-card-list" id="all-listings-mobile"></div>
+        <div style="padding:16px 22px;text-align:center;display:none" id="listings-load-more-wrap">
+          <button class="action-btn view" id="listings-load-more-btn" onclick="loadMoreListings()">Load more</button>
+        </div>
       </div>
     </div>
 
@@ -836,6 +868,11 @@
       </div>
       <div class="card">
         <div class="card-header"><span class="card-title">All payments</span><div class="action-btns"><button class="action-btn view" onclick="exportPaymentsCSV()">Export CSV</button></div></div>
+        <div class="filters-row">
+          <label style="font-size:12px;color:var(--text-3)">From <input class="filter-select" type="date" id="payments-date-from" onchange="loadPayments()" style="margin-left:4px"/></label>
+          <label style="font-size:12px;color:var(--text-3)">To <input class="filter-select" type="date" id="payments-date-to" onchange="loadPayments()" style="margin-left:4px"/></label>
+          <button class="action-btn view" onclick="document.getElementById('payments-date-from').value='';document.getElementById('payments-date-to').value='';loadPayments()">Clear dates</button>
+        </div>
         <div class="table-wrap mobile-hide">
           <table>
             <thead><tr><th>Listing</th><th>Method</th><th>Amount</th><th>Reference</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
@@ -843,6 +880,9 @@
           </table>
         </div>
         <div class="mobile-card-list" id="payments-mobile"></div>
+        <div style="padding:16px 22px;text-align:center;display:none" id="payments-load-more-wrap">
+          <button class="action-btn view" id="payments-load-more-btn" onclick="loadMorePayments()">Load more</button>
+        </div>
       </div>
     </div>
 
@@ -871,17 +911,24 @@
     <!-- USERS -->
     <div class="view" id="view-users">
       <div class="card">
-        <div class="card-header"><span class="card-title">Registered sellers</span></div>
+        <div class="card-header"><span class="card-title">Registered sellers</span><div class="action-btns"><button class="action-btn view" onclick="exportUsersCSV()">Export CSV</button></div></div>
         <div class="filters-row">
           <input class="filter-search" type="text" id="user-search" placeholder="Search by name or email…" oninput="debouncedLoadUsers()"/>
         </div>
+        <div class="bulk-bar" id="users-bulk-bar">
+          <span class="bulk-count" id="users-bulk-count"></span>
+          <button class="action-btn reject" onclick="bulkSuspendUsers()">Suspend selected</button>
+        </div>
         <div class="table-wrap mobile-hide">
           <table>
-            <thead><tr><th>Seller</th><th>Phone</th><th>Listings</th><th>Status</th><th>Joined</th><th>Actions</th></tr></thead>
-            <tbody id="users-body"><tr class="skeleton-row"><td colspan="6"><div class="skel"></div></td></tr></tbody>
+            <thead><tr><th><input type="checkbox" onchange="toggleSelectAllUsers(this.checked)"/></th><th>Seller</th><th>Phone</th><th>Listings</th><th>Status</th><th>Joined</th><th>Actions</th></tr></thead>
+            <tbody id="users-body"><tr class="skeleton-row"><td colspan="7"><div class="skel"></div></td></tr></tbody>
           </table>
         </div>
         <div class="mobile-card-list" id="users-mobile"></div>
+        <div style="padding:16px 22px;text-align:center;display:none" id="users-load-more-wrap">
+          <button class="action-btn view" id="users-load-more-btn" onclick="loadMoreUsers()">Load more</button>
+        </div>
       </div>
     </div>
 
@@ -915,7 +962,10 @@
       <div class="card">
         <div class="card-header">
           <span class="card-title">Reports</span>
-          <span style="font-size:12px;color:var(--text-3)" id="reports-count"></span>
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="font-size:12px;color:var(--text-3)" id="reports-count"></span>
+            <div class="action-btns"><button class="action-btn view" onclick="exportReportsCSV()">Export CSV</button></div>
+          </div>
         </div>
         <div class="tab-bar">
           <button class="tab-btn active" id="rtab-open"       onclick="setReportTab('open')">Open <span class="count" id="rtc-open">—</span></button>
@@ -925,13 +975,20 @@
           <button class="tab-btn"        id="rtab-all"        onclick="setReportTab('all')">All <span class="count" id="rtc-all">—</span></button>
         </div>
         <p style="padding:0 22px 14px;font-size:12px;color:var(--text-3)">Buyers and sellers can flag a listing, a seller, or the platform itself as suspicious. Every report shows the full listing and seller record — nothing is auto-hidden, so review each one before acting.</p>
+        <div class="bulk-bar" id="reports-bulk-bar">
+          <span class="bulk-count" id="reports-bulk-count"></span>
+          <button class="action-btn view" onclick="bulkDismissReports()">Dismiss selected</button>
+        </div>
         <div class="table-wrap mobile-hide">
           <table>
-            <thead><tr><th>Target</th><th>Seller</th><th>Reason</th><th>Reporter</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
-            <tbody id="reports-body"><tr class="skeleton-row"><td colspan="7"><div class="skel"></div></td></tr></tbody>
+            <thead><tr><th><input type="checkbox" onchange="toggleSelectAllReports(this.checked)"/></th><th>Target</th><th>Seller</th><th>Reason</th><th>Reporter</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
+            <tbody id="reports-body"><tr class="skeleton-row"><td colspan="8"><div class="skel"></div></td></tr></tbody>
           </table>
         </div>
         <div class="mobile-card-list" id="reports-mobile"></div>
+        <div style="padding:16px 22px;text-align:center;display:none" id="reports-load-more-wrap">
+          <button class="action-btn view" id="reports-load-more-btn" onclick="loadMoreReports()">Load more</button>
+        </div>
       </div>
     </div>
 
@@ -940,7 +997,10 @@
       <div class="card">
         <div class="card-header">
           <span class="card-title">Reviews</span>
-          <span style="font-size:12px;color:var(--text-3)" id="reviews-count"></span>
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="font-size:12px;color:var(--text-3)" id="reviews-count"></span>
+            <div class="action-btns"><button class="action-btn view" onclick="exportReviewsCSV()">Export CSV</button></div>
+          </div>
         </div>
         <div class="tab-bar">
           <button class="tab-btn active" id="revtab-platform" onclick="setReviewTab('platform')">Platform reviews <span class="count" id="revtc-platform">—</span></button>
@@ -954,6 +1014,9 @@
           </table>
         </div>
         <div class="mobile-card-list" id="reviews-mobile"></div>
+        <div style="padding:16px 22px;text-align:center;display:none" id="reviews-load-more-wrap">
+          <button class="action-btn view" id="reviews-load-more-btn" onclick="loadMoreReviews()">Load more</button>
+        </div>
       </div>
     </div>
 
@@ -985,6 +1048,11 @@
 
     <!-- ANALYTICS -->
     <div class="view" id="view-analytics">
+      <div class="filters-row" style="padding:0 0 16px">
+        <label style="font-size:12px;color:var(--text-3)">From <input class="filter-select" type="date" id="analytics-date-from" onchange="loadAnalytics()" style="margin-left:4px"/></label>
+        <label style="font-size:12px;color:var(--text-3)">To <input class="filter-select" type="date" id="analytics-date-to" onchange="loadAnalytics()" style="margin-left:4px"/></label>
+        <button class="action-btn view" onclick="document.getElementById('analytics-date-from').value='';document.getElementById('analytics-date-to').value='';loadAnalytics()">Clear dates</button>
+      </div>
       <div class="stat-grid" style="grid-template-columns:repeat(3,1fr)">
         <div class="stat-card"><div class="stat-val" id="an-total">—</div><div class="stat-label">Total page views</div></div>
         <div class="stat-card"><div class="stat-val" id="an-today">—</div><div class="stat-label">Views today</div></div>
@@ -1011,6 +1079,11 @@
     <div class="view" id="view-activity-log">
       <div class="card">
         <div class="card-header"><span class="card-title">Admin activity log</span></div>
+        <div class="filters-row">
+          <label style="font-size:12px;color:var(--text-3)">From <input class="filter-select" type="date" id="activity-date-from" onchange="loadActivityLog()" style="margin-left:4px"/></label>
+          <label style="font-size:12px;color:var(--text-3)">To <input class="filter-select" type="date" id="activity-date-to" onchange="loadActivityLog()" style="margin-left:4px"/></label>
+          <button class="action-btn view" onclick="document.getElementById('activity-date-from').value='';document.getElementById('activity-date-to').value='';loadActivityLog()">Clear dates</button>
+        </div>
         <div class="table-wrap">
           <table>
             <thead><tr><th>Admin</th><th>Action</th><th>Target</th><th>Details</th><th>Time</th></tr></thead>
@@ -1165,10 +1238,13 @@
   <div class="acw-body">
     <!-- Conversation list pane -->
     <div class="acw-list-pane" id="acw-list-pane">
-      <div class="acw-newmsg-row">
+      <div class="acw-newmsg-row" style="display:flex;gap:6px">
         <button class="acw-newmsg-btn" onclick="ACW.showNewChat()">
           <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           New message
+        </button>
+        <button class="acw-newmsg-btn" style="background:var(--surface);color:var(--text-2);flex:0 0 auto;padding:9px 12px" title="Mark all as read" onclick="ACW.markAllRead()">
+          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
         </button>
       </div>
       <div class="acw-search">
@@ -1217,6 +1293,9 @@
         <div class="acw-thread-info">
           <div class="acw-thread-name" id="acw-thread-name">Visitor</div>
           <div class="acw-thread-meta" id="acw-thread-meta"></div>
+          <div class="acw-typing-indicator" id="acw-typing-indicator" style="display:none">
+            <span class="acw-typing-dots"><span></span><span></span><span></span></span> typing…
+          </div>
         </div>
         <div class="acw-thread-actions" id="acw-thread-actions"></div>
       </div>
@@ -1239,6 +1318,31 @@
   const SUPABASE_KEY = 'sb_publishable_oIIcecf3wzKMual5K24Z8Q_zmxVfgsx';
   const { createClient } = supabase;
   const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  // ── Dark mode — applied immediately (before any other rendering) so
+  // there's no light-mode flash on load for users who've enabled it. ──
+  (function initTheme() {
+    const saved = localStorage.getItem('nk-admin-theme');
+    if (saved === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+  })();
+  function toggleDarkMode() {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    if (isDark) {
+      document.documentElement.removeAttribute('data-theme');
+      localStorage.setItem('nk-admin-theme', 'light');
+    } else {
+      document.documentElement.setAttribute('data-theme', 'dark');
+      localStorage.setItem('nk-admin-theme', 'dark');
+    }
+    document.getElementById('theme-icon-moon').style.display = isDark ? 'block' : 'none';
+    document.getElementById('theme-icon-sun').style.display  = isDark ? 'none' : 'block';
+  }
+  function syncThemeIcon() {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    document.getElementById('theme-icon-moon').style.display = isDark ? 'none' : 'block';
+    document.getElementById('theme-icon-sun').style.display  = isDark ? 'block' : 'none';
+  }
+
 
   let TRIAL_DAYS = 14;
 
@@ -1388,7 +1492,11 @@
   let currentUser = null;
   let currentView = 'overview';
   let currentTab  = 'all';
+  const PAGE_SIZE = 50;
+  let listingsPage = 0, usersPage = 0, paymentsPage = 0, reportsPage = 0, reviewsPage = 0;
   let selectedListingIds = new Set();
+  let selectedUserIds = new Set();
+  let selectedReportIds = new Set();
   let editingListingId   = null;
   let editingProfileId   = null;
   let upgradingListingId = null;
@@ -1640,12 +1748,21 @@
   // ════════════════════════════════════
   // ALL LISTINGS
   // ════════════════════════════════════
-  async function loadAllListings() {
+  async function loadAllListings(append) {
     const tbody     = document.getElementById('all-listings-body');
     const mobileEl  = document.getElementById('all-listings-mobile');
-    const skelRow   = `<tr class="skeleton-row"><td colspan="9"><div class="skel"></div></td></tr>`;
-    tbody.innerHTML  = skelRow.repeat(4);
-    mobileEl.innerHTML = '';
+    const loadMoreBtn = document.getElementById('listings-load-more-btn');
+    const loadMoreWrap = document.getElementById('listings-load-more-wrap');
+    if (!append) {
+      listingsPage = 0;
+      const skelRow   = `<tr class="skeleton-row"><td colspan="9"><div class="skel"></div></td></tr>`;
+      tbody.innerHTML  = skelRow.repeat(4);
+      mobileEl.innerHTML = '';
+      loadMoreWrap.style.display = 'none';
+    } else {
+      loadMoreBtn.disabled = true;
+      loadMoreBtn.textContent = 'Loading…';
+    }
 
     let q = db.from('listings').select('*, profiles(full_name), listing_photos(*), listing_units(*)',{count:'exact'}).eq('recycle_bin',false);
     if (currentTab==='pending')       q = q.eq('status','pending');
@@ -1663,20 +1780,23 @@
     if (area)   q = q.eq('area',area);
     if (cat)    q = q.eq('category',cat);
     if (search) q = q.or(`title.ilike.%${search}%,area.ilike.%${search}%`);
-    q = q.order('created_at',{ascending:false}).limit(50);
+    q = q.order('created_at',{ascending:false}).range(listingsPage*PAGE_SIZE, listingsPage*PAGE_SIZE+PAGE_SIZE-1);
 
     const {data, count, error} = await q;
     document.getElementById('listings-count').textContent = `${count||0} listings`;
 
-    if (error || !data?.length) {
+    if (loadMoreBtn) { loadMoreBtn.disabled = false; loadMoreBtn.textContent = 'Load more'; }
+
+    if (error || (!append && !data?.length)) {
       tbody.innerHTML    = `<tr><td colspan="9"><div class="table-loading"><p>No listings found</p></div></td></tr>`;
       mobileEl.innerHTML = `<div class="table-loading"><p>No listings found</p></div>`;
       return;
     }
+    if (append && !data?.length) { loadMoreWrap.style.display = 'none'; return; }
 
     data.forEach(l => { _listings[l.id] = l; });
 
-    tbody.innerHTML = data.map(l => {
+    const rowsHtml = data.map(l => {
       const cover = (l.listing_photos||[]).find(p=>p.is_cover)||(l.listing_photos||[])[0];
       const thumb = cover ? `<img src="${esc(cover.url)}" alt=""/>` : `<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>`;
       const payClass = l.payment_status==='paid'?'paid':l.payment_status==='trial'?'trial':l.payment_status==='submitted'?'pending':'unpaid';
@@ -1728,7 +1848,7 @@
       </tr>`;
     }).join('');
 
-    mobileEl.innerHTML = data.map(l => {
+    const mobileHtml = data.map(l => {
       const cover = (l.listing_photos||[]).find(p=>p.is_cover)||(l.listing_photos||[])[0];
       const thumb = cover ? `<img src="${esc(cover.url)}" alt=""/>` : `<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>`;
       const payClass = l.payment_status==='paid'?'paid':l.payment_status==='trial'?'trial':l.payment_status==='submitted'?'pending':'unpaid';
@@ -1764,8 +1884,14 @@
       </div>`;
     }).join('');
 
+    if (append) { tbody.innerHTML += rowsHtml; mobileEl.innerHTML += mobileHtml; }
+    else        { tbody.innerHTML  = rowsHtml; mobileEl.innerHTML  = mobileHtml; }
+
+    loadMoreWrap.style.display = (data.length === PAGE_SIZE) ? 'block' : 'none';
     renderBulkBar();
   }
+  function loadMoreListings() { listingsPage++; loadAllListings(true); }
+
 
   function toggleSelectListing(id,checked) { if(checked) selectedListingIds.add(id); else selectedListingIds.delete(id); renderBulkBar(); }
   function toggleSelectAllListings(checked) {
@@ -2157,23 +2283,54 @@
   }
 
   // ─── PAYMENTS ───
-  async function loadPayments() {
+  async function loadPayments(append) {
     const tbody    = document.getElementById('payments-body');
     const mobileEl = document.getElementById('payments-mobile');
-    tbody.innerHTML    = `<tr class="skeleton-row"><td colspan="7"><div class="skel"></div></td></tr>`.repeat(4);
-    mobileEl.innerHTML = '';
-    const {data,error} = await db.from('payments').select('*, listings(title, seller_id)').order('created_at',{ascending:false}).limit(100);
-    const confirmed = (data||[]).filter(p=>p.status==='confirmed').reduce((s,p)=>s+Number(p.amount),0);
-    const pending   = (data||[]).filter(p=>p.status==='pending_verification'||p.status==='pending').reduce((s,p)=>s+Number(p.amount),0);
-    document.getElementById('rev-total-banner').textContent   = fmtPrice(confirmed);
-    document.getElementById('rev-pending-banner').textContent = fmtPrice(pending);
-    if(error||!data?.length){
+    const loadMoreBtn = document.getElementById('payments-load-more-btn');
+    const loadMoreWrap = document.getElementById('payments-load-more-wrap');
+    if (!append) {
+      paymentsPage = 0;
+      tbody.innerHTML    = `<tr class="skeleton-row"><td colspan="7"><div class="skel"></div></td></tr>`.repeat(4);
+      mobileEl.innerHTML = '';
+      if (loadMoreWrap) loadMoreWrap.style.display = 'none';
+
+      // Revenue totals must reflect ALL payments, not just whichever page of
+      // rows is currently loaded — fetched separately (amount+status only)
+      // so pagination below can't silently under-report the banner.
+      const fromV0 = document.getElementById('payments-date-from')?.value;
+      const toV0   = document.getElementById('payments-date-to')?.value;
+      let aq = db.from('payments').select('amount,status');
+      if (fromV0) aq = aq.gte('created_at', fromV0 + 'T00:00:00');
+      if (toV0)   aq = aq.lte('created_at', toV0 + 'T23:59:59');
+      const { data: allAmounts } = await aq;
+      const confirmedAll = (allAmounts||[]).filter(p=>p.status==='confirmed').reduce((s,p)=>s+Number(p.amount),0);
+      const pendingAll   = (allAmounts||[]).filter(p=>p.status==='pending_verification'||p.status==='pending').reduce((s,p)=>s+Number(p.amount),0);
+      document.getElementById('rev-total-banner').textContent   = fmtPrice(confirmedAll);
+      document.getElementById('rev-pending-banner').textContent = fmtPrice(pendingAll);
+    } else if (loadMoreBtn) {
+      loadMoreBtn.disabled = true; loadMoreBtn.textContent = 'Loading…';
+    }
+
+    const {data,error} = await (function(){
+      let pq = db.from('payments').select('*, listings(title, seller_id)').order('created_at',{ascending:false});
+      const fromV = document.getElementById('payments-date-from')?.value;
+      const toV   = document.getElementById('payments-date-to')?.value;
+      if (fromV) pq = pq.gte('created_at', fromV + 'T00:00:00');
+      if (toV)   pq = pq.lte('created_at', toV + 'T23:59:59');
+      return pq.range(paymentsPage*PAGE_SIZE, paymentsPage*PAGE_SIZE+PAGE_SIZE-1);
+    })();
+
+    if (loadMoreBtn) { loadMoreBtn.disabled = false; loadMoreBtn.textContent = 'Load more'; }
+
+    if(error||(!append && !data?.length)){
       tbody.innerHTML    = `<tr><td colspan="7"><div class="table-loading"><p>No payments yet</p></div></td></tr>`;
       mobileEl.innerHTML = `<div class="table-loading"><p>No payments yet</p></div>`;
       return;
     }
+    if (append && !data?.length) { if(loadMoreWrap) loadMoreWrap.style.display='none'; return; }
+
     data.forEach(p => { _payments[p.id] = p; });
-    tbody.innerHTML = data.map(p => `<tr>
+    const rowsHtmlPay = data.map(p => `<tr>
       <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(p.listings?.title||'—')}</td>
       <td style="text-transform:capitalize">${p.method||'—'}</td>
       <td style="font-weight:600">${fmtPrice(p.amount)}</td>
@@ -2184,7 +2341,9 @@
         ? `<div class="action-btns">${aBtn('approve','Confirm payment','approve',`confirmPayment('${p.id}','${p.listing_id}')`)}</div>`
         : '—'}</td>
     </tr>`).join('');
-    mobileEl.innerHTML = data.map(p => `<div class="mobile-card">
+    if (append) tbody.innerHTML += rowsHtmlPay; else tbody.innerHTML = rowsHtmlPay;
+
+    const mobileHtmlPay = data.map(p => `<div class="mobile-card">
       <div class="mobile-card-header">
         <div style="flex:1;min-width:0">
           <div style="font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(p.listings?.title||'—')}</div>
@@ -2200,7 +2359,11 @@
         ? `<div class="mobile-card-actions"><button class="action-btn approve" style="flex:1" onclick="confirmPayment('${p.id}','${p.listing_id}')">Confirm payment</button></div>`
         : ''}
     </div>`).join('');
+    if (append) mobileEl.innerHTML += mobileHtmlPay; else mobileEl.innerHTML = mobileHtmlPay;
+
+    if (loadMoreWrap) loadMoreWrap.style.display = (data.length === PAGE_SIZE) ? 'block' : 'none';
   }
+  function loadMorePayments() { paymentsPage++; loadPayments(true); }
 
   async function confirmPayment(id, listingId) {
     const {error} = await db.from('payments').update({status:'confirmed'}).eq('id',id);
@@ -2211,22 +2374,33 @@
     loadPayments(); loadOverview();
   }
 
-async function loadUsers() {
+async function loadUsers(append) {
     const tbody    = document.getElementById('users-body');
     const mobileEl = document.getElementById('users-mobile');
-    tbody.innerHTML    = `<tr class="skeleton-row"><td colspan="6"><div class="skel"></div></td></tr>`.repeat(4);
-    mobileEl.innerHTML = '';
+    const loadMoreBtn = document.getElementById('users-load-more-btn');
+    const loadMoreWrap = document.getElementById('users-load-more-wrap');
+    if (!append) {
+      usersPage = 0;
+      tbody.innerHTML    = `<tr class="skeleton-row"><td colspan="6"><div class="skel"></div></td></tr>`.repeat(4);
+      mobileEl.innerHTML = '';
+      if (loadMoreWrap) loadMoreWrap.style.display = 'none';
+    } else if (loadMoreBtn) {
+      loadMoreBtn.disabled = true; loadMoreBtn.textContent = 'Loading…';
+    }
 
     const search = document.getElementById('user-search')?.value.trim() || '';
     let q = db.from('profiles').select('*').order('created_at', { ascending: false });
     if (search) q = q.or(`full_name.ilike.%${search}%,email.ilike.%${search}%`);
-    const { data, error } = await q.limit(100);
+    const { data, error } = await q.range(usersPage*PAGE_SIZE, usersPage*PAGE_SIZE+PAGE_SIZE-1);
 
-    if (error || !data?.length) {
-      tbody.innerHTML    = `<tr><td colspan="6"><div class="table-loading"><p>No sellers found</p></div></td></tr>`;
+    if (loadMoreBtn) { loadMoreBtn.disabled = false; loadMoreBtn.textContent = 'Load more'; }
+
+    if (error || (!append && !data?.length)) {
+      tbody.innerHTML    = `<tr><td colspan="7"><div class="table-loading"><p>No sellers found</p></div></td></tr>`;
       mobileEl.innerHTML = `<div class="table-loading"><p>No sellers found</p></div>`;
       return;
     }
+    if (append && !data?.length) { if (loadMoreWrap) loadMoreWrap.style.display = 'none'; return; }
 
     const rows = await Promise.all((data || []).map(async u => {
       const [{ count: listingCount }, { data: chatSess }] = await Promise.all([
@@ -2245,9 +2419,10 @@ async function loadUsers() {
 
     rows.forEach(u => { _users[u.id] = u; });
 
-    tbody.innerHTML = rows.map(u => {
+    const rowsHtmlUsers = rows.map(u => {
       const ini = (u.full_name || '?').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
       return `<tr>
+        <td><input type="checkbox" class="user-select-cb" data-id="${u.id}" onchange="toggleSelectUser('${u.id}',this.checked)" ${selectedUserIds.has(u.id)?'checked':''}/></td>
         <td><div class="user-cell">
           <div class="user-avatar">${ini}</div>
           <div>
@@ -2285,8 +2460,9 @@ async function loadUsers() {
         </td>
       </tr>`;
     }).join('');
+    if (append) tbody.innerHTML += rowsHtmlUsers; else tbody.innerHTML = rowsHtmlUsers;
 
-    mobileEl.innerHTML = rows.map(u => {
+    const mobileHtmlUsers = rows.map(u => {
       const ini = (u.full_name || '?').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
       return `<div class="mobile-card">
         <div class="mobile-card-header">
@@ -2314,6 +2490,44 @@ async function loadUsers() {
         </div>
       </div>`;
     }).join('');
+    if (append) mobileEl.innerHTML += mobileHtmlUsers; else mobileEl.innerHTML = mobileHtmlUsers;
+
+    if (loadMoreWrap) loadMoreWrap.style.display = (data.length === PAGE_SIZE) ? 'block' : 'none';
+    renderUsersBulkBar();
+  }
+  function loadMoreUsers() { usersPage++; loadUsers(true); }
+
+  function toggleSelectUser(id,checked) { if(checked) selectedUserIds.add(id); else selectedUserIds.delete(id); renderUsersBulkBar(); }
+  function toggleSelectAllUsers(checked) {
+    document.querySelectorAll('.user-select-cb').forEach(cb => {
+      cb.checked = checked;
+      if(checked) selectedUserIds.add(cb.dataset.id); else selectedUserIds.delete(cb.dataset.id);
+    });
+    renderUsersBulkBar();
+  }
+  function renderUsersBulkBar() {
+    const bar = document.getElementById('users-bulk-bar');
+    if (!bar) return;
+    if (!selectedUserIds.size) { bar.classList.remove('show'); return; }
+    bar.classList.add('show');
+    document.getElementById('users-bulk-count').textContent = selectedUserIds.size + ' selected';
+  }
+  function bulkSuspendUsers() {
+    const ids = [...selectedUserIds];
+    if (!ids.length) return;
+    openConfirm({
+      title: `Suspend ${ids.length} seller account(s)?`,
+      message: `All of their listings are hidden from buyers immediately and they cannot post new listings until reinstated.`,
+      requireReason: true, reasonLabel: 'Internal note — not shown to sellers',
+      confirmText: `Suspend ${ids.length} account(s)`, confirmClass: 'reject',
+      onConfirm: async (reason) => {
+        for (const id of ids) await db.from('profiles').update({is_disabled:true,disabled_reason:reason}).eq('id',id);
+        logAction('bulk_suspend_profile','profile','multiple',`${ids.length} seller(s)`);
+        toast(`${ids.length} seller(s) suspended`,'success');
+        selectedUserIds.clear();
+        loadUsers();
+      }
+    });
   }
 
 async function messageSellerInChat(sellerId, sellerName) {
@@ -2636,25 +2850,39 @@ async function messageSellerInChat(sellerId, sellerName) {
     wrong_info:'Details don\'t match', offensive:'Offensive content', other:'Other'
   };
 
-  async function loadReports() {
+  async function loadReports(append) {
     const tbody    = document.getElementById('reports-body');
     const mobileEl = document.getElementById('reports-mobile');
-    tbody.innerHTML    = `<tr class="skeleton-row"><td colspan="7"><div class="skel"></div></td></tr>`.repeat(4);
-    mobileEl.innerHTML = '';
+    const loadMoreBtn = document.getElementById('reports-load-more-btn');
+    const loadMoreWrap = document.getElementById('reports-load-more-wrap');
+    if (!append) {
+      reportsPage = 0;
+      _reports = [];
+      _reportTargetsCache.listing = {};
+      _reportTargetsCache.seller  = {};
+      tbody.innerHTML    = `<tr class="skeleton-row"><td colspan="7"><div class="skel"></div></td></tr>`.repeat(4);
+      mobileEl.innerHTML = '';
+      if (loadMoreWrap) loadMoreWrap.style.display = 'none';
+    } else if (loadMoreBtn) {
+      loadMoreBtn.disabled = true; loadMoreBtn.textContent = 'Loading…';
+    }
 
-    const { data, error } = await db.from('reports').select('*').order('created_at',{ascending:false}).limit(300);
-    if (error || !data) {
+    const { data, error } = await db.from('reports').select('*').order('created_at',{ascending:false}).range(reportsPage*PAGE_SIZE, reportsPage*PAGE_SIZE+PAGE_SIZE-1);
+    if (loadMoreBtn) { loadMoreBtn.disabled = false; loadMoreBtn.textContent = 'Load more'; }
+    if (error || (!append && !data)) {
       tbody.innerHTML    = `<tr><td colspan="7"><div class="table-loading"><p>Could not load reports</p></div></td></tr>`;
       mobileEl.innerHTML = `<div class="table-loading"><p>Could not load reports</p></div>`;
       return;
     }
-    _reports = data;
+    if (append && !data?.length) { if (loadMoreWrap) loadMoreWrap.style.display='none'; return; }
+
+    // Accumulate across pages — tab counts below are computed from the full
+    // running set, not just this page, so "Load more" never makes counts
+    // regress or under-report what's actually been loaded so far.
+    _reports = append ? _reports.concat(data) : data;
 
     const listingIds      = [...new Set(data.filter(r=>r.target_type==='listing' && r.target_id).map(r=>r.target_id))];
     const directSellerIds = [...new Set(data.filter(r=>r.target_type==='seller'  && r.target_id).map(r=>r.target_id))];
-
-    _reportTargetsCache.listing = {};
-    _reportTargetsCache.seller  = {};
 
     if (listingIds.length) {
       const { data: ls } = await db.from('listings').select('*, listing_photos(*), listing_units(*), profiles(*)').in('id', listingIds);
@@ -2673,18 +2901,20 @@ async function messageSellerInChat(sellerId, sellerName) {
     }
 
     const counts2 = {};
-    data.forEach(r => {
+    _reports.forEach(r => {
       const seller = reportTargetSeller(r);
       if (seller) counts2[seller.id] = (counts2[seller.id]||0) + 1;
     });
     _reportSellerCountsApprox = counts2;
 
-    const counts = { open:0, reviewing:0, resolved:0, dismissed:0, all:data.length };
-    data.forEach(r => { if (counts[r.status]!==undefined) counts[r.status]++; });
+    const counts = { open:0, reviewing:0, resolved:0, dismissed:0, all:_reports.length };
+    _reports.forEach(r => { if (counts[r.status]!==undefined) counts[r.status]++; });
     Object.entries(counts).forEach(([k,v]) => { const el=document.getElementById('rtc-'+k); if(el) el.textContent=v; });
 
+    if (loadMoreWrap) loadMoreWrap.style.display = (data.length === PAGE_SIZE) ? 'block' : 'none';
     renderReportsTable();
   }
+  function loadMoreReports() { reportsPage++; loadReports(true); }
 
   function setReportTab(tab) {
     reportTab = tab;
@@ -2712,7 +2942,7 @@ async function messageSellerInChat(sellerId, sellerName) {
     const mobileEl = document.getElementById('reports-mobile');
 
     if (!filtered.length) {
-      tbody.innerHTML    = `<tr><td colspan="7"><div class="table-loading"><p>Nothing here</p></div></td></tr>`;
+      tbody.innerHTML    = `<tr><td colspan="8"><div class="table-loading"><p>Nothing here</p></div></td></tr>`;
       mobileEl.innerHTML = `<div class="table-loading"><p>Nothing here</p></div>`;
       return;
     }
@@ -2724,6 +2954,7 @@ async function messageSellerInChat(sellerId, sellerName) {
       const cover = listing ? ((listing.listing_photos||[]).find(p=>p.is_cover)||(listing.listing_photos||[])[0]) : null;
       const thumb = cover ? `<img src="${esc(cover.url)}" alt=""/>` : `<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>`;
       return `<tr>
+        <td><input type="checkbox" class="report-select-cb" data-id="${r.id}" onchange="toggleSelectReport('${r.id}',this.checked)" ${selectedReportIds.has(r.id)?'checked':''}/></td>
         <td><div class="listing-thumb">
           ${listing?`<div class="thumb-img">${thumb}</div>`:''}
           <div class="listing-info">
@@ -2778,6 +3009,33 @@ async function messageSellerInChat(sellerId, sellerName) {
         </div>
       </div>`;
     }).join('');
+    renderReportsBulkBar();
+  }
+
+  function toggleSelectReport(id,checked) { if(checked) selectedReportIds.add(id); else selectedReportIds.delete(id); renderReportsBulkBar(); }
+  function toggleSelectAllReports(checked) {
+    document.querySelectorAll('.report-select-cb').forEach(cb => {
+      cb.checked = checked;
+      if(checked) selectedReportIds.add(cb.dataset.id); else selectedReportIds.delete(cb.dataset.id);
+    });
+    renderReportsBulkBar();
+  }
+  function renderReportsBulkBar() {
+    const bar = document.getElementById('reports-bulk-bar');
+    if (!bar) return;
+    if (!selectedReportIds.size) { bar.classList.remove('show'); return; }
+    bar.classList.add('show');
+    document.getElementById('reports-bulk-count').textContent = selectedReportIds.size + ' selected';
+  }
+  async function bulkDismissReports() {
+    const ids = [...selectedReportIds];
+    if (!ids.length) return;
+    for (const id of ids) await db.from('reports').update({status:'dismissed',resolved_at:new Date().toISOString()}).eq('id',id);
+    logAction('bulk_dismiss_report','report','multiple',`${ids.length} report(s)`);
+    toast(`${ids.length} report(s) dismissed`,'success');
+    selectedReportIds.clear();
+    loadReports();
+    loadReportsBadge();
   }
 
   function quickSuspendSeller(sellerId) { disableProfileFlow(sellerId); }
@@ -2892,28 +3150,43 @@ async function messageSellerInChat(sellerId, sellerName) {
   let reviewTab = 'platform';
   let editingReviewId = null;
 
-  async function loadReviews() {
+  async function loadReviews(append) {
     const tbody    = document.getElementById('reviews-body');
     const mobileEl = document.getElementById('reviews-mobile');
-    tbody.innerHTML    = `<tr class="skeleton-row"><td colspan="7"><div class="skel"></div></td></tr>`.repeat(4);
-    mobileEl.innerHTML = '';
+    const loadMoreBtn = document.getElementById('reviews-load-more-btn');
+    const loadMoreWrap = document.getElementById('reviews-load-more-wrap');
+    if (!append) {
+      reviewsPage = 0;
+      _reviews = [];
+      tbody.innerHTML    = `<tr class="skeleton-row"><td colspan="7"><div class="skel"></div></td></tr>`.repeat(4);
+      mobileEl.innerHTML = '';
+      if (loadMoreWrap) loadMoreWrap.style.display = 'none';
+    } else if (loadMoreBtn) {
+      loadMoreBtn.disabled = true; loadMoreBtn.textContent = 'Loading…';
+    }
 
     const { data, error } = await db
       .from('reviews')
       .select('*, target_seller:profiles!target_seller_id(full_name), listings(title)')
       .order('created_at',{ascending:false})
-      .limit(300);
+      .range(reviewsPage*PAGE_SIZE, reviewsPage*PAGE_SIZE+PAGE_SIZE-1);
 
-    if (error || !data) {
+    if (loadMoreBtn) { loadMoreBtn.disabled = false; loadMoreBtn.textContent = 'Load more'; }
+
+    if (error || (!append && !data)) {
       tbody.innerHTML    = `<tr><td colspan="7"><div class="table-loading"><p>Could not load reviews</p></div></td></tr>`;
       mobileEl.innerHTML = `<div class="table-loading"><p>Could not load reviews</p></div>`;
       return;
     }
-    _reviews = data;
-    document.getElementById('revtc-platform').textContent = data.filter(r=>r.review_type==='platform').length;
-    document.getElementById('revtc-seller').textContent   = data.filter(r=>r.review_type==='seller').length;
+    if (append && !data?.length) { if (loadMoreWrap) loadMoreWrap.style.display='none'; return; }
+
+    _reviews = append ? _reviews.concat(data) : data;
+    document.getElementById('revtc-platform').textContent = _reviews.filter(r=>r.review_type==='platform').length;
+    document.getElementById('revtc-seller').textContent   = _reviews.filter(r=>r.review_type==='seller').length;
+    if (loadMoreWrap) loadMoreWrap.style.display = (data.length === PAGE_SIZE) ? 'block' : 'none';
     renderReviewsTable();
   }
+  function loadMoreReviews() { reviewsPage++; loadReviews(true); }
 
   function setReviewTab(tab) {
     reviewTab = tab;
@@ -3219,12 +3492,17 @@ async function toggleReviewPublish(id, isCurrentlyPublished) {
 
   // ─── ANALYTICS ───
   async function loadAnalytics() {
+    const fromV = document.getElementById('analytics-date-from')?.value;
+    const toV   = document.getElementById('analytics-date-to')?.value;
     const {count:total} = await db.from('page_views').select('*',{count:'exact',head:true});
     document.getElementById('an-total').textContent = total||0;
     const todayStart = new Date(); todayStart.setHours(0,0,0,0);
     const {count:today} = await db.from('page_views').select('*',{count:'exact',head:true}).gte('created_at',todayStart.toISOString());
     document.getElementById('an-today').textContent = today||0;
-    const {data:recent} = await db.from('page_views').select('*').order('created_at',{ascending:false}).limit(300);
+    let rq = db.from('page_views').select('*').order('created_at',{ascending:false});
+    if (fromV) rq = rq.gte('created_at', fromV + 'T00:00:00');
+    if (toV)   rq = rq.lte('created_at', toV + 'T23:59:59');
+    const {data:recent} = await rq.limit(300);
     const sessions = new Set((recent||[]).map(r=>r.session_id));
     document.getElementById('an-sessions').textContent = sessions.size;
     const pathCounts = {};
@@ -3250,7 +3528,12 @@ async function toggleReviewPublish(id, isCurrentlyPublished) {
   async function loadActivityLog() {
     const tbody = document.getElementById('activity-log-body');
     tbody.innerHTML = `<tr class="skeleton-row"><td colspan="5"><div class="skel"></div></td></tr>`.repeat(4);
-    const {data,error} = await db.from('admin_logs').select('*').order('created_at',{ascending:false}).limit(150);
+    const fromV = document.getElementById('activity-date-from')?.value;
+    const toV   = document.getElementById('activity-date-to')?.value;
+    let aq = db.from('admin_logs').select('*').order('created_at',{ascending:false});
+    if (fromV) aq = aq.gte('created_at', fromV + 'T00:00:00');
+    if (toV)   aq = aq.lte('created_at', toV + 'T23:59:59');
+    const {data,error} = await aq.limit(150);
     if(error||!data?.length){
       tbody.innerHTML = `<tr><td colspan="5"><div class="table-loading"><p>No activity yet</p></div></td></tr>`;
       return;
@@ -3303,6 +3586,18 @@ async function toggleReviewPublish(id, isCurrentlyPublished) {
   async function exportPaymentsCSV() {
     const {data} = await db.from('payments').select('id,listing_id,amount,method,reference,status,created_at');
     exportCSV(data||[], `nyumba254-payments-${Date.now()}.csv`);
+  }
+  async function exportUsersCSV() {
+    const {data} = await db.from('profiles').select('id,full_name,email,phone,role,is_disabled,created_at');
+    exportCSV(data||[], `nyumba254-sellers-${Date.now()}.csv`);
+  }
+  async function exportReportsCSV() {
+    const {data} = await db.from('reports').select('id,target_type,target_id,reason,details,reporter_name,status,created_at');
+    exportCSV(data||[], `nyumba254-reports-${Date.now()}.csv`);
+  }
+  async function exportReviewsCSV() {
+    const {data} = await db.from('reviews').select('id,review_type,rating,reviewer_name,reviewer_role,comment,status,created_at');
+    exportCSV(data||[], `nyumba254-reviews-${Date.now()}.csv`);
   }
 
   // ─── VIEW SWITCHING ───
@@ -3386,6 +3681,9 @@ async function toggleReviewPublish(id, isCurrentlyPublished) {
     let search = '';
     let msgChannel = null;
     let globalChannel = null;
+    let typingChannel = null;
+    let typingHideTimer = null;
+    let adminTypingTimer = null;
     let isOpen = false;
     let currentSellerName = null;
     let currentThreadSessionKey = null;
@@ -3443,6 +3741,7 @@ async function toggleReviewPublish(id, isCurrentlyPublished) {
           if (p.new.sender !== 'admin') {
             refreshBadge();
             if (isOpen) loadList();
+            notifyNewMessage(p.new);
           }
         })
         .subscribe((status) => {
@@ -3461,6 +3760,41 @@ async function toggleReviewPublish(id, isCurrentlyPublished) {
         if (!document.hidden) refreshBadge();
       });
       window.addEventListener('focus', refreshBadge);
+
+      if ('Notification' in window && Notification.permission === 'default') {
+        Notification.requestPermission().catch(()=>{});
+      }
+    }
+
+    // Sound ping — synthesized via Web Audio, no external asset needed.
+    function playPing() {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.type = 'sine'; osc.frequency.value = 880;
+        gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.15, ctx.currentTime + 0.01);
+        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.35);
+        osc.start(); osc.stop(ctx.currentTime + 0.35);
+      } catch (e) { /* Web Audio unavailable — silently skip */ }
+    }
+
+    // Browser notification + sound for a new incoming message. Only fires a
+    // desktop notification when the tab is backgrounded (matches how most
+    // chat apps behave) — sound plays either way as a lighter-weight cue.
+    function notifyNewMessage(msg) {
+      playPing();
+      if (document.hidden && 'Notification' in window && Notification.permission === 'granted') {
+        try {
+          const n = new Notification('New message — Nyumba254 Admin', {
+            body: (msg.body || '').slice(0, 120),
+            tag: 'nk-admin-chat',
+          });
+          n.onclick = () => { window.focus(); n.close(); };
+        } catch (e) { /* Notification constructor can throw in some contexts — ignore */ }
+      }
     }
 
     async function loadList() {
@@ -3468,6 +3802,17 @@ async function toggleReviewPublish(id, isCurrentlyPublished) {
       sessions = data || [];
       renderList();
       renderTabBadges();
+    }
+
+    async function markAllRead() {
+      const unreadIds = sessions.filter(s => (s.unread_admin||0) > 0).map(s => s.id);
+      if (!unreadIds.length) { toast('Nothing to mark — all caught up','success'); return; }
+      await db.from('chat_sessions').update({unread_admin:0}).in('id', unreadIds);
+      sessions.forEach(s => { if (unreadIds.includes(s.id)) s.unread_admin = 0; });
+      renderList();
+      renderTabBadges();
+      refreshBadge();
+      toast('All conversations marked read ✓','success');
     }
 
     // Per-tab badges count actual unread MESSAGES (sum of unread_admin),
@@ -3590,6 +3935,8 @@ async function toggleReviewPublish(id, isCurrentlyPublished) {
       document.getElementById('acw-newchat-pane').classList.remove('active');
       activeId = null;
       if (msgChannel) { msgChannel.unsubscribe(); msgChannel = null; }
+      if (typingChannel) { typingChannel.unsubscribe(); typingChannel = null; }
+      hideTyping();
       loadList();
     }
 
@@ -3704,15 +4051,47 @@ async function toggleReviewPublish(id, isCurrentlyPublished) {
           if (messages.find(x=>x.id===m.id)) return;
           messages.push(m);
           renderMessages();
-          if (m.sender !== 'admin') db.from('chat_messages').update({read_at:new Date().toISOString()}).eq('id', m.id);
+          if (m.sender !== 'admin') {
+            db.from('chat_messages').update({read_at:new Date().toISOString()}).eq('id', m.id);
+            hideTyping();
+          }
         })
         .subscribe();
+      subscribeTyping(id);
+    }
+
+    function subscribeTyping(id) {
+      if (typingChannel) typingChannel.unsubscribe();
+      typingChannel = db.channel(`acw-typing-${id}`)
+        .on('broadcast', {event:'typing'}, ({payload}) => {
+          if (payload.sender === 'admin') return;
+          if (payload.typing) showTyping(); else hideTyping();
+        })
+        .subscribe();
+    }
+    function showTyping() {
+      const el = document.getElementById('acw-typing-indicator');
+      if (el) el.style.display = 'flex';
+      clearTimeout(typingHideTimer);
+      typingHideTimer = setTimeout(hideTyping, 4000);
+    }
+    function hideTyping() {
+      clearTimeout(typingHideTimer);
+      const el = document.getElementById('acw-typing-indicator');
+      if (el) el.style.display = 'none';
     }
 
     function onInput(el) {
       document.getElementById('acw-send-btn').disabled = !el.value.trim();
       el.style.height = 'auto';
       el.style.height = Math.min(el.scrollHeight, 90) + 'px';
+      if (typingChannel) {
+        typingChannel.send({type:'broadcast', event:'typing', payload:{sender:'admin', typing:true}});
+        clearTimeout(adminTypingTimer);
+        adminTypingTimer = setTimeout(() => {
+          if (typingChannel) typingChannel.send({type:'broadcast', event:'typing', payload:{sender:'admin', typing:false}});
+        }, 3000);
+      }
     }
     function onKeyDown(e) {
       if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); send(); }
@@ -3724,6 +4103,8 @@ async function toggleReviewPublish(id, isCurrentlyPublished) {
       if (!body || !activeId) return;
       const btn = document.getElementById('acw-send-btn');
       btn.disabled = true; input.value=''; input.style.height='auto';
+      clearTimeout(adminTypingTimer);
+      if (typingChannel) typingChannel.send({type:'broadcast', event:'typing', payload:{sender:'admin', typing:false}});
 
       const { data: msg, error } = await db.from('chat_messages').insert({session_id:activeId, sender:'admin', body}).select().single();
       if (error) { toast('Failed to send','error'); btn.disabled=false; return; }
@@ -3775,7 +4156,7 @@ async function toggleReviewPublish(id, isCurrentlyPublished) {
       open, close, openFullPage, openThread, backToList, setFilter, filterList,
       onInput, onKeyDown, send, resolve, reopen, init,
       showNewChat, hideNewChat, onNewChatInput, searchSellers, startChatWith,
-      startNewTopicForCurrentSeller,
+      startNewTopicForCurrentSeller, markAllRead,
     };
   })();
 
@@ -3784,6 +4165,7 @@ async function toggleReviewPublish(id, isCurrentlyPublished) {
     await checkAuth();
     populateCountyFilter();
     await loadSettings();
+    syncThemeIcon();
     loadOverview();
     loadEnquiriesBadge();
     loadReportsBadge();
