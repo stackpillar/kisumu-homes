@@ -1349,6 +1349,20 @@
       return;
     }
 
+    // Fire-and-forget confirmation email via the notify-email edge function. This
+    // uses the same "type"-routed template system as the rest of the site's
+    // transactional emails (see supabase/functions/notify-email). We deliberately
+    // don't await/block the UI on this and swallow any error — a failed
+    // confirmation email should never stop the alert from being saved, since the
+    // alert row is already committed and is what actually drives future matches.
+    db.functions.invoke('notify-email', {
+      body: {
+        type: 'alert_confirmation',
+        alertName: name,
+        alertEmail: email,
+      },
+    }).catch(err => console.warn('Alert confirmation email failed to send:', err));
+
     document.getElementById('notify-modal-overlay').classList.remove('open');
     document.body.style.overflow = '';
     nfResetForm();
