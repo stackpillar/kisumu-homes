@@ -1750,7 +1750,11 @@ async function notifyByEmail(type,payload){
   try{
     const res=await fetch(`${EDGE_URL}/send-notification-email`,{
       method:'POST',
-      headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY},
+      headers:{
+        'Content-Type':'application/json',
+        'apikey':SUPABASE_KEY,
+        'Authorization':`Bearer ${SUPABASE_KEY}`,
+      },
       body:JSON.stringify({type,...payload}),
     });
     if(!res.ok)console.error('notifyByEmail: edge function returned',res.status);
