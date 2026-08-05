@@ -876,7 +876,7 @@
             </div>
             <h4>Message sent!</h4>
             <p>The seller will reply here and may also contact you on your phone. Check back on this page to see their reply.</p>
-            <button onclick="nkToggleChatWidget()" style="margin-top:8px;font-size:13px;color:var(--green);background:none;border:none;cursor:pointer;font-weight:500">View conversation →</button>
+            <button onclick="NKGlobalChat.registerAndOpen(listingId)" style="margin-top:8px;font-size:13px;color:var(--green);background:none;border:none;cursor:pointer;font-weight:500">View conversation →</button>
           </div>
 
           <!-- Conversation card (shown on RETURN visits, once a buyer already
@@ -888,7 +888,7 @@
             </div>
             <h4>You have an ongoing conversation</h4>
             <p>Continue chatting with the seller in the chat window.</p>
-            <button onclick="nkToggleChatWidget()" style="margin-top:8px;font-size:13px;color:var(--green);background:none;border:none;cursor:pointer;font-weight:500">View conversation →</button>
+            <button onclick="NKGlobalChat.registerAndOpen(listingId)" style="margin-top:8px;font-size:13px;color:var(--green);background:none;border:none;cursor:pointer;font-weight:500">View conversation →</button>
             <button onclick="clearThread()" style="margin-top:10px;font-size:12px;color:var(--text-3);background:none;border:none;cursor:pointer;display:block;margin-left:auto;margin-right:auto">Start new enquiry</button>
           </div>
 
@@ -944,35 +944,6 @@
   <div id="nk-lightbox-counter"></div>
 </div>
 
-<!-- ══ FLOATING CHAT WIDGET ══ -->
-<div id="nk-chat-widget-btn" onclick="nkToggleChatWidget()" style="display:none">
-  <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="white" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-  <span id="nk-chat-widget-badge" style="display:none">0</span>
-</div>
-
-<div id="nk-chat-widget-panel">
-  <div id="nk-chat-widget-header">
-    <div id="nk-chat-widget-header-info">
-      <div id="nk-chat-widget-avatar">S</div>
-      <div>
-        <div id="nk-chat-widget-name">Seller</div>
-        <div id="nk-chat-widget-status">Conversation</div>
-      </div>
-    </div>
-    <button id="nk-chat-widget-close" onclick="nkToggleChatWidget()" aria-label="Close chat">
-      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-    </button>
-  </div>
-  <div id="nk-chat-widget-messages">
-    <div style="text-align:center;font-size:12px;color:var(--text-3);padding:16px">Loading messages…</div>
-  </div>
-  <div id="nk-chat-widget-input-row">
-    <textarea id="nk-chat-widget-input" placeholder="Type a message…" rows="1" oninput="autoResizeTa(this)" onkeydown="nkWidgetKeydown(event)"></textarea>
-    <button id="nk-chat-widget-send" onclick="nkSendWidgetMessage()">
-      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="white" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-    </button>
-  </div>
-</div>
 
 <!-- FOOTER -->
 <footer>
@@ -1410,7 +1381,7 @@ async function handleBuyerThread(data) {
     getSavedBuyerInfo();
     document.getElementById('enquiry-form').style.display = 'none';
     await showConversationCard();   // wait for threadMessages to actually load first
-    nkInitChatWidget();
+    NKGlobalChat.refresh();
   } else {
     document.getElementById('enq-message').value =
       `Hello, I'm interested in "${data.title}". Is it still available?`;
@@ -1977,7 +1948,7 @@ async function sendEnquiry() {
 
   document.getElementById('enquiry-form').style.display   = 'none';
   document.getElementById('enquiry-success').style.display = 'block';
-  nkInitChatWidget();
+  NKGlobalChat.registerAndOpen(listingId);
 }
 
 /* Shown on return visits when a buyer already has an open thread. Unlike
@@ -2053,7 +2024,6 @@ async function sendFollowUp() {
   threadMessages.push(data || { sender:'buyer', content:text, created_at:new Date().toISOString() });
   input.value = ''; input.style.height = 'auto';
   renderThread();
-  nkRenderWidgetMessages();
 }
 
 function clearThread() {
@@ -2068,13 +2038,9 @@ function clearThread() {
   document.getElementById('enquiry-form').style.display       = 'block';
   document.getElementById('enq-message').value = `Hello, I'm interested in "${listing?.title}". Is it still available?`;
 
-  /* Reset the widget too, so a fresh enquiry doesn't show the old thread */
-  nkWidgetInited = false;
-  nkWidgetOpen = false;
+  /* Reset conversation state so a fresh enquiry doesn't show the old thread */
   threadMessages = [];
-  document.getElementById('nk-chat-widget-btn').style.display = 'none';
-  document.getElementById('nk-chat-widget-panel').classList.remove('open');
-  if (nkChatChannel) { db.removeChannel(nkChatChannel); nkChatChannel = null; }
+  NKGlobalChat.refresh();
 }
 
 function handleFollowKeydown(e) { if (e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendFollowUp(); } }
@@ -2267,19 +2233,54 @@ document.addEventListener('click', e => {
 const NK_REVIEW_PENDING_KEY  = 'nk_pending_reviews';
 const NK_PLATFORM_REVIEW_KEY = 'nk_platform_review_done';
 const NK_REVIEW_SNOOZE_MS    = 3 * 24 * 60 * 60 * 1000; // 3 days
+const NK_REVIEW_ELIGIBLE_MS  = 2 * 60 * 60 * 1000;      // 2 hrs since conversation started
+const NK_REVIEW_MIN_VISITS   = 6;                       // "more than 5" visits
+const NK_REVIEW_TAB_OPEN_MS  = 2 * 60 * 60 * 1000;       // 2 hrs with the tab open
 let nkCurrentPendingEntry = null;
 let nkSellerStarRating    = 0;
 let nkPlatformStarRating  = 0;
 let nkReportTargetType    = 'listing';
 let nkReportTargetId      = null;
+let nkReviewRecheckTimer  = null;
 
 function nkTrackContact(lId, sellerId, sellerName) {
   if (!lId) return;
   const pending = JSON.parse(localStorage.getItem(NK_REVIEW_PENDING_KEY) || '[]');
   if (!pending.some(p => p.listingId === lId)) {
-    pending.push({ listingId: lId, sellerId, sellerName, contactedAt: Date.now(), snoozedUntil: 0, done: false });
+    pending.push({ listingId: lId, sellerId, sellerName, contactedAt: Date.now(), snoozedUntil: 0, done: false, visitCount: 0 });
     localStorage.setItem(NK_REVIEW_PENDING_KEY, JSON.stringify(pending));
   }
+}
+
+// Counts a page open toward the "visited 5+ times" eligibility path —
+// only for listings that already have an active conversation.
+function nkRecordListingVisit(lId) {
+  const pending = JSON.parse(localStorage.getItem(NK_REVIEW_PENDING_KEY) || '[]');
+  const e = pending.find(p => p.listingId === lId && !p.done);
+  if (!e) return;
+  e.visitCount = (e.visitCount || 0) + 1;
+  nkSavePending(pending);
+}
+
+// Stamped once per browser tab per listing (sessionStorage clears when the
+// tab closes) so a long-open tab counts toward the 2-hour threshold even
+// without a reload.
+function nkTabOpenElapsedMs(lId) {
+  const key = 'nk_tab_open_' + lId;
+  let start = sessionStorage.getItem(key);
+  if (!start) { start = String(Date.now()); sessionStorage.setItem(key, start); }
+  return Date.now() - Number(start);
+}
+
+function nkEntryEligible(entry) {
+  const now = Date.now();
+  if (now <= entry.snoozedUntil) return false;
+  const conversationAge = now - entry.contactedAt;
+  const visits = entry.visitCount || 0;
+  const tabOpenMs = nkTabOpenElapsedMs(entry.listingId);
+  return conversationAge >= NK_REVIEW_ELIGIBLE_MS
+      || visits >= NK_REVIEW_MIN_VISITS
+      || tabOpenMs >= NK_REVIEW_TAB_OPEN_MS;
 }
 
 function nkCheckReviewPrompt(currentListingId) {
@@ -2287,13 +2288,34 @@ function nkCheckReviewPrompt(currentListingId) {
   // browsing their own listing — it's a buyer-only flow.
   if (isListingOwner) return;
 
-  const pending = JSON.parse(localStorage.getItem(NK_REVIEW_PENDING_KEY) || '[]');
-  const now = Date.now();
-  let entry = pending.find(p => !p.done && p.listingId === currentListingId && now > p.snoozedUntil);
-  if (!entry) entry = pending.find(p => !p.done && now > p.snoozedUntil);
-  if (!entry) return;
+  // Only ever consider listings where an active conversation (i.e. the
+  // global chat widget) actually exists for this buyer on this device.
+  const pending = JSON.parse(localStorage.getItem(NK_REVIEW_PENDING_KEY) || '[]')
+    .filter(p => !p.done && localStorage.getItem('nk_buyer_' + p.listingId));
+
+  if (currentListingId) nkRecordListingVisit(currentListingId);
+
+  let entry = pending.find(p => p.listingId === currentListingId && nkEntryEligible(p));
+  if (!entry) entry = pending.find(p => nkEntryEligible(p));
+
+  if (!entry) {
+    nkScheduleReviewRecheck(currentListingId);
+    return;
+  }
   nkCurrentPendingEntry = entry;
   document.getElementById('nk-review-banner').classList.add('show');
+}
+
+// Re-checks periodically in case the person just leaves the tab open long
+// enough to cross the 2-hour threshold, without needing a reload.
+function nkScheduleReviewRecheck(currentListingId) {
+  if (!currentListingId || nkReviewRecheckTimer) return;
+  const remaining = NK_REVIEW_TAB_OPEN_MS - nkTabOpenElapsedMs(currentListingId);
+  const delay = (remaining > 0 ? Math.min(remaining, 30 * 60 * 1000) : 30 * 60 * 1000) + 1000;
+  nkReviewRecheckTimer = setTimeout(() => {
+    nkReviewRecheckTimer = null;
+    nkCheckReviewPrompt(currentListingId);
+  }, delay);
 }
 
 function nkSavePending(pending) { localStorage.setItem(NK_REVIEW_PENDING_KEY, JSON.stringify(pending)); }
@@ -2514,151 +2536,7 @@ async function loadSellerReviewStats(sellerId) {
   wrap.style.alignItems = 'center';
 }
 
-/* ════════════════════════════════════════════════════
-   FLOATING CHAT WIDGET — realtime + unread badge
-════════════════════════════════════════════════════ */
-let nkChatChannel  = null;
-let nkWidgetOpen   = false;
-let nkUnreadCount  = 0;
-let nkWidgetInited = false;
 
-function nkInitChatWidget() {
-  if (nkWidgetInited || !buyerToken) return;
-  nkWidgetInited = true;
-
-  const sellerName = listing?.profiles?.full_name || 'Seller';
-  document.getElementById('nk-chat-widget-name').textContent = sellerName;
-  document.getElementById('nk-chat-widget-avatar').textContent =
-    sellerName.split(' ').map(n => n[0]).slice(0,2).join('').toUpperCase() || 'S';
-  document.getElementById('nk-chat-widget-btn').style.display = 'flex';
-
-  nkRenderWidgetMessages();
-  nkRefreshUnreadCount();
-  nkSubscribeRealtime();
-}
-
-async function nkRefreshUnreadCount() {
-  if (!buyerToken) return;
-  const { count } = await db
-    .from('messages')
-    .select('id', { count: 'exact', head: true })
-    .eq('listing_id', listingId)
-    .eq('buyer_token', buyerToken)
-    .eq('sender', 'seller')
-    .is('read_at', null);
-  nkUnreadCount = count || 0;
-  nkUpdateBadge();
-}
-
-function nkUpdateBadge() {
-  const badge = document.getElementById('nk-chat-widget-badge');
-  if (nkUnreadCount > 0 && !nkWidgetOpen) {
-    badge.textContent = nkUnreadCount > 9 ? '9+' : nkUnreadCount;
-    badge.style.display = 'flex';
-  } else {
-    badge.style.display = 'none';
-  }
-}
-
-function nkSubscribeRealtime() {
-  if (nkChatChannel) return;
-  nkChatChannel = db
-    .channel(`nk-messages-${listingId}`)
-    .on('postgres_changes', {
-      event: 'INSERT', schema: 'public', table: 'messages',
-      filter: `listing_id=eq.${listingId}`
-    }, (payload) => {
-      const row = payload.new;
-      if (row.buyer_token !== buyerToken) return;
-      if (threadMessages.some(m => m.id === row.id)) return;
-      threadMessages.push(row);
-      nkRenderWidgetMessages();
-      renderThread();
-      if (row.sender === 'seller') {
-        if (nkWidgetOpen) {
-          nkMarkThreadRead();
-        } else {
-          nkUnreadCount += 1;
-          nkUpdateBadge();
-          nkPulseWidgetButton();
-        }
-      }
-    })
-    .subscribe();
-}
-
-function nkPulseWidgetButton() {
-  const btn = document.getElementById('nk-chat-widget-btn');
-  btn.style.animation = 'none';
-  requestAnimationFrame(() => { btn.style.animation = 'nk-badge-pop .3s ease'; });
-}
-
-function nkRenderWidgetMessages() {
-  const box = document.getElementById('nk-chat-widget-messages');
-  if (!threadMessages.length) {
-    box.innerHTML = '<div style="text-align:center;font-size:12px;color:var(--text-3);padding:16px">No messages yet</div>';
-    return;
-  }
-  const sellerName = listing?.profiles?.full_name || 'Seller';
-  const sellerInit = sellerName.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase() || 'S';
-  const buyerInit  = buyerName.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase() || 'B';
-  let lastDate = '';
-  box.innerHTML = threadMessages.map(m => {
-    const isSeller = m.sender === 'seller';
-    const d = new Date(m.created_at);
-    const dateStr = d.toLocaleDateString('en-KE',{weekday:'short',day:'numeric',month:'short'});
-    const timeStr = d.toLocaleTimeString('en-KE',{hour:'2-digit',minute:'2-digit'});
-    const sep = dateStr !== lastDate ? `<div class="chat-date-sep">${dateStr}</div>` : '';
-    lastDate = dateStr;
-    const init   = isSeller ? sellerInit : buyerInit;
-    const avCls  = isSeller ? 'seller-av' : 'buyer-av';
-    const bubCls = isSeller ? 'seller-b'  : 'buyer-b';
-    const rowCls = isSeller ? 'seller-row-msg' : '';
-    return `${sep}
-      <div class="chat-bubble-row ${rowCls}">
-        <div class="bubble-av ${avCls}">${init}</div>
-        <div>
-          <div class="chat-bubble ${bubCls}">${escHtml(m.content||m.message||'')}</div>
-          <div class="bubble-time">${timeStr}${isSeller?' · Seller':''}</div>
-        </div>
-      </div>`;
-  }).join('');
-  box.scrollTop = box.scrollHeight;
-}
-
-function nkToggleChatWidget() {
-  nkWidgetOpen = !nkWidgetOpen;
-  document.getElementById('nk-chat-widget-panel').classList.toggle('open', nkWidgetOpen);
-  if (nkWidgetOpen) { nkRenderWidgetMessages(); nkMarkThreadRead(); }
-}
-
-async function nkMarkThreadRead() {
-  if (!buyerToken) return;
-  nkUnreadCount = 0;
-  nkUpdateBadge();
-  await db.rpc('mark_thread_read', { p_listing_id: listingId, p_buyer_token: buyerToken });
-}
-
-function nkWidgetKeydown(e) { if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); nkSendWidgetMessage(); } }
-
-async function nkSendWidgetMessage() {
-  const input = document.getElementById('nk-chat-widget-input');
-  const text  = input.value.trim();
-  if (!text || !buyerToken) return;
-  const btn = document.getElementById('nk-chat-widget-send');
-  btn.disabled = true;
-  const { data, error } = await db.from('messages').insert({
-    listing_id: listingId, buyer_token: buyerToken,
-    buyer_name: buyerName, buyer_phone: buyerPhone||null,
-    sender: 'buyer', content: text
-  }).select().single();
-  btn.disabled = false;
-  if (error) { showToastNK('Could not send message. Please try again.'); return; }
-  threadMessages.push(data);
-  input.value = ''; input.style.height = 'auto';
-  nkRenderWidgetMessages();
-  renderThread();
-}
 
 /* Boot */
 nkPopulateFooterCounties();
@@ -2677,9 +2555,8 @@ loadListing();
     document.querySelector('.gallery-main')?.appendChild(btn);
   });
 </script>
-<script src="listing-chat-realtime.js"></script>
 <script src="nav-badge.js"></script>
-<!-- Live Chat Widget — paste your nk-chat widget block here -->
+<script src="global-chat-widget.js"></script>
 
 </body>
 </html>
