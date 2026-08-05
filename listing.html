@@ -2286,23 +2286,27 @@ function nkEntryEligible(entry) {
 function nkCheckReviewPrompt(currentListingId) {
   // Never show the "did you secure this property?" prompt to the seller
   // browsing their own listing — it's a buyer-only flow.
-  if (isListingOwner) return;
+  if (isListingOwner || !currentListingId) return;
 
-  // Only ever consider listings where an active conversation (i.e. the
-  // global chat widget) actually exists for this buyer on this device.
-  const pending = JSON.parse(localStorage.getItem(NK_REVIEW_PENDING_KEY) || '[]')
-    .filter(p => !p.done && localStorage.getItem('nk_buyer_' + p.listingId));
+  // Requires proof the conversation/widget actually exists for THIS
+  // exact listing — the buyer must have an active token for it.
+  if (!localStorage.getItem('nk_buyer_' + currentListingId)) return;
 
-  if (currentListingId) nkRecordListingVisit(currentListingId);
+  const pending = JSON.parse(localStorage.getItem(NK_REVIEW_PENDING_KEY) || '[]');
+  const entry = pending.find(p => p.listingId === currentListingId && !p.done);
+  if (!entry) return; // no tracked conversation for this listing — nothing to show, ever
 
-  let entry = pending.find(p => p.listingId === currentListingId && nkEntryEligible(p));
-  if (!entry) entry = pending.find(p => nkEntryEligible(p));
+  nkRecordListingVisit(currentListingId);
 
-  if (!entry) {
+  // Re-read after recording the visit so visitCount reflects this load.
+  const freshPending = JSON.parse(localStorage.getItem(NK_REVIEW_PENDING_KEY) || '[]');
+  const freshEntry = freshPending.find(p => p.listingId === currentListingId && !p.done);
+  if (!freshEntry || !nkEntryEligible(freshEntry)) {
     nkScheduleReviewRecheck(currentListingId);
     return;
   }
-  nkCurrentPendingEntry = entry;
+
+  nkCurrentPendingEntry = freshEntry;
   document.getElementById('nk-review-banner').classList.add('show');
 }
 
