@@ -1019,7 +1019,7 @@ const db = createClient(SUPABASE_URL, SUPABASE_KEY);
   }
 
 
-let currentUser=null,currentProfile=null,allListings=[],allEnquiries=[],allPayments=[],allMessages=[],allReviews=[],threads=[],activeThread=null,listingFilter='all',enquiryFilter='all',deleteTargetId=null,occupiedTargetId=null,replyTargetEnquiry=null,msgPollTimer=null,threadListingFilter=null;
+let currentUser=null,currentProfile=null,allListings=[],allEnquiries=[],allPayments=[],allMessages=[],allReviews=[],threads=[],activeThread=null,listingFilter='all',enquiryFilter='all',deleteTargetId=null,occupiedTargetId=null,replyTargetEnquiry=null,msgPollTimer=null,threadListingFilter=null,messagesChannel=null;
 
 // ── Multi-unit management state (Manage units modal) ──
 let muActiveListingId=null,muUnits=[];
@@ -1109,6 +1109,47 @@ async function loadAllData(){
   buildThreads();updateNavBadges();
   listingStatusSnapshot={};
   allListings.forEach(l=>{listingStatusSnapshot[l.id]=l.status;});
+  subscribeMessagesRealtime();
+}
+
+function subscribeMessagesRealtime(){
+  if(messagesChannel){messagesChannel.unsubscribe();messagesChannel=null;}
+  const ids=allListings.map(l=>l.id);
+  if(!ids.length)return;
+  messagesChannel=db.channel('dash-messages-'+currentUser.id)
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'messages',filter:`listing_id=in.(${ids.join(',')})`},payload=>{
+      handleIncomingMessage(payload.new);
+    })
+    .subscribe((status)=>{
+      if(status==='CHANNEL_ERROR'||status==='TIMED_OUT'||status==='CLOSED'){
+        console.warn('Messages realtime status:',status,'— relying on 30s poll fallback');
+      }
+    });
+}
+
+function handleIncomingMessage(msg){
+  // Skip if we already have it (e.g. our own optimistic insert from sendChatReply)
+  if(allMessages.some(m=>m.id===msg.id))return;
+  allMessages.push(msg);
+  buildThreads();updateNavBadges();
+
+  const onMessagesPage=document.getElementById('page-messages').classList.contains('active');
+  const matchesActive=activeThread&&msg.listing_id===activeThread.listing_id&&((msg.buyer_token&&msg.buyer_token===activeThread.buyer_token)||(msg.buyer_phone&&msg.buyer_phone===activeThread.buyer_phone));
+
+  if(onMessagesPage){
+    renderThreadList();
+    if(matchesActive){
+      activeThread=threads.find(t=>t.key===activeThread.key)||activeThread;
+      renderChatMessages(activeThread);
+      setTimeout(()=>{const mc=document.getElementById('chat-messages');if(mc)mc.scrollTop=mc.scrollHeight;},30);
+      if(msg.sender==='buyer')markThreadRead(activeThread);
+    }
+  }
+  if(msg.sender==='buyer'&&!(onMessagesPage&&matchesActive)){
+    playActivitySound();
+    showToast('New message received','success');
+  }
+  if(document.getElementById('page-overview').classList.contains('active'))renderOverview();
 }
 
 function buildThreads(){
@@ -1726,7 +1767,7 @@ function openModal(id){document.getElementById(id).classList.add('open');documen
 function closeModal(id){document.getElementById(id).classList.remove('open');document.body.style.overflow='';}
 document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.modal-overlay.open').forEach(m=>{m.classList.remove('open');document.body.style.overflow='';});});
 document.querySelectorAll('.modal-overlay').forEach(ov=>ov.addEventListener('click',e=>{if(e.target===ov)closeModal(ov.id);}));
-async function doSignOut(){clearInterval(msgPollTimer);clearInterval(listingStatusPollTimer);scwCleanup();await db.auth.signOut();window.location.href='login.html';}
+async function doSignOut(){clearInterval(msgPollTimer);clearInterval(listingStatusPollTimer);if(messagesChannel){messagesChannel.unsubscribe();messagesChannel=null;}scwCleanup();await db.auth.signOut();window.location.href='login.html';}
 let toastTimer;
 function showToast(msg,type='success'){const t=document.getElementById('toast'),m=document.getElementById('toast-msg');clearTimeout(toastTimer);t.className='toast '+type;m.textContent=msg;t.classList.add('show');toastTimer=setTimeout(()=>t.classList.remove('show'),3500);}
 function timeAgo(iso){if(!iso)return'';const d=(Date.now()-new Date(iso))/1000;if(d<60)return'just now';if(d<3600)return`${Math.floor(d/60)}m ago`;if(d<86400)return`${Math.floor(d/3600)}h ago`;if(d<604800)return`${Math.floor(d/86400)}d ago`;return new Date(iso).toLocaleDateString('en-KE',{day:'numeric',month:'short'});}
@@ -1954,19 +1995,38 @@ async function scwLoadTickets(){
 function scwSubscribeRealtime(){
   if(scwChannel){scwChannel.unsubscribe();scwChannel=null;}
   const ids=scwTickets.map(t=>t.id);
-  if(!ids.length)return;
   scwChannel=db.channel('scw-seller-'+currentUser.id)
-    .on('postgres_changes',{event:'INSERT',schema:'public',table:'chat_messages',filter:`session_id=in.(${ids.join(',')})`},payload=>{
-      scwHandleIncoming(payload.new);
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'chat_sessions',filter:`seller_id=eq.${currentUser.id}`},payload=>{
+      scwHandleNewSession(payload.new);
     })
     .on('broadcast',{event:'typing'},payload=>{
       scwHandleTyping(payload.payload||{});
-    })
-    .subscribe((status)=>{
-      if(status==='CHANNEL_ERROR'||status==='TIMED_OUT'||status==='CLOSED'){
-        console.warn('SCW realtime status:',status,'— relying on 45s poll fallback');
-      }
     });
+  if(ids.length){
+    scwChannel=scwChannel.on('postgres_changes',{event:'INSERT',schema:'public',table:'chat_messages',filter:`session_id=in.(${ids.join(',')})`},payload=>{
+      scwHandleIncoming(payload.new);
+    });
+  }
+  scwChannel.subscribe((status)=>{
+    if(status==='CHANNEL_ERROR'||status==='TIMED_OUT'||status==='CLOSED'){
+      console.warn('SCW realtime status:',status,'— relying on 45s poll fallback');
+    }
+  });
+}
+
+// A brand-new session/ticket created by admin (not opened by the seller
+// first) won't be in scwTickets' id list yet, so the chat_messages filter
+// above can't catch its first message. Catching the chat_sessions INSERT
+// itself lets us add it and re-subscribe immediately, instead of waiting
+// for the 45s poll fallback.
+async function scwHandleNewSession(session){
+  if(scwFindTicket(session.id))return; // already have it (e.g. we created it ourselves)
+  const ticket={...session,status:session.status||(session.is_resolved?'resolved':'open'),_messages:[],_unread:0,_topicId:null,_botMsgs:{},_suggested:false,_clarified:false,_textSuggested:false};
+  scwTickets.unshift(ticket);
+  await scwRefreshUnreadCounts();
+  scwSubscribeRealtime(); // widen the chat_messages filter to include this new id
+  scwUpdateBadges();scwRefreshListViews();
+  if(session.session_key && !scwIsBroadcast(ticket)) scwPlayNotifySound();
 }
 
 async function scwHandleIncoming(msg){
