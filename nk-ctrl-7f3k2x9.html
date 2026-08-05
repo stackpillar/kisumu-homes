@@ -1319,6 +1319,23 @@
   const { createClient } = supabase;
   const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
+  const EDGE_URL = `${SUPABASE_URL}/functions/v1`;
+  async function notifyByEmail(type, payload) {
+    try {
+      const res = await fetch(`${EDGE_URL}/send-notification-email`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${SUPABASE_KEY}`,
+        },
+        body: JSON.stringify({ type, ...payload }),
+      });
+      if (!res.ok) console.error('notifyByEmail: edge function returned', res.status);
+    } catch (err) { console.error('notifyByEmail failed:', err); }
+  }
+  function notifySeller(type, payload) { return notifyByEmail(type, { ...payload, audience: 'seller' }); }
+
   // ── Dark mode — applied immediately (before any other rendering) so
   // there's no light-mode flash on load for users who've enabled it. ──
   (function initTheme() {
@@ -1674,7 +1691,7 @@
 
   async function loadPendingPreview() {
     const {data, error} = await db.from('listings')
-      .select('*, profiles(full_name, phone), listing_photos(*), listing_units(*)')
+      .select('*, profiles(full_name, phone, email), listing_photos(*), listing_units(*)')
       .eq('status','pending').eq('recycle_bin',false)
       .order('created_at',{ascending:false}).limit(5);
     const tbody = document.getElementById('pending-table-body');
@@ -1764,7 +1781,7 @@
       loadMoreBtn.textContent = 'Loading…';
     }
 
-    let q = db.from('listings').select('*, profiles(full_name), listing_photos(*), listing_units(*)',{count:'exact'}).eq('recycle_bin',false);
+    let q = db.from('listings').select('*, profiles(full_name, email), listing_photos(*), listing_units(*)',{count:'exact'}).eq('recycle_bin',false);
     if (currentTab==='pending')       q = q.eq('status','pending');
     else if (currentTab==='active')   q = q.eq('status','active');
     else if (currentTab==='featured') q = q.eq('is_featured',true).eq('status','active');
@@ -1944,6 +1961,13 @@
     if (error)       { toast('Error approving: '+error.message,'error'); return; }
     if (!data?.length){ toast('Blocked by RLS — check Supabase policy','error'); return; }
     logAction('approve_listing','listing',id,title||'');
+    const l = _listings[id];
+    if (l?.profiles?.email) {
+      notifySeller('listing_approved', {
+        listingId: id, listingTitle: title,
+        sellerName: l.profiles.full_name, sellerEmail: l.profiles.email,
+      });
+    }
     toast('Listing approved and live ✓','success');
     loadOverview(); if(currentView==='listings') loadAllListings();
   }
@@ -1957,6 +1981,13 @@
     if (error)       { toast('Error rejecting: '+error.message,'error'); return; }
     if (!data?.length){ toast('Blocked by RLS — check Supabase policy','error'); return; }
     logAction('reject_listing','listing',id,reason);
+    const l = _listings[id];
+    if (l?.profiles?.email) {
+      notifySeller('listing_rejected', {
+        listingId: id, listingTitle: title, reason,
+        sellerName: l.profiles.full_name, sellerEmail: l.profiles.email,
+      });
+    }
     toast('Listing rejected','success');
     loadOverview(); if(currentView==='listings') loadAllListings();
   }
@@ -2045,6 +2076,13 @@
     if (error)       { toast('Error deactivating: '+error.message,'error'); return; }
     if (!data?.length){ toast('Blocked by RLS — check Supabase policy','error'); return; }
     logAction('deactivate_listing','listing',id,reason);
+    const l = _listings[id];
+    if (l?.profiles?.email) {
+      notifySeller('listing_deactivated', {
+        listingId: id, listingTitle: title, reason,
+        sellerName: l.profiles.full_name, sellerEmail: l.profiles.email,
+      });
+    }
     toast('Listing deactivated','success');
     loadOverview(); if(currentView==='listings') loadAllListings();
   }
@@ -2068,6 +2106,13 @@
     if (error)       { toast('Error: '+error.message,'error'); return; }
     if (!data?.length){ toast('Blocked by RLS — check Supabase policy','error'); return; }
     logAction('recycle_listing','listing',id,reason);
+    const l = _listings[id];
+    if (l?.profiles?.email) {
+      notifySeller('listing_recycled', {
+        listingId: id, listingTitle: title, reason,
+        sellerName: l.profiles.full_name, sellerEmail: l.profiles.email,
+      });
+    }
     toast('Moved to recycle bin','success');
     loadOverview(); if(currentView==='listings') loadAllListings(); if(currentView==='recycle-bin') loadRecycleBin();
   }
@@ -2091,7 +2136,7 @@
     const mobileEl = document.getElementById('recycle-bin-mobile');
     tbody.innerHTML = `<tr class="skeleton-row"><td colspan="6"><div class="skel"></div></td></tr>`.repeat(3);
     mobileEl.innerHTML = '';
-    const {data,error} = await db.from('listings').select('*, listing_units(*)').eq('recycle_bin',true).order('disabled_at',{ascending:false});
+    const {data,error} = await db.from('listings').select('*, profiles(full_name, email), listing_units(*)').eq('recycle_bin',true).order('disabled_at',{ascending:false});
     document.getElementById('nav-badge-recycle').textContent = data?.length||0;
     if (error||!data?.length) {
       tbody.innerHTML    = `<tr><td colspan="6"><div class="table-loading"><p>Recycle bin is empty</p></div></td></tr>`;
@@ -2144,7 +2189,15 @@
   async function restoreListing(id) {
     const {error}=await db.from('listings').update({is_disabled:false,recycle_bin:false,disabled_reason:null,disabled_at:null,purge_at:null}).eq('id',id);
     if(error){toast('Error restoring','error');return;}
-    logAction('restore_listing','listing',id,''); toast('Listing restored ✓','success');
+    logAction('restore_listing','listing',id,'');
+    const l = _listings[id];
+    if (l?.profiles?.email) {
+      notifySeller('listing_restored', {
+        listingId: id, listingTitle: l.title,
+        sellerName: l.profiles.full_name, sellerEmail: l.profiles.email,
+      });
+    }
+    toast('Listing restored ✓','success');
     loadRecycleBin(); loadOverview();
   }
   async function purgeExpired() {
@@ -2370,6 +2423,18 @@
     if(error){toast('Error confirming','error');return;}
     if(listingId) await db.from('listings').update({payment_status:'paid'}).eq('id',listingId);
     logAction('confirm_payment','payment',id,listingId||'');
+
+    const p = _payments[id];
+    if (listingId) {
+      const { data: l } = await db.from('listings').select('title, profiles(full_name, email)').eq('id', listingId).single();
+      if (l?.profiles?.email) {
+        notifySeller('payment_confirmed', {
+          listingId, listingTitle: l.title, amount: p?.amount,
+          sellerName: l.profiles.full_name, sellerEmail: l.profiles.email,
+        });
+      }
+    }
+
     toast('Payment confirmed ✓','success');
     loadPayments(); loadOverview();
   }
@@ -2615,16 +2680,26 @@ async function messageSellerInChat(sellerId, sellerName) {
   async function doDisableProfile(id,reason) {
     const {error}=await db.from('profiles').update({is_disabled:true,disabled_reason:reason}).eq('id',id);
     if(error){toast('Error','error');return;}
-    logAction('suspend_profile','profile',id,reason); toast('Account suspended','success');
-    const u=_users[id]; if(u){ u.is_disabled=true; u.disabled_reason=reason; }
+    logAction('suspend_profile','profile',id,reason);
+    const u=_users[id];
+    if (u?.email) {
+      notifySeller('account_suspended', { sellerName: u.full_name, sellerEmail: u.email });
+    }
+    toast('Account suspended','success');
+    if(u){ u.is_disabled=true; u.disabled_reason=reason; }
     if (currentView==='users') loadUsers();
     if (currentView==='reports') renderReportsTable();
   }
   async function enableProfile(id) {
     const {error}=await db.from('profiles').update({is_disabled:false,disabled_reason:null}).eq('id',id);
     if(error){toast('Error','error');return;}
-    logAction('reinstate_profile','profile',id,''); toast('Account reinstated ✓','success');
-    const u=_users[id]; if(u){ u.is_disabled=false; u.disabled_reason=null; }
+    logAction('reinstate_profile','profile',id,'');
+    const u=_users[id];
+    if (u?.email) {
+      notifySeller('account_reinstated', { sellerName: u.full_name, sellerEmail: u.email });
+    }
+    toast('Account reinstated ✓','success');
+    if(u){ u.is_disabled=false; u.disabled_reason=null; }
     closeProfileModal(); if (currentView==='users') loadUsers();
     if (currentView==='reports') renderReportsTable();
   }
