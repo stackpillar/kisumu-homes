@@ -1349,13 +1349,14 @@
       return;
     }
 
-    // Fire-and-forget confirmation email via the notify-email edge function. This
-    // uses the same "type"-routed template system as the rest of the site's
-    // transactional emails (see supabase/functions/notify-email). We deliberately
-    // don't await/block the UI on this and swallow any error — a failed
-    // confirmation email should never stop the alert from being saved, since the
-    // alert row is already committed and is what actually drives future matches.
-    db.functions.invoke('notify-email', {
+    // Fire-and-forget confirmation email via the send-notification-email edge
+    // function. This uses the same "type"-routed template system as the rest of
+    // the site's transactional emails (see supabase/functions/send-notification-email).
+    // We deliberately don't await/block the UI on this and swallow any error — a
+    // failed confirmation email should never stop the alert from being saved,
+    // since the alert row is already committed and is what actually drives
+    // future matches.
+    db.functions.invoke('send-notification-email', {
       body: {
         type: 'alert_confirmation',
         alertName: name,
