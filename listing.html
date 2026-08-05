@@ -67,8 +67,9 @@
     ══════════════════════════════════════ */
     .gallery { border-radius:var(--radius-lg); overflow:hidden; background:#111; margin-bottom:24px; position:relative; }
     .gallery-main {
-      width:100%; aspect-ratio:16/9; position:relative; overflow:hidden;
+      width:100%; aspect-ratio:var(--gallery-ratio, 16/9); position:relative; overflow:hidden;
       background:#111; display:flex; align-items:center; justify-content:center;
+      transition:aspect-ratio .25s ease;
     }
     /* Blurred, scaled-up copy of the same photo fills the frame edge-to-edge
        behind the sharp foreground image — the foreground itself is never
@@ -454,8 +455,9 @@
       align-items:center; justify-content:center; flex-direction:column;
     }
     #nk-lightbox.open { display:flex; }
-    #nk-lightbox-img-wrap { flex:1; width:100%; display:flex; align-items:center; justify-content:center; overflow:hidden; padding:20px; }
-    #nk-lightbox-img { max-width:100%; max-height:100%; object-fit:contain; user-select:none; }
+    #nk-lightbox-img-wrap { flex:1; width:100%; display:flex; align-items:center; justify-content:center; overflow:auto; padding:8px; }
+    #nk-lightbox-img { max-width:96vw; max-height:92vh; width:auto; height:auto; object-fit:contain; user-select:none; }
+    @media(min-width:1000px){ #nk-lightbox-img { max-width:min(96vw,1800px); max-height:94vh; } }
     .nk-lb-close {
       position:absolute; top:18px; right:22px; width:40px; height:40px; border-radius:50%;
       background:rgba(255,255,255,0.12); border:none; cursor:pointer; z-index:2;
@@ -488,6 +490,45 @@
        AMENITIES — reuse specs-card visual language
     ══════════════════════════════════════ */
     .amenity-yes { color:var(--green-dark); }
+
+    /* FLOATING CHAT WIDGET */
+    #nk-chat-widget-btn {
+      position:fixed; bottom:24px; right:24px; z-index:1500;
+      width:58px; height:58px; border-radius:50%; background:var(--green);
+      display:flex; align-items:center; justify-content:center; cursor:pointer;
+      box-shadow:0 6px 20px rgba(0,0,0,0.25); transition:transform .15s, background .15s;
+    }
+    #nk-chat-widget-btn:hover { background:var(--green-dark); transform:translateY(-2px); }
+    #nk-chat-widget-badge {
+      position:absolute; top:-4px; right:-4px; min-width:20px; height:20px; padding:0 5px;
+      background:var(--red); color:white; font-size:11px; font-weight:700; border-radius:20px;
+      display:flex; align-items:center; justify-content:center; border:2px solid white;
+      animation:nk-badge-pop .25s ease;
+    }
+    @keyframes nk-badge-pop { from{ transform:scale(0);} to{ transform:scale(1);} }
+    #nk-chat-widget-panel {
+      position:fixed; bottom:96px; right:24px; z-index:1500;
+      width:340px; max-width:calc(100vw - 32px); height:460px; max-height:calc(100vh - 140px);
+      background:var(--white); border:1px solid var(--border); border-radius:var(--radius-lg);
+      box-shadow:0 12px 40px rgba(0,0,0,0.22); display:none; flex-direction:column; overflow:hidden;
+    }
+    #nk-chat-widget-panel.open { display:flex; }
+    #nk-chat-widget-header { background:var(--green); color:white; padding:14px 16px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
+    #nk-chat-widget-header-info { display:flex; align-items:center; gap:10px; }
+    #nk-chat-widget-avatar { width:34px; height:34px; border-radius:50%; background:rgba(255,255,255,0.2); display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; }
+    #nk-chat-widget-name { font-size:13.5px; font-weight:600; }
+    #nk-chat-widget-status { font-size:11px; opacity:.8; }
+    #nk-chat-widget-close { background:none; border:none; color:white; cursor:pointer; padding:4px; opacity:.85; }
+    #nk-chat-widget-close:hover { opacity:1; }
+    #nk-chat-widget-messages { flex:1; overflow-y:auto; padding:14px; background:var(--surface); display:flex; flex-direction:column; gap:8px; }
+    #nk-chat-widget-messages::-webkit-scrollbar { width:3px; }
+    #nk-chat-widget-messages::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
+    #nk-chat-widget-input-row { display:flex; gap:8px; padding:10px 12px; background:var(--white); border-top:1px solid var(--border); align-items:flex-end; flex-shrink:0; }
+    #nk-chat-widget-input { flex:1; resize:none; border:1.5px solid var(--border); border-radius:var(--radius); padding:8px 12px; font-size:13px; outline:none; min-height:38px; max-height:100px; line-height:1.5; background:var(--surface); font-family:inherit; transition:border-color .15s; }
+    #nk-chat-widget-input:focus { border-color:var(--green); background:white; }
+    #nk-chat-widget-send { width:36px; height:36px; border-radius:50%; background:var(--green); color:white; display:flex; align-items:center; justify-content:center; border:none; cursor:pointer; flex-shrink:0; transition:background .15s; }
+    #nk-chat-widget-send:hover { background:var(--green-dark); }
+    @media(max-width:480px) { #nk-chat-widget-panel { right:16px; bottom:88px; width:calc(100vw - 32px); } #nk-chat-widget-btn { right:16px; bottom:16px; } }
   </style>
 </head>
 <body>
@@ -825,17 +866,36 @@
             <p class="enquiry-note">Your contact details are shared only with the seller of this listing.</p>
           </div>
 
-          <!-- Success -->
+          <!-- Success (shown right after sending a NEW enquiry). Stays visible
+               exactly as-is — "View conversation" now only opens the floating
+               chat widget, it no longer swaps this panel out for an inline
+               thread. -->
           <div class="enquiry-success" id="enquiry-success">
             <div class="enquiry-success-icon">
               <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
             </div>
             <h4>Message sent!</h4>
             <p>The seller will reply here and may also contact you on your phone. Check back on this page to see their reply.</p>
-            <button onclick="showThread()" style="margin-top:8px;font-size:13px;color:var(--green);background:none;border:none;cursor:pointer;font-weight:500">View conversation →</button>
+            <button onclick="nkToggleChatWidget()" style="margin-top:8px;font-size:13px;color:var(--green);background:none;border:none;cursor:pointer;font-weight:500">View conversation →</button>
           </div>
 
-          <!-- Thread -->
+          <!-- Conversation card (shown on RETURN visits, once a buyer already
+               has an open thread with this seller). Same idea — it just
+               points at the floating widget, it never expands inline. -->
+          <div class="enquiry-success" id="conversation-card" style="display:none">
+            <div class="enquiry-success-icon">
+              <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+            </div>
+            <h4>You have an ongoing conversation</h4>
+            <p>Continue chatting with the seller in the chat window.</p>
+            <button onclick="nkToggleChatWidget()" style="margin-top:8px;font-size:13px;color:var(--green);background:none;border:none;cursor:pointer;font-weight:500">View conversation →</button>
+            <button onclick="clearThread()" style="margin-top:10px;font-size:12px;color:var(--text-3);background:none;border:none;cursor:pointer;display:block;margin-left:auto;margin-right:auto">Start new enquiry</button>
+          </div>
+
+          <!-- Thread (legacy inline chat box) — intentionally never shown
+               anymore; all conversation now happens only in the floating
+               widget. Left in the DOM (hidden) so old helper code still
+               has somewhere to write without erroring. -->
           <div id="thread-section" class="thread-section" style="display:none">
             <div class="thread-header">
               <h4>Your conversation</h4>
@@ -882,6 +942,36 @@
     <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
   </button>
   <div id="nk-lightbox-counter"></div>
+</div>
+
+<!-- ══ FLOATING CHAT WIDGET ══ -->
+<div id="nk-chat-widget-btn" onclick="nkToggleChatWidget()" style="display:none">
+  <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="white" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+  <span id="nk-chat-widget-badge" style="display:none">0</span>
+</div>
+
+<div id="nk-chat-widget-panel">
+  <div id="nk-chat-widget-header">
+    <div id="nk-chat-widget-header-info">
+      <div id="nk-chat-widget-avatar">S</div>
+      <div>
+        <div id="nk-chat-widget-name">Seller</div>
+        <div id="nk-chat-widget-status">Conversation</div>
+      </div>
+    </div>
+    <button id="nk-chat-widget-close" onclick="nkToggleChatWidget()" aria-label="Close chat">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div id="nk-chat-widget-messages">
+    <div style="text-align:center;font-size:12px;color:var(--text-3);padding:16px">Loading messages…</div>
+  </div>
+  <div id="nk-chat-widget-input-row">
+    <textarea id="nk-chat-widget-input" placeholder="Type a message…" rows="1" oninput="autoResizeTa(this)" onkeydown="nkWidgetKeydown(event)"></textarea>
+    <button id="nk-chat-widget-send" onclick="nkSendWidgetMessage()">
+      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="white" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+    </button>
+  </div>
 </div>
 
 <!-- FOOTER -->
@@ -1130,6 +1220,15 @@ let threadMessages = [];
 let listingUnits    = [];   // rows from listing_units for this listing
 let isListingOwner  = false;
 
+/* ── Flexible gallery frame limits ──
+   The gallery frame's aspect ratio now follows each photo's own
+   width/height instead of forcing everything into 16:9. These two
+   constants just stop an extreme photo (e.g. a tall receipt-shaped
+   screenshot, or a super-wide panorama) from making the frame look
+   broken — anything outside this range gets clamped back to it. */
+const NK_GALLERY_MIN_RATIO = 0.66; // tallest allowed frame (~2:3 portrait)
+const NK_GALLERY_MAX_RATIO = 1.9;  // widest allowed frame (~19:10 panorama)
+
 /* CONTACT PROTECTION state — see handleContactClick() further down.
    sellerPhoneRaw stays null until a successful reveal_seller_contact()
    call returns it; contactRevealed just avoids re-fetching/re-logging
@@ -1305,12 +1404,13 @@ function showSellerDisabledView(data) {
 /* ════════════════════════════════════════════════════
    RENDER LISTING
 ════════════════════════════════════════════════════ */
-function handleBuyerThread(data) {
+async function handleBuyerThread(data) {
   buyerToken = getBuyerToken();
   if (buyerToken) {
     getSavedBuyerInfo();
     document.getElementById('enquiry-form').style.display = 'none';
-    showThread();
+    await showConversationCard();   // wait for threadMessages to actually load first
+    nkInitChatWidget();
   } else {
     document.getElementById('enq-message').value =
       `Hello, I'm interested in "${data.title}". Is it still available?`;
@@ -1692,6 +1792,17 @@ function renderGallery() {
      blurred behind it — the visible foreground image is never cropped. */
   if (bg) bg.style.backgroundImage = `url("${photos[currentPhoto].url}")`;
 
+  /* Flexible frame: match the photo's own aspect ratio (clamped to sane
+     bounds) instead of forcing every photo into 16:9. */
+  const mainBox = document.getElementById('gallery-main');
+  const applyRatio = () => {
+    if (!img.naturalWidth || !img.naturalHeight) return;
+    let ratio = img.naturalWidth / img.naturalHeight;
+    ratio = Math.max(NK_GALLERY_MIN_RATIO, Math.min(NK_GALLERY_MAX_RATIO, ratio));
+    mainBox.style.setProperty('--gallery-ratio', ratio);
+  };
+  if (img.complete) applyRatio(); else img.onload = applyRatio;
+
   if (photos.length > 1) {
     counter.style.display = 'block';
     counter.textContent   = `${currentPhoto+1} / ${photos.length}`;
@@ -1844,15 +1955,21 @@ async function sendEnquiry() {
     buyer_email: email||null, buyer_token: token, message
   });
 
-  const { error: msgErr } = await db.from('messages').insert({
+  const { data: insertedMsg, error: msgErr } = await db.from('messages').insert({
     listing_id: listingId, buyer_token: token, buyer_name: name,
     buyer_phone: phone, sender: 'buyer', content: message
-  });
+  }).select().single();
 
   btn.disabled = false; btn.classList.remove('loading');
   if (msgErr) { alert('Something went wrong. Please try calling the seller directly.'); return; }
 
   setBuyerToken(token);
+
+  /* Seed the local thread with the message we just sent, so the widget
+     shows it immediately instead of waiting for a realtime event (which
+     can be missed if it fires before the subscription below finishes
+     connecting) or a full page refresh. */
+  threadMessages = [insertedMsg || { sender:'buyer', content:message, created_at:new Date().toISOString() }];
 
   /* ★ Track this contact so we can prompt for a review later, once the
      buyer has had a realistic chance to actually secure the property. */
@@ -1860,20 +1977,18 @@ async function sendEnquiry() {
 
   document.getElementById('enquiry-form').style.display   = 'none';
   document.getElementById('enquiry-success').style.display = 'block';
+  nkInitChatWidget();
 }
 
-async function showThread() {
-  document.getElementById('enquiry-form').style.display    = 'none';
-  document.getElementById('enquiry-success').style.display = 'none';
-  document.getElementById('thread-section').style.display  = 'block';
-
-  const waNote = document.getElementById('chat-wa-note');
-  if (buyerPhone) {
-    waNote.innerHTML = `<svg viewBox="0 0 24 24" width="12" height="12" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/></svg>
-    Seller replies are saved here and may also reach you via WhatsApp.`;
-  } else {
-    waNote.innerHTML = 'Revisit this page anytime to check for replies from the seller.';
-  }
+/* Shown on return visits when a buyer already has an open thread. Unlike
+   the old inline chat box, this is just a small pointer card — the
+   floating widget is now the only place the actual conversation renders,
+   so this never expands into a chat window itself. */
+async function showConversationCard() {
+  document.getElementById('enquiry-form').style.display      = 'none';
+  document.getElementById('enquiry-success').style.display   = 'none';
+  document.getElementById('thread-section').style.display    = 'none';
+  document.getElementById('conversation-card').style.display = 'block';
   await loadThread();
 }
 
@@ -1938,6 +2053,7 @@ async function sendFollowUp() {
   threadMessages.push(data || { sender:'buyer', content:text, created_at:new Date().toISOString() });
   input.value = ''; input.style.height = 'auto';
   renderThread();
+  nkRenderWidgetMessages();
 }
 
 function clearThread() {
@@ -1946,10 +2062,19 @@ function clearThread() {
   localStorage.removeItem('nk_buyer_name_' + listingId);
   localStorage.removeItem('nk_buyer_phone_' + listingId);
   buyerToken = null; buyerName = ''; buyerPhone = '';
-  document.getElementById('thread-section').style.display  = 'none';
-  document.getElementById('enquiry-success').style.display = 'none';
-  document.getElementById('enquiry-form').style.display    = 'block';
+  document.getElementById('thread-section').style.display     = 'none';
+  document.getElementById('conversation-card').style.display  = 'none';
+  document.getElementById('enquiry-success').style.display    = 'none';
+  document.getElementById('enquiry-form').style.display       = 'block';
   document.getElementById('enq-message').value = `Hello, I'm interested in "${listing?.title}". Is it still available?`;
+
+  /* Reset the widget too, so a fresh enquiry doesn't show the old thread */
+  nkWidgetInited = false;
+  nkWidgetOpen = false;
+  threadMessages = [];
+  document.getElementById('nk-chat-widget-btn').style.display = 'none';
+  document.getElementById('nk-chat-widget-panel').classList.remove('open');
+  if (nkChatChannel) { db.removeChannel(nkChatChannel); nkChatChannel = null; }
 }
 
 function handleFollowKeydown(e) { if (e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendFollowUp(); } }
@@ -2387,6 +2512,152 @@ async function loadSellerReviewStats(sellerId) {
     <span style="font-size:11px;color:var(--text-3)">(${data.length} review${data.length!==1?'s':''})</span>`;
   wrap.style.display = 'flex';
   wrap.style.alignItems = 'center';
+}
+
+/* ════════════════════════════════════════════════════
+   FLOATING CHAT WIDGET — realtime + unread badge
+════════════════════════════════════════════════════ */
+let nkChatChannel  = null;
+let nkWidgetOpen   = false;
+let nkUnreadCount  = 0;
+let nkWidgetInited = false;
+
+function nkInitChatWidget() {
+  if (nkWidgetInited || !buyerToken) return;
+  nkWidgetInited = true;
+
+  const sellerName = listing?.profiles?.full_name || 'Seller';
+  document.getElementById('nk-chat-widget-name').textContent = sellerName;
+  document.getElementById('nk-chat-widget-avatar').textContent =
+    sellerName.split(' ').map(n => n[0]).slice(0,2).join('').toUpperCase() || 'S';
+  document.getElementById('nk-chat-widget-btn').style.display = 'flex';
+
+  nkRenderWidgetMessages();
+  nkRefreshUnreadCount();
+  nkSubscribeRealtime();
+}
+
+async function nkRefreshUnreadCount() {
+  if (!buyerToken) return;
+  const { count } = await db
+    .from('messages')
+    .select('id', { count: 'exact', head: true })
+    .eq('listing_id', listingId)
+    .eq('buyer_token', buyerToken)
+    .eq('sender', 'seller')
+    .is('read_at', null);
+  nkUnreadCount = count || 0;
+  nkUpdateBadge();
+}
+
+function nkUpdateBadge() {
+  const badge = document.getElementById('nk-chat-widget-badge');
+  if (nkUnreadCount > 0 && !nkWidgetOpen) {
+    badge.textContent = nkUnreadCount > 9 ? '9+' : nkUnreadCount;
+    badge.style.display = 'flex';
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+function nkSubscribeRealtime() {
+  if (nkChatChannel) return;
+  nkChatChannel = db
+    .channel(`nk-messages-${listingId}`)
+    .on('postgres_changes', {
+      event: 'INSERT', schema: 'public', table: 'messages',
+      filter: `listing_id=eq.${listingId}`
+    }, (payload) => {
+      const row = payload.new;
+      if (row.buyer_token !== buyerToken) return;
+      if (threadMessages.some(m => m.id === row.id)) return;
+      threadMessages.push(row);
+      nkRenderWidgetMessages();
+      renderThread();
+      if (row.sender === 'seller') {
+        if (nkWidgetOpen) {
+          nkMarkThreadRead();
+        } else {
+          nkUnreadCount += 1;
+          nkUpdateBadge();
+          nkPulseWidgetButton();
+        }
+      }
+    })
+    .subscribe();
+}
+
+function nkPulseWidgetButton() {
+  const btn = document.getElementById('nk-chat-widget-btn');
+  btn.style.animation = 'none';
+  requestAnimationFrame(() => { btn.style.animation = 'nk-badge-pop .3s ease'; });
+}
+
+function nkRenderWidgetMessages() {
+  const box = document.getElementById('nk-chat-widget-messages');
+  if (!threadMessages.length) {
+    box.innerHTML = '<div style="text-align:center;font-size:12px;color:var(--text-3);padding:16px">No messages yet</div>';
+    return;
+  }
+  const sellerName = listing?.profiles?.full_name || 'Seller';
+  const sellerInit = sellerName.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase() || 'S';
+  const buyerInit  = buyerName.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase() || 'B';
+  let lastDate = '';
+  box.innerHTML = threadMessages.map(m => {
+    const isSeller = m.sender === 'seller';
+    const d = new Date(m.created_at);
+    const dateStr = d.toLocaleDateString('en-KE',{weekday:'short',day:'numeric',month:'short'});
+    const timeStr = d.toLocaleTimeString('en-KE',{hour:'2-digit',minute:'2-digit'});
+    const sep = dateStr !== lastDate ? `<div class="chat-date-sep">${dateStr}</div>` : '';
+    lastDate = dateStr;
+    const init   = isSeller ? sellerInit : buyerInit;
+    const avCls  = isSeller ? 'seller-av' : 'buyer-av';
+    const bubCls = isSeller ? 'seller-b'  : 'buyer-b';
+    const rowCls = isSeller ? 'seller-row-msg' : '';
+    return `${sep}
+      <div class="chat-bubble-row ${rowCls}">
+        <div class="bubble-av ${avCls}">${init}</div>
+        <div>
+          <div class="chat-bubble ${bubCls}">${escHtml(m.content||m.message||'')}</div>
+          <div class="bubble-time">${timeStr}${isSeller?' · Seller':''}</div>
+        </div>
+      </div>`;
+  }).join('');
+  box.scrollTop = box.scrollHeight;
+}
+
+function nkToggleChatWidget() {
+  nkWidgetOpen = !nkWidgetOpen;
+  document.getElementById('nk-chat-widget-panel').classList.toggle('open', nkWidgetOpen);
+  if (nkWidgetOpen) { nkRenderWidgetMessages(); nkMarkThreadRead(); }
+}
+
+async function nkMarkThreadRead() {
+  if (!buyerToken) return;
+  nkUnreadCount = 0;
+  nkUpdateBadge();
+  await db.rpc('mark_thread_read', { p_listing_id: listingId, p_buyer_token: buyerToken });
+}
+
+function nkWidgetKeydown(e) { if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); nkSendWidgetMessage(); } }
+
+async function nkSendWidgetMessage() {
+  const input = document.getElementById('nk-chat-widget-input');
+  const text  = input.value.trim();
+  if (!text || !buyerToken) return;
+  const btn = document.getElementById('nk-chat-widget-send');
+  btn.disabled = true;
+  const { data, error } = await db.from('messages').insert({
+    listing_id: listingId, buyer_token: buyerToken,
+    buyer_name: buyerName, buyer_phone: buyerPhone||null,
+    sender: 'buyer', content: text
+  }).select().single();
+  btn.disabled = false;
+  if (error) { showToastNK('Could not send message. Please try again.'); return; }
+  threadMessages.push(data);
+  input.value = ''; input.style.height = 'auto';
+  nkRenderWidgetMessages();
+  renderThread();
 }
 
 /* Boot */
