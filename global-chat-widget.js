@@ -1,5 +1,5 @@
 /* ════════════════════════════════════════════════════
-   NYUMBA254 — GLOBAL CHAT WIDGET
+   NYUMBA254 — "DOORBELL" GLOBAL CHAT WIDGET 🔔
    One floating widget, shared across every page, listing
    ALL of a buyer's conversations across every listing
    they've messaged. Include on every page:
@@ -21,7 +21,9 @@
     #gcw-head{background:#0F6E56;color:#fff;padding:14px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0}
     #gcw-head button{background:none;border:none;color:#fff;cursor:pointer;padding:4px;opacity:.85}
     #gcw-head button:hover{opacity:1}
-    #gcw-title{font-size:14px;font-weight:600;flex:1}
+    #gcw-title-wrap{flex:1;min-width:0}
+    #gcw-title{font-size:14px;font-weight:700;line-height:1.3}
+    #gcw-subtitle{font-size:11px;opacity:.8;line-height:1.3}
     #gcw-list{flex:1;overflow-y:auto;background:#f7f6f2}
     .gcw-convo{display:flex;gap:10px;padding:12px 14px;border-bottom:1px solid #e0ded8;cursor:pointer;transition:background .1s}
     .gcw-convo:hover{background:#fff}
@@ -34,7 +36,7 @@
     #gcw-thread{display:none;flex-direction:column;height:100%}
     #gcw-thread.open{display:flex}
     #gcw-thread-head{background:#0F6E56;color:#fff;padding:12px 14px;display:flex;align-items:center;gap:10px;flex-shrink:0}
-    #gcw-thread-head button.back{background:none;border:none;color:#fff;cursor:pointer;padding:2px}
+    #gcw-thread-head button.back{background:none;border:none;color:#fff;cursor:pointer;padding:2px;flex-shrink:0}
     #gcw-thread-info{flex:1;min-width:0}
     #gcw-thread-name{font-size:13.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     #gcw-thread-link{font-size:11px;color:rgba(255,255,255,.85);text-decoration:underline}
@@ -43,7 +45,7 @@
     .gcw-row.mine{flex-direction:row-reverse}
     .gcw-av{width:24px;height:24px;border-radius:50%;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:#E1F5EE;color:#085041}
     .gcw-row.mine .gcw-av{background:#0F6E56;color:#fff}
-    .gcw-bubble{max-width:78%;padding:8px 12px;border-radius:14px;font-size:13px;line-height:1.5;background:#fff;border:1px solid #e0ded8;border-bottom-left-radius:4px}
+    .gcw-bubble{max-width:78%;padding:8px 12px;border-radius:14px;font-size:13px;line-height:1.5;background:#fff;border:1px solid #e0ded8;border-bottom-left-radius:4px;word-break:break-word}
     .gcw-row.mine .gcw-bubble{background:#0F6E56;color:#fff;border:none;border-bottom-right-radius:4px}
     .gcw-time{font-size:10px;color:#888780;margin-top:2px}
     .gcw-row.mine .gcw-time{text-align:right}
@@ -51,6 +53,7 @@
     #gcw-input{flex:1;resize:none;border:1.5px solid #e0ded8;border-radius:10px;padding:8px 12px;font-size:13px;outline:none;min-height:38px;max-height:100px;line-height:1.5;background:#f7f6f2;font-family:inherit}
     #gcw-input:focus{border-color:#0F6E56;background:#fff}
     #gcw-send{width:36px;height:36px;border-radius:50%;background:#0F6E56;color:#fff;display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;flex-shrink:0}
+    #gcw-send:disabled{opacity:.5;cursor:not-allowed}
     @media(max-width:480px){#gcw-panel{right:16px;bottom:88px;width:calc(100vw - 32px)}#gcw-btn{right:16px;bottom:16px}}
   `;
   const styleEl = document.createElement('style');
@@ -61,7 +64,10 @@
     <div id="gcw-btn"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="white" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg><span id="gcw-badge" style="display:none">0</span></div>
     <div id="gcw-panel">
       <div id="gcw-head">
-        <span id="gcw-title">Messages</span>
+        <div id="gcw-title-wrap">
+          <div id="gcw-title">🔔 Doorbell</div>
+          <div id="gcw-subtitle">Your conversations with sellers</div>
+        </div>
         <button id="gcw-close" aria-label="Close"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
       </div>
       <div id="gcw-list"><div id="gcw-empty">No conversations yet</div></div>
@@ -84,10 +90,12 @@
 
   let conversations = [];
   let activeListingId = null;
+  let activeBuyerToken = null;
   let activeMessages  = [];
   let channels = {};
   let panelOpen = false;
   let threadOpen = false;
+  let loadPromise = null;
 
   function escHtml(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
@@ -103,29 +111,36 @@
     return out;
   }
 
-  async function loadConversations() {
-    const pairs = scanLocalConversations();
-    if (!pairs.length) { conversations = []; renderList(); updateGlobalVisibility(); return; }
+  // Deduplicated: concurrent calls (e.g. registerAndOpen firing right after
+  // handleBuyerThread) share the same in-flight request instead of racing.
+  function loadConversations() {
+    if (loadPromise) return loadPromise;
+    loadPromise = (async () => {
+      const pairs = scanLocalConversations();
+      if (!pairs.length) { conversations = []; renderList(); updateGlobalVisibility(); return; }
 
-    const { data, error } = await gdb.rpc('get_buyer_conversations', {
-      p_pairs: pairs.map(p => ({ listing_id: p.listingId, buyer_token: p.buyerToken }))
-    });
-    if (error) { console.error('get_buyer_conversations error:', error); return; }
+      const { data, error } = await gdb.rpc('get_buyer_conversations', {
+        p_pairs: pairs.map(p => ({ listing_id: p.listingId, buyer_token: p.buyerToken }))
+      });
+      if (error) { console.error('get_buyer_conversations error:', error); return; }
 
-    conversations = (data || []).map(row => ({
-      listingId: String(row.listing_id),
-      buyerToken: row.buyer_token,
-      title: row.listing_title || 'Listing',
-      coverUrl: row.cover_url || '',
-      sellerName: row.seller_name || 'Seller',
-      lastMessage: row.last_message || '',
-      lastAt: row.last_message_at,
-      unread: row.unread_count || 0,
-    })).sort((a,b) => new Date(b.lastAt||0) - new Date(a.lastAt||0));
+      conversations = (data || []).map(row => ({
+        listingId: String(row.listing_id),
+        buyerToken: row.buyer_token,
+        title: row.listing_title || 'Listing',
+        coverUrl: row.cover_url || '',
+        sellerName: row.seller_name || 'Seller',
+        lastMessage: row.last_message || '',
+        lastAt: row.last_message_at,
+        unread: row.unread_count || 0,
+      })).sort((a,b) => new Date(b.lastAt||0) - new Date(a.lastAt||0));
 
-    renderList();
-    updateGlobalVisibility();
-    subscribeAll();
+      renderList();
+      updateGlobalVisibility();
+      subscribeAll();
+    })();
+    loadPromise.finally(() => { loadPromise = null; });
+    return loadPromise;
   }
 
   function totalUnread() { return conversations.reduce((s,c) => s + c.unread, 0); }
@@ -155,30 +170,69 @@
     });
   }
 
-  async function openConversation(listingId) {
-    const convo = conversations.find(c => c.listingId === String(listingId));
-    if (!convo) { await loadConversations(); return openConversation(listingId); }
-    activeListingId = String(listingId);
+  // ── FIX: this used to leave the PREVIOUS conversation's messages on
+  // screen while the new one was still fetching, which is what caused
+  // messages/headers to look mixed or "bled together" when switching
+  // threads. Now it clears state and shows a loading placeholder
+  // immediately, and can open instantly from localStorage even before
+  // the full conversation list has finished loading. ──
+  async function openConversation(listingId, knownBuyerToken) {
+    listingId = String(listingId);
+    let convo = conversations.find(c => c.listingId === listingId);
+
+    const buyerToken = convo?.buyerToken || knownBuyerToken || localStorage.getItem('nk_buyer_' + listingId);
+    if (!buyerToken) return; // no conversation exists for this listing on this device
+
+    if (!convo) {
+      convo = {
+        listingId, buyerToken,
+        title: localStorage.getItem('nk_last_listing_title_' + listingId) || 'Listing',
+        sellerName: 'Seller', lastMessage: '', lastAt: null, unread: 0, coverUrl: ''
+      };
+      conversations.unshift(convo);
+    }
+
+    // Reset immediately — no stale messages or stale header from the
+    // previously open thread survive into this one.
+    activeListingId = listingId;
+    activeBuyerToken = buyerToken;
+    activeMessages = [];
     threadOpen = true;
     if (!panelOpen) togglePanel();
     document.getElementById('gcw-thread').classList.add('open');
     document.getElementById('gcw-thread-name').textContent = convo.sellerName;
     document.getElementById('gcw-thread-link').href = `listing.html?id=${listingId}`;
+    document.getElementById('gcw-messages').innerHTML =
+      '<div style="text-align:center;font-size:12px;color:#888780;padding:16px">Loading messages…</div>';
 
-    const { data } = await gdb.from('messages').select('*')
-      .eq('listing_id', listingId).eq('buyer_token', convo.buyerToken)
+    const { data, error } = await gdb.from('messages').select('*')
+      .eq('listing_id', listingId).eq('buyer_token', buyerToken)
       .order('created_at', { ascending: true });
-    activeMessages = data || [];
-    renderThread();
-    await gdb.rpc('mark_thread_read', { p_listing_id: listingId, p_buyer_token: convo.buyerToken });
-    convo.unread = 0;
-    renderList();
-    updateGlobalVisibility();
+
+    // Guard against a race: only apply results if the user hasn't since
+    // navigated to a different thread while this fetch was in flight.
+    if (activeListingId !== listingId) return;
+
+    if (!error) {
+      activeMessages = data || [];
+      renderThread();
+      await gdb.rpc('mark_thread_read', { p_listing_id: listingId, p_buyer_token: buyerToken });
+      convo.unread = 0;
+      renderList();
+      updateGlobalVisibility();
+      subscribeAll();
+    }
+
+    // Refresh the full list quietly in the background so titles, seller
+    // names, and cover photos catch up without blocking the open.
+    loadConversations();
   }
 
   function closeThread() {
     threadOpen = false;
     activeListingId = null;
+    activeBuyerToken = null;
+    activeMessages = [];
     document.getElementById('gcw-thread').classList.remove('open');
   }
 
@@ -199,20 +253,25 @@
   async function sendMessage() {
     const input = document.getElementById('gcw-input');
     const text = input.value.trim();
-    const convo = conversations.find(c => c.listingId === activeListingId);
-    if (!text || !convo) return;
+    if (!text || !activeListingId || !activeBuyerToken) return;
+    const sendBtn = document.getElementById('gcw-send');
+    sendBtn.disabled = true;
     input.value = ''; input.style.height = 'auto';
+
     const { data, error } = await gdb.from('messages').insert({
-      listing_id: activeListingId, buyer_token: convo.buyerToken,
+      listing_id: activeListingId, buyer_token: activeBuyerToken,
       buyer_name: localStorage.getItem('nk_buyer_name_' + activeListingId) || '',
       buyer_phone: localStorage.getItem('nk_buyer_phone_' + activeListingId) || null,
       sender: 'buyer', content: text
     }).select().single();
+
+    sendBtn.disabled = false;
     if (error) { alert('Could not send message, please try again.'); return; }
+
     activeMessages.push(data);
     renderThread();
-    convo.lastMessage = text; convo.lastAt = data.created_at;
-    renderList();
+    const convo = conversations.find(c => c.listingId === activeListingId);
+    if (convo) { convo.lastMessage = text; convo.lastAt = data.created_at; renderList(); }
   }
 
   function subscribeAll() {
@@ -222,17 +281,18 @@
         .on('postgres_changes', { event:'INSERT', schema:'public', table:'messages', filter:`listing_id=eq.${c.listingId}` }, (payload) => {
           const row = payload.new;
           if (row.buyer_token !== c.buyerToken) return;
+          if (row.sender !== 'seller') return; // buyer's own inserts are already appended locally
           c.lastMessage = row.content || row.message || '';
           c.lastAt = row.created_at;
-          if (row.sender === 'seller') {
-            if (threadOpen && activeListingId === c.listingId) {
+          if (threadOpen && activeListingId === c.listingId) {
+            if (!activeMessages.some(m => m.id === row.id)) {
               activeMessages.push(row);
               renderThread();
-              gdb.rpc('mark_thread_read', { p_listing_id: c.listingId, p_buyer_token: c.buyerToken });
-            } else {
-              c.unread += 1;
-              pulseButton();
             }
+            gdb.rpc('mark_thread_read', { p_listing_id: c.listingId, p_buyer_token: c.buyerToken });
+          } else {
+            c.unread += 1;
+            pulseButton();
           }
           renderList();
           updateGlobalVisibility();
@@ -268,7 +328,7 @@
   window.NKGlobalChat = {
     refresh: loadConversations,
     open: openConversation,
-    registerAndOpen: async function(listingId) { await loadConversations(); openConversation(listingId); },
+    registerAndOpen: function(listingId, buyerToken) { openConversation(listingId, buyerToken); },
   };
 
   loadConversations();
