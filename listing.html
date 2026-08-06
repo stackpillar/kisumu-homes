@@ -1177,7 +1177,8 @@ const db = createClient(SUPABASE_URL, SUPABASE_KEY);
   }
 
 
-const listingId = new URLSearchParams(window.location.search).get('id');
+const listingNumber = new URLSearchParams(window.location.search).get('id');
+let listingId = null; // set to the real uuid after we look the listing up below
 
 let listing      = null;
 let photos       = [];
@@ -1217,7 +1218,7 @@ function getSavedBuyerInfo(){ buyerName = localStorage.getItem('nk_buyer_name_' 
    MAIN LOADER
 ════════════════════════════════════════════════════ */
 async function loadListing() {
-  if (!listingId) { showNotFound(); return; }
+  if (!listingNumber || !/^\d+$/.test(listingNumber)) { showNotFound(); return; }
 
   const { data, error } = await db
     .from('listings')
@@ -1229,11 +1230,12 @@ async function loadListing() {
        out of the page source or browser memory. Multi-unit properties also
        pull their listing_units rows here (unit types + live availability). */
     .select('*, profiles(full_name, created_at), listing_photos(*), listing_units(*)')
-    .eq('id', listingId)
+    .eq('listing_number', parseInt(listingNumber, 10))
     .single();
 
   if (error || !data) { showNotFound(); return; }
   listing = data;
+  listingId = data.id; // real uuid — everything else in this file (messages, photos, RPCs) uses this
   listingUnits = (data.listing_units || []).sort((a,b) => (a.id||0) - (b.id||0));
 
   const isFullyActive = (data.status === 'active') && !data.is_disabled && !data.recycle_bin;
@@ -1875,7 +1877,7 @@ async function loadSimilar(area, excludeId) {
   }
   grid.innerHTML = data.map(l => {
     const cover = (l.listing_photos||[]).find(p=>p.is_cover)||(l.listing_photos||[])[0];
-    return `<div class="similar-card" onclick="window.location='listing.html?id=${l.id}'">
+    return `<div class="similar-card" onclick="window.location='listing.html?id=${String(l.listing_number).padStart(6,'0')}'">
       <div class="similar-img">${cover?`<img src="${cover.url}" alt="${escHtml(l.title)}" loading="lazy"/>`:''}</div>
       <div class="similar-body">
         <div class="similar-area">${escHtml(l.area)}</div>
@@ -2550,13 +2552,19 @@ loadListing();
 <!-- Saved listings heart button -->
 <script src="saved-listings.js"></script>
 <script>
+  function nkWaitForListingUuid(cb, tries) {
+    tries = tries || 0;
+    if (listingId) { cb(listingId); return; }
+    if (tries > 100) return; // gave up after ~10s — listing likely failed to load
+    setTimeout(() => nkWaitForListingUuid(cb, tries + 1), 100);
+  }
   NKSaved.init().then(() => {
-    const lid = new URLSearchParams(location.search).get('id');
-    if (!lid) return;
-    const btn = document.createElement('div');
-    btn.style.cssText = 'position:absolute;top:14px;right:14px;z-index:3';
-    btn.innerHTML = NKSaved.buildHeartBtn(lid);
-    document.querySelector('.gallery-main')?.appendChild(btn);
+    nkWaitForListingUuid((uuid) => {
+      const btn = document.createElement('div');
+      btn.style.cssText = 'position:absolute;top:14px;right:14px;z-index:3';
+      btn.innerHTML = NKSaved.buildHeartBtn(uuid);
+      document.querySelector('.gallery-main')?.appendChild(btn);
+    });
   });
 </script>
 <script src="nav-badge.js"></script>
