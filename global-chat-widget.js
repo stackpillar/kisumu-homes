@@ -12,8 +12,10 @@
   window.db = window.db || gdb;
 
   const STYLE = `
-    #gcw-btn{position:fixed;bottom:24px;right:24px;z-index:1500;width:58px;height:58px;border-radius:50%;background:#0F6E56;display:none;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,.25);transition:transform .15s,background .15s}
+    #gcw-btn{position:fixed;bottom:24px;right:24px;z-index:1500;height:52px;padding:0 20px 0 16px;border-radius:30px;background:#0F6E56;display:none;align-items:center;gap:9px;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,.25);transition:transform .15s,background .15s}
     #gcw-btn:hover{background:#085041;transform:translateY(-2px)}
+    #gcw-btn svg{flex-shrink:0}
+    #gcw-btn-label{color:#fff;font-size:14px;font-weight:600;font-family:'Inter',sans-serif;white-space:nowrap}
     #gcw-badge{position:absolute;top:-4px;right:-4px;min-width:20px;height:20px;padding:0 5px;background:#C53030;color:#fff;font-size:11px;font-weight:700;border-radius:20px;display:flex;align-items:center;justify-content:center;border:2px solid #fff}
     @keyframes gcw-pop{from{transform:scale(0)}to{transform:scale(1)}}
     #gcw-panel{position:fixed;bottom:96px;right:24px;z-index:1500;width:360px;max-width:calc(100vw - 32px);height:480px;max-height:calc(100vh - 140px);background:#fff;border:1px solid #e0ded8;border-radius:16px;box-shadow:0 12px 40px rgba(0,0,0,.22);display:none;flex-direction:column;overflow:hidden;font-family:'Inter',sans-serif}
@@ -41,11 +43,12 @@
     #gcw-thread-name{font-size:13.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     #gcw-thread-link{font-size:11px;color:rgba(255,255,255,.85);text-decoration:underline}
     #gcw-messages{flex:1;overflow-y:auto;padding:14px;background:#f7f6f2;display:flex;flex-direction:column;gap:8px}
-    .gcw-row{display:flex;gap:6px;align-items:flex-end}
+    .gcw-row{display:flex;gap:6px;align-items:flex-end;width:100%}
+    .gcw-row>div:last-child{min-width:0;max-width:78%}
     .gcw-row.mine{flex-direction:row-reverse}
     .gcw-av{width:24px;height:24px;border-radius:50%;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:#E1F5EE;color:#085041}
     .gcw-row.mine .gcw-av{background:#0F6E56;color:#fff}
-    .gcw-bubble{max-width:78%;padding:8px 12px;border-radius:14px;font-size:13px;line-height:1.5;background:#fff;border:1px solid #e0ded8;border-bottom-left-radius:4px;word-break:break-word}
+    .gcw-bubble{max-width:78%;width:fit-content;padding:8px 12px;border-radius:14px;font-size:13px;line-height:1.5;background:#fff;border:1px solid #e0ded8;border-bottom-left-radius:4px;overflow-wrap:break-word;white-space:pre-wrap}
     .gcw-row.mine .gcw-bubble{background:#0F6E56;color:#fff;border:none;border-bottom-right-radius:4px}
     .gcw-time{font-size:10px;color:#888780;margin-top:2px}
     .gcw-row.mine .gcw-time{text-align:right}
@@ -55,13 +58,14 @@
     #gcw-send{width:36px;height:36px;border-radius:50%;background:#0F6E56;color:#fff;display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;flex-shrink:0}
     #gcw-send:disabled{opacity:.5;cursor:not-allowed}
     @media(max-width:480px){#gcw-panel{right:16px;bottom:88px;width:calc(100vw - 32px)}#gcw-btn{right:16px;bottom:16px}}
+    @media(max-width:380px){#gcw-btn-label{display:none}#gcw-btn{padding:0;width:52px;justify-content:center}}
   `;
   const styleEl = document.createElement('style');
   styleEl.textContent = STYLE;
   document.head.appendChild(styleEl);
 
   document.body.insertAdjacentHTML('beforeend', `
-    <div id="gcw-btn"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="white" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg><span id="gcw-badge" style="display:none">0</span></div>
+    <div id="gcw-btn"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="white" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg><span id="gcw-btn-label">Chats</span><span id="gcw-badge" style="display:none">0</span></div>
     <div id="gcw-panel">
       <div id="gcw-head">
         <div id="gcw-title-wrap">
