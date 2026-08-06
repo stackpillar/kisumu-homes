@@ -783,11 +783,39 @@
 <script>
   const SUPABASE_URL = 'https://vliuuloyfhyxcsuchpss.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_oIIcecf3wzKMual5K24Z8Q_zmxVfgsx';
+  const EDGE_URL = `${SUPABASE_URL}/functions/v1`;
   const { createClient } = supabase;
   const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
   let currentUser = null;
   let profileData = null;
+
+  // ── Email notifications on profile changes ──────────────────────
+  // Both fire-and-forget (don't block the save flow on email delivery)
+  // and both go to the seller's own address, confirming what changed.
+  function notifyProfileUpdated(changes) {
+    fetch(`${EDGE_URL}/send-notification-email`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY },
+      body: JSON.stringify({
+        type: 'profile_updated',
+        sellerEmail: currentUser.email,
+        sellerName: profileData?.full_name || currentUser.email,
+        changes,
+      }),
+    }).catch(e => console.error('notifyProfileUpdated failed:', e));
+  }
+  function notifyNotificationPrefsUpdated() {
+    fetch(`${EDGE_URL}/send-notification-email`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY },
+      body: JSON.stringify({
+        type: 'notification_prefs_updated',
+        sellerEmail: currentUser.email,
+        sellerName: profileData?.full_name || currentUser.email,
+      }),
+    }).catch(e => console.error('notifyNotificationPrefsUpdated failed:', e));
+  }
 
   // ─────────────────────────────────────────
   // INIT — load user + profile
@@ -876,6 +904,7 @@
     document.getElementById('nav-avatar').innerHTML =
       initials + `<div class="avatar-edit-badge"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>`;
     showBanner('personal-banner','personal-banner-msg','success', 'Name updated successfully.');
+    notifyProfileUpdated('Name and bio');
   }
 
   // ─────────────────────────────────────────
@@ -916,6 +945,7 @@
       ? 'Phone saved. Check your new email for a verification link.'
       : 'Contact details saved successfully.';
     showBanner('contact-banner','contact-banner-msg','success', msg);
+    notifyProfileUpdated('Contact details (email/phone)');
   }
 
   // ─────────────────────────────────────────
@@ -955,6 +985,19 @@
     ['rule-len','rule-upper','rule-num','rule-sym'].forEach(id => document.getElementById(id).classList.remove('met'));
 
     showBanner('security-banner','security-banner-msg','success','Password updated. You are still signed in.');
+    notifyPasswordChanged();
+  }
+
+  function notifyPasswordChanged() {
+    fetch(`${EDGE_URL}/send-notification-email`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY },
+      body: JSON.stringify({
+        type: 'password_changed',
+        sellerEmail: currentUser.email,
+        sellerName: profileData?.full_name || currentUser.email,
+      }),
+    }).catch(e => console.error('notifyPasswordChanged failed:', e));
   }
 
   // ─────────────────────────────────────────
@@ -970,6 +1013,7 @@
     await db.from('profiles').upsert({ id: currentUser.id, notification_prefs: prefs });
     showBanner('notif-banner','notif-banner-msg','success','Preferences saved.');
     setTimeout(() => hideBanner('notif-banner'), 2500);
+    notifyNotificationPrefsUpdated();
   }
 
   // ─────────────────────────────────────────
@@ -979,6 +1023,19 @@
     await db.from('listings').update({ status: 'paused' }).eq('seller_id', currentUser.id).eq('status','active');
     closeModal('modal-pause');
     showBanner('personal-banner','personal-banner-msg','warning','All listings paused. Re-activate them from your dashboard.');
+    notifyListingsPaused();
+  }
+
+  function notifyListingsPaused() {
+    fetch(`${EDGE_URL}/send-notification-email`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY },
+      body: JSON.stringify({
+        type: 'listings_paused',
+        sellerEmail: currentUser.email,
+        sellerName: profileData?.full_name || currentUser.email,
+      }),
+    }).catch(e => console.error('notifyListingsPaused failed:', e));
   }
 
   function checkDeleteConfirm() {
@@ -987,6 +1044,18 @@
   }
 
   async function deleteAccount() {
+    const email = currentUser.email;
+    const name  = profileData?.full_name || email;
+
+    // Fire before deleting anything — keepalive lets the request complete
+    // even though we navigate away right after.
+    fetch(`${EDGE_URL}/send-notification-email`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY },
+      keepalive: true,
+      body: JSON.stringify({ type: 'account_deleted', sellerEmail: email, sellerName: name }),
+    }).catch(e => console.error('notifyAccountDeleted failed:', e));
+
     // Delete listings, photos, enquiries, profile — then sign out
     await db.from('listings').delete().eq('seller_id', currentUser.id);
     await db.from('profiles').delete().eq('id', currentUser.id);
