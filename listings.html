@@ -1097,7 +1097,7 @@
     const catBadge = l.category !== 'standard'
       ? `<span class="badge-cat ${l.category}">${l.category}</span>` : '';
     return `
-      <div class="card" onclick="window.location='listing.html?id=${l.id}'">
+      <div class="card" onclick="window.location='listing.html?id=${String(l.listing_number).padStart(6,'0')}'">
         <div class="card-img">
           ${imgHtml}
           ${l.is_featured ? '<span class="badge-featured">Featured</span>' : ''}
