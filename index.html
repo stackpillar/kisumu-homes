@@ -863,7 +863,7 @@
            <span style="font-size:12px">No photo yet</span>
          </div>`;
     return `
-      <div class="card" onclick="window.location='listing.html?id=${listing.id}'">
+      <div class="card" onclick="window.location='listing.html?id=${String(listing.listing_number).padStart(6,'0')}'">
         <div class="card-img">
         ${imgHtml}
         ${listing.is_featured ? '<span class="badge-featured">Featured</span>' : ''}
