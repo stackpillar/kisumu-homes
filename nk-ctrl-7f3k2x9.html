@@ -3166,7 +3166,7 @@ async function messageSellerInChat(sellerId, sellerName) {
     document.getElementById('report-modal-body').innerHTML = html;
 
     document.getElementById('report-modal-footer').innerHTML = `
-      ${listing?`<button class="btn-modal cancel" onclick="window.open('listing.html?id=${listing.id}','_blank')">View listing</button>`:''}
+      ${listing?`<button class="btn-modal cancel" onclick="window.open('listing.html?id=${String(listing.listing_number).padStart(6,'0')}','_blank')">View listing</button>`:''}
       ${seller?`<button class="btn-modal cancel" onclick="closeReportModal(); openProfileModal('${seller.id}')">View seller profile</button>`:''}
       ${seller && !seller.is_disabled?`<button class="btn-modal reject" onclick="closeReportModal(); disableProfileFlow('${seller.id}')">Suspend seller</button>`:''}
       ${listing && !listing.is_disabled?`<button class="btn-modal reject" onclick="closeReportModal(); recycleListing('${listing.id}')">Recycle listing</button>`:''}
