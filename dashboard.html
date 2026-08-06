@@ -1019,10 +1019,18 @@ const db = createClient(SUPABASE_URL, SUPABASE_KEY);
   }
 
 
-let currentUser=null,currentProfile=null,allListings=[],allEnquiries=[],allPayments=[],allMessages=[],allReviews=[],threads=[],activeThread=null,listingFilter='all',enquiryFilter='all',deleteTargetId=null,occupiedTargetId=null,replyTargetEnquiry=null,msgPollTimer=null,threadListingFilter=null,messagesChannel=null;
+let currentUser=null,currentProfile=null,allListings=[],allEnquiries=[],allPayments=[],allMessages=[],allReviews=[],threads=[],activeThread=null,listingFilter='all',enquiryFilter='all',deleteTargetId=null,occupiedTargetId=null,replyTargetEnquiry=null,msgPollTimer=null,threadListingFilter=null,messagesChannel=null,listingActionBusy=new Set();
+
+// Message history window: only pulls the last N days of messages on load,
+// so this query and buildThreads() stay fast as conversations pile up over
+// months. Older threads still exist in the DB, just not preloaded here.
+const MSG_HISTORY_DAYS=90;
+// Realtime already delivers new messages instantly; these two intervals are
+// just a fallback in case a realtime channel silently drops.
+const MSG_POLL_MS=120000, LISTING_STATUS_POLL_MS=30000;
 
 // ── Multi-unit management state (Manage units modal) ──
-let muActiveListingId=null,muUnits=[];
+let muActiveListingId=null,muUnits=[],muActionBusy=false;
 
 const AMENITY_KEYS=[{key:'has_parking',label:'Parking'},{key:'has_water',label:'Water supply'},{key:'has_security',label:'Security'},{key:'has_wifi',label:'WiFi ready'},{key:'has_backup_power',label:'Backup power'},{key:'has_gym',label:'Gym'},{key:'has_pool',label:'Swimming pool'},{key:'has_balcony',label:'Balcony'}];
 
@@ -1052,8 +1060,9 @@ async function init(){
     renderOverview();
     document.getElementById('loading-screen').style.display='none';
     document.getElementById('app-shell').style.display='flex';
-    msgPollTimer=setInterval(pollNewMessages,30000);
-    listingStatusPollTimer=setInterval(pollListingStatusChanges,30000);
+    msgPollTimer=setInterval(pollNewMessages,MSG_POLL_MS);
+    listingStatusPollTimer=setInterval(pollListingStatusChanges,LISTING_STATUS_POLL_MS);
+    document.addEventListener('visibilitychange',handleVisibilityChange);
 
     scwLoaded=true;
     scwInit();
@@ -1099,7 +1108,8 @@ async function loadAllData(){
   if(ids.length){
     const{data:enqData}=await db.from('enquiries').select('*, listings(title, area)').in('listing_id',ids).order('created_at',{ascending:false});
     allEnquiries=enqData||[];
-    const{data:msgData}=await db.from('messages').select('*').in('listing_id',ids).order('created_at',{ascending:true});
+    const msgCutoff=new Date(Date.now()-MSG_HISTORY_DAYS*86400000).toISOString();
+    const{data:msgData}=await db.from('messages').select('*').in('listing_id',ids).gte('created_at',msgCutoff).order('created_at',{ascending:true});
     allMessages=msgData||[];
   }else{allEnquiries=[];allMessages=[];}
   const{data:payData}=await db.from('payments').select('*, listings(title)').eq('seller_id',currentUser.id).order('created_at',{ascending:false});
@@ -1162,7 +1172,8 @@ function buildThreads(){
 async function pollNewMessages(){
   if(!allListings.length)return;
   const ids=allListings.map(l=>l.id);
-  const{data:msgData}=await db.from('messages').select('*').in('listing_id',ids).order('created_at',{ascending:true});
+  const msgCutoff=new Date(Date.now()-MSG_HISTORY_DAYS*86400000).toISOString();
+  const{data:msgData}=await db.from('messages').select('*').in('listing_id',ids).gte('created_at',msgCutoff).order('created_at',{ascending:true});
   const hadCount=allMessages.length;
   allMessages=msgData||[];
   buildThreads();updateNavBadges();
@@ -1293,14 +1304,20 @@ async function confirmOccupied(){
 }
 
 async function reactivateListing(id){
-  const l=allListings.find(l=>l.id===id);
-  if(l&&l.is_disabled){showToast('Disabled by admin. Contact admin.','error');return;}
-  const{error}=await db.from('listings').update({status:'pending',occupied_at:null}).eq('id',id);
-  if(error){showToast('Could not reactivate: '+error.message,'error');return;}
-  if(l){l.status='pending';l.occupied_at=null;}
-  renderListingsTable();renderOverview();
-  showToast('Listing resubmitted for admin approval ✓','success');
-  if(l)notifyAdmin('listing_pending',{listingId:id,listingTitle:l.title,sellerName:currentProfile?.full_name||currentUser?.email,sellerEmail:currentUser?.email});
+  if(listingActionBusy.has(id))return;
+  listingActionBusy.add(id);
+  try{
+    const l=allListings.find(l=>l.id===id);
+    if(l&&l.is_disabled){showToast('Disabled by admin. Contact admin.','error');return;}
+    const{error}=await db.from('listings').update({status:'pending',occupied_at:null}).eq('id',id);
+    if(error){showToast('Could not reactivate: '+error.message,'error');return;}
+    if(l){l.status='pending';l.occupied_at=null;}
+    renderListingsTable();renderOverview();
+    showToast('Listing resubmitted for admin approval ✓','success');
+    if(l)notifyAdmin('listing_pending',{listingId:id,listingTitle:l.title,sellerName:currentProfile?.full_name||currentUser?.email,sellerEmail:currentUser?.email});
+  } finally {
+    listingActionBusy.delete(id);
+  }
 }
 
 // ── THE FIXED renderListingsTable — pending/rejected listings have all status
@@ -1364,7 +1381,7 @@ const manageUnitsBtn=l.is_multi_unit
       <td style="font-size:13px;color:var(--text-3)">${l.views||0}</td>
       <td style="font-size:12px;color:var(--text-3)">${posted}</td>
       <td><div class="actions-cell">
-        <a href="listing.html?id=${l.id}" target="_blank" class="icon-btn" title="View live listing"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></a>
+        <a href="listing.html?id=${String(l.listing_number).padStart(6,'0')}" target="_blank" class="icon-btn" title="View live listing"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></a>
         <div class="icon-btn" onclick="openMessagesForListing('${l.id}')" title="Messages"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
         <div class="icon-btn" onclick="shareListing('${l.id}')" title="Share"><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></div>
         ${editBtn}${statusBtn}${pauseBtn}${manageUnitsBtn}
@@ -1375,9 +1392,17 @@ const manageUnitsBtn=l.is_multi_unit
 }
 
 function statusLabel(s){return{active:'Active',pending:'Pending review',paused:'Paused',rejected:'Rejected',expired:'Expired',occupied:'Occupied'}[s]||s;}
-async function togglePause(id,cs){const l=allListings.find(l=>l.id===id);if(l&&l.is_disabled){showToast('Disabled by admin. Contact admin.','error');return;}if(cs!=='active'){showToast('Only active listings can be paused.','error');return;}const{error}=await db.from('listings').update({status:'paused'}).eq('id',id);if(error){showToast('Could not update','error');return;}if(l)l.status='paused';renderListingsTable();renderOverview();showToast('Listing paused','success');}
+async function togglePause(id,cs){
+  if(listingActionBusy.has(id))return;
+  listingActionBusy.add(id);
+  try{
+    const l=allListings.find(l=>l.id===id);if(l&&l.is_disabled){showToast('Disabled by admin. Contact admin.','error');return;}if(cs!=='active'){showToast('Only active listings can be paused.','error');return;}const{error}=await db.from('listings').update({status:'paused'}).eq('id',id);if(error){showToast('Could not update','error');return;}if(l)l.status='paused';renderListingsTable();renderOverview();showToast('Listing paused','success');
+  } finally {
+    listingActionBusy.delete(id);
+  }
+}
 async function renewListing(id){const{error}=await db.from('listings').update({status:'pending'}).eq('id',id);if(error){showToast('Could not renew: '+error.message,'error');return;}const l=allListings.find(l=>l.id===id);if(l)l.status='pending';renderListingsTable();renderOverview();showToast('Resubmitted for approval','success');if(l)notifyAdmin('listing_pending',{listingId:id,listingTitle:l.title,sellerName:currentProfile?.full_name||currentUser?.email,sellerEmail:currentUser?.email});}
-function shareListing(id){const l=allListings.find(l=>l.id===id);if(!l)return;const url=`${location.origin}${location.pathname.replace(/dashboard\.html$/,'')}listing.html?id=${id}`;window.open(`https://wa.me/?text=${encodeURIComponent(l.title+' — '+(l.is_multi_unit?muPriceRangeText(l):'KES '+Number(l.price).toLocaleString('en-KE')+(l.price_type==='rent'?'/mo':''))+' in '+l.area+'\n'+url)}`,'_blank');}
+function shareListing(id){const l=allListings.find(l=>l.id===id);if(!l)return;const url=`${location.origin}${location.pathname.replace(/dashboard\.html$/,'')}listing.html?id=${String(l.listing_number).padStart(6,'0')}`;window.open(`https://wa.me/?text=${encodeURIComponent(l.title+' — '+(l.is_multi_unit?muPriceRangeText(l):'KES '+Number(l.price).toLocaleString('en-KE')+(l.price_type==='rent'?'/mo':''))+' in '+l.area+'\n'+url)}`,'_blank');}
 
 /* ══════════════════════════════════════
    MANAGE UNITS MODAL — multi-unit properties
@@ -1468,47 +1493,59 @@ function renderManageUnitsModal(){
 function muToggleOccupyForm(unitId){document.getElementById(`mu-occupy-form-${unitId}`)?.classList.toggle('open');}
 
 async function muConfirmOccupy(unitId){
-  const floor=document.getElementById(`mu-floor-${unitId}`).value.trim()||null;
-  const door=document.getElementById(`mu-door-${unitId}`).value.trim()||null;
-  const pos=document.getElementById(`mu-pos-${unitId}`).value||null;
-  const unit=muUnits.find(u=>u.id===unitId);
-  if(!unit||(unit.quantity_available??0)<=0)return;
-
-  const newAvailable=unit.quantity_available-1;
-  const{error}=await db.from('listing_units').update({quantity_available:newAvailable}).eq('id',unitId);
-  if(error){showToast('Could not update unit: '+error.message,'error');return;}
-
+  if(muActionBusy)return;
+  muActionBusy=true;
   try{
-    await db.from('unit_occupancy_log').insert({listing_unit_id:unitId,listing_id:muActiveListingId,floor,door_number:door,position:pos,action:'occupied'});
-  }catch(e){/* audit table optional — availability update above already succeeded */}
+    const floor=document.getElementById(`mu-floor-${unitId}`).value.trim()||null;
+    const door=document.getElementById(`mu-door-${unitId}`).value.trim()||null;
+    const pos=document.getElementById(`mu-pos-${unitId}`).value||null;
+    const unit=muUnits.find(u=>u.id===unitId);
+    if(!unit||(unit.quantity_available??0)<=0)return;
 
-  unit.quantity_available=newAvailable;
-  muSyncListingCache();
-  muToggleOccupyForm(unitId);
-  renderManageUnitsModal();
-  renderListingsTable();renderQuickListings();
-  showToast('Unit marked as occupied — live listing updated ✓','success');
+    const newAvailable=unit.quantity_available-1;
+    const{error}=await db.from('listing_units').update({quantity_available:newAvailable}).eq('id',unitId);
+    if(error){showToast('Could not update unit: '+error.message,'error');return;}
+
+    try{
+      await db.from('unit_occupancy_log').insert({listing_unit_id:unitId,listing_id:muActiveListingId,floor,door_number:door,position:pos,action:'occupied'});
+    }catch(e){/* audit table optional — availability update above already succeeded */}
+
+    unit.quantity_available=newAvailable;
+    muSyncListingCache();
+    muToggleOccupyForm(unitId);
+    renderManageUnitsModal();
+    renderListingsTable();renderQuickListings();
+    showToast('Unit marked as occupied — live listing updated ✓','success');
+  } finally {
+    muActionBusy=false;
+  }
 }
 
 async function muMarkAvailable(unitId){
-  const unit=muUnits.find(u=>u.id===unitId);
-  if(!unit)return;
-  const total=unit.quantity_total??unit.quantity_available;
-  if((unit.quantity_available??0)>=total)return;
-
-  const newAvailable=unit.quantity_available+1;
-  const{error}=await db.from('listing_units').update({quantity_available:newAvailable}).eq('id',unitId);
-  if(error){showToast('Could not update unit: '+error.message,'error');return;}
-
+  if(muActionBusy)return;
+  muActionBusy=true;
   try{
-    await db.from('unit_occupancy_log').insert({listing_unit_id:unitId,listing_id:muActiveListingId,action:'freed'});
-  }catch(e){/* audit table optional */}
+    const unit=muUnits.find(u=>u.id===unitId);
+    if(!unit)return;
+    const total=unit.quantity_total??unit.quantity_available;
+    if((unit.quantity_available??0)>=total)return;
 
-  unit.quantity_available=newAvailable;
-  muSyncListingCache();
-  renderManageUnitsModal();
-  renderListingsTable();renderQuickListings();
-  showToast('Unit marked as available again ✓','success');
+    const newAvailable=unit.quantity_available+1;
+    const{error}=await db.from('listing_units').update({quantity_available:newAvailable}).eq('id',unitId);
+    if(error){showToast('Could not update unit: '+error.message,'error');return;}
+
+    try{
+      await db.from('unit_occupancy_log').insert({listing_unit_id:unitId,listing_id:muActiveListingId,action:'freed'});
+    }catch(e){/* audit table optional */}
+
+    unit.quantity_available=newAvailable;
+    muSyncListingCache();
+    renderManageUnitsModal();
+    renderListingsTable();renderQuickListings();
+    showToast('Unit marked as available again ✓','success');
+  } finally {
+    muActionBusy=false;
+  }
 }
 
 function muSyncListingCache(){
@@ -1607,7 +1644,7 @@ function renderChatPane(t){
   const ini=t.buyer_name.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase()||'?';
   const waLink=t.buyer_phone?`<a href="https://wa.me/${formatWaPhone(t.buyer_phone)}" target="_blank" class="btn btn-sm" style="background:#25D366;color:white;text-decoration:none">WhatsApp</a>`:'';
   const listing=allListings.find(l=>l.id===t.listing_id);
-  const liveLink=listing?`<a href="listing.html?id=${t.listing_id}" target="_blank" class="btn btn-outline btn-sm" style="text-decoration:none">View listing</a>`:'';
+  const liveLink=listing?`<a href="listing.html?id=${String(listing.listing_number).padStart(6,'0')}" target="_blank" class="btn btn-outline btn-sm" style="text-decoration:none">View listing</a>`:'';
   document.getElementById('chat-header').innerHTML=`<button class="mobile-back-btn" onclick="showThreadListMobile()"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></button><div class="chat-header-avatar">${ini}</div><div><div class="chat-header-name">${escHtml(t.buyer_name)}</div><div class="chat-header-sub">${t.buyer_phone||'No phone'} · Re: ${escHtml(t.listing_title)}</div></div><div class="chat-header-actions">${waLink}${liveLink}</div>`;
   document.getElementById('chat-wa-hint').innerHTML=t.buyer_phone?'Replies also sent via WhatsApp if number is available.':'Buyer will see your reply when they revisit the listing.';
   renderChatMessages(t);
@@ -1767,7 +1804,7 @@ function openModal(id){document.getElementById(id).classList.add('open');documen
 function closeModal(id){document.getElementById(id).classList.remove('open');document.body.style.overflow='';}
 document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.modal-overlay.open').forEach(m=>{m.classList.remove('open');document.body.style.overflow='';});});
 document.querySelectorAll('.modal-overlay').forEach(ov=>ov.addEventListener('click',e=>{if(e.target===ov)closeModal(ov.id);}));
-async function doSignOut(){clearInterval(msgPollTimer);clearInterval(listingStatusPollTimer);if(messagesChannel){messagesChannel.unsubscribe();messagesChannel=null;}scwCleanup();await db.auth.signOut();window.location.href='login.html';}
+async function doSignOut(){clearInterval(msgPollTimer);clearInterval(listingStatusPollTimer);document.removeEventListener('visibilitychange',handleVisibilityChange);if(messagesChannel){messagesChannel.unsubscribe();messagesChannel=null;}scwCleanup();await db.auth.signOut();window.location.href='login.html';}
 let toastTimer;
 function showToast(msg,type='success'){const t=document.getElementById('toast'),m=document.getElementById('toast-msg');clearTimeout(toastTimer);t.className='toast '+type;m.textContent=msg;t.classList.add('show');toastTimer=setTimeout(()=>t.classList.remove('show'),3500);}
 function timeAgo(iso){if(!iso)return'';const d=(Date.now()-new Date(iso))/1000;if(d<60)return'just now';if(d<3600)return`${Math.floor(d/60)}m ago`;if(d<86400)return`${Math.floor(d/3600)}h ago`;if(d<604800)return`${Math.floor(d/86400)}d ago`;return new Date(iso).toLocaleDateString('en-KE',{day:'numeric',month:'short'});}
@@ -1858,6 +1895,21 @@ async function pollListingStatusChanges(){
   if(changed){
     playActivitySound();
     renderListingsTable();renderOverview();renderQuickListings();
+  }
+}
+
+// Stop polling entirely while the tab is backgrounded — no point spending
+// Supabase quota checking for updates nobody's looking at. Catches up
+// immediately and resumes both intervals the moment the tab is visible again.
+function handleVisibilityChange(){
+  if(document.hidden){
+    clearInterval(msgPollTimer);msgPollTimer=null;
+    clearInterval(listingStatusPollTimer);listingStatusPollTimer=null;
+  }else{
+    pollNewMessages();
+    pollListingStatusChanges();
+    if(!msgPollTimer)msgPollTimer=setInterval(pollNewMessages,MSG_POLL_MS);
+    if(!listingStatusPollTimer)listingStatusPollTimer=setInterval(pollListingStatusChanges,LISTING_STATUS_POLL_MS);
   }
 }
 
@@ -2099,7 +2151,7 @@ async function scwPoll(){
         scwRenderThreadHead(scwActiveTicket);
         const newMsgs=(scwActiveTicket._messages||[]).slice(scwActiveTicket._renderedCount);
         if(newMsgs.length){
-          newMsgs.forEach(m=>scwAppendBubble(m.sender,m.body));
+          newMsgs.forEach(m=>scwAppendBubble(m.sender,m.body,!!(scwActiveTicket._botMsgs&&scwActiveTicket._botMsgs[m.id])));
           scwActiveTicket._renderedCount=scwActiveTicket._messages.length;
           scwMarkTicketRead(scwActiveTicket);
         }
@@ -2228,7 +2280,7 @@ async function scwOpenTicket(id,isNew){
   document.getElementById('scw-msg-active').style.display='flex';
   scwRenderThreadHead(t);
   document.getElementById('scw-msgs').innerHTML='';
-  (t._messages||[]).forEach(m=>scwAppendBubble(m.sender,m.body));
+  (t._messages||[]).forEach(m=>scwAppendBubble(m.sender,m.body,!!(t._botMsgs&&t._botMsgs[m.id])));
   t._renderedCount=(t._messages||[]).length;
   if(isNew){
     await scwRunBotMenu(t);
@@ -2272,12 +2324,15 @@ async function scwReopenTicket(ticketId){
 }
 function scwBackToInbox(){scwActiveTicket=null;scwShowInbox();}
 
-function scwAppendBubble(sender,body){
+function scwAppendBubble(sender,body,isHtml){
   const mc=document.getElementById('scw-msgs');if(!mc)return;
   const isAdmin=sender==='admin';
   const div=document.createElement('div');
   div.className=`scw-msg ${isAdmin?'from-admin':'from-visitor'}`;
-  div.innerHTML=`<div class="scw-msg-av">${isAdmin?'NK':scwSellerInits}</div><div class="scw-msg-bub">${/<strong>|<br/.test(body)?body:escHtml(body)}</div>`;
+  // isHtml is only ever true for our own bot-authored strings (see the calls
+  // that pass it explicitly). Anything typed by a visitor/seller/admin always
+  // goes through escHtml — a message body is never trusted as raw HTML.
+  div.innerHTML=`<div class="scw-msg-av">${isAdmin?'NK':scwSellerInits}</div><div class="scw-msg-bub">${isHtml?body:escHtml(body)}</div>`;
   mc.appendChild(div);
   setTimeout(()=>{mc.scrollTop=mc.scrollHeight;},20);
 }
@@ -2315,7 +2370,7 @@ async function scwRunBotMenu(ticket){
   await scwWait(600);
   scwHideTyping();
   const greet=`Hi ${scwName()}! You picked "<strong>${escHtml(ticket.topic)}</strong>" — what specifically is it about?`;
-  scwAppendBubble('admin',greet);
+  scwAppendBubble('admin',greet,true);
   await scwPersistBot(ticket,greet);
   const opts=SCW_TREE[ticket._topicId]||[];
   if(!opts.length){ticket._pendingCategory=ticket.topic;await scwGoToHandoff(ticket);return;}
@@ -2335,7 +2390,7 @@ async function scwPickLeaf(ticketId,idx){
   await scwPersistVisitor(ticket,opt.label);
   if(opt.handoff){ticket._pendingCategory=opt.label;await scwGoToHandoff(ticket);return;}
   scwShowTyping();await scwWait(700);scwHideTyping();
-  scwAppendBubble('admin',opt.a);
+  scwAppendBubble('admin',opt.a,true);
   await scwPersistBot(ticket,opt.a);
   await scwWait(250);
   scwAppendBubble('admin','Did that solve it?');
@@ -2386,7 +2441,7 @@ async function scwGoToHandoff(ticketOrId){
     if(match){
       scwShowTyping();await scwWait(650);scwHideTyping();
       const sugg=`Before I connect you — this might help:<br><strong>${escHtml(match.q)}</strong><br>${match.a}`;
-      scwAppendBubble('admin',sugg);
+      scwAppendBubble('admin',sugg,true);
       await scwPersistBot(ticket,sugg);
       await scwWait(200);
       scwAppendBubble('admin','Did that solve it?');
@@ -2413,7 +2468,7 @@ async function scwGoToHandoff(ticketOrId){
   }
   scwShowTyping();await scwWait(650);scwHideTyping();
   const msg=`Got it — connecting you with an agent about "<strong>${escHtml(category||ticket.topic)}</strong>". Describe it below and someone will reply right here as soon as they're available.`;
-  scwAppendBubble('admin',msg);
+  scwAppendBubble('admin',msg,true);
   await scwPersistBot(ticket,msg);
   scwBotBusy=false;
   document.getElementById('scw-input-bar').style.display='flex';
@@ -2515,7 +2570,7 @@ async function scwSend(){
       scwBotBusy=true;
       scwShowTyping();await scwWait(600);scwHideTyping();
       const sugg=`While you wait — this might help:<br><strong>${escHtml(match.q)}</strong><br>${match.a}`;
-      scwAppendBubble('admin',sugg);
+      scwAppendBubble('admin',sugg,true);
       await scwPersistBot(t,sugg);
       await scwWait(200);
       scwAppendBubble('admin','Did that solve it, or should we keep this with an agent?');
