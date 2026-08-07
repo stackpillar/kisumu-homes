@@ -1010,7 +1010,7 @@
         <div class="table-wrap mobile-hide">
           <table>
             <thead><tr><th>Rating</th><th>Reviewer</th><th>Target</th><th>Comment</th><th>Response</th><th>Status</th><th>Date</th><th>Action</th></tr></thead>
-            <tbody id="reviews-body"><tr class="skeleton-row"><td colspan="7"><div class="skel"></div></td></tr></tbody>
+            <tbody id="reviews-body"><tr class="skeleton-row"><td colspan="8"><div class="skel"></div></td></tr></tbody>
           </table>
         </div>
         <div class="mobile-card-list" id="reviews-mobile"></div>
@@ -1336,6 +1336,32 @@
   }
   function notifySeller(type, payload) { return notifyByEmail(type, { ...payload, audience: 'seller' }); }
 
+  async function banAuthUser(userId) {
+    const { data: { session } } = await db.auth.getSession();
+    if (!session) { toast('Not signed in — auth-level ban skipped','error'); return; }
+    try {
+      const res = await fetch(`${EDGE_URL}/admin-auth-actions`, {
+        method: 'POST',
+        headers: { 'Content-Type':'application/json', 'Authorization': `Bearer ${session.access_token}` },
+        body: JSON.stringify({ action: 'ban', targetUserId: userId }),
+      });
+      if (!res.ok) { toast('Auth-level ban failed: '+await res.text(),'error'); return; }
+    } catch (err) { toast('Auth-level ban failed: '+err.message,'error'); }
+  }
+
+  async function unbanAuthUser(userId) {
+    const { data: { session } } = await db.auth.getSession();
+    if (!session) { toast('Not signed in — auth-level unban skipped','error'); return; }
+    try {
+      const res = await fetch(`${EDGE_URL}/admin-auth-actions`, {
+        method: 'POST',
+        headers: { 'Content-Type':'application/json', 'Authorization': `Bearer ${session.access_token}` },
+        body: JSON.stringify({ action: 'unban', targetUserId: userId }),
+      });
+      if (!res.ok) { toast('Auth-level unban failed: '+await res.text(),'error'); return; }
+    } catch (err) { toast('Auth-level unban failed: '+err.message,'error'); }
+  }
+
   // ── Dark mode — applied immediately (before any other rendering) so
   // there's no light-mode flash on load for users who've enabled it. ──
   (function initTheme() {
@@ -1517,6 +1543,7 @@
   let editingListingId   = null;
   let editingProfileId   = null;
   let upgradingListingId = null;
+  let filterSellerId     = null;
 
   const _listings = {};
   const _users    = {};
@@ -1619,12 +1646,13 @@
 
   async function logAction(action, targetType, targetId, details='') {
     try {
-      await db.from('admin_logs').insert({
+      const { error } = await db.from('admin_logs').insert({
         admin_id: currentUser?.id || null,
         admin_name: document.getElementById('admin-name').textContent || 'Admin',
         action, target_type: targetType, target_id: String(targetId), details
       });
-    } catch(e) {}
+      if (error) console.error('logAction failed:', error.message, { action, targetType, targetId });
+    } catch(e) { console.error('logAction exception:', e); }
   }
 
   // ════════════════════════════════════
@@ -1639,7 +1667,7 @@
       db.from('listings').select('*',{count:'exact',head:true}).eq('status','pending').eq('recycle_bin',false),
       db.from('listings').select('*',{count:'exact',head:true}).eq('recycle_bin',false),
       db.from('listings').select('*',{count:'exact',head:true}).eq('recycle_bin',true),
-      db.from('profiles').select('*',{count:'exact',head:true}),
+      db.from('profiles').select('*',{count:'exact',head:true}).neq('role','admin'),
       db.from('payments').select('*',{count:'exact',head:true}).eq('status','pending'),
     ]);
     document.getElementById('stat-active').textContent = active||0;
@@ -1793,6 +1821,7 @@
     const area   = document.getElementById('filter-area').value;
     const cat    = document.getElementById('filter-cat').value;
     const search = document.getElementById('filter-search').value.trim();
+    if (filterSellerId) q = q.eq('seller_id', filterSellerId);
     if (county) q = q.eq('county',county);
     if (area)   q = q.eq('area',area);
     if (cat)    q = q.eq('category',cat);
@@ -2024,14 +2053,24 @@
       <div class="field"><label>Seller</label><div class="val">${esc(l.profiles?.full_name||'—')}</div></div>
       ${trialDaysLeft!==null?`<div class="field"><label>Free trial</label><div class="val">${trialDaysLeft} day(s) left</div></div>`:''}
       <div class="field"><label>Choose plan</label>
-        <select id="upgrade-plan">
+        <select id="upgrade-plan" onchange="updateUpgradeAmount()">
           <option value="basic">Standard — KES ${SETTINGS.standard_fee.toLocaleString()} (${SETTINGS.standard_duration_days} days, up to 6 photos)</option>
           <option value="featured">Featured — KES ${SETTINGS.featured_fee.toLocaleString()} (${SETTINGS.featured_duration_days} days, up to 15 photos, top placement)</option>
         </select>
       </div>
+      <div class="field"><label>Amount to record (KES)</label><input type="number" id="upgrade-amount" value="${SETTINGS.standard_fee + (l.is_multi_unit && l.total_units ? SETTINGS.standard_fee_per_unit * l.total_units : 0)}"/></div>
       <div class="field check-field"><input type="checkbox" id="upgrade-mark-paid" checked/><label for="upgrade-mark-paid">Mark payment as confirmed (M-Pesa already received)</label></div>
-      <div class="confirm-warning">Confirming clears the free trial and activates the selected plan immediately — the seller's dashboard reflects this right away.</div>`;
+      <div class="confirm-warning">Confirming clears the free trial and activates the selected plan immediately — the seller's dashboard reflects this right away. Adjust the amount above if recording a discounted or negotiated payment.</div>`;
     document.getElementById('upgrade-modal').classList.add('open');
+  }
+  function updateUpgradeAmount() {
+    const l = _listings[upgradingListingId]; if (!l) return;
+    const plan = document.getElementById('upgrade-plan').value;
+    let amount = plan === 'featured' ? SETTINGS.featured_fee : SETTINGS.standard_fee;
+    if (l.is_multi_unit && l.total_units) {
+      amount += (plan === 'featured' ? SETTINGS.featured_fee_per_unit : SETTINGS.standard_fee_per_unit) * l.total_units;
+    }
+    document.getElementById('upgrade-amount').value = amount;
   }
   function closeUpgradeModal() { document.getElementById('upgrade-modal').classList.remove('open'); upgradingListingId = null; }
 
@@ -2040,10 +2079,7 @@
     const l = _listings[id]; if(!l) return;
     const plan     = document.getElementById('upgrade-plan').value;
     const markPaid = document.getElementById('upgrade-mark-paid').checked;
-    let amount     = plan === 'featured' ? SETTINGS.featured_fee : SETTINGS.standard_fee;
-    if (l.is_multi_unit && l.total_units) {
-      amount += (plan === 'featured' ? SETTINGS.featured_fee_per_unit : SETTINGS.standard_fee_per_unit) * l.total_units;
-    }
+    const amount   = parseFloat(document.getElementById('upgrade-amount').value) || 0;
 
     const updates = { is_featured: plan === 'featured', trial_expires_at: null };
     if (markPaid) updates.payment_status = 'paid';
@@ -2121,7 +2157,21 @@
     const l = _listings[id]||{};
     openConfirm({title:'Permanently delete?', message:`"${l.title||id}" and all its photos${l.is_multi_unit?' and unit types':''} will be removed. This cannot be undone.`, warningText:'⚠ Irreversible.', confirmText:'Delete permanently', confirmClass:'reject', onConfirm:()=>doDeleteListing(id,l.title)});
   }
+  const LISTING_PHOTOS_BUCKET = 'listing-photos'; // ← set to your actual bucket name
+
+  function storagePathFromPublicUrl(url) {
+    const marker = `/storage/v1/object/public/${LISTING_PHOTOS_BUCKET}/`;
+    const i = (url||'').indexOf(marker);
+    return i === -1 ? null : url.slice(i + marker.length);
+  }
+
   async function doDeleteListing(id,title) {
+    const l = _listings[id];
+    const paths = (l?.listing_photos||[]).map(p => storagePathFromPublicUrl(p.url)).filter(Boolean);
+    if (paths.length) {
+      const { error: storageErr } = await db.storage.from(LISTING_PHOTOS_BUCKET).remove(paths);
+      if (storageErr) console.error('Storage cleanup failed (row still deleted):', storageErr.message);
+    }
     const {data,error} = await db.from('listings').delete().eq('id',id).select();
     if (error)       { toast('Error: '+error.message,'error'); return; }
     if (!data?.length){ toast('Blocked by RLS — check Supabase policy','error'); return; }
@@ -2446,7 +2496,7 @@ async function loadUsers(append) {
     const loadMoreWrap = document.getElementById('users-load-more-wrap');
     if (!append) {
       usersPage = 0;
-      tbody.innerHTML    = `<tr class="skeleton-row"><td colspan="6"><div class="skel"></div></td></tr>`.repeat(4);
+      tbody.innerHTML    = `<tr class="skeleton-row"><td colspan="7"><div class="skel"></div></td></tr>`.repeat(4);
       mobileEl.innerHTML = '';
       if (loadMoreWrap) loadMoreWrap.style.display = 'none';
     } else if (loadMoreBtn) {
@@ -2454,32 +2504,31 @@ async function loadUsers(append) {
     }
 
     const search = document.getElementById('user-search')?.value.trim() || '';
-    let q = db.from('profiles').select('*').order('created_at', { ascending: false });
-    if (search) q = q.or(`full_name.ilike.%${search}%,email.ilike.%${search}%`);
-    const { data, error } = await q.range(usersPage*PAGE_SIZE, usersPage*PAGE_SIZE+PAGE_SIZE-1);
+    const { data, error } = await db.rpc('get_sellers_with_stats', {
+      p_search: search || null,
+      p_limit: PAGE_SIZE,
+      p_offset: usersPage * PAGE_SIZE,
+    });
 
     if (loadMoreBtn) { loadMoreBtn.disabled = false; loadMoreBtn.textContent = 'Load more'; }
 
-    if (error || (!append && !data?.length)) {
+    if (error) {
+      console.error('get_sellers_with_stats failed:', error);
+      tbody.innerHTML    = `<tr><td colspan="7"><div class="table-loading"><p>Couldn't load sellers: ${esc(error.message)}</p></div></td></tr>`;
+      mobileEl.innerHTML = `<div class="table-loading"><p>Couldn't load sellers: ${esc(error.message)}</p></div>`;
+      return;
+    }
+    if (!append && !data?.length) {
       tbody.innerHTML    = `<tr><td colspan="7"><div class="table-loading"><p>No sellers found</p></div></td></tr>`;
       mobileEl.innerHTML = `<div class="table-loading"><p>No sellers found</p></div>`;
       return;
     }
     if (append && !data?.length) { if (loadMoreWrap) loadMoreWrap.style.display = 'none'; return; }
 
-    const rows = await Promise.all((data || []).map(async u => {
-      const [{ count: listingCount }, { data: chatSess }] = await Promise.all([
-        db.from('listings').select('*', { count: 'exact', head: true }).eq('seller_id', u.id),
-        db.from('chat_sessions')
-          .select('unread_admin')
-          .eq('session_key', `seller_${u.id}_support`)
-          .maybeSingle(),
-      ]);
-      return {
-        ...u,
-        listingCount:      listingCount || 0,
-        unreadFromSeller:  chatSess?.unread_admin || 0,
-      };
+    const rows = (data || []).map(u => ({
+      ...u,
+      listingCount:     u.listing_count || 0,
+      unreadFromSeller: u.unread_from_seller || 0,
     }));
 
     rows.forEach(u => { _users[u.id] = u; });
@@ -2502,7 +2551,7 @@ async function loadUsers(append) {
         <td>
           <div class="action-btns" style="position:relative">
             ${aBtn('view','Manage profile','view',`openProfileModal('${u.id}')`)}
-            ${aBtn('list','View listings','view',`filterByUser('${esc(u.full_name || '')}')`)}
+            ${aBtn('list','View listings','view',`filterByUser('${u.id}','${esc(u.full_name || '')}')`)}
             <span style="position:relative;display:inline-block">
               ${aBtn('message','Message seller','message',`messageSellerInChat('${u.id}','${esc(u.full_name || 'Seller')}')`)}
               ${u.unreadFromSeller > 0 ? `<span class="seller-msg-badge" style="position:absolute;top:-6px;right:-6px;margin:0">${u.unreadFromSeller}</span>` : ''}
@@ -2513,7 +2562,7 @@ async function loadUsers(append) {
           </div>
           ${mobileMenu(u.id, [
             { label: 'Manage profile', cls: '',     fn: `openProfileModal('${u.id}')` },
-            { label: 'View listings',  cls: '',     fn: `filterByUser('${esc(u.full_name || '')}')` },
+            { label: 'View listings',  cls: '',     fn: `filterByUser('${u.id}','${esc(u.full_name || '')}')` },
             { label: u.unreadFromSeller > 0
                 ? `Message (${u.unreadFromSeller} new)`
                 : 'Send message',
@@ -2547,7 +2596,7 @@ async function loadUsers(append) {
         </div>
         <div class="mobile-card-actions">
           ${aBtn('view','Manage','view',`openProfileModal('${u.id}')`)}
-          ${aBtn('list','Listings','view',`filterByUser('${esc(u.full_name || '')}')`)}
+          ${aBtn('list','Listings','view',`filterByUser('${u.id}','${esc(u.full_name || '')}')`)}
           ${aBtn('message','Message','message',`messageSellerInChat('${u.id}','${esc(u.full_name || 'Seller')}')`)}
           ${u.is_disabled
             ? aBtn('reinstate','Reinstate','approve',`enableProfile('${u.id}')`)
@@ -2680,6 +2729,11 @@ async function messageSellerInChat(sellerId, sellerName) {
   async function doDisableProfile(id,reason) {
     const {error}=await db.from('profiles').update({is_disabled:true,disabled_reason:reason}).eq('id',id);
     if(error){toast('Error','error');return;}
+    const { error: cascadeErr } = await db.from('listings')
+      .update({ is_disabled: true, disabled_reason: 'Seller account suspended' })
+      .eq('seller_id', id).eq('is_disabled', false);
+    if (cascadeErr) console.error('Listing cascade on suspend failed:', cascadeErr.message);
+    await banAuthUser(id);
     logAction('suspend_profile','profile',id,reason);
     const u=_users[id];
     if (u?.email) {
@@ -2689,10 +2743,12 @@ async function messageSellerInChat(sellerId, sellerName) {
     if(u){ u.is_disabled=true; u.disabled_reason=reason; }
     if (currentView==='users') loadUsers();
     if (currentView==='reports') renderReportsTable();
+    if (currentView==='listings') loadAllListings();
   }
   async function enableProfile(id) {
     const {error}=await db.from('profiles').update({is_disabled:false,disabled_reason:null}).eq('id',id);
     if(error){toast('Error','error');return;}
+    await unbanAuthUser(id);
     logAction('reinstate_profile','profile',id,'');
     const u=_users[id];
     if (u?.email) {
@@ -3166,7 +3222,7 @@ async function messageSellerInChat(sellerId, sellerName) {
     document.getElementById('report-modal-body').innerHTML = html;
 
     document.getElementById('report-modal-footer').innerHTML = `
-      ${listing?`<button class="btn-modal cancel" onclick="window.open('listing.html?id=${String(listing.listing_number).padStart(6,'0')}','_blank')">View listing</button>`:''}
+      ${listing?`<button class="btn-modal cancel" onclick="window.open('listing.html?id=${listing.id}','_blank')">View listing</button>`:''}
       ${seller?`<button class="btn-modal cancel" onclick="closeReportModal(); openProfileModal('${seller.id}')">View seller profile</button>`:''}
       ${seller && !seller.is_disabled?`<button class="btn-modal reject" onclick="closeReportModal(); disableProfileFlow('${seller.id}')">Suspend seller</button>`:''}
       ${listing && !listing.is_disabled?`<button class="btn-modal reject" onclick="closeReportModal(); recycleListing('${listing.id}')">Recycle listing</button>`:''}
@@ -3233,7 +3289,7 @@ async function messageSellerInChat(sellerId, sellerName) {
     if (!append) {
       reviewsPage = 0;
       _reviews = [];
-      tbody.innerHTML    = `<tr class="skeleton-row"><td colspan="7"><div class="skel"></div></td></tr>`.repeat(4);
+      tbody.innerHTML    = `<tr class="skeleton-row"><td colspan="8"><div class="skel"></div></td></tr>`.repeat(4);
       mobileEl.innerHTML = '';
       if (loadMoreWrap) loadMoreWrap.style.display = 'none';
     } else if (loadMoreBtn) {
@@ -3249,7 +3305,7 @@ async function messageSellerInChat(sellerId, sellerName) {
     if (loadMoreBtn) { loadMoreBtn.disabled = false; loadMoreBtn.textContent = 'Load more'; }
 
     if (error || (!append && !data)) {
-      tbody.innerHTML    = `<tr><td colspan="7"><div class="table-loading"><p>Could not load reviews</p></div></td></tr>`;
+      tbody.innerHTML    = `<tr><td colspan="8"><div class="table-loading"><p>Could not load reviews</p></div></td></tr>`;
       mobileEl.innerHTML = `<div class="table-loading"><p>Could not load reviews</p></div>`;
       return;
     }
@@ -3277,7 +3333,7 @@ async function messageSellerInChat(sellerId, sellerName) {
     const mobileEl = document.getElementById('reviews-mobile');
 
     if (!filtered.length) {
-      tbody.innerHTML    = `<tr><td colspan="7"><div class="table-loading"><p>No reviews yet</p></div></td></tr>`;
+      tbody.innerHTML    = `<tr><td colspan="8"><div class="table-loading"><p>No reviews yet</p></div></td></tr>`;
       mobileEl.innerHTML = `<div class="table-loading"><p>No reviews yet</p></div>`;
       return;
     }
@@ -3720,10 +3776,30 @@ async function toggleReviewPublish(id, isCurrentlyPublished) {
     loadAllListings();
   }, 500);
 
-  function filterByUser(name) {
+  function filterByUser(id, name) {
+    filterSellerId = id;
+    document.getElementById('filter-search').value = '';
     showView('listings');
-    document.getElementById('filter-search').value = name;
+    const banner = document.getElementById('seller-filter-banner');
+    if (banner) {
+      document.getElementById('seller-filter-banner-text').textContent = `Showing listings by ${name || 'this seller'}`;
+      banner.style.display = 'flex';
+    }
     loadAllListings();
+  }
+  function clearSellerFilter() {
+    filterSellerId = null;
+    const banner = document.getElementById('seller-filter-banner');
+    if (banner) banner.style.display = 'none';
+    loadAllListings();
+  }
+  function onListingSearchInput() {
+    if (filterSellerId) {
+      filterSellerId = null;
+      const banner = document.getElementById('seller-filter-banner');
+      if (banner) banner.style.display = 'none';
+    }
+    debouncedLoad();
   }
 
   async function doLogout() { await db.auth.signOut(); window.location.href='login.html'; }
@@ -3770,7 +3846,6 @@ async function toggleReviewPublish(id, isCurrentlyPublished) {
       if (!s) return false;
       if (s.session_type === 'seller') return true;
       if ((s.session_key||'').startsWith('seller_')) return true;
-      if (s.visitor_name && s.visitor_name.trim()) return true;
       return false;
     }
     function otherLabel(s) {
