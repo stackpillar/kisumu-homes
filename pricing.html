@@ -952,17 +952,18 @@
   const featuredPriceEl = document.getElementById('featured-price');
   let animated = false;
 
-  const priceObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting && !animated) {
-        animated = true;
-        animatePrice(basicPriceEl, String(window.NK_SETTINGS.standard_fee), 'KES ');
-        animatePrice(featuredPriceEl, String(window.NK_SETTINGS.featured_fee), 'KES ');
-      }
-    });
-  }, { threshold: 0.3 });
-
-  priceObserver.observe(basicPriceEl);
+  function setupPriceAnimation() {
+    const priceObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting && !animated) {
+          animated = true;
+          animatePrice(basicPriceEl, String(window.NK_SETTINGS.standard_fee), 'KES ');
+          animatePrice(featuredPriceEl, String(window.NK_SETTINGS.featured_fee), 'KES ');
+        }
+      });
+    }, { threshold: 0.3 });
+    priceObserver.observe(basicPriceEl);
+  }
 
   document.querySelector('.faq-item')?.classList.add('open');
 
@@ -1208,6 +1209,7 @@
   (async function initPricingPage() {
     await loadPlatformSettings();
     applySettingsToPricingCopy();
+    setupPriceAnimation();
   })();
 
   loadTestimonials().catch(err => {
