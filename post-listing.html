@@ -982,8 +982,155 @@ function applySettingsToStaticCopy() {
   function handleCountyChange() {
     const county = document.getElementById('county').value;
     nkPopulateAreas(county);
+    scheduleDraftSave();
   }
 
+// ══════════════════════════════════════════════════════════════
+// DRAFT AUTOSAVE — keeps the whole form filled across refreshes,
+// closed tabs/devices, and the "fill it out, then get told to
+// sign in" flow. Saves to localStorage immediately (same-device
+// resume) and, once signed in, also to the `listing_drafts` table
+// (cross-device resume under the same account). Photos are NOT
+// included — File objects can't be serialized — so photos must be
+// re-added after resuming on a new device or after closing fully.
+// ══════════════════════════════════════════════════════════════
+const DRAFT_LS_KEY = 'nk_post_listing_draft';
+let draftLocalTimer  = null;
+let draftServerTimer = null;
+
+function collectDraftData() {
+  const val = id => document.getElementById(id)?.value ?? '';
+  const checked = id => document.getElementById(id)?.checked ?? false;
+  return {
+    step: currentStep,
+    selectedCat, priceType, selectedPlan, listingStructure,
+    unitTypes: JSON.parse(JSON.stringify(unitTypes)),
+    fields: {
+      title: val('title'), description: val('description'),
+      price: val('price'), bedrooms: val('bedrooms'), bathrooms: val('bathrooms'),
+      size: val('size'), furnished: checked('furnished'),
+      num_buildings: val('num_buildings'), total_units: val('total_units'),
+      county: val('county'), area: val('area'), area_custom: val('area_custom'),
+      sub_area: val('sub_area'), address: val('address'), phone: val('phone'),
+    },
+    savedAt: Date.now(),
+  };
+}
+
+// Local save is cheap and instant-feeling (short debounce, no network).
+// Server save is throttled much more loosely so continuous typing never
+// triggers a network request per pause — this is what was causing the lag.
+function scheduleDraftSave() {
+  clearTimeout(draftLocalTimer);
+  draftLocalTimer = setTimeout(() => {
+    const data = collectDraftData();
+    try { localStorage.setItem(DRAFT_LS_KEY, JSON.stringify(data)); } catch(e) { console.error('Local draft save failed:', e); }
+  }, 400);
+
+  if (currentUser) {
+    clearTimeout(draftServerTimer);
+    draftServerTimer = setTimeout(() => {
+      saveDraftToServer(collectDraftData());
+    }, 4000);
+  }
+}
+
+async function saveDraftToServer(data) {
+  try {
+    await db.from('listing_drafts').upsert({
+      seller_id: currentUser.id,
+      draft_data: data,
+      updated_at: new Date().toISOString(),
+    }, { onConflict: 'seller_id' });
+  } catch(e) { console.error('Server draft save failed:', e); }
+}
+
+async function clearDraft() {
+  clearTimeout(draftSaveTimer);
+  try { localStorage.removeItem(DRAFT_LS_KEY); } catch(e) {}
+  if (currentUser) {
+    try { await db.from('listing_drafts').delete().eq('seller_id', currentUser.id); } catch(e) {}
+  }
+}
+
+async function loadAndApplyDraft() {
+  let local = null;
+  try {
+    const raw = localStorage.getItem(DRAFT_LS_KEY);
+    if (raw) local = JSON.parse(raw);
+  } catch(e) {}
+
+  let server = null;
+  if (currentUser) {
+    try {
+      const { data } = await db.from('listing_drafts').select('draft_data, updated_at').eq('seller_id', currentUser.id).single();
+      if (data?.draft_data) server = { ...data.draft_data, savedAt: new Date(data.updated_at).getTime() };
+    } catch(e) {}
+  }
+
+  let draft = null;
+  if (local && server) draft = (server.savedAt >= local.savedAt) ? server : local;
+  else draft = local || server;
+
+  if (!draft) return;
+  applyDraftData(draft);
+
+  try { localStorage.setItem(DRAFT_LS_KEY, JSON.stringify(draft)); } catch(e) {}
+  if (currentUser) saveDraftToServer(draft);
+}
+
+function applyDraftData(draft) {
+  selectedCat = draft.selectedCat || selectedCat;
+  priceType = draft.priceType || priceType;
+  listingStructure = draft.listingStructure || listingStructure;
+  if (Array.isArray(draft.unitTypes) && draft.unitTypes.length) {
+    unitTypes = draft.unitTypes;
+    unitTypeSeq = Math.max(0, ...unitTypes.map(u => u.id || 0));
+  }
+
+  document.querySelectorAll('.cat-option').forEach(o => o.classList.toggle('selected', o.dataset.cat === selectedCat));
+  document.getElementById('type-sale').classList.toggle('active', priceType === 'sale');
+  document.getElementById('type-rent').classList.toggle('active', priceType === 'rent');
+  document.getElementById('price-suffix').textContent = priceType === 'sale' ? 'total asking price' : 'per month';
+  document.getElementById('struct-single').classList.toggle('active', listingStructure === 'single');
+  document.getElementById('struct-multi').classList.toggle('active', listingStructure === 'multi');
+  document.getElementById('single-unit-fields').classList.toggle('hide', listingStructure === 'multi');
+  document.getElementById('unit-types-wrap').classList.toggle('show', listingStructure === 'multi');
+  renderUnitTypeRows();
+
+  if (draft.selectedPlan === 'basic' || draft.selectedPlan === 'featured') {
+    selectedPlan = draft.selectedPlan;
+    document.getElementById('plan-basic').classList.toggle('selected', selectedPlan === 'basic');
+    document.getElementById('plan-featured').classList.toggle('selected', selectedPlan === 'featured');
+  }
+
+  const f = draft.fields || {};
+  if (f.county) {
+    document.getElementById('county').value = f.county;
+    nkPopulateAreas(f.county);
+  }
+  Object.entries(f).forEach(([id, value]) => {
+    if (id === 'county') return;
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (el.type === 'checkbox') el.checked = !!value;
+    else el.value = value ?? '';
+  });
+  handleAreaChange();
+
+  if (draft.step) goStepRaw(draft.step);
+}
+
+function goStepRaw(n) {
+  for (let i = 1; i <= 4; i++) {
+    const el = document.getElementById(`step-${i}`);
+    if (el) el.style.display = (i === n) ? 'block' : 'none';
+  }
+  currentStep = n;
+  updateStepUI();
+  if (n === 3) updatePricingCards();
+  if (n === 4) renderReview();
+}
 
 let TRIAL_DAYS = 14;
 
@@ -1030,6 +1177,16 @@ async function init() {
   } else {
     document.getElementById('auth-banner').style.display = 'block';
   }
+
+  // Resume any in-progress listing — same device, another device, or after
+  // signing in mid-way through filling the form.
+  await loadAndApplyDraft();
+
+  // Autosave on any change anywhere in the form (delegated, so dynamically
+  // added unit-type rows are covered too without extra wiring).
+  document.querySelector('.page-wrap').addEventListener('input', scheduleDraftSave);
+  document.querySelector('.page-wrap').addEventListener('change', scheduleDraftSave);
+
   // Trial visibility runs regardless of login — everyone gets to see the offer exists
   await checkTrialAvailability();
 }
@@ -1110,6 +1267,7 @@ function selectCat(el) {
   document.querySelectorAll('.cat-option').forEach(o => o.classList.remove('selected'));
   el.classList.add('selected');
   selectedCat = el.dataset.cat;
+  scheduleDraftSave();
 }
 
 function setType(type) {
@@ -1128,24 +1286,28 @@ function setStructure(mode) {
   document.getElementById('single-unit-fields').classList.toggle('hide', mode === 'multi');
   document.getElementById('unit-types-wrap').classList.toggle('show', mode === 'multi');
   if (mode === 'multi') updateUnitsSummary();
+  scheduleDraftSave();
 }
 
 function addUnitTypeRow() {
   const row = { id: ++unitTypeSeq, label: '', bedrooms: '', bathrooms: '', size: '', price: '', quantity: '' };
   unitTypes.push(row);
   renderUnitTypeRows();
+  scheduleDraftSave();
 }
 
 function removeUnitTypeRow(id) {
   if (unitTypes.length <= 1) { showToast('At least one unit type is required', 'error'); return; }
   unitTypes = unitTypes.filter(u => u.id !== id);
   renderUnitTypeRows();
+  scheduleDraftSave();
 }
 
 function updateUnitTypeField(id, field, value) {
   const row = unitTypes.find(u => u.id === id);
   if (row) row[field] = value;
   updateUnitsSummary();
+  scheduleDraftSave();
 }
 
 function renderUnitTypeRows() {
@@ -1317,35 +1479,137 @@ async function handleFiles(files) {
     if (!file.type.startsWith('image/')) continue;
     if (file.size > 30 * 1024 * 1024) { showToast(`${file.name} is too large (max 30MB)`, 'error'); continue; }
     showToast('Processing photo…', '');
-    const processed = await standardizeImage(file);
-    photos.push({ file: processed, previewUrl: URL.createObjectURL(processed) });
+    const quality      = await checkImageQuality(file); // read BEFORE processing, for an accurate native resolution
+    const processed    = await standardizeImage(file);
+    const watermarked  = await watermarkImage(processed);
+    photos.push({ file: watermarked, previewUrl: URL.createObjectURL(watermarked), needsEnhance: quality.needsEnhance });
   }
   renderPhotoGrid();
 }
 
 async function standardizeImage(file) {
+  // Untouched originals keep full quality — only re-encode when necessary
   if (file.size <= 2 * 1024 * 1024) return file;
-  return new Promise(resolve => {
-    const img = new Image();
-    const url = URL.createObjectURL(file);
-    img.onload = () => {
-      URL.revokeObjectURL(url);
-      let { width, height } = img;
-      const MAX = 2000;
-      if (width > MAX || height > MAX) {
-        const r = Math.min(MAX/width, MAX/height);
-        width = Math.round(width * r); height = Math.round(height * r);
-      }
-      const canvas = document.createElement('canvas');
-      canvas.width = width; canvas.height = height;
-      const ctx = canvas.getContext('2d');
-      ctx.imageSmoothingQuality = 'high';
-      ctx.drawImage(img, 0, 0, width, height);
-      canvas.toBlob(blob => resolve(new File([blob], file.name.replace(/\.\w+$/, '.jpg'), { type: 'image/jpeg' })), 'image/jpeg', 0.92);
-    };
-    img.onerror = () => resolve(file);
-    img.src = url;
-  });
+
+  const MAX_DIM = 2400;       // safe ceiling for the lightbox + wide desktop galleries
+  const JPEG_QUALITY = 0.95;  // devs typically use 0.9–0.95 for photos, not 0.8
+
+  try {
+    // createImageBitmap correctly applies EXIF orientation and decodes at
+    // full fidelity — more reliable than the <img> + canvas.drawImage path
+    const bitmap = await createImageBitmap(file, { imageOrientation: 'from-image' });
+    let { width, height } = bitmap;
+
+    if (width > MAX_DIM || height > MAX_DIM) {
+      const ratio = Math.min(MAX_DIM / width, MAX_DIM / height);
+      width = Math.round(width * ratio);
+      height = Math.round(height * ratio);
+    }
+
+    // Step-down (halving) resize: this is what libraries like pica.js and
+    // browser-image-compression do internally. A single big downscale
+    // jump aliases and looks soft; halving repeatedly keeps it sharp.
+    let src = bitmap, curW = bitmap.width, curH = bitmap.height;
+    while (curW / 2 > width && curH / 2 > height) {
+      curW = Math.round(curW / 2); curH = Math.round(curH / 2);
+      const step = document.createElement('canvas');
+      step.width = curW; step.height = curH;
+      const sctx = step.getContext('2d');
+      sctx.imageSmoothingEnabled = true;
+      sctx.imageSmoothingQuality = 'high';
+      sctx.drawImage(src, 0, 0, curW, curH);
+      src = step;
+    }
+
+    const canvas = document.createElement('canvas');
+    canvas.width = width; canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(src, 0, 0, width, height);
+
+    const blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', JPEG_QUALITY));
+    return new File([blob], file.name.replace(/\.\w+$/, '.jpg'), { type: 'image/jpeg' });
+  } catch (e) {
+    console.error('standardizeImage failed, using original:', e);
+    return file; // never block an upload just because compression failed
+  }
+}
+
+/* ════════════════════════════════════════════════════
+   WATERMARK — stamps every uploaded photo with your
+   project name/brand text before it's stored, so any
+   photo a seller uploads carries Nyumba254 branding.
+   ════════════════════════════════════════════════════
+   Runs on EVERY photo (unlike standardizeImage, which
+   only re-encodes files over 2MB) because the point here
+   is branding, not compression. Change WATERMARK_TEXT
+   below to whatever detail you want stamped instead —
+   e.g. a phone number, tagline, or a site URL. ═════════ */
+const WATERMARK_TEXT = 'Nyumba254';
+
+async function watermarkImage(file) {
+  try {
+    const bitmap = await createImageBitmap(file, { imageOrientation: 'from-image' });
+    const canvas = document.createElement('canvas');
+    canvas.width  = bitmap.width;
+    canvas.height = bitmap.height;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(bitmap, 0, 0);
+
+    // Font size scales with the photo so it reads consistently on both
+    // a small upload and a huge DSLR photo.
+    const fontSize = Math.max(16, Math.round(canvas.width * 0.032));
+    ctx.font = `700 ${fontSize}px Inter, Arial, sans-serif`;
+    ctx.textBaseline = 'bottom';
+    ctx.textAlign = 'right';
+
+    const paddingX = fontSize * 0.9;
+    const paddingY = fontSize * 0.9;
+
+    // Soft dark shadow keeps the text legible over both light and dark
+    // parts of any photo, without needing a solid background box.
+    ctx.shadowColor = 'rgba(0,0,0,0.6)';
+    ctx.shadowBlur = fontSize * 0.3;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 0;
+
+    ctx.fillStyle = 'rgba(255,255,255,0.85)';
+    ctx.fillText(WATERMARK_TEXT, canvas.width - paddingX, canvas.height - paddingY);
+
+    const blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', 0.95));
+    return new File([blob], file.name.replace(/\.\w+$/, '.jpg'), { type: 'image/jpeg' });
+  } catch (e) {
+    console.error('watermarkImage failed, using unwatermarked file:', e);
+    return file; // never block an upload just because watermarking failed
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+// PHOTO QUALITY ENHANCEMENT (Cloudinary — flagged photos only)
+// ══════════════════════════════════════════════════════════════
+// Only photos whose native resolution is too small get routed through
+// Cloudinary's AI enhance/upscale/sharpen. Normal, already-decent photos
+// are never touched, so Cloudinary's free quota is spent only on the
+// actual problem case.
+const CLOUDINARY_CLOUD_NAME = 'f2qbihwv';
+const NK_LOW_QUALITY_MAX_EDGE = 1000; // px — below this on the long edge, a photo is flagged
+
+async function checkImageQuality(file) {
+  try {
+    const bitmap = await createImageBitmap(file);
+    const longEdge = Math.max(bitmap.width, bitmap.height);
+    return { needsEnhance: longEdge < NK_LOW_QUALITY_MAX_EDGE };
+  } catch (e) {
+    return { needsEnhance: false }; // if we can't even read it, don't block the upload over it
+  }
+}
+
+// Builds a Cloudinary "fetch" URL that AI-enhances an existing Supabase
+// photo on the fly. Only called for photos flagged as low quality.
+function enhancePhotoIfNeeded(publicUrl) {
+  const transforms = 'e_improve,e_sharpen,e_upscale,w_2000,c_limit,f_auto,q_auto';
+  return `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/image/fetch/${transforms}/${encodeURIComponent(publicUrl)}`;
 }
 
 function renderPhotoGrid() {
@@ -1539,12 +1803,13 @@ async function uploadPhotos(listingId) {
   const bar  = document.getElementById('upload-bar');
   prog.style.display = 'block';
   for (let i = 0; i < photos.length; i++) {
-    const { file } = photos[i];
+    const { file, needsEnhance } = photos[i];
     const path = `${listingId}/${Date.now()}-${i}.jpg`;
     const { error } = await db.storage.from('listing-photos').upload(path, file, { cacheControl:'3600', upsert:false });
     if (error) { console.error('Upload error:', error); continue; }
     const { data: urlData } = db.storage.from('listing-photos').getPublicUrl(path);
-    uploaded.push({ url: urlData.publicUrl, is_cover: i === coverIndex, position: i });
+    const finalUrl = needsEnhance ? enhancePhotoIfNeeded(urlData.publicUrl) : urlData.publicUrl;
+    uploaded.push({ url: finalUrl, is_cover: i === coverIndex, position: i });
     bar.style.width = `${Math.round(((i+1)/photos.length)*100)}%`;
   }
   prog.style.display = 'none';
@@ -1630,6 +1895,9 @@ async function submitListing() {
 
     currentListingId = listing.id;
     currentPlanPrice = getPlanPrice();
+
+    // Listing is safely saved — the in-progress draft is no longer needed
+    await clearDraft();
 
     // Notify seller their listing was received and will go live shortly
     fetch(`${EDGE_URL}/send-listing-email`, {
