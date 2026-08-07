@@ -1559,22 +1559,24 @@ async function watermarkImage(file) {
 
     // Font size scales with the photo so it reads consistently on both
     // a small upload and a huge DSLR photo.
-    const fontSize = Math.max(16, Math.round(canvas.width * 0.032));
-    ctx.font = `700 ${fontSize}px Inter, Arial, sans-serif`;
+    const fontSize = Math.max(16, Math.round(canvas.width * 0.028));
+    // Italic + serif reads like a signature rather than a stamped label.
+    ctx.font = `italic 500 ${fontSize}px 'Playfair Display', Georgia, serif`;
     ctx.textBaseline = 'bottom';
     ctx.textAlign = 'right';
 
     const paddingX = fontSize * 0.9;
     const paddingY = fontSize * 0.9;
 
-    // Soft dark shadow keeps the text legible over both light and dark
-    // parts of any photo, without needing a solid background box.
-    ctx.shadowColor = 'rgba(0,0,0,0.6)';
-    ctx.shadowBlur = fontSize * 0.3;
+    // Wider, softer shadow (instead of a crisp dark one) blurs the text
+    // itself rather than just outlining it, and lower fill opacity keeps
+    // it from competing with the photo.
+    ctx.shadowColor = 'rgba(0,0,0,0.45)';
+    ctx.shadowBlur = fontSize * 0.6;
     ctx.shadowOffsetX = 0;
     ctx.shadowOffsetY = 0;
 
-    ctx.fillStyle = 'rgba(255,255,255,0.85)';
+    ctx.fillStyle = 'rgba(255,255,255,0.55)';
     ctx.fillText(WATERMARK_TEXT, canvas.width - paddingX, canvas.height - paddingY);
 
     const blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', 0.95));
