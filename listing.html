@@ -70,21 +70,17 @@
       width:100%; aspect-ratio:var(--gallery-ratio, 16/9); position:relative; overflow:hidden;
       background:#111; display:flex; align-items:center; justify-content:center;
       transition:aspect-ratio .25s ease;
+      max-height:65vh;
     }
-    /* Blurred, scaled-up copy of the same photo fills the frame edge-to-edge
-       behind the sharp foreground image — the foreground itself is never
-       cropped or upscaled, so quality is untouched. */
-    .gallery-main-bg {
-      position:absolute; inset:0; z-index:0;
-      background-size:cover; background-position:center;
-      filter:blur(30px) brightness(0.55) saturate(1.1);
-      transform:scale(1.15);
-    }
-    /* KEY FIX: object-fit:contain keeps full image quality with no cropping. */
+    
+    /* object-fit:cover fills the frame completely — no letterboxing/gaps —
+       while keeping the image at native resolution (only edge pixels are
+       clipped when the photo's ratio doesn't match the box, never
+       downscaled or recompressed). */
     .gallery-main img {
       position:relative; z-index:1;
       width:100%; height:100%;
-      object-fit:contain;           /* shows full image, no cropping */
+      object-fit:cover;             /* fills frame, no empty space */
       object-position:center;
       transition:opacity .3s;
     }
@@ -655,8 +651,7 @@
       <div>
         <!-- Gallery -->
         <div class="gallery" id="gallery">
-          <div class="gallery-main" id="gallery-main">
-            <div class="gallery-main-bg" id="gallery-main-bg"></div>
+          <div class="gallery-main" id="gallery-main">            
             <div class="gallery-no-photo" id="gallery-no-photo" style="display:none">
               <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
               <p>No photos for this listing yet</p>
@@ -1198,7 +1193,7 @@ let isListingOwner  = false;
    constants just stop an extreme photo (e.g. a tall receipt-shaped
    screenshot, or a super-wide panorama) from making the frame look
    broken — anything outside this range gets clamped back to it. */
-const NK_GALLERY_MIN_RATIO = 0.66; // tallest allowed frame (~2:3 portrait)
+const NK_GALLERY_MIN_RATIO = 0.75; // tallest allowed frame (~4:5) — prevents oversized portrait frames
 const NK_GALLERY_MAX_RATIO = 1.9;  // widest allowed frame (~19:10 panorama)
 
 /* CONTACT PROTECTION state — see handleContactClick() further down.
@@ -1748,22 +1743,18 @@ function renderLiveMap(l) {
 ════════════════════════════════════════════════════ */
 function renderGallery() {
   const img      = document.getElementById('gallery-img');
-  const bg       = document.getElementById('gallery-main-bg');
   const noPhoto  = document.getElementById('gallery-no-photo');
   const thumbWrap= document.getElementById('gallery-thumbs');
   const counter  = document.getElementById('gallery-counter');
   const prevBtn  = document.getElementById('prev-btn');
   const nextBtn  = document.getElementById('next-btn');
 
-  if (!photos.length) { noPhoto.style.display='flex'; img.style.display='none'; if (bg) bg.style.backgroundImage=''; return; }
+  if (!photos.length) { noPhoto.style.display='flex'; img.style.display='none'; return; }
 
   noPhoto.style.display = 'none';
   img.style.display = 'block';
   img.src = photos[currentPhoto].url;
   img.alt = listing?.title || 'Apartment photo';
-  /* Blurred backdrop uses the same full-quality photo, just stretched and
-     blurred behind it — the visible foreground image is never cropped. */
-  if (bg) bg.style.backgroundImage = `url("${photos[currentPhoto].url}")`;
 
   /* Flexible frame: match the photo's own aspect ratio (clamped to sane
      bounds) instead of forcing every photo into 16:9. */
