@@ -26,7 +26,7 @@
     #gcw-title-wrap{flex:1;min-width:0}
     #gcw-title{font-size:14px;font-weight:700;line-height:1.3}
     #gcw-subtitle{font-size:11px;opacity:.8;line-height:1.3}
-    #gcw-list{flex:1;overflow-y:auto;background:#f7f6f2}
+    #gcw-list{flex:1;min-height:0;overflow-y:auto;background:#f7f6f2}
     .gcw-convo{display:flex;gap:10px;padding:12px 14px;border-bottom:1px solid #e0ded8;cursor:pointer;transition:background .1s}
     .gcw-convo:hover{background:#fff}
     .gcw-convo-img{width:44px;height:44px;border-radius:8px;background:#e0ded8;object-fit:cover;flex-shrink:0}
@@ -35,14 +35,14 @@
     .gcw-convo-last{font-size:12px;color:#888780;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
     .gcw-convo-badge{background:#C53030;color:#fff;font-size:10px;font-weight:700;border-radius:10px;min-width:18px;height:18px;display:flex;align-items:center;justify-content:center;padding:0 5px;flex-shrink:0;align-self:center}
     #gcw-empty{padding:40px 20px;text-align:center;color:#888780;font-size:13px}
-    #gcw-thread{display:none;flex-direction:column;height:100%}
+    #gcw-thread{display:none;flex-direction:column;flex:1;min-height:0}
     #gcw-thread.open{display:flex}
     #gcw-thread-head{background:#0F6E56;color:#fff;padding:12px 14px;display:flex;align-items:center;gap:10px;flex-shrink:0}
     #gcw-thread-head button.back{background:none;border:none;color:#fff;cursor:pointer;padding:2px;flex-shrink:0}
     #gcw-thread-info{flex:1;min-width:0}
     #gcw-thread-name{font-size:13.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     #gcw-thread-link{font-size:11px;color:rgba(255,255,255,.85);text-decoration:underline}
-    #gcw-messages{flex:1;overflow-y:auto;padding:14px;background:#f7f6f2;display:flex;flex-direction:column;gap:8px}
+    #gcw-messages{flex:1;min-height:0;overflow-y:auto;padding:14px;background:#f7f6f2;display:flex;flex-direction:column;gap:8px}
     .gcw-row{display:flex;gap:6px;align-items:flex-end;width:100%}
     .gcw-row>div:last-child{max-width:78%;width:max-content;display:flex;flex-direction:column}
     .gcw-row.mine{flex-direction:row-reverse}
@@ -204,18 +204,33 @@
     threadOpen = true;
     if (!panelOpen) togglePanel();
     document.getElementById('gcw-thread').classList.add('open');
+    // The list is a normal (always-rendered) flex child of #gcw-panel — if
+    // it isn't hidden here, it keeps sharing flex space with the thread,
+    // which is what was squeezing the input bar off-screen as messages grew.
+    document.getElementById('gcw-list').style.display = 'none';
     document.getElementById('gcw-thread-name').textContent = convo.sellerName;
-    document.getElementById('gcw-thread-link').href = `listing.html?id=${listingId}`;
+    // href is set below once we know the listing's public-facing number —
+    // linking with the raw UUID here is what caused "listing not found".
+    document.getElementById('gcw-thread-link').href = '#';
     document.getElementById('gcw-messages').innerHTML =
       '<div style="text-align:center;font-size:12px;color:#888780;padding:16px">Loading messages…</div>';
 
-    const { data, error } = await gdb.from('messages').select('*')
-      .eq('listing_id', listingId).eq('buyer_token', buyerToken)
-      .order('created_at', { ascending: true });
+    const [{ data, error }, { data: listingRow }] = await Promise.all([
+      gdb.from('messages').select('*')
+        .eq('listing_id', listingId).eq('buyer_token', buyerToken)
+        .order('created_at', { ascending: true }),
+      gdb.from('listings').select('listing_number').eq('id', listingId).single()
+    ]);
 
     // Guard against a race: only apply results if the user hasn't since
     // navigated to a different thread while this fetch was in flight.
     if (activeListingId !== listingId) return;
+
+    // listing.html's URL param is the zero-padded listing_number, not the UUID
+    if (listingRow?.listing_number != null) {
+      document.getElementById('gcw-thread-link').href =
+        `listing.html?id=${String(listingRow.listing_number).padStart(6, '0')}`;
+    }
 
     if (!error) {
       activeMessages = data || [];
@@ -238,6 +253,7 @@
     activeBuyerToken = null;
     activeMessages = [];
     document.getElementById('gcw-thread').classList.remove('open');
+    document.getElementById('gcw-list').style.display = 'block';
   }
 
   function renderThread() {
