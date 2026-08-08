@@ -3711,12 +3711,34 @@ async function toggleReviewPublish(id, isCurrentlyPublished) {
     URL.revokeObjectURL(url);
   }
   async function exportListingsCSV() {
-    const {data} = await db.from('listings').select('id,title,county,area,category,price,price_min,price_max,is_multi_unit,total_units,status,payment_status,is_featured,created_at');
-    exportCSV(data||[], `nyumba254-listings-${Date.now()}.csv`);
+    const {data} = await db.from('listings').select('id,listing_number,title,county,area,category,price,price_min,price_max,is_multi_unit,total_units,status,payment_status,is_featured,created_at');
+    // Put the human-facing listing_number first, keep the UUID (id) further
+    // right for anyone who specifically needs it — e.g. to cross-reference
+    // with a Supabase table editor.
+    const rows = (data||[]).map(({ id, listing_number, ...rest }) => ({
+      listing_number: listing_number != null ? String(listing_number).padStart(6,'0') : '',
+      ...rest,
+      id,
+    }));
+    exportCSV(rows, `nyumba254-listings-${Date.now()}.csv`);
   }
   async function exportPaymentsCSV() {
-    const {data} = await db.from('payments').select('id,listing_id,amount,method,reference,status,created_at');
-    exportCSV(data||[], `nyumba254-payments-${Date.now()}.csv`);
+    // Pull the linked listing's listing_number alongside the raw
+    // listing_id FK — payments.listing_id is a UUID by design (it's a
+    // foreign key), but a human reading the CSV needs the same
+    // listing_number shown everywhere else on the site.
+    const {data} = await db.from('payments').select('id,listing_id,amount,method,reference,status,created_at,listings(listing_number)');
+    const rows = (data||[]).map(({ listings, ...p }) => ({
+      id: p.id,
+      listing_number: listings?.listing_number != null ? String(listings.listing_number).padStart(6,'0') : '',
+      listing_id: p.listing_id,
+      amount: p.amount,
+      method: p.method,
+      reference: p.reference,
+      status: p.status,
+      created_at: p.created_at,
+    }));
+    exportCSV(rows, `nyumba254-payments-${Date.now()}.csv`);
   }
   async function exportUsersCSV() {
     const {data} = await db.from('profiles').select('id,full_name,email,phone,role,is_disabled,created_at');
