@@ -5,6 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Listing — Nyumba254</title>
   <meta name="description" content="View apartment listing details on Nyumba254 — photos, specs, price, and contact the seller directly."/>
+  <meta property="og:type" content="website"/>
+  <meta property="og:title" id="og-title" content="Nyumba254 listing"/>
+  <meta property="og:description" id="og-description" content="View apartment listing details on Nyumba254."/>
+  <meta property="og:image" id="og-image" content=""/>
+  <meta property="og:url" id="og-url" content=""/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -525,6 +530,17 @@
     #nk-chat-widget-send { width:36px; height:36px; border-radius:50%; background:var(--green); color:white; display:flex; align-items:center; justify-content:center; border:none; cursor:pointer; flex-shrink:0; transition:background .15s; }
     #nk-chat-widget-send:hover { background:var(--green-dark); }
     @media(max-width:480px) { #nk-chat-widget-panel { right:16px; bottom:88px; width:calc(100vw - 32px); } #nk-chat-widget-btn { right:16px; bottom:16px; } }
+
+    @media print {
+      nav, .breadcrumb, .mobile-nav, .action-row, footer,
+      #nk-chat-widget-btn, #nk-chat-widget-panel, #nk-review-banner,
+      .nk-review-modal-overlay, #nk-lightbox, .contact-btns, #enquiry-form,
+      .report-scam-btn, .similar-section, .gallery-thumbs, .gallery-arrow {
+        display: none !important;
+      }
+      body { background: white; }
+      .contact-card { position: static; border: none; }
+    }
   </style>
 </head>
 <body>
@@ -585,6 +601,14 @@
     <h2>Listing not found</h2>
     <p>This listing may have been removed or the link is incorrect.</p>
     <a href="listings.html" class="btn-primary" style="display:inline-flex;margin:0 auto">Browse all listings</a>
+  </div>
+
+  <!-- LOAD ERROR (network/unexpected failure — distinct from a genuine 404) -->
+  <div class="not-found" id="load-error" style="display:none">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    <h2>Couldn't load this listing</h2>
+    <p>Something went wrong on our end. Please check your connection and try again.</p>
+    <button class="btn-primary" style="display:inline-flex;margin:0 auto" onclick="location.reload()">Retry</button>
   </div>
 
   <!-- SELLER-PRIVATE DISABLED VIEW -->
@@ -678,7 +702,7 @@
             <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
             Share on WhatsApp
           </button>
-          <button class="action-pill" onclick="copyLink()">
+           <button class="action-pill" onclick="copyLink(event)">
             <svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
             Copy link
           </button>
@@ -851,7 +875,7 @@
             </div>
             <div class="field">
               <label>Message</label>
-              <textarea id="enq-message" rows="3" placeholder="Hi, I'm interested in this apartment. Is it still available?"></textarea>
+              <textarea id="enq-message" rows="3" maxlength="1000" placeholder="Hi, I'm interested in this apartment. Is it still available?"></textarea>
               <div class="field-error" id="err-enq-msg">Please enter a message</div>
             </div>
             <button class="btn-enquire" id="btn-enquire" onclick="sendEnquiry()">
@@ -871,7 +895,7 @@
             </div>
             <h4>Message sent!</h4>
             <p>The seller will reply here and may also contact you on your phone. Check back on this page to see their reply.</p>
-            <button onclick="NKGlobalChat.registerAndOpen(listingId)" style="margin-top:8px;font-size:13px;color:var(--green);background:none;border:none;cursor:pointer;font-weight:500">View conversation →</button>
+            <button onclick="if (typeof NKGlobalChat !== 'undefined') NKGlobalChat.registerAndOpen(listingId)" style="margin-top:8px;font-size:13px;color:var(--green);background:none;border:none;cursor:pointer;font-weight:500">View conversation →</button>
           </div>
 
           <!-- Conversation card (shown on RETURN visits, once a buyer already
@@ -883,7 +907,7 @@
             </div>
             <h4>You have an ongoing conversation</h4>
             <p>Continue chatting with the seller in the chat window.</p>
-            <button onclick="NKGlobalChat.registerAndOpen(listingId)" style="margin-top:8px;font-size:13px;color:var(--green);background:none;border:none;cursor:pointer;font-weight:500">View conversation →</button>
+            <button onclick="if (typeof NKGlobalChat !== 'undefined') NKGlobalChat.registerAndOpen(listingId)" style="margin-top:8px;font-size:13px;color:var(--green);background:none;border:none;cursor:pointer;font-weight:500">View conversation →</button>
             <button onclick="clearThread()" style="margin-top:10px;font-size:12px;color:var(--text-3);background:none;border:none;cursor:pointer;display:block;margin-left:auto;margin-right:auto">Start new enquiry</button>
           </div>
 
@@ -901,8 +925,8 @@
                 <div style="text-align:center;font-size:12px;color:var(--text-3);padding:16px">Loading messages…</div>
               </div>
               <div class="chat-input-row">
-                <textarea id="chat-follow-input" placeholder="Send a follow-up message…" rows="1" oninput="autoResizeTa(this)" onkeydown="handleFollowKeydown(event)"></textarea>
-                <button class="chat-send" id="chat-follow-send" onclick="sendFollowUp()">
+                <textarea id="chat-follow-input" placeholder="Send a follow-up message…" rows="1" maxlength="1000" oninput="autoResizeTa(this)" onkeydown="handleFollowKeydown(event)"></textarea>
+              <button class="chat-send" id="chat-follow-send" onclick="sendFollowUp()" aria-label="Send message">
                   <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
                 </button>
               </div>
@@ -969,7 +993,7 @@
       </div>
     </div>
     <div class="footer-bottom">
-      <p>© 2025 Nyumba254. All rights reserved.</p>
+      <p>© <span id="footer-year">2025</span> Nyumba254. All rights reserved.</p>
       <p>Kisumu · Nairobi · Mombasa · Kenya</p>
     </div>
   </div>
@@ -1001,7 +1025,7 @@
         Post anonymously instead
       </label>
     </div>
-    <textarea id="nk-seller-review-text" placeholder="What went well, or what should other buyers know? (optional)"></textarea>
+    <textarea id="nk-seller-review-text" maxlength="1000" placeholder="What went well, or what should other buyers know? (optional)"></textarea>
     <div class="nk-modal-actions">
       <button class="nk-btn-cancel" onclick="nkCloseReviewModal('nk-seller-review-modal')">Skip</button>
       <button class="nk-btn-primary" onclick="nkSubmitSellerReview()">Submit review</button>
@@ -1023,7 +1047,7 @@
         Post anonymously instead
       </label>
     </div>
-    <textarea id="nk-platform-review-text" placeholder="Anything we could do better? (optional)"></textarea>
+    <textarea id="nk-platform-review-text" maxlength="1000" placeholder="Anything we could do better? (optional)"></textarea>
     <div class="nk-modal-actions">
       <button class="nk-btn-cancel" onclick="nkCloseReviewModal('nk-platform-review-modal')">Skip</button>
       <button class="nk-btn-primary" onclick="nkSubmitPlatformReview()">Submit review</button>
@@ -1044,7 +1068,7 @@
       <option value="offensive">Offensive or inappropriate content</option>
       <option value="other">Something else</option>
     </select>
-    <textarea id="nk-report-details" placeholder="Give us a few details…"></textarea>
+    <textarea id="nk-report-details" maxlength="1000" placeholder="Give us a few details…"></textarea>
     <div class="nk-modal-actions">
       <button class="nk-btn-cancel" onclick="nkCloseReportModal()">Cancel</button>
       <button class="nk-btn-primary" onclick="nkSubmitReport()">Send report</button>
@@ -1204,66 +1228,89 @@ let sellerPhoneRaw   = null;
 let contactRevealed  = false;
 let contactRevealBusy = false;
 
+/* Safe localStorage wrappers — private browsing / storage-disabled
+   browsers throw on getItem/setItem instead of failing quietly. */
+function nkLSGet(key) { try { return localStorage.getItem(key); } catch(e) { return null; } }
+function nkLSSet(key, val) { try { localStorage.setItem(key, val); return true; } catch(e) { return false; } }
+function nkLSRemove(key) { try { localStorage.removeItem(key); } catch(e) {} }
+
 /* ── Buyer token ── */
-function getBuyerToken()    { return localStorage.getItem('nk_buyer_' + listingId); }
-function setBuyerToken(t)   { localStorage.setItem('nk_buyer_' + listingId, t); localStorage.setItem('nk_buyer_name_' + listingId, buyerName); localStorage.setItem('nk_buyer_phone_' + listingId, buyerPhone); }
-function getSavedBuyerInfo(){ buyerName = localStorage.getItem('nk_buyer_name_' + listingId)||''; buyerPhone = localStorage.getItem('nk_buyer_phone_' + listingId)||''; }
+function getBuyerToken()    { return nkLSGet('nk_buyer_' + listingId); }
+function setBuyerToken(t)   { nkLSSet('nk_buyer_' + listingId, t); nkLSSet('nk_buyer_name_' + listingId, buyerName); nkLSSet('nk_buyer_phone_' + listingId, buyerPhone); }
+function getSavedBuyerInfo(){ buyerName = nkLSGet('nk_buyer_name_' + listingId)||''; buyerPhone = nkLSGet('nk_buyer_phone_' + listingId)||''; }
 
 /* ════════════════════════════════════════════════════
    MAIN LOADER
 ════════════════════════════════════════════════════ */
+function showLoadError() {
+  document.getElementById('skeleton-wrap').style.display = 'none';
+  document.getElementById('load-error').style.display = 'block';
+  document.getElementById('breadcrumb-area').textContent = 'Error';
+}
+
 async function loadListing() {
   if (!listingNumber || !/^\d+$/.test(listingNumber)) { showNotFound(); return; }
 
-  const { data, error } = await db
-    .from('listings')
-    /* NOTE: profiles(phone) is deliberately NOT selected here. The seller's
-       real number is never shipped to the browser on page load — it is
-       fetched only once a buyer has unlocked contact (see handleContactClick
-       and the CONTACT PROTECTION block near the bottom of this script). This
-       is what stops bots from bulk-scraping every seller's number straight
-       out of the page source or browser memory. Multi-unit properties also
-       pull their listing_units rows here (unit types + live availability). */
-    .select('*, profiles(full_name, created_at), listing_photos(*), listing_units(*)')
-    .eq('listing_number', parseInt(listingNumber, 10))
-    .single();
+  try {
+    const { data, error } = await db
+      .from('listings')
+      /* NOTE: profiles(phone) is deliberately NOT selected here. The seller's
+         real number is never shipped to the browser on page load — it is
+         fetched only once a buyer has unlocked contact (see handleContactClick
+         and the CONTACT PROTECTION block near the bottom of this script). This
+         is what stops bots from bulk-scraping every seller's number straight
+         out of the page source or browser memory. Multi-unit properties also
+         pull their listing_units rows here (unit types + live availability). */
+      .select('*, profiles(full_name, created_at), listing_photos(*), listing_units(*)')
+      .eq('listing_number', parseInt(listingNumber, 10))
+      .single();
 
-  if (error || !data) { showNotFound(); return; }
-  listing = data;
-  listingId = data.id; // real uuid — everything else in this file (messages, photos, RPCs) uses this
-  listingUnits = (data.listing_units || []).sort((a,b) => (a.id||0) - (b.id||0));
+    if (error) {
+      // PGRST116 = no row found — a genuine 404, not a failure
+      if (error.code === 'PGRST116') { showNotFound(); } else { showLoadError(); }
+      return;
+    }
+    if (!data) { showNotFound(); return; }
 
-  const isFullyActive = (data.status === 'active') && !data.is_disabled && !data.recycle_bin;
+    listing = data;
+    listingId = data.id; // real uuid — everything else in this file (messages, photos, RPCs) uses this
+    listingUnits = (data.listing_units || []).sort((a,b) => (a.id||0) - (b.id||0));
 
-  // Determine viewer identity once, up front — used both for the
-  // disabled-listing gate below and for the seller "Manage units" panel.
-  const { data: { session } } = await db.auth.getSession();
-  const viewerUserId = session?.user?.id || null;
-  isListingOwner = !!viewerUserId && (data.seller_id === viewerUserId);
+    const isFullyActive = (data.status === 'active') && !data.is_disabled && !data.recycle_bin;
 
-  if (isFullyActive) {
-    trackView(data);   // ← handles one-per-device atomically
-    renderListing(data);
-    renderLiveMap(data);
-    loadSimilar(data.area, data.id);
-    handleBuyerThread(data);
-    loadSellerReviewStats(data.seller_id);   // ★ seller rating summary
-    nkCheckReviewPrompt(data.id);            // ★ "did you secure this property?" prompt
-    nkUpdateReportButtonState(data.id);      // ★ show "Reported ✓" if already flagged from this browser
-    if (isListingOwner) renderManageUnitsPanel();
-    return;
+    // Determine viewer identity once, up front — used both for the
+    // disabled-listing gate below and for the seller "Manage units" panel.
+    const { data: { session } } = await db.auth.getSession();
+    const viewerUserId = session?.user?.id || null;
+    isListingOwner = !!viewerUserId && (data.seller_id === viewerUserId);
+
+    if (isFullyActive) {
+      trackView(data);   // ← handles one-per-device atomically
+      renderListing(data);
+      renderLiveMap(data);
+      loadSimilar(data.area, data.id);
+      handleBuyerThread(data);
+      loadSellerReviewStats(data.seller_id);   // ★ seller rating summary
+      nkCheckReviewPrompt(data.id);            // ★ "did you secure this property?" prompt
+      nkUpdateReportButtonState(data.id);      // ★ show "Reported ✓" if already flagged from this browser
+      if (isListingOwner) renderManageUnitsPanel();
+      return;
+    }
+
+    /* Disabled/recycled/pending — check if seller or admin */
+    let isOwner = isListingOwner, isAdmin = false;
+
+    if (viewerUserId && !isOwner) {
+      const { data: profile } = await db.from('profiles').select('role').eq('id', viewerUserId).single();
+      isAdmin = (profile?.role === 'admin');
+    }
+
+    if (isOwner || isAdmin) showSellerDisabledView(data);
+    else showNotFound();
+  } catch (e) {
+    console.error('loadListing failed:', e);
+    showLoadError();
   }
-
-  /* Disabled/recycled/pending — check if seller or admin */
-  let isOwner = isListingOwner, isAdmin = false;
-
-  if (viewerUserId && !isOwner) {
-    const { data: profile } = await db.from('profiles').select('role').eq('id', viewerUserId).single();
-    isAdmin = (profile?.role === 'admin');
-  }
-
-  if (isOwner || isAdmin) showSellerDisabledView(data);
-  else showNotFound();
 }
 
 /* ════════════════════════════════════════════════════
@@ -1285,11 +1332,11 @@ async function loadListing() {
 ════════════════════════════════════════════════════ */
 async function trackView(data) {
   const viewedKey = 'nk_viewed_' + listingId;
-  const alreadyCounted = !!localStorage.getItem(viewedKey);
+  const alreadyCounted = !!nkLSGet(viewedKey);
 
   if (!alreadyCounted) {
     /* Mark immediately to block any race (second tab, double load) */
-    localStorage.setItem(viewedKey, '1');
+    nkLSSet(viewedKey, '1');
 
     /* Atomic server-side increment via RPC */
     const { data: newCount, error } = await db.rpc('increment_listing_views', {
@@ -1378,7 +1425,7 @@ async function handleBuyerThread(data) {
     getSavedBuyerInfo();
     document.getElementById('enquiry-form').style.display = 'none';
     await showConversationCard();   // wait for threadMessages to actually load first
-    NKGlobalChat.refresh();
+    if (typeof NKGlobalChat !== 'undefined') NKGlobalChat.refresh();
   } else {
     document.getElementById('enq-message').value =
       `Hello, I'm interested in "${data.title}". Is it still available?`;
@@ -1387,8 +1434,13 @@ async function handleBuyerThread(data) {
 
 function renderListing(l) {
   document.title = `${l.title} — Nyumba254`;
-  document.querySelector('meta[name="description"]').setAttribute('content',
-    `${l.title} in ${l.area}, ${nkListingCounty(l)}. ${l.price_type==='rent'?'KES '+Number(l.price).toLocaleString()+'/month rent':'For sale at KES '+Number(l.price).toLocaleString()}. Contact seller on Nyumba254.`);
+  const ogDesc = `${l.title} in ${l.area}, ${nkListingCounty(l)}. ${l.price_type==='rent'?'KES '+Number(l.price).toLocaleString()+'/month rent':'For sale at KES '+Number(l.price).toLocaleString()}. Contact seller on Nyumba254.`;
+  document.querySelector('meta[name="description"]').setAttribute('content', ogDesc);
+  document.getElementById('og-title').setAttribute('content', `${l.title} — Nyumba254`);
+  document.getElementById('og-description').setAttribute('content', ogDesc);
+  document.getElementById('og-url').setAttribute('content', window.location.href);
+  const ogCover = (l.listing_photos||[]).find(p=>p.is_cover) || (l.listing_photos||[])[0];
+  if (ogCover) document.getElementById('og-image').setAttribute('content', ogCover.url);
 
   document.getElementById('breadcrumb-area').textContent = `${nkListingCounty(l)} · ${l.area}`;
 
@@ -1624,24 +1676,25 @@ function toggleOccupyForm(unitTypeId) {
 }
 
 async function confirmMarkOccupied(unitTypeId) {
-  const floor  = document.getElementById(`occ-floor-${unitTypeId}`).value.trim() || null;
-  const door   = document.getElementById(`occ-door-${unitTypeId}`).value.trim() || null;
-  const pos    = document.getElementById(`occ-pos-${unitTypeId}`).value || null;
+  const floor = document.getElementById(`occ-floor-${unitTypeId}`).value.trim() || null;
+  const door  = document.getElementById(`occ-door-${unitTypeId}`).value.trim() || null;
+  const pos   = document.getElementById(`occ-pos-${unitTypeId}`).value || null;
 
   const unit = listingUnits.find(u => u.id === unitTypeId);
   if (!unit || (unit.quantity_available ?? 0) <= 0) return;
 
-  const newAvailable = unit.quantity_available - 1;
-  const { error } = await db.from('listing_units').update({ quantity_available: newAvailable }).eq('id', unitTypeId);
-  if (error) { showToastNK('Could not update unit availability — please try again.'); return; }
+  const btn = document.querySelector(`#manage-unit-${unitTypeId} .btn-confirm-occupy`);
+  if (btn) btn.disabled = true;
 
-  // Best-effort audit log — safe to fail silently if this table doesn't exist yet
-  try {
-    await db.from('unit_occupancy_log').insert({
-      listing_unit_id: unitTypeId, listing_id: listingId,
-      floor, door_number: door, position: pos, action: 'occupied'
-    });
-  } catch(e) { /* table may not exist yet — the availability update above already succeeded */ }
+  const { data: newAvailable, error } = await db.rpc('mark_unit_occupied', {
+    p_unit_id: unitTypeId, p_floor: floor, p_door: door, p_position: pos
+  });
+
+  if (btn) btn.disabled = false;
+  if (error || newAvailable === null) {
+    showToastNK('Could not update unit availability — please try again.');
+    return;
+  }
 
   unit.quantity_available = newAvailable;
   toggleOccupyForm(unitTypeId);
@@ -1656,15 +1709,11 @@ async function markUnitAvailable(unitTypeId) {
   const total = unit.quantity_total ?? unit.quantity_available;
   if ((unit.quantity_available ?? 0) >= total) return;
 
-  const newAvailable = unit.quantity_available + 1;
-  const { error } = await db.from('listing_units').update({ quantity_available: newAvailable }).eq('id', unitTypeId);
-  if (error) { showToastNK('Could not update unit availability — please try again.'); return; }
-
-  try {
-    await db.from('unit_occupancy_log').insert({
-      listing_unit_id: unitTypeId, listing_id: listingId, action: 'freed'
-    });
-  } catch(e) { /* optional audit table */ }
+  const { data: newAvailable, error } = await db.rpc('mark_unit_available', { p_unit_id: unitTypeId });
+  if (error || newAvailable === null) {
+    showToastNK('Could not update unit availability — please try again.');
+    return;
+  }
 
   unit.quantity_available = newAvailable;
   renderManageUnitRows();
@@ -1753,6 +1802,7 @@ function renderGallery() {
 
   noPhoto.style.display = 'none';
   img.style.display = 'block';
+  img.onerror = () => { noPhoto.style.display='flex'; img.style.display='none'; };
   img.src = photos[currentPhoto].url;
   img.alt = listing?.title || 'Apartment photo';
 
@@ -1788,11 +1838,20 @@ function renderGallery() {
 function changePhoto(dir) { currentPhoto=(currentPhoto+dir+photos.length)%photos.length; renderGallery(); if (document.getElementById('nk-lightbox').classList.contains('open')) renderLightbox(); }
 function goPhoto(i) { currentPhoto=i; renderGallery(); }
 document.addEventListener('keydown', e => {
+  const tag = document.activeElement?.tagName;
   const lbOpen = document.getElementById('nk-lightbox').classList.contains('open');
+
+  if (e.key === 'Escape') {
+    if (lbOpen) { closeLightbox(); return; }
+    const openModal = document.querySelector('.nk-review-modal-overlay.open');
+    if (openModal) { openModal.classList.remove('open'); return; }
+  }
+
+  if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+
   if (lbOpen) {
     if (e.key==='ArrowLeft')  lightboxChange(-1);
     if (e.key==='ArrowRight') lightboxChange(1);
-    if (e.key==='Escape')     closeLightbox();
     return;
   }
   if (e.key==='ArrowLeft')  changePhoto(-1);
@@ -1830,6 +1889,7 @@ function lightboxChange(dir) {
 
 function renderLightbox() {
   const img = document.getElementById('nk-lightbox-img');
+  img.onerror = () => showToastNK('This photo failed to load.');
   img.src = photos[currentPhoto].url;
   img.alt = listing?.title || 'Apartment photo';
   const multi = photos.length > 1;
@@ -1914,7 +1974,7 @@ async function sendEnquiry() {
   const token = (crypto.randomUUID ? crypto.randomUUID() : Date.now()+'-'+Math.random().toString(36).slice(2));
   buyerToken = token; buyerName = name; buyerPhone = phone;
 
-  await db.from('enquiries').insert({
+ const { error: enqErr } = await db.from('enquiries').insert({
     listing_id: listingId, buyer_name: name, buyer_phone: phone,
     buyer_email: email||null, buyer_token: token, message
   });
@@ -1925,7 +1985,7 @@ async function sendEnquiry() {
   }).select().single();
 
   btn.disabled = false; btn.classList.remove('loading');
-  if (msgErr) { alert('Something went wrong. Please try calling the seller directly.'); return; }
+  if (enqErr || msgErr) { alert('Something went wrong. Please try calling the seller directly.'); return; }
 
   setBuyerToken(token);
 
@@ -1941,7 +2001,7 @@ async function sendEnquiry() {
 
   document.getElementById('enquiry-form').style.display   = 'none';
   document.getElementById('enquiry-success').style.display = 'block';
-  NKGlobalChat.registerAndOpen(listingId);
+  if (typeof NKGlobalChat !== 'undefined') NKGlobalChat.registerAndOpen(listingId);
 }
 
 /* Shown on return visits when a buyer already has an open thread. Unlike
@@ -2021,9 +2081,9 @@ async function sendFollowUp() {
 
 function clearThread() {
   if (!confirm('This will clear your conversation history from this device. The seller will still have the messages. Continue?')) return;
-  localStorage.removeItem('nk_buyer_' + listingId);
-  localStorage.removeItem('nk_buyer_name_' + listingId);
-  localStorage.removeItem('nk_buyer_phone_' + listingId);
+  nkLSRemove('nk_buyer_' + listingId);
+  nkLSRemove('nk_buyer_name_' + listingId);
+  nkLSRemove('nk_buyer_phone_' + listingId);
   buyerToken = null; buyerName = ''; buyerPhone = '';
   document.getElementById('thread-section').style.display     = 'none';
   document.getElementById('conversation-card').style.display  = 'none';
@@ -2031,9 +2091,9 @@ function clearThread() {
   document.getElementById('enquiry-form').style.display       = 'block';
   document.getElementById('enq-message').value = `Hello, I'm interested in "${listing?.title}". Is it still available?`;
 
-  /* Reset conversation state so a fresh enquiry doesn't show the old thread */
+ /* Reset conversation state so a fresh enquiry doesn't show the old thread */
   threadMessages = [];
-  NKGlobalChat.refresh();
+  if (typeof NKGlobalChat !== 'undefined') NKGlobalChat.refresh();
 }
 
 function handleFollowKeydown(e) { if (e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendFollowUp(); } }
@@ -2104,6 +2164,9 @@ async function handleContactClick(channel) {
 
       sellerPhoneRaw  = phone;
       contactRevealed = true;
+    } catch (e) {
+      console.error('reveal_seller_contact threw:', e);
+      showToastNK('Contact is temporarily unavailable — please try again shortly, or send a message below.');
     } finally {
       contactRevealBusy = false;
       callBtn.disabled = false; waBtn.disabled = false;
@@ -2115,7 +2178,7 @@ async function handleContactClick(channel) {
   if (channel === 'call') {
     window.location.href = `tel:${sellerPhoneRaw.replace(/\s/g,'')}`;
   } else {
-    window.open(nkBuildWaLink(sellerPhoneRaw), '_blank');
+    window.open(nkBuildWaLink(sellerPhoneRaw), '_blank', 'noopener,noreferrer');
   }
 }
 
@@ -2139,12 +2202,12 @@ function shareWhatsApp() {
   const url   = window.location.href;
   const title = listing?.title || 'Apartment listing';
   const price = listing ? `KES ${Number(listing.price).toLocaleString('en-KE')}${listing.price_type==='rent'?'/month':''}` : '';
-  window.open(`https://wa.me/?text=${encodeURIComponent(`🏠 *${title}*\n📍 ${listing?.area||''}, ${listing ? nkListingCounty(listing) : 'Kenya'}\n💰 ${price}\n\nView on Nyumba254: ${url}`)}`, '_blank');
+  window.open(`https://wa.me/?text=${encodeURIComponent(`🏠 *${title}*\n📍 ${listing?.area||''}, ${listing ? nkListingCounty(listing) : 'Kenya'}\n💰 ${price}\n\nView on Nyumba254: ${url}`)}`, '_blank', 'noopener,noreferrer');
 }
 
-function copyLink() {
+function copyLink(evt) {
   navigator.clipboard.writeText(window.location.href).then(() => {
-    const btn = event.target.closest('.action-pill');
+    const btn = evt.target.closest('.action-pill');
     const orig = btn.innerHTML;
     btn.innerHTML = `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Copied!`;
     btn.style.borderColor='var(--green)'; btn.style.color='var(--green)';
@@ -2178,8 +2241,8 @@ const balconyIcon = `<svg viewBox="0 0 24 24"><rect x="3" y="10" width="18" heig
 /* Stable per-browser id, shared by page-view tracking and the contact
    rate-limiter below — same nk_sid key/behavior as before, just callable. */
 function nkGetDeviceId() {
-  let sid = localStorage.getItem('nk_sid');
-  if (!sid) { sid=(crypto.randomUUID?crypto.randomUUID():Date.now()+'-'+Math.random().toString(36).slice(2)); localStorage.setItem('nk_sid',sid); }
+  let sid = nkLSGet('nk_sid');
+  if (!sid) { sid=(crypto.randomUUID?crypto.randomUUID():Date.now()+'-'+Math.random().toString(36).slice(2)); nkLSSet('nk_sid',sid); }
   return sid;
 }
 
@@ -2238,17 +2301,17 @@ let nkReviewRecheckTimer  = null;
 
 function nkTrackContact(lId, sellerId, sellerName) {
   if (!lId) return;
-  const pending = JSON.parse(localStorage.getItem(NK_REVIEW_PENDING_KEY) || '[]');
+  const pending = JSON.parse(nkLSGet(NK_REVIEW_PENDING_KEY) || '[]');
   if (!pending.some(p => p.listingId === lId)) {
     pending.push({ listingId: lId, sellerId, sellerName, contactedAt: Date.now(), snoozedUntil: 0, done: false, visitCount: 0 });
-    localStorage.setItem(NK_REVIEW_PENDING_KEY, JSON.stringify(pending));
+    nkLSSet(NK_REVIEW_PENDING_KEY, JSON.stringify(pending));
   }
 }
 
 // Counts a page open toward the "visited 5+ times" eligibility path —
 // only for listings that already have an active conversation.
 function nkRecordListingVisit(lId) {
-  const pending = JSON.parse(localStorage.getItem(NK_REVIEW_PENDING_KEY) || '[]');
+  const pending = JSON.parse(nkLSGet(NK_REVIEW_PENDING_KEY) || '[]');
   const e = pending.find(p => p.listingId === lId && !p.done);
   if (!e) return;
   e.visitCount = (e.visitCount || 0) + 1;
@@ -2283,16 +2346,16 @@ function nkCheckReviewPrompt(currentListingId) {
 
   // Requires proof the conversation/widget actually exists for THIS
   // exact listing — the buyer must have an active token for it.
-  if (!localStorage.getItem('nk_buyer_' + currentListingId)) return;
+  if (!nkLSGet('nk_buyer_' + currentListingId)) return;
 
-  const pending = JSON.parse(localStorage.getItem(NK_REVIEW_PENDING_KEY) || '[]');
+  const pending = JSON.parse(nkLSGet(NK_REVIEW_PENDING_KEY) || '[]');
   const entry = pending.find(p => p.listingId === currentListingId && !p.done);
   if (!entry) return; // no tracked conversation for this listing — nothing to show, ever
 
   nkRecordListingVisit(currentListingId);
 
   // Re-read after recording the visit so visitCount reflects this load.
-  const freshPending = JSON.parse(localStorage.getItem(NK_REVIEW_PENDING_KEY) || '[]');
+  const freshPending = JSON.parse(nkLSGet(NK_REVIEW_PENDING_KEY) || '[]');
   const freshEntry = freshPending.find(p => p.listingId === currentListingId && !p.done);
   if (!freshEntry || !nkEntryEligible(freshEntry)) {
     nkScheduleReviewRecheck(currentListingId);
@@ -2315,12 +2378,12 @@ function nkScheduleReviewRecheck(currentListingId) {
   }, delay);
 }
 
-function nkSavePending(pending) { localStorage.setItem(NK_REVIEW_PENDING_KEY, JSON.stringify(pending)); }
+function nkSavePending(pending) { nkLSSet(NK_REVIEW_PENDING_KEY, JSON.stringify(pending)); }
 function nkDismissBanner() { document.getElementById('nk-review-banner').classList.remove('show'); }
 
 function nkSnoozeCurrentEntry() {
   if (!nkCurrentPendingEntry) return;
-  const pending = JSON.parse(localStorage.getItem(NK_REVIEW_PENDING_KEY) || '[]');
+  const pending = JSON.parse(nkLSGet(NK_REVIEW_PENDING_KEY) || '[]');
   const e = pending.find(p => p.listingId === nkCurrentPendingEntry.listingId);
   if (e) e.snoozedUntil = Date.now() + NK_REVIEW_SNOOZE_MS;
   nkSavePending(pending);
@@ -2343,7 +2406,7 @@ function nkBannerNotYet() {
 }
 
 function nkBannerNo() {
-  const pending = JSON.parse(localStorage.getItem(NK_REVIEW_PENDING_KEY) || '[]');
+  const pending = JSON.parse(nkLSGet(NK_REVIEW_PENDING_KEY) || '[]');
   const e = pending.find(p => p.listingId === nkCurrentPendingEntry.listingId);
   if (e) e.done = true; // no transaction happened — stop asking about this one
   nkSavePending(pending);
@@ -2353,7 +2416,7 @@ function nkBannerNo() {
 function nkRenderStars(containerId, kind) {
   const el = document.getElementById(containerId);
   el.innerHTML = [1,2,3,4,5].map(n =>
-    `<svg class="nk-star" data-n="${n}" viewBox="0 0 24 24" onclick="nkSetStar('${kind}',${n})"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`
+    `<svg class="nk-star" data-n="${n}" viewBox="0 0 24 24" tabindex="0" role="button" aria-label="${n} star${n>1?'s':''}" onclick="nkSetStar('${kind}',${n})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();nkSetStar('${kind}',${n});}"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`
   ).join('');
 }
 
@@ -2385,8 +2448,11 @@ function nkCloseReviewModal(id) {
   if (id === 'nk-seller-review-modal') nkMaybePromptPlatformReview();
 }
 
+let nkSellerReviewSubmitting = false;
 async function nkSubmitSellerReview() {
+  if (nkSellerReviewSubmitting) return;
   if (!nkSellerStarRating) { alert('Please pick a star rating'); return; }
+  nkSellerReviewSubmitting = true;
   const comment    = document.getElementById('nk-seller-review-text').value.trim();
   const isAnon     = document.getElementById('nk-seller-review-anon').checked;
   const typedName  = document.getElementById('nk-seller-review-name').value.trim();
@@ -2403,7 +2469,7 @@ async function nkSubmitSellerReview() {
     comment: comment || null,
   });
 
-  const pending = JSON.parse(localStorage.getItem(NK_REVIEW_PENDING_KEY) || '[]');
+  const pending = JSON.parse(nkLSGet(NK_REVIEW_PENDING_KEY) || '[]');
   const e = pending.find(p => p.listingId === nkCurrentPendingEntry.listingId);
   if (e) e.done = true;
   nkSavePending(pending);
@@ -2413,13 +2479,14 @@ async function nkSubmitSellerReview() {
   document.getElementById('nk-seller-review-name').value = '';
   document.getElementById('nk-seller-review-name').disabled = false;
   document.getElementById('nk-seller-review-anon').checked = false;
-  nkSellerStarRating = 0;
+   nkSellerStarRating = 0;
+  nkSellerReviewSubmitting = false;
   loadSellerReviewStats(nkCurrentPendingEntry.sellerId); // refresh the visible average immediately
   nkMaybePromptPlatformReview();
 }
 
 function nkMaybePromptPlatformReview() {
-  if (localStorage.getItem(NK_PLATFORM_REVIEW_KEY)) return; // ask at most once, ever
+  if (nkLSGet(NK_PLATFORM_REVIEW_KEY)) return; // ask at most once, ever
   nkPlatformStarRating = 0;
   nkRenderStars('nk-platform-stars', 'platform');
   const nameInput = document.getElementById('nk-platform-review-name');
@@ -2429,8 +2496,11 @@ function nkMaybePromptPlatformReview() {
   setTimeout(() => document.getElementById('nk-platform-review-modal').classList.add('open'), 400);
 }
 
+let nkPlatformReviewSubmitting = false;
 async function nkSubmitPlatformReview() {
+  if (nkPlatformReviewSubmitting) return;
   if (!nkPlatformStarRating) { alert('Please pick a star rating'); return; }
+  nkPlatformReviewSubmitting = true;
   const comment    = document.getElementById('nk-platform-review-text').value.trim();
   const isAnon     = document.getElementById('nk-platform-review-anon').checked;
   const typedName  = document.getElementById('nk-platform-review-name').value.trim();
@@ -2445,7 +2515,8 @@ async function nkSubmitPlatformReview() {
     comment: comment || null,
   });
 
-  localStorage.setItem(NK_PLATFORM_REVIEW_KEY, '1');
+  nkLSSet(NK_PLATFORM_REVIEW_KEY, '1');
+  nkPlatformReviewSubmitting = false;
   document.getElementById('nk-platform-review-modal').classList.remove('open');
   document.getElementById('nk-platform-review-text').value = '';
   document.getElementById('nk-platform-review-name').value = '';
@@ -2464,17 +2535,21 @@ function nkCloseReportModal() {
   document.getElementById('nk-report-modal').classList.remove('open');
 }
 
+let nkReportSubmitting = false;
 async function nkSubmitReport() {
+  if (nkReportSubmitting) return;
   const reason  = document.getElementById('nk-report-reason').value;
   const details = document.getElementById('nk-report-details').value.trim();
   if (!reason) { alert('Please select a reason'); return; }
 
+  nkReportSubmitting = true;
   await db.from('reports').insert({
     target_type: nkReportTargetType,
     target_id: nkReportTargetId,
     reason,
     details: details || null,
   });
+  nkReportSubmitting = false;
 
   document.getElementById('nk-report-modal').classList.remove('open');
   document.getElementById('nk-report-reason').value = '';
@@ -2491,13 +2566,13 @@ async function nkSubmitReport() {
    button gives clear feedback instead of inviting repeat spam-clicking. ── */
 function nkMarkListingReported(lId) {
   const key = 'nk_reported_listings';
-  const reported = JSON.parse(localStorage.getItem(key) || '[]');
-  if (!reported.includes(lId)) { reported.push(lId); localStorage.setItem(key, JSON.stringify(reported)); }
+  const reported = JSON.parse(nkLSGet(key) || '[]');
+  if (!reported.includes(lId)) { reported.push(lId); nkLSSet(key, JSON.stringify(reported)); }
   nkUpdateReportButtonState(lId);
 }
 
 function nkUpdateReportButtonState(lId) {
-  const reported = JSON.parse(localStorage.getItem('nk_reported_listings') || '[]');
+  const reported = JSON.parse(nkLSGet('nk_reported_listings') || '[]');
   const btn = document.getElementById('report-scam-btn');
   if (!btn) return;
   if (reported.includes(lId)) {
@@ -2535,7 +2610,8 @@ async function loadSellerReviewStats(sellerId) {
 
 
 
-/* Boot */
+//* Boot */
+document.getElementById('footer-year').textContent = new Date().getFullYear();
 nkPopulateFooterCounties();
 loadListing();
 </script>
